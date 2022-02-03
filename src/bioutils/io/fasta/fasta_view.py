@@ -33,6 +33,7 @@ Highlights: This utility can read all format supported by :py:mod:`ioctl`, while
 
 import os
 from abc import abstractmethod
+from typing import List, Union, Tuple
 
 from commonutils import ioctl, logger
 from commonutils.logger import chronolog
@@ -48,6 +49,8 @@ __all__ = [
 
 __version__ = 0.2
 
+QueryTuple = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
+
 
 class _FastaView:
     """
@@ -55,7 +58,7 @@ class _FastaView:
     """
 
     @abstractmethod
-    def sequence(self, chromosome: str, from_pos: int, to_pos: int) -> str:
+    def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         """
         Get sequence from FASTA with 0-based [) indexes
 
@@ -132,6 +135,28 @@ class _FastaView:
     def __del__(self):
         self.close()
 
+    @abstractmethod
+    def to_file(self, output_filename: str):
+        with ioctl.get_writer(output_filename) as writer:
+            for k in self._chr_dict.keys():
+                fa_str = f">{k}\n{self.sequence(k)}\n"
+                writer.write(fa_str)
+
+    def query(self, query: QueryTuple) -> str:
+        return self.sequence(*query)
+
+    def subset(self, output_filename: str, querys: List[QueryTuple]):
+        with ioctl.get_writer(output_filename) as writer:
+            for query in querys:
+                fa_str = f">{query[0]}\n{self.query(query)}\n"
+                writer.write(fa_str)
+
+    def subset_chr(self, output_filename: str, querys: List[str]):
+        with ioctl.get_writer(output_filename) as writer:
+            for query in querys:
+                fa_str = f">{query}\n{self.sequence(query)}\n"
+                writer.write(fa_str)
+
 
 class _MemoryAccessFastaView(_FastaView):
     """
@@ -178,7 +203,7 @@ class _MemoryAccessFastaView(_FastaView):
                 self._chr_dict[chr_name][0] = len(seq)
                 self._chr_dict[chr_name][2] = line_len
 
-    def sequence(self, chromosome: str, from_pos: int, to_pos: int):
+    def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1):
         self.is_valid_region(chromosome, from_pos, to_pos)
         if to_pos == -1:
             to_pos = self._chr_dict[chromosome][0]
@@ -246,7 +271,7 @@ class _DiskAccessFastaView(_FastaView):
                     self._chr_dict[chr_name][2] = line_len
                 pbar.update(1)
 
-    def sequence(self, chromosome: str, from_pos: int, to_pos: int) -> str:
+    def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
         if to_pos == -1:
             to_pos = self._chr_dict[chromosome][0]

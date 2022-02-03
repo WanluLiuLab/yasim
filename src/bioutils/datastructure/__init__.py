@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Dict
 
+from bioutils.io import fasta
 from bioutils.io.fasta import FastaView
 from bioutils.io.gtf import GtfRecord
 
@@ -29,7 +30,8 @@ class Transcript:
     name: str
     data = None
     seqname: str
-    gene_name:str
+    gene_name: str
+    strand: str
 
     @classmethod
     def from_gtf_record(cls, gtf_record: GtfRecord):
@@ -48,16 +50,19 @@ class Transcript:
             new_instance.gene_name = None
         new_instance.data = gtf_record
         new_instance.exons = []
+        new_instance.strand = gtf_record.strand
         new_instance.seqname = gtf_record.seqname
         return new_instance
 
-    def transcribe(self, fasta_handler: FastaView) -> str:
+    def transcribe_cdna(self, fasta_handler: FastaView) -> str:
         rets = ""
         for exon in self.exons:
             try:
                 rets += fasta_handler.sequence(self.seqname, exon.start - 1, exon.end)
             except ValueError:
                 pass
+        if self.strand == '-':
+            rets = fasta.complement(rets)
         return rets
 
 

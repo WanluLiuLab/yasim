@@ -577,5 +577,7 @@ cmd_profiler*/
 /README
 /TODO
 *.c
-*.pyx
 .idea/
+!requirements.txt
+transcripts_quant/
+*.gvpkl

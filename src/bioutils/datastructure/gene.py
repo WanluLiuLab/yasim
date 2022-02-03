@@ -1,9 +1,12 @@
+import pickle
 from typing import Dict
 
 from bioutils.datastructure import Gene, Transcript, SimpleExon
 from bioutils.io import gtf
 from bioutils.io.gtf import GtfRecord
 from commonutils import ioctl
+from commonutils import pickle_with_tqdm
+from commonutils.tqdm_importer import tqdm
 
 
 class GeneView:
@@ -17,12 +20,17 @@ class GeneView:
             fasta_filename: str = "",
             file_type: str = "gtf"
     ):
+        if ioctl.file_exists(gene_filename + ".gvpkl"):
+            (self.genes, self.transcripts) = pickle_with_tqdm.unpickle_with_tqdm(gene_filename + ".gvpkl")
+            return
         if file_type == "gtf":
             if ioctl.ensure_input_existence(gene_filename):
                 self.gene_filename = gene_filename
                 self.read_gtf()
         else:
             pass
+        if not ioctl.file_exists(gene_filename + ".gvpkl"):
+            pickle.dump((self.genes, self.transcripts), open(gene_filename + ".gvpkl", "wb"))
 
     def read_gtf(self):
         def add_gene(gtf_record: GtfRecord) -> str:
@@ -83,7 +91,7 @@ class GeneView:
 
     def to_file(self, output_filename: str):
         with ioctl.get_writer(output_filename) as writer:
-            for gk, gv in self.genes.items():
+            for gk, gv in tqdm(iterable=self.genes.items(), desc=f"Writing to {output_filename}"):
                 if gv.data is not None and gv.data.feature == "gene":
                     writer.write(str(gv.data) + "\n")
                 for tk, tv in gv.transcripts.items():
