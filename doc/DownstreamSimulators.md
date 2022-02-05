@@ -1,0 +1,130 @@
+# Downstream Simulators
+
+## Next Generation Sequencing
+
+- ART
+  - C++
+  - Roche-454, Illumina, ABI-SOLiD
+  - <https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm>
+  - Huang, W., Li, L., Myers, J. R., & Marth, G. T. (2012). ART: a next-generation sequencing read simulator. Bioinformatics (Oxford, England), 28(4), 593–594. <https://doi.org/10.1093/bioinformatics/btr708>
+- XS
+  - C, GPL V3
+  - Ion Torrent, Roche-454, Illumina, ABI-SOLiD
+  - <https://bioinformatics.ua.pt/software/xs/>
+  - Pratas, D., Pinho, A. J., & Rodrigues, J. M. (2014). XS: a FASTQ read simulator. BMC research notes, 7, 40. <https://doi.org/10.1186/1756-0500-7-40>
+- flowsim
+  - Haskell, GPL
+  - Roche-454
+  - <https://hackage.haskell.org/package/flowsim>
+  - Balzer, S., Malde, K., Lanzén, A., Sharma, A., & Jonassen, I. (2010). Characteristics of 454 pyrosequencing data--enabling realistic simulation with flowsim. Bioinformatics (Oxford, England), 26(18), i420–i425. <https://doi.org/10.1093/bioinformatics/btq365>
+- curesim
+  - Java
+  - Ion Torrent
+  - <http://www.pegase-biosciences.com/curesim-a-customized-read-simulator/>
+  - Caboche, S., Audebert, C., Lemoine, Y., & Hot, D. (2014). Comparison of mapping algorithms used in high-throughput sequencing: application to Ion Torrent data. BMC genomics, 15, 264. <https://doi.org/10.1186/1471-2164-15-264>
+- dwgsim
+  - C
+  - Ion Torrent, Illumina and ABI-SOLiD
+  - <https://github.com/nh13/DWGSIM>
+- wgsim
+  - C
+  - ?
+  - <https://github.com/lh3/wgsim>
+- FASTQSim
+  - Python and Java
+  - \*
+  - <https://sourceforge.net/p/fastqsim>
+  - Shcherbina A. (2014). FASTQSim: platform-independent data characterization and in silico read generation for NGS datasets. BMC research notes, 7, 533. <https://doi.org/10.1186/1756-0500-7-533>
+- Grinder
+  - Perl
+  - \*
+  - <https://sourceforge.net/projects/biogrinder/>
+  - Angly, F. E., Willner, D., Rohwer, F., Hugenholtz, P., & Tyson, G. W. (2012). Grinder: a versatile amplicon and shotgun sequence simulator. Nucleic acids research, 40(12), e94. <https://doi.org/10.1093/nar/gks251>
+- GemSIM
+  - Python
+  - Roche-454, Illumina
+  - <https://sourceforge.net/projects/gemsim>
+  - McElroy, K. E., Luciani, F., & Thomas, T. (2012). GemSIM: general, error-model based simulator of next-generation sequencing data. BMC genomics, 13, 74. <https://doi.org/10.1186/1471-2164-13-74>
+- SimSeq
+  - C
+  - Illumina
+  - <https://github.com/jstjohn/SimSeq>
+- PIRS
+  - C++, Perl
+  - Illumina
+  - <ftp://ftp.genomics.org.cn/pub/pIRS/>
+  - Xuesong Hu, Jianying Yuan, Yujian Shi, Jianliang Lu, Binghang Liu, Zhenyu Li, Yanxiang Chen, Desheng Mu, Hao Zhang, Nan Li, Zhen Yue, Fan Bai, Heng Li, Wei Fan, pIRS: Profile-based Illumina pair-end reads simulator, Bioinformatics, Volume 28, Issue 11, 1 June 2012, Pages 1533–1535, <https://doi.org/10.1093/bioinformatics/bts187>
+- 454sim
+  - C++
+  - Roche-454
+  - <https://sourceforge.net/projects/bioinfo-454sim/>
+  - Lysholm, F., Andersson, B., & Persson, B. (2011). An efficient simulator of 454 data using configurable statistical models. BMC research notes, 4, 449. <https://doi.org/10.1186/1756-0500-4-449>
+
+
+## Third Generation Sequencing
+
+- PaSS
+  - Perl and C
+  - PacBio
+  - <https://cgm.sjtu.edu.cn/PaSS/>
+  - Zhang, W., Jia, B., & Wei, C. (2019). PaSS: a sequencing simulator for PacBio sequencing. BMC bioinformatics, 20(1), 352. <https://doi.org/10.1186/s12859-019-2901-7>
+- pbsim
+  - C
+  - PacBio CLR, PacBio CCS
+  - <https://salsa.debian.org/med-team/pbsim>
+  - Yukiteru Ono, Kiyoshi Asai, Michiaki Hamada, PBSIM: PacBio reads simulator—toward accurate genome assembly, Bioinformatics, Volume 29, Issue 1, January 2013, Pages 119–121, <https://doi.org/10.1093/bioinformatics/bts649>
+- yanosim
+  - Python
+  - Oxford Nanopore
+  - <https://github.com/bartongroup/yanosim>
+- pbsim2
+  - C++
+  - PacBio CLR, Oxford Nanopore
+  - <https://github.com/yukiteruono/pbsim2>
+  - Ono, Y., Asai, K., & Hamada, M. (2021). PBSIM2: a simulator for long-read sequencers with a novel generative model of quality scores. Bioinformatics (Oxford, England), 37(5), 589–595. <https://doi.org/10.1093/bioinformatics/btaa835>
+- badread
+  - Python
+  - PacBio, Oxford Nanpore, named "nanopore2018", "nanopore2020", "pacbio2016"
+  - <https://github.com/rrwick/Badread>
+  - Wick, (2019). Badread: simulation of error-prone long reads. Journal of Open Source Software, 4(36), 1316, <https://doi.org/10.21105/joss.01316>
+- SiLiCo
+  - Python
+  - PacBio, Oxford Nanopore
+  - <https://github.com/ethanagb/SiLiCO>
+  - Baker, E. A. G., Goodwin, S., McCombie, W. R., & Mendivil Ramos, O. (2016). SiLiCO: A Simulator of Long Read Sequencing in PacBio and Oxford Nanopore [Preprint]. Genomics. <https://doi.org/10.1101/076901>
+- loresim2
+  - C++
+  - ?
+  - <https://github.com/gt1/loresim2>
+- NPBSS
+  - Matlab
+  - PacBio CLR, PacBio CCS
+  - <https://github.com/NWPU-903PR/NPBSS_Octave> \& <https://github.com/NWPU-903PR/NPBSS_MATLAB>
+  - Wei, Z. G., & Zhang, S. W. (2018). NPBSS: a new PacBio sequencing simulator for generating the continuous long reads with an empirical model. BMC bioinformatics, 19(1), 177. <https://doi.org/10.1186/s12859-018-2208-0>
+- LongISLND
+  - Java, Python
+  - PacBio P5 and P6 chemistries
+  - <https://github.com/bioinform/longislnd>
+  - Lau, B., Mohiyuddin, M., Mu, J. C., Fang, L. T., Bani Asadi, N., Dallett, C., & Lam, H. Y. (2016). LongISLND: in silico sequencing of lengthy and noisy datatypes. Bioinformatics (Oxford, England), 32(24), 3829–3832. <https://doi.org/10.1093/bioinformatics/btw602>
+- Nanosim
+  - Python, R
+  - Oxford Nanopore MinION
+  - <https://www.bcgsc.ca/resources/software/nanosim> \& <https://github.com/bcgsc/NanoSim>
+  - Yang, C., Chu, J., Warren, R. L., & Birol, I. (2017). NanoSim: nanopore sequence read simulator based on statistical characterization. GigaScience, 6(4), 1–6. <https://doi.org/10.1093/gigascience/gix010>
+  - Hafezqorani, S., Yang, C., Lo, T., Nip, K. M., Warren, R. L., & Birol, I. (2020). Trans-NanoSim characterizes and simulates nanopore RNA-sequencing data. GigaScience, 9(6), giaa061. <https://doi.org/10.1093/gigascience/giaa061>
+- SimLoRD
+  - Python
+  - PacBio CCS
+  - <https://bitbucket.org/genomeinformatics/simlord/src/master/>
+  - Stöcker, B. K., Köster, J., & Rahmann, S. (2016). SimLoRD: Simulation of Long Read Data. Bioinformatics (Oxford, England), 32(17), 2704–2706. <https://doi.org/10.1093/bioinformatics/btw286>
+- DeepSimulator
+  - Python
+  - Oxford Nanopore
+  - <https://github.com/liyu95/DeepSimulator>
+  - Li, Y., Han, R., Bi, C., Li, M., Wang, S., & Gao, X. (2018). DeepSimulator: a deep simulator for Nanopore sequencing. Bioinformatics (Oxford, England), 34(17), 2899–2908. <https://doi.org/10.1093/bioinformatics/bty223>
+  - Li, Y., Wang, S., Bi, C., Qiu, Z., Li, M., & Gao, X. (2020). DeepSimulator1.5: a more powerful, quicker and lighter simulator for Nanopore sequencing. Bioinformatics (Oxford, England), 36(8), 2578–2580. <https://doi.org/10.1093/bioinformatics/btz963>
+- nanopore_simulation
+  - Python
+  - Oxford Nanopore
+  - <https://github.com/crohrandt/nanopore_simulation>
+  - C. Rohrandt et al., "Nanopore SimulatION – a raw data simulator for Nanopore Sequencing," 2018 IEEE International Conference on Bioinformatics and Biomedicine (BIBM), 2018, pp. 1-8, doi: 10.1109/BIBM.2018.8621253.

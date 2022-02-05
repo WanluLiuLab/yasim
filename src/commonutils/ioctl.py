@@ -37,6 +37,7 @@ import lzma
 import os
 import shutil
 import stat
+from typing import IO, Any
 
 from commonutils import logger
 from commonutils.logger import chronolog
@@ -182,35 +183,71 @@ def readlink_f(path: str) -> str:
 
 
 @chronolog(display_time=True)
-def wc_l(path: str) -> int:
+def wc_l(path: str, opener:Any=None) -> int:
     """
     Count lines in a file.
 
     :param path: File path.
     :return: Line number.
     """
-    reti = 0
-    reader = get_reader(path)
-    with reader as f:
-        while f.readline():
-            reti += 1
-    return reti
+    if opener is None:
+        fd = get_reader(path)
+    else:
+        fd=opener(path)
+    return wc_l_io(fd)
 
 
 @chronolog(display_time=True)
-def wc_c(path: str) -> int:
+def wc_c(path: str, opener:Any=None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
     :param path: File to open.
     :return: File length.
     """
-    with open(path) as f:
-        if f.seekable():
-            f.seek(0, 2)
-            return f.tell()
-        else:
-            return -1
+    if opener is None:
+        fd = get_reader(path)
+    else:
+        fd=opener(path)
+    return wc_c_io(fd)
+
+@chronolog(display_time=True)
+def wc_l_io(underlying_fd:IO) -> int:
+    """
+    Count lines in a file.
+
+    :param path: File path.
+    :return: Line number.
+    """
+    if underlying_fd.seekable():
+        curr_pos = underlying_fd.tell()
+    else:
+        return -1
+    reti = 0
+    underlying_fd.seek(0)
+    while underlying_fd.readline():
+        reti += 1
+    underlying_fd.seek(curr_pos)
+    return reti
+
+
+
+@chronolog(display_time=True)
+def wc_c_io(underlying_fd:IO) -> int:
+    """
+    Count the number of chars inside a file, i.e. File length.
+
+    :param path: File to open.
+    :return: File length.
+    """
+    if underlying_fd.seekable():
+        curr_pos = underlying_fd.tell()
+        underlying_fd.seek(0, 2)
+        reti = underlying_fd.tell()
+        underlying_fd.seek(curr_pos)
+        return reti
+    else:
+        return -1
 
 
 @chronolog(display_time=True)

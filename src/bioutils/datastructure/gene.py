@@ -1,3 +1,4 @@
+import os
 import pickle
 from typing import Dict
 
@@ -6,8 +7,11 @@ from bioutils.io import gtf
 from bioutils.io.gtf import GtfRecord
 from commonutils import ioctl
 from commonutils import pickle_with_tqdm
+from commonutils.logger import get_logger
 from commonutils.tqdm_importer import tqdm
 
+
+lh = get_logger(__name__)
 
 class GeneView:
     gene_filename: str
@@ -17,20 +21,23 @@ class GeneView:
     def __init__(
             self,
             gene_filename: str,
-            fasta_filename: str = "",
             file_type: str = "gtf"
     ):
-        if ioctl.file_exists(gene_filename + ".gvpkl"):
-            (self.genes, self.transcripts) = pickle_with_tqdm.unpickle_with_tqdm(gene_filename + ".gvpkl")
-            return
+        index_filename = gene_filename + ".gvpkl.xz"
+        if ioctl.file_exists(index_filename):
+            if os.path.getmtime(index_filename) - os.path.getmtime(gene_filename) > 0:
+                (self.genes, self.transcripts) = pickle_with_tqdm.unpickle_with_tqdm(index_filename)
+                return
+            else:
+                lh.log("Gene index too old, will rebuild one.")
         if file_type == "gtf":
             if ioctl.ensure_input_existence(gene_filename):
                 self.gene_filename = gene_filename
                 self.read_gtf()
         else:
             pass
-        if not ioctl.file_exists(gene_filename + ".gvpkl"):
-            pickle.dump((self.genes, self.transcripts), open(gene_filename + ".gvpkl", "wb"))
+        if not ioctl.file_exists(index_filename):
+            pickle_with_tqdm.dump((self.genes, self.transcripts), index_filename)
 
     def read_gtf(self):
         def add_gene(gtf_record: GtfRecord) -> str:

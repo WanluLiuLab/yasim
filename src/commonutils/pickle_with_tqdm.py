@@ -13,8 +13,9 @@
 """
 pickle_with_tqdm.py -- Unpickle with progress bar
 """
-
+import pickle
 from pickle import Unpickler
+from typing import IO, Any
 
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
@@ -22,14 +23,17 @@ from commonutils.tqdm_importer import tqdm
 __version__ = 0.1
 
 
-class _UnpickleWithTQDM:
+class _tqdm_open:
     """
     The underlying class with standard functions defined.
     """
 
-    def __init__(self, path, **kwargs):
+    def __init__(self, path:str, underlying_opener=None, **kwargs):
         super().__init__()
-        self.fd = open(path, 'rb')
+        if underlying_opener == None:
+            self.fd = ioctl.get_reader(path)
+        else:
+            self.fd = underlying_opener(path, 'rb')
         self.tqdm = tqdm(desc=f"Unpickling {path}", total=ioctl.wc_c(path), **kwargs)
 
     def readline(self):
@@ -57,7 +61,12 @@ def unpickle_with_tqdm(filename: str):
 
     :return: Picked object.
     """
-    with _UnpickleWithTQDM(filename) as pbfd:
+    with _tqdm_open(filename) as pbfd:
         up = Unpickler(pbfd)
         obj = up.load()
     return obj
+
+def dump(obj:Any, filename:str):
+    with ioctl.get_writer(filename) as writer:
+        pickle.dump(obj, writer)
+

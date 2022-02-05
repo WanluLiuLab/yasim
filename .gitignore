@@ -581,3 +581,4 @@ cmd_profiler*/
 !requirements.txt
 transcripts_quant/
 *.gvpkl
+dataset_sc_ngs*/
