@@ -13,7 +13,6 @@
 """
 test_pickle_with_tqdm.py -- Unit test of corresponding module.
 """
-import pickle
 import random
 
 import test_tetgs
@@ -27,7 +26,11 @@ def test_unpickle_with_tqdm():
     for _ in range(1000):
         random_arr.append(random.random())
     pickle_fn = f'{test_path}/rd.pickle'
-    with open(pickle_fn, 'wb') as writer:
-        pickle.dump(random_arr, writer)
-    unpickle_obj = pickle_with_tqdm.unpickle_with_tqdm(pickle_fn)
+    pickle_with_tqdm.dump(random_arr, pickle_fn)
+    unpickle_obj = pickle_with_tqdm.load(pickle_fn)
+    assert unpickle_obj == random_arr
+
+    pickle_fn = f'{test_path}/rd.pickle.xz'
+    pickle_with_tqdm.dump(random_arr, pickle_fn)
+    unpickle_obj = pickle_with_tqdm.load(pickle_fn)
     assert unpickle_obj == random_arr

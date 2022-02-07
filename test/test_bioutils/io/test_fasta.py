@@ -198,3 +198,11 @@ def test_dynamic_asserts() -> None:
     this.close()
     ioctl.rm_rf(f"{test_path}/2.fasta")
     ioctl.rm_rf(f"{test_path}/2.fasta.fai")
+
+
+if __name__ == "__main__":
+    test_rev_compl()
+    test_fasta_class_without_fai_in_mem()
+    test_fasta_class_without_fai_without_mem()
+    test_fasta_class_with_fai_without_mem()
+    test_dynamic_asserts()

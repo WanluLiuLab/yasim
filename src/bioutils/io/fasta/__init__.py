@@ -1,4 +1,4 @@
-from bioutils.io.fasta.fasta_view import FastaView
+from bioutils.io.fasta._fasta_view import FastaView
 
 _comp_trans = str.maketrans('ATCGatcgNnXx', 'TAGCtagcNnXx')
 

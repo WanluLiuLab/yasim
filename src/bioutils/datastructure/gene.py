@@ -1,5 +1,4 @@
 import os
-import pickle
 from typing import Dict
 
 from bioutils.datastructure import Gene, Transcript, SimpleExon
@@ -10,8 +9,8 @@ from commonutils import pickle_with_tqdm
 from commonutils.logger import get_logger
 from commonutils.tqdm_importer import tqdm
 
-
 lh = get_logger(__name__)
+
 
 class GeneView:
     gene_filename: str
@@ -26,8 +25,11 @@ class GeneView:
         index_filename = gene_filename + ".gvpkl.xz"
         if ioctl.file_exists(index_filename):
             if os.path.getmtime(index_filename) - os.path.getmtime(gene_filename) > 0:
-                (self.genes, self.transcripts) = pickle_with_tqdm.unpickle_with_tqdm(index_filename)
-                return
+                try:
+                    (self.genes, self.transcripts) = pickle_with_tqdm.load(index_filename)
+                    return
+                except Exception:
+                    lh.error("Gene index broken, will rebuild one.")
             else:
                 lh.log("Gene index too old, will rebuild one.")
         if file_type == "gtf":
@@ -36,41 +38,39 @@ class GeneView:
                 self.read_gtf()
         else:
             pass
-        if not ioctl.file_exists(index_filename):
-            pickle_with_tqdm.dump((self.genes, self.transcripts), index_filename)
+        pickle_with_tqdm.dump((self.genes, self.transcripts), index_filename)
 
     def read_gtf(self):
-        def add_gene(gtf_record: GtfRecord) -> str:
-            gene_id = gtf_record.attribute['gene_id']
-            if not gene_id in self.genes.keys():
-                self.genes[gene_id] = Gene.from_gtf_record(gtf_record)
+        def add_gene(_gtf_record: GtfRecord) -> str:
+            gene_id = _gtf_record.attribute['gene_id']
+            if gene_id not in self.genes.keys():
+                self.genes[gene_id] = Gene.from_gtf_record(_gtf_record)
             return gene_id
 
-        def add_transcript(gtf_record: GtfRecord) -> str:
-            gene_id = add_gene(gtf_record)
+        def add_transcript(_gtf_record: GtfRecord) -> str:
+            gene_id = add_gene(_gtf_record)
 
             # Try add transcript
-            transcript_id = gtf_record.attribute['transcript_id']
+            transcript_id = _gtf_record.attribute['transcript_id']
             if not transcript_id in self.transcripts.keys():
-                self.transcripts[transcript_id] = Transcript.from_gtf_record(gtf_record)
+                self.transcripts[transcript_id] = Transcript.from_gtf_record(_gtf_record)
             transcript = self.transcripts[transcript_id]
             self.genes[gene_id].transcripts[transcript_id] = transcript
             return transcript_id
 
-        def add_exon(gtf_record: GtfRecord):
-            transcript_id = add_transcript(gtf_record)
+        def add_exon(_gtf_record: GtfRecord):
+            transcript_id = add_transcript(_gtf_record)
 
             # Try add exon
-            exon = SimpleExon.from_gtf_record(gtf_record)
+            exon = SimpleExon.from_gtf_record(_gtf_record)
 
             # Add exon to transcript
             self.transcripts[transcript_id].exons.append(exon)
 
         self.genes = {}
         self.transcripts = {}
-        GtfIterator = gtf.GtfIterator(self.gene_filename)
-        for gtf_record in GtfIterator:
-            if not "gene_id" in gtf_record.attribute.keys() or not "transcript_id" in gtf_record.attribute.keys():
+        for gtf_record in gtf.GtfIterator(self.gene_filename):
+            if "gene_id" not in gtf_record.attribute.keys() or "transcript_id" not in gtf_record.attribute.keys():
                 continue
             if gtf_record.feature == "gene":
                 add_gene(gtf_record)
@@ -78,8 +78,6 @@ class GeneView:
                 add_transcript(gtf_record)
             elif gtf_record.feature == "exon":
                 add_exon(gtf_record)
-            else:
-                pass  # log unknown
 
     def del_gene(self, name: str):
         if name in self.genes.keys():

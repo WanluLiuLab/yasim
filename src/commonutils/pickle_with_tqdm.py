@@ -15,58 +15,28 @@ pickle_with_tqdm.py -- Unpickle with progress bar
 """
 import pickle
 from pickle import Unpickler
-from typing import IO, Any
+from typing import Any
 
 from commonutils import ioctl
-from commonutils.tqdm_importer import tqdm
 
 __version__ = 0.1
 
-
-class _tqdm_open:
-    """
-    The underlying class with standard functions defined.
-    """
-
-    def __init__(self, path:str, underlying_opener=None, **kwargs):
-        super().__init__()
-        if underlying_opener == None:
-            self.fd = ioctl.get_reader(path)
-        else:
-            self.fd = underlying_opener(path, 'rb')
-        self.tqdm = tqdm(desc=f"Unpickling {path}", total=ioctl.wc_c(path), **kwargs)
-
-    def readline(self):
-        update_bytes = self.fd.readline()
-        self.tqdm.update(len(update_bytes))
-        return update_bytes
-
-    def read(self, size: int = -1):
-        update_bytes = self.fd.read(size)
-        self.tqdm.update(len(update_bytes))
-        return update_bytes
-
-    def __enter__(self):
-        self.tqdm.__enter__()
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        return self.tqdm.__exit__(*args, **kwargs)
+from commonutils.tqdm_utils import tqdm_reader
 
 
 # noinspection all
-def unpickle_with_tqdm(filename: str):
+def load(filename: str):
     """
     Unpickle a file with tqdm.
 
     :return: Picked object.
     """
-    with _tqdm_open(filename) as pbfd:
+    with tqdm_reader(filename, is_binary=True) as pbfd:
         up = Unpickler(pbfd)
         obj = up.load()
     return obj
 
-def dump(obj:Any, filename:str):
-    with ioctl.get_writer(filename) as writer:
-        pickle.dump(obj, writer)
 
+def dump(obj: Any, filename: str):
+    with ioctl.get_writer(filename, is_binary=True) as writer:
+        pickle.dump(obj, writer)

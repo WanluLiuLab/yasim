@@ -37,7 +37,7 @@ def test_get_abspath():
     assert ioctl.get_abspath('') == ''
     if not commonutils.sysctl.is_windows():
         HOME = os.environ['HOME']  # FIXME: In freebsd, /home -> /usr/home
-        assert ioctl.get_abspath('test_commonutils') == os.environ['PWD']
+        assert ioctl.get_abspath('.') == os.environ['PWD']
         assert ioctl.get_abspath('~') == HOME
         assert ioctl.get_abspath('~/../') == os.path.dirname(HOME)
         assert ioctl.get_abspath('~/../~') == os.path.dirname(HOME) + '/~'

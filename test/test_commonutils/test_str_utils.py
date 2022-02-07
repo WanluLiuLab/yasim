@@ -41,7 +41,17 @@ def test_to_dict():
     CPU:	2
     MEM:	5.1
     PCIE:	3rd Gen
-    GRAPHICS:	UHD630	RTX2070
+    GRAPHICS:	"UHD630	RTX2070"
+    USB:  "3.1"
+    
+    Others:::info
     """
-    out_dict = str_utils.to_dict(in_str, field_sep=':', record_sep='\n')
-    assert out_dict == {"CPU": 2, "MEM": 5.1, "PCIE": "3rd Gen", "GRAPHICS": "UHD630\tRTX2070"}
+    assert str_utils.to_dict(in_str, field_sep=':', record_sep='\n', quotation_mark="\'\"", resolve_str=True) == {
+        "CPU": 2, "MEM": 5.1, "PCIE": "3rd Gen", "GRAPHICS": "UHD630\tRTX2070", "Others": "info", "USB": 3.1}
+    assert str_utils.to_dict(in_str, field_sep=':', record_sep='\n', quotation_mark="\'\"", resolve_str=False) == {
+        "CPU": "2", "MEM": "5.1", "PCIE": "3rd Gen", "GRAPHICS": "UHD630\tRTX2070", "Others": "info", "USB": "3.1"}
+    assert str_utils.to_dict(in_str, field_sep=':', record_sep='\n', quotation_mark=None, resolve_str=False) == {
+        "CPU": "2", "MEM": "5.1", "PCIE": "3rd Gen", "GRAPHICS": "\"UHD630\tRTX2070\"", "Others": "info",
+        "USB": "\"3.1\""}
+    assert str_utils.to_dict(in_str, field_sep=':', record_sep='\n', quotation_mark=None, resolve_str=True) == {
+        "CPU": 2, "MEM": 5.1, "PCIE": "3rd Gen", "GRAPHICS": "\"UHD630\tRTX2070\"", "Others": "info", "USB": "\"3.1\""}

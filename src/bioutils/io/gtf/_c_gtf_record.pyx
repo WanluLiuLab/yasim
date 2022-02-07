@@ -96,7 +96,7 @@ cdef class GtfRecord(object):
         line_split = in_str.split('\t')
 
         required_fields = line_split[0:-1]
-        attributes = to_dict(line_split[-1], field_sep=' ', record_sep=';')
+        attributes = to_dict(line_split[-1], field_sep=' ', record_sep=';', quotation_mark='\"\'', resolve_str=True)
         if required_fields[5] == ".":
             required_fields[5] = 0
         return GtfRecord(seqname=required_fields[0],

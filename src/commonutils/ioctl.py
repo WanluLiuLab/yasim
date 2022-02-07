@@ -33,11 +33,12 @@ This module is intended to work on Microsoft Windows.
 
 import bz2
 import gzip
+import io
 import lzma
 import os
 import shutil
 import stat
-from typing import IO, Any
+from typing import IO, Any, Union
 
 from commonutils import logger
 from commonutils.logger import chronolog
@@ -73,20 +74,30 @@ def get_file_type_from_suffix(filename: str) -> str:
     return 'UNKNOWN'
 
 
-def _get_opener(filename: str, is_output: bool = False, **kwargs):
+def _get_opener(filename: str, is_output: bool = False, is_binary: bool = False, **kwargs) -> IO:
     if is_output:
         realname = ensure_output_existence(filename)
-        mod = 'wt'
     else:
         realname = ensure_input_existence(filename)
-        mod = 'rt'
-    if 'encoding' not in kwargs:
-        kwargs['encoding'] = 'utf-8'
-    if 'newline' not in kwargs:
-        kwargs['newline'] = '\n'
-    reader = open(filename, mod, **kwargs)  # Buffer=256MiB
+    if not is_binary:
+        if is_output and 'mode' not in kwargs:
+            kwargs['mode'] = 'wt'
+        elif 'mode' not in kwargs:
+            kwargs['mode'] = 'rt'
+        if 'encoding' not in kwargs:
+            kwargs['encoding'] = 'utf-8'
+        if 'newline' not in kwargs:
+            kwargs['newline'] = '\n'
+    else:
+        if is_output and 'mode' not in kwargs:
+            realname = ensure_output_existence(filename)
+            kwargs['mode'] = 'wb'
+        elif 'mode' not in kwargs:
+            kwargs['mode'] = 'rb'
+
+    reader = open(filename, **kwargs)
     if realname.endswith('.gz'):
-        reader = gzip.open(filename, mod, **kwargs)
+        reader = gzip.open(filename, **kwargs)
         # Test biopython
         # if _HAS_BIOPYTHON:
         #     try:
@@ -95,24 +106,24 @@ def _get_opener(filename: str, is_output: bool = False, **kwargs):
         #     except Exception:
         #         pass
     elif realname.endswith('.xz') or realname.endswith('.lzma'):
-        reader = lzma.open(filename, mod, **kwargs)
+        reader = lzma.open(filename, **kwargs)
     elif realname.endswith('.bz2'):
-        reader = bz2.open(filename, mod, **kwargs)
+        reader = bz2.open(filename, **kwargs)
     return reader
 
 
-def get_reader(filename: str, **kwargs):
+def get_reader(filename: str, is_binary: bool = False, **kwargs):
     """
-    Get a textIO reader for multiple format.
+    Get a reader for multiple format.
     """
-    return _get_opener(filename, is_output=False, **kwargs)
+    return _get_opener(filename, is_output=False, is_binary=is_binary, **kwargs)
 
 
-def get_writer(filename: str, **kwargs):
+def get_writer(filename: str, is_binary: bool = False, **kwargs):
     """
-    Get a textIO writer for multiple format.
+    Get a writer for multiple format.
     """
-    return _get_opener(filename, is_output=True, **kwargs)
+    return _get_opener(filename, is_output=True, is_binary=is_binary, **kwargs)
 
 
 @chronolog(display_time=True)
@@ -183,7 +194,7 @@ def readlink_f(path: str) -> str:
 
 
 @chronolog(display_time=True)
-def wc_l(path: str, opener:Any=None) -> int:
+def wc_l(path: str, opener: Any = None) -> int:
     """
     Count lines in a file.
 
@@ -193,12 +204,12 @@ def wc_l(path: str, opener:Any=None) -> int:
     if opener is None:
         fd = get_reader(path)
     else:
-        fd=opener(path)
+        fd = opener(path)
     return wc_l_io(fd)
 
 
 @chronolog(display_time=True)
-def wc_c(path: str, opener:Any=None) -> int:
+def wc_c(path: str, opener: Any = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
@@ -208,11 +219,12 @@ def wc_c(path: str, opener:Any=None) -> int:
     if opener is None:
         fd = get_reader(path)
     else:
-        fd=opener(path)
+        fd = opener(path)
     return wc_c_io(fd)
 
+
 @chronolog(display_time=True)
-def wc_l_io(underlying_fd:IO) -> int:
+def wc_l_io(underlying_fd: IO) -> int:
     """
     Count lines in a file.
 
@@ -223,7 +235,7 @@ def wc_l_io(underlying_fd:IO) -> int:
         curr_pos = underlying_fd.tell()
     else:
         return -1
-    reti = 0
+    reti = 1
     underlying_fd.seek(0)
     while underlying_fd.readline():
         reti += 1
@@ -231,9 +243,8 @@ def wc_l_io(underlying_fd:IO) -> int:
     return reti
 
 
-
 @chronolog(display_time=True)
-def wc_c_io(underlying_fd:IO) -> int:
+def wc_c_io(underlying_fd: IO) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 

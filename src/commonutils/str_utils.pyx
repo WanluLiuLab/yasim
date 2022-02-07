@@ -21,7 +21,7 @@ import os
 import string
 from enum import Enum
 
-from typing import Iterator, List, Dict, Any
+from typing import Iterator, List, Dict, Any, Optional
 
 
 class AnsiColorEnum(Enum):
@@ -117,22 +117,55 @@ def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[s
         else:
             yield old_item
 
-def to_dict(in_str: str, field_sep: str = '\t', record_sep: str = '\n') -> Dict[str, Any]:
+def to_dict(
+        in_str: str,
+        field_sep: str = '\t',
+        record_sep: str = '\n',
+        quotation_mark:Optional[str]=None,
+        resolve_str:bool=True
+) -> Dict[str, Any]:
+    """
+    A simple parser to get key-value pairs to a dictionary.
+
+    Key: string. Value: String, float or int.
+
+    :param in_str: Input string
+    :param field_sep: Field separator, the FS variable in AWK programming language.
+    :param record_sep: Record separator, the RS variable in AWK programming language.
+    :param quotation_mark: If the key and value is not quoted, pass ``None``.
+                           If quoted by single quote, pass ``'\''``.
+                           If quoted by double quote, pass ``'\"'``.
+                           If quoted by single and double quote, pass ``'\'\"'``.
+                           Will not parse quoted by triple quotes.
+    :param resolve_str: Whether to resolve strings to float or int.
+    """
     retd = {}
     in_str_by_record = in_str.split(record_sep)
     for record in in_str_by_record:
         record = record.strip(string.whitespace + field_sep)
+        lr = len(record)
         first_field_sep_pos = record.find(field_sep)
         if first_field_sep_pos == -1:
             continue
         record_key = record[0:first_field_sep_pos].rstrip()
-        record_val = record[first_field_sep_pos + 1:].lstrip()
-        try:
-            record_val = int(record_val)
-        except ValueError:
+        while not first_field_sep_pos == lr:
+            if record[first_field_sep_pos] == field_sep:
+                first_field_sep_pos += 1
+            else:
+                record_val = record[first_field_sep_pos:].lstrip()
+                break
+        else:
+            record_val=""
+        if quotation_mark is not None:
+            record_key=record_key.strip(quotation_mark)
+            record_val=record_val.strip(quotation_mark)
+        if resolve_str:
             try:
-                record_val = float(record_val)
+                if "." in record_val:
+                    record_val = float(record_val)
+                else:
+                    record_val = int(record_val)
             except ValueError:
-                record_val = record_val.strip("\"\'")
+                pass
         retd[record_key] = record_val
     return retd

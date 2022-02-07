@@ -37,7 +37,7 @@ from typing import List, Union, Tuple
 
 from commonutils import ioctl, logger
 from commonutils.logger import chronolog
-from commonutils.tqdm_importer import tqdm
+from commonutils.tqdm_utils import tqdm_line_reader
 
 lh = logger.get_logger(__name__)
 
@@ -175,33 +175,37 @@ class _MemoryAccessFastaView(_FastaView):
         """
         Construct _chr_dict from file and read into memory
         """
-        with ioctl.get_reader(self.realname) as reader:
+        with tqdm_line_reader(self.realname) as reader:
             chr_name = ""
             seq = ""
             line_len = 0
-            lines = reader.readlines()  # Read all bytes
-        for line in tqdm(iterable=lines, desc="Reading FASTA"):
-            line = line.rstrip()
-            if line[0] == '>':  # FASTA header
+            while True:
+                line = reader.readline()
+                if not line:
+                    break
+                line = line.rstrip()
+                if line == '':
+                    continue
+                if line[0] == '>':  # FASTA header
+                    if chr_name != '':
+                        self._all_dict[chr_name] = seq
+                        self._chr_dict[chr_name][0] = len(seq)
+                        self._chr_dict[chr_name][2] = line_len
+                        seq = ''
+                        line_len = 0
+                    if self.all_header:
+                        chr_name = line[1:].strip()
+                    else:
+                        chr_name = line[1:].strip().split(' ')[0].split('\t')[0]
+                    self._chr_dict[chr_name] = [0, 0, 0]
+                else:
+                    seq = seq + line
+                    if line_len == 0:
+                        line_len = len(seq)
                 if chr_name != '':
                     self._all_dict[chr_name] = seq
                     self._chr_dict[chr_name][0] = len(seq)
                     self._chr_dict[chr_name][2] = line_len
-                    seq = ''
-                    line_len = 0
-                if self.all_header:
-                    chr_name = line[1:].strip()
-                else:
-                    chr_name = line[1:].strip().split(' ')[0].split('\t')[0]
-                self._chr_dict[chr_name] = [0, 0, 0]
-            else:
-                seq = seq + line
-                if line_len == 0:
-                    line_len = len(seq)
-            if chr_name != '':
-                self._all_dict[chr_name] = seq
-                self._chr_dict[chr_name][0] = len(seq)
-                self._chr_dict[chr_name][2] = line_len
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1):
         self.is_valid_region(chromosome, from_pos, to_pos)
@@ -244,13 +248,14 @@ class _DiskAccessFastaView(_FastaView):
         chr_name = ""
         seq_len = 0
         line_len = 0
-        total = ioctl.wc_l(self.realname)
-        with tqdm(iterable=None, total=total, desc="Reading FASTA") as pbar:
+        with tqdm_line_reader(self.realname) as reader:
             while True:
-                line = self._reader.readline()
+                line = reader.readline()
                 if not line:
                     break
                 line = line.rstrip()
+                if line == '':
+                    continue
                 if line[0] == '>':  # FASTA header
                     if chr_name != '':
                         self._chr_dict[chr_name][0] = seq_len
@@ -261,7 +266,7 @@ class _DiskAccessFastaView(_FastaView):
                         chr_name = line[1:].strip()
                     else:
                         chr_name = line[1:].strip().split(' ')[0].split('\t')[0]
-                    self._chr_dict[chr_name] = [0, self._reader.tell(), 0]
+                    self._chr_dict[chr_name] = [0, reader.tell(), 0]
                 else:
                     if line_len == 0:
                         line_len = seq_len
@@ -269,7 +274,6 @@ class _DiskAccessFastaView(_FastaView):
                 if chr_name != '':
                     self._chr_dict[chr_name][0] = seq_len
                     self._chr_dict[chr_name][2] = line_len
-                pbar.update(1)
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)

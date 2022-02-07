@@ -41,7 +41,7 @@ class Simulator(threading.Thread):
     def move_file_after_finish(self):
         pass
 
-    def run_simulator_as_process(self, simulator_name:str):
+    def run_simulator_as_process(self, simulator_name: str):
         tmp_dir = os.path.join(os.path.dirname(self.output_fastq_prefix), f"{simulator_name}_tmp")
         ioctl.mkdir_p(tmp_dir)
         self.tmp_prefix = os.path.join(tmp_dir, os.path.basename(self.output_fastq_prefix))
