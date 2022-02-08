@@ -40,4 +40,3 @@ __all__ = [
     'GtfIterator',
     '__version__'
 ]
-

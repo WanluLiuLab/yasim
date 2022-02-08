@@ -259,6 +259,8 @@ class _DiskAccessFastaView(_FastaView):
                 if line[0] == '>':  # FASTA header
                     if chr_name != '':
                         self._chr_dict[chr_name][0] = seq_len
+                        if line_len == 0:
+                            line_len = seq_len
                         self._chr_dict[chr_name][2] = line_len
                         seq_len = 0
                         line_len = 0
@@ -271,9 +273,11 @@ class _DiskAccessFastaView(_FastaView):
                     if line_len == 0:
                         line_len = seq_len
                     seq_len = seq_len + len(line)
-                if chr_name != '':
-                    self._chr_dict[chr_name][0] = seq_len
-                    self._chr_dict[chr_name][2] = line_len
+            if chr_name != '':
+                self._chr_dict[chr_name][0] = seq_len
+                if line_len == 0:
+                    line_len = seq_len
+                self._chr_dict[chr_name][2] = line_len
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)

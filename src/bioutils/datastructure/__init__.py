@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from bioutils.io import fasta
 from bioutils.io.fasta import FastaView
 from bioutils.io.gtf import GtfRecord
 
+_PossibleDataTypes = Union[GtfRecord]
+
 
 class SimpleExon:
     start: int
     end: int
-    data = None
+    strand: str = "."
+    data: _PossibleDataTypes = None
     seqname: str
 
     @classmethod
@@ -20,7 +23,17 @@ class SimpleExon:
         new_instance.end = gtf_record.end
         new_instance.data = gtf_record
         new_instance.seqname = gtf_record.seqname
+        new_instance.strand = gtf_record.strand
         return new_instance
+
+    def __eq__(self, other):
+        return self.start == other.start and \
+               self.end == other.end and \
+               self.seqname == other.seqname \
+               and self.strand == other.strand
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class Transcript:
@@ -28,7 +41,7 @@ class Transcript:
     end: int
     exons: List[SimpleExon]
     name: str
-    data = None
+    data: _PossibleDataTypes = None
     seqname: str
     gene_name: str
     strand: str
@@ -65,6 +78,19 @@ class Transcript:
             rets = fasta.complement(rets)
         return rets
 
+    def __eq__(self, other):
+        for exon_s, exon_o in zip(self.exons, other.exons):
+            if not exon_s == exon_o:
+                return False
+        return True  # Do not require span length equality
+        # return self.start == other.start and \
+        #        self.end == other.end and \
+        #        self.seqname == other.seqname \
+        #        and self.strand == other.strand
+
+    def __ne__(self, other):
+        return not self == other
+
 
 class Gene:
     name: str
@@ -72,7 +98,7 @@ class Gene:
     end: int
     transcripts: Dict[str, Transcript]
     strand: str
-    data = None
+    data: _PossibleDataTypes = None
     seqname: str
 
     def __init__(self):

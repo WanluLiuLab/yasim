@@ -26,7 +26,7 @@ class GtfRecord(object):
     score: float
     strand: str
     frame: str
-    attribute: dict
+    attribute: Dict[str, Union[str, int, float]]
     gtf_handler: Any
     """
     Which Gtf* does this record belongs to?
@@ -41,7 +41,7 @@ class GtfRecord(object):
                  score: float,
                  strand: str,
                  frame: str,
-                 attribute: Dict[str, Union[str, int]]):
+                 attribute: Dict[str, Union[str, int, float]]):
         """
         The filenames are named after Ensembl specifications.
 

@@ -51,19 +51,19 @@ def simulate(
         transcript_output_fastq_prefix = os.path.join(output_fastq_dir, str(transcript_depth))
         if not ioctl.file_exists(transcript_input_fasta):
             pass
-        sim_thread = simulator.dwgsim.SimulatorDwgsimPerfect(
+        sim_thread = simulator.dwgsim.SimulatorDwgsim(
             transcript_input_fasta,
             transcript_output_fastq_prefix,
             transcript_depth)
         simulating_pool.append(sim_thread)
     simulating_pool.start()
     simulating_pool.join()
-    with open(output_fastq_prefix + "_1.fq.gz", "wb") as writer:
-        for file in tqdm(iterable=list(glob.glob(os.path.join(output_fastq_dir, "*_1.fq.gz"))),
+    with open(output_fastq_prefix + "_1.fq", "wb") as writer:
+        for file in tqdm(iterable=list(glob.glob(os.path.join(output_fastq_dir, "*_1.fq"))),
                          desc="Assembling read1"):
             writer.write(open(file, "rb").read())
-    with open(output_fastq_prefix + "_2.fq.gz", "wb") as writer:
-        for file in tqdm(iterable=list(glob.glob(os.path.join(output_fastq_dir, "*_2.fq.gz"))),
+    with open(output_fastq_prefix + "_2.fq", "wb") as writer:
+        for file in tqdm(iterable=list(glob.glob(os.path.join(output_fastq_dir, "*_2.fq"))),
                          desc="Assembling read2"):
             writer.write(open(file, "rb").read())
 

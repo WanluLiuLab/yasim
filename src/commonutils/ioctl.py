@@ -33,12 +33,11 @@ This module is intended to work on Microsoft Windows.
 
 import bz2
 import gzip
-import io
 import lzma
 import os
 import shutil
 import stat
-from typing import IO, Any, Union
+from typing import IO, Any
 
 from commonutils import logger
 from commonutils.logger import chronolog

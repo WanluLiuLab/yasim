@@ -40,7 +40,7 @@ cdef class GtfRecord(object):
                  float score,
                  str strand,
                  str frame,
-                 attribute: Dict[str, Union[str, int]]):
+                 attribute: Dict[str, Union[str,int , float]]):
         """
         The filenames are named after Ensembl specifications.
 
