@@ -40,7 +40,17 @@ class GeneView:
             pass
         pickle_with_tqdm.dump((self.genes, self.transcripts), index_filename)
 
+    def sort_exon(self):
+        pass
+
+
     def read_gtf(self):
+        """
+        Read from Transcriptome GTF file.
+
+        If the GTF file is not sorted, will report bugs.
+        """
+        available_features = set()
         def add_gene(_gtf_record: GtfRecord) -> str:
             gene_id = _gtf_record.attribute['gene_id']
             if gene_id not in self.genes.keys():
@@ -52,10 +62,10 @@ class GeneView:
 
             # Try add transcript
             transcript_id = _gtf_record.attribute['transcript_id']
-            if not transcript_id in self.transcripts.keys():
+            if transcript_id not in self.transcripts.keys():
                 self.transcripts[transcript_id] = Transcript.from_gtf_record(_gtf_record)
-            transcript = self.transcripts[transcript_id]
-            self.genes[gene_id].transcripts[transcript_id] = transcript
+            if transcript_id not in self.genes[gene_id].transcripts.keys():
+                self.genes[gene_id].transcripts[transcript_id] = self.transcripts[transcript_id]
             return transcript_id
 
         def add_exon(_gtf_record: GtfRecord):
@@ -78,6 +88,8 @@ class GeneView:
                 add_transcript(gtf_record)
             elif gtf_record.feature == "exon":
                 add_exon(gtf_record)
+            available_features.add(gtf_record.feature)
+
 
     def del_gene(self, name: str):
         if name in self.genes.keys():

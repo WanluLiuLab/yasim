@@ -2,6 +2,7 @@ from typing import Dict, Union, Any
 
 from commonutils import logger
 from commonutils.str_utils import to_dict
+from bioutils.io.gtf._gtf_attribute_parser import parse as parse_gtf_attrs
 
 lh = logger.get_logger(__name__)
 

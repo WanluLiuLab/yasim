@@ -15,7 +15,7 @@ test_gtf.py -- Unit test of corresponding module.
 
 import test_tetgs
 from bioutils.io import gtf
-from bioutils.io.gtf import GtfRecord
+from bioutils.io.gtf import GtfRecord, parse_gtf_attrs
 from commonutils import ioctl
 
 test_path = test_tetgs.initialize(__name__)
@@ -134,6 +134,8 @@ def test_gtf_with_intervaltree():
     assert len(list(gtf_file.fetch('chr1', 50332275, 50332276))) == 0
     assert len(list(gtf_file.fetch('chr1', 50331335, 50331336))) == 0
     assert len(list(gtf_file.fetch('chr1', 41942915, 50332266))) == 2
+
+
 
 
 if __name__ == "__main__":

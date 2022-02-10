@@ -582,3 +582,4 @@ cmd_profiler*/
 transcripts_quant/
 *.gvpkl
 dataset_sc_ngs*/
+*.html
