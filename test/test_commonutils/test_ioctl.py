@@ -26,13 +26,6 @@ from commonutils.sysctl import is_windows
 
 test_path = test_tetgs.initialize(__name__)
 
-
-def test_get_file_type_from_suffix():
-    assert ioctl.get_file_type_from_suffix("1.fa") == 'FASTA'
-    assert ioctl.get_file_type_from_suffix("1.fa.gz") == 'FASTA'
-    assert ioctl.get_file_type_from_suffix("1.fai") == 'UNKNOWN'
-
-
 def test_get_abspath():
     assert ioctl.get_abspath('') == ''
     if not commonutils.sysctl.is_windows():

@@ -53,26 +53,6 @@ try:
 except ImportError:
     _HAS_BIOPYTHON = False
 
-# Common file suffixes.
-common_suffixes = {
-    "GTF": ['.gtf.gz', '.gtf', '.gtf.bgz'],
-    "GFF": ['.gff.gz', '.gff', '.gff.bgz'],
-    "GFF3": ['.gff3.gz', '.gff3', '.gff3.bgz'],
-    "BED": ['.bed.gz', '.bed', '.bed.bgz'],
-    "RMSK": ['rmsk.txt', 'rmsk.txt.gz'],
-    "FASTA": ['.fasta.gz', '.fasta', '.fasta.bgz', '.fa.gz', '.fa', '.fa.bgz'],
-}
-
-
-def get_file_type_from_suffix(filename: str) -> str:
-    filename = filename.lower()
-    for standard_suffix, real_suffixes in common_suffixes.items():
-        for real_suffix in real_suffixes:
-            if filename.endswith(real_suffix):
-                return standard_suffix
-    return 'UNKNOWN'
-
-
 def _get_opener(filename: str, is_output: bool = False, is_binary: bool = False, **kwargs) -> IO:
     if is_output:
         realname = ensure_output_existence(filename)

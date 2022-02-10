@@ -33,7 +33,7 @@ from bioutils.io.gtf._gtf_attribute_parser import parse as parse_gtf_attrs
 try:
     from bioutils.io.gtf._c_gtf_record import GtfRecord
 except ImportError:
-    from bioutils.io.gtf._py_gtf_record import GtfRecord
+    from bioutils.io.gtf._gtf_record import GtfRecord
 from bioutils.io.gtf._gtf_view import SimpleGtfView, GtfIterator
 
 __all__ = [

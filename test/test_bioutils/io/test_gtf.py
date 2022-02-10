@@ -12,11 +12,13 @@
 """
 test_gtf.py -- Unit test of corresponding module.
 """
+import time
 
 import test_tetgs
 from bioutils.io import gtf
 from bioutils.io.gtf import GtfRecord, parse_gtf_attrs
 from commonutils import ioctl
+from commonutils.str_utils import to_dict
 
 test_path = test_tetgs.initialize(__name__)
 
@@ -64,11 +66,48 @@ with ioctl.get_writer(fasta_path) as writer:
 with ioctl.get_writer(gtf_path) as writer:
     writer.write(gtf_contents)
 
+def test_time():
+    gtf_str = 'chr1	hg38_rmsk	exon	50331337	50332274	1587.000000	+	.	gene_id "HAL1"; transcript_id "HAL1"; '
+    try:
+        from bioutils.io.gtf._gtf_record import GtfRecord as pyGtfRecord
+        from bioutils.io.gtf._c_gtf_record import GtfRecord as cGtfRecord
+    except ImportError:
+        return
+    time_start = time.time()
+    times = 100000
+    for i in range(times):
+        _ = pyGtfRecord.from_string(gtf_str)
+    time_py = time.time()
+    for j in range(times):
+        _ = cGtfRecord.from_string(gtf_str)
+    time_c = time.time()
+    print(f"time_py={time_py-time_start} time_c={time_c - time_py}")
+
+
+def test_attributes_parser_time():
+    time_start = time.time()
+    times = 1000000
+    for i in range(times):
+        _ = parse_gtf_attrs(
+        b'gene_id "STRG.23"; transcript_id "STRG.23.1"; reference_id "XM_017000355.2"; ref_gene_id "MIB2"; ref_gene_name "MIB2"; cov "1.073021"; FPKM "196.106232"; TPM "586.075928";')
+    time_parse_gtf_attrs = time.time()
+    for j in range(times):
+        _ = to_dict(
+        'gene_id "STRG.23"; transcript_id "STRG.23.1"; reference_id "XM_017000355.2"; ref_gene_id "MIB2"; ref_gene_name "MIB2"; cov "1.073021"; FPKM "196.106232"; TPM "586.075928";',
+            field_sep = ' ', record_sep=';', resolve_str=True, quotation_mark='\'\"'
+        )
+    time_to_dict = time.time()
+    print(f"time_parse_gtf_attrs={time_parse_gtf_attrs-time_start} time_to_dict={time_to_dict - time_parse_gtf_attrs}")
+
 
 def test_base():
     gtf_obj = gtf.SimpleGtfView(gtf_path)
     gtf_obj.attach_external_fasta(fasta_path)
     a = list(gtf_obj.fetch('chr1'))[0]
+
+    assert parse_gtf_attrs(
+        b'gene_id "STRG.23"; transcript_id "STRG.23.1"; reference_id "XM_017000355.2"; ref_gene_id "MIB2"; ref_gene_name "MIB2"; cov "1.073021"; FPKM "196.106232"; TPM "586.075928";') == {'gene_id': 'STRG.23', 'transcript_id': 'STRG.23.1', 'reference_id': 'XM_017000355.2', 'ref_gene_id': 'MIB2', 'ref_gene_name': 'MIB2', 'cov': 1.073021, 'FPKM': 196.106232}
+
     assert a.sequence == 'ggccaggagcagtggctcacgcctgtaatcccagcactttaggaggccggggcgggcagatcacaaagtcaggagatcgcagaccatcctagccaacatggtgaaaccccgtctctactaaaaacacaaaaattagctgggcatggtggcacgcgcctgctaatcccagctacttatgaggctgaggcaggagaatcgcttgaacccaggaggcggaggttgcagtgagccgagatcgccaccactgccctccagcctggcgacagagtgagactccatctcaaaaaaaaataaaaa'
 
 
@@ -134,7 +173,6 @@ def test_gtf_with_intervaltree():
     assert len(list(gtf_file.fetch('chr1', 50332275, 50332276))) == 0
     assert len(list(gtf_file.fetch('chr1', 50331335, 50331336))) == 0
     assert len(list(gtf_file.fetch('chr1', 41942915, 50332266))) == 2
-
 
 
 

@@ -1,25 +1,26 @@
 """
-A LL(1) parser to parse GTF-style attributes.
+A Error-Tolerating LL(1) parser to parse GTF-style attributes.
 """
-from typing import Union, Dict, List, Tuple
+from typing import Union, Dict, Tuple
 
 # gene_id "STRG.23"; transcript_id "STRG.23.1"; reference_id "XM_017000355.2"; ref_gene_id "MIB2"; ref_gene_name "MIB2"; cov "1.073021"; FPKM "196.106232"; TPM "586.075928";
 
+from _gtf_attribute_parser cimport *
 from libc.string cimport strlen, memset, strcmp, strcpy
 
 parse_result_t = Dict[str, Union[str, float, int, bool, None]]
 
 def parse(attributes:bytes) -> parse_result_t:
     retd = {}
-    tokenizer = Tokenizer(attributes)
+    tokenizer = GtfAttributeTokenizer(attributes)
     tokenizer.run()
     current_keyname = ""
 
     for i in range(tokenizer.processed_number_of_tokens):
         token = tokenizer.get_token(i)
-        print(token)
+        # print(token)
         if token[0] == _token_type.KEY:
-            current_keyname = token[1]
+            current_keyname = str(token[1], encoding = 'UTF-8')
         elif token[0] == _token_type.BOOL:
             retd[current_keyname] = _is_true(token[1])
         elif token[0] == _token_type.FLOAT:
@@ -31,25 +32,6 @@ def parse(attributes:bytes) -> parse_result_t:
         elif token[0] == _token_type.STRING:
             retd[current_keyname] = str(token[1], encoding='UTF-8')
     return retd
-
-cdef struct _token:
-    int TYPE
-    char[256] VALUE
-ctypedef _token token_t
-
-cdef enum _token_state_type:
-    WAITING_FOR_KEY = 0
-    EXTENDING_KEY = 1
-    WAITING_FOR_VALUE = 2
-    EXTENDING_VALUE = 3
-
-cdef enum _token_type:
-    KEY = 0
-    INTEGER = 1
-    FLOAT = 2
-    BOOL = 3
-    STRING = 4
-    NONE = 5
 
 cdef bint _is_blank(char getv):
     return getv == '\t' or getv == '\n' or getv == ' '
@@ -75,27 +57,7 @@ cdef bint _is_false(char * token):
 
 
 
-cdef class Tokenizer:
-    cdef int attributes_len
-    """Length of input attributes bytes"""
-
-    cdef public token_t tokens[256]
-    """Generated tokens"""
-
-    cdef int current_ptr
-    """Pointer of insertion locus of current attributes bytes"""
-
-    cdef char* attributes
-    """Input bytes of attributes"""
-
-    cdef char current_token[256]
-    """Value of the token being processed"""
-
-    cdef int current_token_ptr
-    """Pointer of insertion locus of current token"""
-
-    cdef public int processed_number_of_tokens
-    """Number of tokens processed"""
+cdef class GtfAttributeTokenizer:
 
     def get_token(self, i: int) -> Tuple[int, bytes]:
         return (self.tokens[i].TYPE, self.tokens[i].VALUE)
@@ -244,5 +206,3 @@ cdef class Tokenizer:
                 self.record_value(current_token_type)
             else:
                 raise ValueError(f"Waiting for end quote at {self.current_ptr}")
-
-
