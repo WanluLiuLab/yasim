@@ -1,10 +1,6 @@
-
-from typing import Dict, Union, Any, Callable, Optional
-
-from attr import attributes
+from typing import Union, Callable, Optional
 
 from commonutils import logger
-from commonutils.str_utils import to_dict
 
 lh = logger.get_logger(__name__)
 
@@ -74,7 +70,7 @@ class Feature(object):
                     ``1`` (the second base is the first base of a codon) or ``2``.
     """
 
-    sequence_func: Optional[Callable[[str, int, int], bytes]]
+    sequence_func: Optional[Callable[[str, int, int], str]]
     """
     Function to call to get sequence, need to provide seqname, start and end, and return sequence in bytes.
     """
@@ -85,7 +81,7 @@ class Feature(object):
                  feature: str,
                  start: int,
                  end: int,
-                 score: float,
+                 score: Union[int, float],
                  strand: str,
                  frame: str
                  ):
@@ -105,15 +101,10 @@ class Feature(object):
         self.frame = frame
         self.sequence_func = None
 
-    @property
-    def sequence(self):
+    def sequence(self, sequence_func: Callable[[str, int, int], str]):
         """
         Get cached sequence, or get one from Fasta.
         """
         if self._sequence is None and self.sequence_func is not None:
             self._sequence = self.sequence_func(self.seqname, self.start - 1, self.end)
         return self._sequence
-
-
-
-

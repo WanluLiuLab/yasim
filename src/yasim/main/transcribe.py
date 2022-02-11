@@ -2,7 +2,7 @@ import argparse
 import os.path
 from typing import List
 
-from bioutils.datastructure.gene import GeneView
+from bioutils.datastructure import GeneView
 from bioutils.io.fasta import FastaView
 from commonutils import ioctl
 from commonutils.logger import get_logger
@@ -35,13 +35,13 @@ def transcribe(
     with ioctl.get_writer(os.path.join(output_fasta)) as writer:
         for k, v in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
             fa_name = k
-            fa_value = v.transcribe_cdna(fasta_handler)
+            fa_value = v.cdna_sequence(fasta_handler)
             fa_str = f">{fa_name}\n{fa_value}\n"
             writer.write(fa_str)
 
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView(args.gtf)
+    gv = GeneView._from_gtf(args.gtf)
     fv = FastaView(args.fasta)
     transcribe(gv, args.out, fv)

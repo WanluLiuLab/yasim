@@ -26,6 +26,7 @@ from commonutils.sysctl import is_windows
 
 test_path = test_tetgs.initialize(__name__)
 
+
 def test_get_abspath():
     assert ioctl.get_abspath('') == ''
     if not commonutils.sysctl.is_windows():

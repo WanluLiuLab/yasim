@@ -3,7 +3,7 @@ import random
 from collections import defaultdict
 from typing import Dict, List
 
-from bioutils.datastructure.gene import GeneView
+from bioutils.datastructure import GeneView
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
 
@@ -63,7 +63,7 @@ def cluster_depth(depth: Dict[str, int]) -> Dict[int, List[str]]:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView(args.gtf)
+    gv = GeneView.from_file(args.gtf)
     simulate_dge_uniform(
         gv=gv,
         output_tsv=args.out,

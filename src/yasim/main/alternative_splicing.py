@@ -2,7 +2,7 @@ import argparse
 import random
 from typing import List
 
-from bioutils.datastructure.gene import GeneView
+from bioutils.datastructure import GeneView
 from bioutils.io.fasta import FastaView
 from commonutils.logger import get_logger
 from commonutils.tqdm_importer import tqdm
@@ -34,23 +34,23 @@ def sample_exon(
 
     logger.info("Creating Geneview FIN")
     logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
-    transcript_to_del = []
+    transcript_name_to_del = []
     for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
         indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
         v.exons = [v.exons[i] for i in sorted(indices)]
-        if len(v.transcribe_cdna(fasta_handler)) >= 250:
+        if len(v.cdna_sequence(fasta_handler)) >= 250:
             pass
         else:
-            transcript_to_del.append(k)
-    for transcript in tqdm(iterable=transcript_to_del, desc="Deleting unwanted transcripts"):
-        gv.del_transcript(transcript)
+            transcript_name_to_del.append(k)
+    for transcript_name in tqdm(iterable=transcript_name_to_del, desc="Deleting unwanted transcripts"):
+        gv.del_transcript(transcript_name)
     logger.info(f"Remaining {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
-    gv.to_file(output_gtf_filename)
+    gv.to_gtf(output_gtf_filename)
     return gv
 
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView(args.gtf)
+    gv = GeneView._from_gtf(args.gtf)
     fv = FastaView(args.fasta)
     sample_exon(gv=gv, output_gtf_filename=args.out, fasta_handler=fv)

@@ -33,7 +33,7 @@ Highlights: This utility can read all format supported by :py:mod:`ioctl`, while
 
 import os
 from abc import abstractmethod
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Dict
 
 from commonutils import ioctl, logger
 from commonutils.logger import chronolog
@@ -56,6 +56,41 @@ class _FastaView:
     """
     Base class of other backends.
     """
+    filename: str
+    """
+    Filename to read
+    """
+
+    relname: str
+    """
+    The absolute path of the filename.
+    """
+
+    all_header: bool
+    """
+    Whether to read in all header.
+                           If False (default), will read until seeing space or tab.
+                           See :py:mod:`pybedtools` for more details.
+    """
+
+    backend: str
+    """
+    The backend to use.
+    """
+
+    chr_dict: Dict[str, Tuple[int, int, int]]
+    """ 
+    Format: ``{chr: (length, seek_start, line_width)}``
+    The line_width is the 4th (last but one) field of .fai files
+    """
+
+    @chronolog(display_time=True)
+    def __init__(self, filename: str, all_header: bool = False):
+        self.all_header = all_header
+        self.filename = filename
+        self.realname = ioctl.ensure_input_existence(self.filename)
+        self.backend = ''
+        self._chr_dict = dict()
 
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
@@ -69,36 +104,6 @@ class _FastaView:
         :param to_pos: To which position, use -1 for end
         """
         pass
-
-    @chronolog(display_time=True)
-    def __init__(self, filename: str, all_header: bool = False):
-        """
-
-
-        :param filename: Filename to read
-        :param all_header: Whether to read in all header.
-                           If False (default), will read until seeing space or tab.
-                           See :py:mod:`pybedtools` for more details.
-        """
-        self.all_header = all_header
-
-        self.filename = filename
-
-        self.realname = ioctl.ensure_input_existence(self.filename)
-        """
-        The absolute path of the filename.
-        """
-
-        self.backend = ''
-        """
-        The backend to use.
-        """
-
-        self._chr_dict = dict()
-        """ 
-        Format: ``{chr: (length, seek_start, line_width)}``
-        The line_width is the 4th (last but one) field of .fai files
-        """
 
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         """

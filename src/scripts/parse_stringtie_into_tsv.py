@@ -2,8 +2,9 @@ import argparse
 import sys
 from typing import List
 
-from bioutils.datastructure import Transcript
-from bioutils.datastructure.gene import GeneView
+from bioutils.datastructure import GeneView
+
+from bioutils.datastructure.gene_typing import Transcript
 from commonutils import ioctl
 
 __version__ = 0.1

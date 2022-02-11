@@ -53,6 +53,7 @@ try:
 except ImportError:
     _HAS_BIOPYTHON = False
 
+
 def _get_opener(filename: str, is_output: bool = False, is_binary: bool = False, **kwargs) -> IO:
     if is_output:
         realname = ensure_output_existence(filename)

@@ -3,6 +3,7 @@ import sys
 from typing import List
 
 from bioutils.datastructure.gene import GeneView
+
 from commonutils.tqdm_importer import tqdm
 
 __version__ = 0.1
