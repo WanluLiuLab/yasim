@@ -2,7 +2,7 @@ import argparse
 import sys
 from typing import List
 
-from bioutils.datastructure.gene import GeneView
+from bioutils.datastructure import GeneView
 
 from commonutils.tqdm_importer import tqdm
 
@@ -25,10 +25,10 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    ans_gv = GeneView(args.gtf)
-    ref_gv = GeneView(args.ref_gtf)
+    ans_gv = GeneView.from_file(args.gtf)
+    ref_gv = GeneView.from_file(args.ref_gtf)
     if args.ground_truth:
-        truth_gv = GeneView(args.ground_truth)
+        truth_gv = GeneView.from_file(args.ground_truth)
         number_of_transcripts_in_ground_truth = len(truth_gv.transcripts)
     else:
         truth_gv = None

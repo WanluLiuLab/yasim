@@ -31,7 +31,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
 
-
+# FIXME
 def get_with_defaults(transcript: Transcript, key: str) -> str:
     if key in transcript.data.attribute.keys():
         return repr(transcript.data.attribute[key])
@@ -41,7 +41,7 @@ def get_with_defaults(transcript: Transcript, key: str) -> str:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    ans_gv = GeneView(args.gtf)
+    ans_gv = GeneView.from_file(args.gtf)
     with ioctl.get_writer(args.out) as writer:
         writer.write("\t".join(POSSIBLE_KEYS) + "\n")
         for transcript in ans_gv.transcripts.values():

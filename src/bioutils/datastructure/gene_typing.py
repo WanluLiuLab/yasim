@@ -26,6 +26,9 @@ class SimpleData:
                self.seqname == other.seqname \
                and self.strand == other.strand
 
+    def __ne__(self, other: SimpleData):
+        return not self == other
+
     @classmethod
     @abstractmethod
     def from_gtf_record(cls, gtf_record: GtfRecord):
@@ -44,6 +47,11 @@ class SimpleData:
             frame='.',
             attribute={}
         )
+
+    def overlaps(self, other: SimpleData) -> bool:
+        # FIXME: bugs!
+        return self.seqname == other.seqname and \
+               self.end > other.start or self.start < other.end
 
 
 class Exon(SimpleData):
@@ -71,9 +79,6 @@ class Exon(SimpleData):
         new_instance.strand = gtf_record.strand
         new_instance.seqname = gtf_record.seqname
         return new_instance
-
-    def __ne__(self, other):
-        return not self == other
 
     def to_gtf_record(self):
         return GtfRecord(
