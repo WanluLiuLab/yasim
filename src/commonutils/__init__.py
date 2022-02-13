@@ -13,7 +13,3 @@
 """
 Utils -- Common sysadmin utilities.
 """
-
-import pyximport
-
-pyximport.install(language_level=3, inplace=True, load_py_module_on_import_failure=True)

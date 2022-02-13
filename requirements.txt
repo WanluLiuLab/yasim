@@ -1,4 +1,2 @@
-Cython
 pytest
 tqdm
-intervaltree

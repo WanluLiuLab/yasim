@@ -1,10 +1,13 @@
 library(tidyverse)
 library(argparser)
 
+p <- arg_parser(file_description)
+p <- add_argument(p, "--salmon_quant_sf", help = ".sf file produced by salmon quant.", type = "character")
+p <- add_argument(p, "--yasim_tsv", help = "Gene depth .tsv file produced by tasim.", type = "character")
+argv <- parse_args(p)
 
-
-salmon_quant_sf <- "transcripts_quant/quant.sf"
-yasim_tsv <- "hg38.chr1.gene.depth.tsv"
+salmon_quant_tsv <- argv$salmon_quant_tsv
+yasim_tsv <- argv$yasim_tsv
 
 yasm <- read_tsv(yasim_tsv)
 salmon_quant <- read_tsv(salmon_quant_sf) %>% dplyr::filter(NumReads>0)
