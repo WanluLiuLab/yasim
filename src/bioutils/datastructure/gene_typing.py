@@ -49,9 +49,14 @@ class SimpleData:
         )
 
     def overlaps(self, other: SimpleData) -> bool:
-        # FIXME: bugs!
-        return self.seqname == other.seqname and \
-               self.end > other.start or self.start < other.end
+        if self.seqname != other.seqname:
+            return False
+        return self.start < other.start < self.end or \
+               self.start < other.end < self.end or \
+               (
+                       other.start < self.start and
+                       self.end < other.end
+               )
 
 
 class Exon(SimpleData):

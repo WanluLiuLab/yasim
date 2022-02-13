@@ -84,7 +84,7 @@ def main(args: List[str]):
         gene_span_length.append(max_transcript_span_length)
 
     transcripts = list(gv.transcripts.values())
-    with open("overlapping_transcript.gtf", "a") as writer:
+    with ioctl.get_writer("overlapping_transcript.gtf") as writer:
         for t_i in tqdm(desc="Iterating over transcripts...",iterable=range(len(transcripts))):
             transcript = transcripts[t_i]
             for t_j in range(t_i, len(transcripts)):
