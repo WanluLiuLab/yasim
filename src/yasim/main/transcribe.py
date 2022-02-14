@@ -35,7 +35,7 @@ def transcribe(
     with ioctl.get_writer(os.path.join(output_fasta)) as writer:
         for k, v in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
             fa_name = k
-            fa_value = v.cdna_sequence(fasta_handler)
+            fa_value = v.cdna_sequence(sequence_func=fasta_handler.sequence)
             fa_str = f">{fa_name}\n{fa_value}\n"
             writer.write(fa_str)
 

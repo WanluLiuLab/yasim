@@ -584,3 +584,6 @@ transcripts_quant/
 dataset_sc_ngs*/
 *.html
 *.csv
+/STAR_*/
+*.summary
+/salmon_quant_*

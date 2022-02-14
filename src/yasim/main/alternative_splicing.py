@@ -38,7 +38,7 @@ def sample_exon(
     for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
         indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
         v.exons = [v.exons[i] for i in sorted(indices)]
-        if len(v.cdna_sequence(fasta_handler)) >= 250:
+        if len(v.cdna_sequence(sequence_func=fasta_handler.sequence)) >= 250:
             pass
         else:
             transcript_name_to_del.append(k)
