@@ -15,9 +15,10 @@ export FASTQ_BASENAME := $(ROOTDIR)/hg38.chr1.transcripts
 
 .SECONDARY:
 
-.PHONY:all NGS TGS
+.PHONY:all DWGSIM PBSIM PBSIM2
 
-NGS:  $(ROOTDIR)/yasim_to_salmon_quant_dwgsim.png \
+DWGSIM: \
+$(ROOTDIR)/yasim_to_salmon_quant_dwgsim.png \
 $(ROOTDIR)/yasim_to_featureCounts_quant_STAR_dwgsim.png \
 $(ROOTDIR)/yasim_to_htseq_quant_STAR_dwgsim.png \
 $(ROOTDIR)/yasim_to_stringtie_quant_STAR_dwgsim.png \
@@ -27,12 +28,29 @@ $(ROOTDIR)/yasim_to_stringtie_quant_e_hisat2_dwgsim.png \
 $(ROOTDIR)/yasim_to_featureCounts_quant_hisat2_dwgsim.png \
 $(ROOTDIR)/yasim_to_htseq_quant_hisat2_dwgsim.png
 
-TGS: $(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_clr.png \
-$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_ccs.png \
-$(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_clr.png \
-$(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_ccs.png
+# -e is not that good in TGS, so not used.
 
-all: NGS TGS
+PBSIM: \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_clr.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_ccs.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_clr.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_ccs.png
+
+PBSIM2: \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_R103.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_R95.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_R94.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_P6C4.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_P5C3.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim2_P4C2.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_R103.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_R95.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_R94.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_P6C4.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_P5C3.png \
+# $(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim2_P4C2.png
+
+all:DWGSIM PBSIM PBSIM2
 
 include $(CURDIR)/general.mk
 include $(CURDIR)/simulators.mk

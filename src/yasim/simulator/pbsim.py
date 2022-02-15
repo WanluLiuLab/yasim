@@ -7,20 +7,6 @@ from yasim.simulator import Simulator
 
 FILE_DIR = os.path.dirname(__file__)
 
-
-#     pbsim --prefix "${SIM_DIR}"/pbsim/"${2}"/sd \
-#     --data-type CLR  "${1}" \
-#     --model_qc /usr/share/pbsim/models/model_qc_clr \
-#     --length-mean 3080 \
-#     --length-sd 2211 \
-#     --length-min 50 \
-#     --length-max 50000 \
-#     --accuracy-mean 1.0 \
-#     --accuracy-sd 0.0 \
-#     --accuracy-min 1.0 \
-#     --difference-ratio 47:38:15 \
-#     "${SIM_DIR}"/hg38_shuffled_filtered_"${2}".fa
-
 class _SimulatorPbsimBase(Simulator):
 
     def assemble_cmd(self) -> List[str]:
