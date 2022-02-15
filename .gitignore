@@ -564,8 +564,6 @@ temp/
 *.st
 
 # =================== Packing ===================
-requirements.txt
-requirements-dev.txt
 /tetgs-dev.yaml
 /tetgs.yaml
 *.tsv
@@ -578,7 +576,6 @@ cmd_profiler*/
 /TODO
 *.c
 .idea/
-!requirements.txt
 transcripts_quant/
 *.gvpkl
 dataset_sc_ngs*/
@@ -587,3 +584,5 @@ dataset_sc_ngs*/
 /STAR_*/
 *.summary
 /salmon_quant_*
+/iter_*
+.vscode/

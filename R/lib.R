@@ -17,21 +17,21 @@ salmon_quant_sf_col_types <- cols(
     NumReads = col_double()
 )
 stringtie_quant_tsv_col_types <- cols(
-    gene_id = col_charater(),
-    transcript_id = col_charater(),
-    reference_id = col_charater(),
-    ref_gene_id = col_charater(),
-    ref_gene_name = col_charater(),
+    gene_id = col_character(),
+    transcript_id = col_character(),
+    reference_id = col_character(),
+    ref_gene_id = col_character(),
+    ref_gene_name = col_character(),
     cov = col_double(),
     FPKM = col_double(),
     TPM = col_double()
 )
-featureCounts_tsv_col_types <- col(
-    Geneid = col_charater(),
-    Chr = col_charater(),
-    Start = col_charater(),
-    End = col_charater(),
-    Strand = col_charater(),
+featureCounts_tsv_col_types <- cols(
+    Geneid = col_character(),
+    Chr = col_character(),
+    Start = col_character(),
+    End = col_character(),
+    Strand = col_character(),
     Length = col_number(),
     NumReads = col_double(),
 )
@@ -44,4 +44,11 @@ featureCounts_tsv_col_names <- c(
     "Length",
     "NumReads"
 )
-
+htseq_quant_tsv_col_types <- cols(
+    Name=col_character(),
+    NumReads=col_double()
+)
+htseq_quant_tsv_col_names <- c(
+    "Name",
+    "NumReads"
+)
