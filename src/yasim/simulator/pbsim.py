@@ -1,3 +1,4 @@
+import glob
 import os
 from typing import List
 
@@ -5,6 +6,7 @@ from commonutils import ioctl
 from yasim.simulator import Simulator
 
 FILE_DIR = os.path.dirname(__file__)
+
 
 #     pbsim --prefix "${SIM_DIR}"/pbsim/"${2}"/sd \
 #     --data-type CLR  "${1}" \
@@ -20,7 +22,6 @@ FILE_DIR = os.path.dirname(__file__)
 #     "${SIM_DIR}"/hg38_shuffled_filtered_"${2}".fa
 
 class _SimulatorPbsimBase(Simulator):
-    tmp_prefix: str
 
     def assemble_cmd(self) -> List[str]:
         cmd = [
@@ -34,10 +35,28 @@ class _SimulatorPbsimBase(Simulator):
         return cmd
 
     def move_file_after_finish(self):
-        pass # TODO
+        counter = 0
+        with ioctl.get_writer(self.output_fastq_prefix + ".fq") as writer:
+            for filename in glob.glob(self.tmp_prefix + "_*.fastq"):
+                with ioctl.get_reader(filename) as reader:
+
+                    while True:
+                        line = reader.readline()
+                        if not line:
+                            break
+                        if counter % 4 == 0:
+                            line = f"@{self.output_fastq_prefix}+{counter}\n"
+                        elif counter % 2 == 0:
+                            line = "+\n"
+                        writer.write(line)
+                        counter += 1
+                ioctl.rm_rf(filename)
+                ioctl.rm_rf(os.path.basename(filename) + ".maf")
+                ioctl.rm_rf(os.path.basename(filename) + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim")
+
 
 class SimulatePbsimCLR(_SimulatorPbsimBase):
     def assemble_cmd(self) -> List[str]:
@@ -71,4 +90,3 @@ class SimulatePbsimCCS(_SimulatorPbsimBase):
             self.input_fasta
         ]
         return cmd
-

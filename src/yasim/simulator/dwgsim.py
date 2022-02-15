@@ -8,7 +8,6 @@ from yasim.simulator import Simulator
 
 
 class SimulatorDwgsim(Simulator):
-    tmp_prefix: str
 
     def assemble_cmd(self) -> List[str]:
         cmd = ["dwgsim"]

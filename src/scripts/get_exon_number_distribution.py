@@ -4,9 +4,9 @@ import sys
 from collections import defaultdict
 from typing import List
 
-from bioutils.datastructure import GeneView
 from matplotlib import pyplot as plt
 
+from bioutils.datastructure import GeneView
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
 
@@ -85,7 +85,7 @@ def main(args: List[str]):
 
     transcripts = list(gv.transcripts.values())
     with ioctl.get_writer("overlapping_transcript.gtf") as writer:
-        for t_i in tqdm(desc="Iterating over transcripts...",iterable=range(len(transcripts))):
+        for t_i in tqdm(desc="Iterating over transcripts...", iterable=range(len(transcripts))):
             transcript = transcripts[t_i]
             for t_j in range(t_i, len(transcripts)):
                 another_transcript = transcripts[t_j]
@@ -113,6 +113,7 @@ def main(args: List[str]):
     with ioctl.get_writer("gene_with_antisense_transcripts_on_same_chr.gtf") as writer:
         for gtf_str in gene_with_antisense_transcripts_on_same_chr.values():
             writer.writelines(gtf_str)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

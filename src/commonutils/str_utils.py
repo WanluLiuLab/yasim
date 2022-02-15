@@ -59,6 +59,7 @@ def get_color(fd: int):
         retd = DumbColorEnum
     return retd
 
+
 def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
     """
     To exchange the keys and values of one dictionary, that is,
@@ -71,6 +72,7 @@ def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
     for k, v in in_dict.items():
         out_dict[v] = k
     return out_dict
+
 
 def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[str, Any]:
     """
@@ -98,6 +100,7 @@ def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[
         new_dict[new_key] = in_dict[old_key]
     return new_dict
 
+
 def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[str]:
     """
     List Translator.
@@ -117,12 +120,13 @@ def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[s
         else:
             yield old_item
 
+
 def to_dict(
         in_str: str,
         field_sep: str = '\t',
         record_sep: str = '\n',
-        quotation_mark:Optional[str]=None,
-        resolve_str:bool=True
+        quotation_mark: Optional[str] = None,
+        resolve_str: bool = True
 ) -> Dict[str, Any]:
     """
     A simple parser to get key-value pairs to a dictionary.
@@ -155,10 +159,10 @@ def to_dict(
                 record_val = record[first_field_sep_pos:].lstrip()
                 break
         else:
-            record_val=""
+            record_val = ""
         if quotation_mark is not None:
-            record_key=record_key.strip(quotation_mark)
-            record_val=record_val.strip(quotation_mark)
+            record_key = record_key.strip(quotation_mark)
+            record_val = record_val.strip(quotation_mark)
         if resolve_str:
             try:
                 if "." in record_val:
