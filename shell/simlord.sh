@@ -5,10 +5,10 @@ if ! which conda &>> /dev/null; then
     exit 127
 fi
 
-if ! conda env list | grep ^badread &>> /dev/null; then
-    conda create -y -n badread -c bioconda badread
+if ! conda env list | grep ^simlord &>> /dev/null; then
+    conda create -y -n simlord -c bioconda simlord
 fi
 
 eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate badread
-badread "${@}"
+conda activate simlord
+simlord "${@}"

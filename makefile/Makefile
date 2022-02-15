@@ -44,6 +44,10 @@ include $(CURDIR)/featureCounts.mk
 include $(CURDIR)/htseq.mk
 include $(CURDIR)/stringtie.mk
 
+.PHONY: dist
+dist:
+	$(MAKE) -C $(ROOTDIR)/dist
+
 $(SEL_GTF):
 	$(YASIM) alternative_splicing -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
 
