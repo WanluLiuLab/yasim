@@ -586,3 +586,4 @@ dataset_sc_ngs*/
 /salmon_quant_*
 /iter_*
 .vscode/
+*.transcripts_*.d/

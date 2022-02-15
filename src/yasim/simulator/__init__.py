@@ -11,8 +11,22 @@ from commonutils.logger import get_logger
 class Simulator(threading.Thread):
     input_fasta: str
     output_fastq_prefix: str
+    """
+    Prefix for output FASTQs.
+    
+    For simulator that generates pair end reads,
+    the generated read will named {output_fastq_prefix}_1.fq and {output_fastq_prefix}_2.fq.
+    
+    For simulators that generates single-end reads,
+    the generated read will named {output_fastq_prefix}.fq
+    """
+
     depth: int
     kwargs: Dict[str, Any]
+    tmp_prefix: str
+    """
+    Simulator-based temp directory name.
+    """
 
     def __init__(self,
                  input_fasta: str,

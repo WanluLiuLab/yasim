@@ -31,7 +31,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def get_with_defaults(transcript_gtf_record:GtfRecord, key: str) -> str:
+def get_with_defaults(transcript_gtf_record: GtfRecord, key: str) -> str:
     if key in transcript_gtf_record.attribute.keys():
         return repr(transcript_gtf_record.attribute[key])
     else:

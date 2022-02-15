@@ -1,4 +1,3 @@
-
 __version__ = 0.2
 
 import os
@@ -13,6 +12,7 @@ from commonutils import ioctl, pickle_with_tqdm
 from commonutils.logger import get_logger
 
 lh = get_logger(__name__)
+
 
 class GeneView:
     genes: Dict[str, Gene]

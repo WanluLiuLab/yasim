@@ -15,7 +15,9 @@ export FASTQ_BASENAME := $(ROOTDIR)/hg38.chr1.transcripts
 
 .SECONDARY:
 
-all: $(ROOTDIR)/yasim_to_salmon_quant_dwgsim.png \
+.PHONY:all NGS TGS
+
+NGS:  $(ROOTDIR)/yasim_to_salmon_quant_dwgsim.png \
 $(ROOTDIR)/yasim_to_featureCounts_quant_STAR_dwgsim.png \
 $(ROOTDIR)/yasim_to_htseq_quant_STAR_dwgsim.png \
 $(ROOTDIR)/yasim_to_stringtie_quant_STAR_dwgsim.png \
@@ -25,9 +27,18 @@ $(ROOTDIR)/yasim_to_stringtie_quant_e_hisat2_dwgsim.png \
 $(ROOTDIR)/yasim_to_featureCounts_quant_hisat2_dwgsim.png \
 $(ROOTDIR)/yasim_to_htseq_quant_hisat2_dwgsim.png
 
+TGS: $(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_clr.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_minimap2_pbsim_ccs.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_clr.png \
+$(ROOTDIR)/yasim_to_stringtie_quant_e_minimap2_pbsim_ccs.png
+
+all: NGS TGS
+
 include $(CURDIR)/general.mk
+include $(CURDIR)/simulators.mk
 include $(CURDIR)/hisat2.mk
 include $(CURDIR)/STAR.mk
+include $(CURDIR)/minimap2.mk
 include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk
 include $(CURDIR)/htseq.mk
@@ -44,7 +55,4 @@ $(DEPTH_TSV): $(SEL_GTF)
 
 $(REFERENCE_CDNA):
 	$(YASIM) transcribe -g "$(REFERENCE_GTF)" -o $@ -f "$(REFERENCE_FASTA)"
-
-$(FASTQ_BASENAME)_dwgsim_1.fq: $(DEPTH_TSV) $(SEL_CDNA_FASTA)
-	$(YASIM) dwgsim -F "$(SEL_CDNA_FASTA)" -o "$(FASTQ_BASENAME)"_dwgsim -d "$(DEPTH_TSV)"
 
