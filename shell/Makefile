@@ -43,7 +43,7 @@ $(ROOTDIR)/salmon_quant_%:$(FASTQ_BASENAME)_%_1.fq $(SALMON_INDEX)
 	salmon quant -i "$(SALMON_INDEX)" --threads "${THREADS}" -l IU -1 "$<" -2 $(subst _1.fq,_2.fq,$<) -o $@
 
 $(ROOTDIR)/yasim_to_salmon_quant_%.png: $(ROOTDIR)/salmon_quant_%
-	 Rscript $(ROOTDIR)/R/test_salmon.R  --salmon_quant_sf $</quant.sf --yasim_tsv "$(DEPTH_TSV)" --output $(basename $@)
+	 Rscript $(ROOTDIR)/R/test_salmon.R --libfile "$(ROOTDIR)/R/lib.R"  --salmon_quant_sf $</quant.sf --yasim_tsv "$(DEPTH_TSV)" --output $(basename $@)
 
 $(ROOTDIR)/STAR_%.bam:$(FASTQ_BASENAME)_%_1.fq $(STAR_INDEX)
 	STAR --genomeDir "$(STAR_INDEX)" \
@@ -56,7 +56,7 @@ $(ROOTDIR)/STAR_%.bam:$(FASTQ_BASENAME)_%_1.fq $(STAR_INDEX)
 $(ROOTDIR)/featureCounts_quant_%.tsv:$(ROOTDIR)/STAR_%.bam $(SALMON_INDEX)
 	featureCounts -t transcript -p -a "$(REFERENCE_GTF)" -T "${THREADS}" -o $@ $<
 
-
+# --libfile "$(ROOTDIR)/R/lib.R"
 
 all: $(ROOTDIR)/yasim_to_salmon_quant_dwgsim.png $(ROOTDIR)/featureCounts_quant_dwgsim.tsv
 
