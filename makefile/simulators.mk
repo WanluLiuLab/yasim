@@ -12,3 +12,8 @@ $(FASTQ_BASENAME)_pbsim_ccs.fq: $(SEL_CDNA_FASTA)
 $(FASTQ_BASENAME)_pbsim2_%.fq: $(SEL_CDNA_FASTA)
 	$(YASIM) pbsim2 -F "$(SEL_CDNA_FASTA)".d -o $(basename $@) -m $(lastword $(subst _,\ ,$(basename $@)))
 	rm -rf $(basename $@).d
+
+$(FASTQ_BASENAME)_badread_%.fq: $(SEL_CDNA_FASTA)
+	$(YASIM) badread -F "$(SEL_CDNA_FASTA)".d -o $(basename $@) -m $(lastword $(subst _,\ ,$(basename $@)))
+	rm -rf $(basename $@).d
+
