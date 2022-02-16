@@ -9,8 +9,8 @@ FILE_DIR = os.path.dirname(__file__)
 
 
 class SimulatePbsim2(Simulator):
-    hmm_model:str
-    pbsim2_exename:str
+    hmm_model: str
+    pbsim2_exename: str
 
     def assemble_cmd(self) -> List[str]:
         cmd = [
@@ -39,6 +39,8 @@ class SimulatePbsim2(Simulator):
                         writer.write(line)
                         counter += 1
                 ioctl.rm_rf(filename)
+                ioctl.rm_rf(os.path.splitext(filename)[0] + ".maf")
+                ioctl.rm_rf(os.path.splitext(filename)[0] + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim2")
@@ -48,9 +50,9 @@ class SimulatePbsim2(Simulator):
             input_fasta: str,
             output_fastq_prefix: str,
             depth: int,
-            hmm_model:str,
-            pbsim2_exename:str = "pbsim2",
+            hmm_model: str,
+            pbsim2_exename: str = "pbsim2",
             **kwargs):
         super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
         self.hmm_model = hmm_model
-        self.pbsim2_exename=pbsim2_exename
+        self.pbsim2_exename = pbsim2_exename

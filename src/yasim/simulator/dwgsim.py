@@ -1,6 +1,6 @@
 import glob
 import shutil
-from typing import List
+from typing import List, Union, Optional
 
 from commonutils import ioctl
 from commonutils.compressor import gz_decompress
@@ -8,9 +8,22 @@ from yasim.simulator import Simulator
 
 
 class SimulatorDwgsim(Simulator):
+    dwgsim_exename: str
+
+    def __init__(self,
+                 input_fasta: str,
+                 output_fastq_prefix: str,
+                 depth: Union[int, float],
+                 dwgsim_exename: Optional[str] = None,
+                 **kwargs):
+        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
+        if dwgsim_exename is None:
+            self.dwgsim_exename = "dwgsim"
+        else:
+            self.dwgsim_exename = dwgsim_exename
 
     def assemble_cmd(self) -> List[str]:
-        cmd = ["dwgsim"]
+        cmd = [self.dwgsim_exename]
         cmd.append("-C")
         cmd.append(str(self.depth))
         cmd.append(self.input_fasta)
@@ -59,20 +72,3 @@ class SimulatorDwgsim(Simulator):
 
     def run(self) -> None:
         self.run_simulator_as_process("dwgsim")
-
-
-class SimulatorDwgsimPerfect(SimulatorDwgsim):
-    def assemble_cmd(self) -> List[str]:
-        cmd = [
-            "dwgsim",
-            "-d", str(self.getopt("d", 100)),
-            "-e", str(self.getopt("e", 0.0)),
-            "-E", str(self.getopt("E", 0.0)),
-            "-r", str(self.getopt("r", 0.0)),
-            "-R", str(self.getopt("R", 0.0)),
-            "-F", str(self.getopt("F", 0.0)),
-            "-y", str(self.getopt("y", 0.0)),
-            "-C", str(self.depth),
-            self.input_fasta, self.tmp_prefix
-        ]
-        return cmd

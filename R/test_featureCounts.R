@@ -19,13 +19,13 @@ featureCounts_data <- read_tsv(
     quote = "\'",
     col_types = featureCounts_tsv_col_types,
     col_names = featureCounts_tsv_col_names,
-    comment="#"
-) %>% dplyr::filter(NumReads>0)
+    comment = "#"
+) %>% dplyr::filter(NumReads > 0)
 print(head(featureCounts_data))
-all_table <-  dplyr::inner_join(yasim_data, featureCounts_data, by=c("gene_name" = "Geneid"))
+all_table <- dplyr::inner_join(yasim_data, featureCounts_data, by = c("gene_name" = "Geneid"))
 
 message(sprintf("Read %d from yasim_tsv and %d from salmon_quant_sf. %d left merged.",
                 nrow(yasim_data), nrow(featureCounts_data), nrow(all_table)))
 
-g <- ggplot(all_table) + stat_summary(aes(x=depth,y=NumReads))
-ggsave(paste0(argv$output,".png"), plot=g)
+g <- ggplot(all_table) + stat_summary(aes(x = depth, y = NumReads))
+ggsave(paste0(argv$output, ".png"), plot = g)

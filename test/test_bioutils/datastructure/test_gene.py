@@ -1,8 +1,5 @@
-import os
-
-from bioutils.datastructure import GeneView
-
 import test_tetgs
+from bioutils.datastructure import GeneView
 from commonutils import ioctl, logger
 
 logger.set_level(8)

@@ -51,6 +51,6 @@ def sample_exon(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView._from_gtf(args.gtf)
+    gv = GeneView.from_file(args.gtf)
     fv = FastaView(args.fasta)
     sample_exon(gv=gv, output_gtf_filename=args.out, fasta_handler=fv)

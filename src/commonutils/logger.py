@@ -40,6 +40,8 @@ import os
 __all__ = ['__version__', 'TRACE', 'chronolog', 'set_level', 'get_logger']
 __version__ = 0.1
 
+from typing import Union
+
 _SB = os.environ.get('SPHINX_BUILD')
 
 # The following contents adds a new log level called trace.
@@ -61,10 +63,20 @@ logging.trace = trace
 _lh = logging.getLogger()
 
 
-def set_level(level, quiet: bool = True) -> int:
+def _get_formatter(level: int) -> logging.Formatter:
+    if level > logging.DEBUG:
+        log_format = '%(asctime)s\t[%(levelname)s] %(message)s'
+    else:
+        log_format = '%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s'
+    return logging.Formatter(log_format)
+
+
+def set_level(level: Union[str, int], quiet: bool = True) -> int:
     """
     Set the global logging level, and update the format.
     The log will be more verbose if the level is below debug.
+
+    # FIXME: File set DEBUG.
     """
     this_level = _lh.getEffectiveLevel()
     try:
@@ -74,21 +86,19 @@ def set_level(level, quiet: bool = True) -> int:
         pass
     if not quiet:
         _lh.info(f'Resetting log level: {logging.getLevelName(this_level)}')
-    if this_level > logging.DEBUG:
-        log_format = '%(asctime)s\t[%(levelname)s] %(message)s'
-    else:
-        log_format = '%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s'
-    formatted = logging.Formatter(log_format)
+
     logging.basicConfig(
-        level=this_level,
-        format=log_format,
+        # level=this_level,
         handlers=[
             logging.StreamHandler()
         ]
     )
-    logging.root.setLevel(level)
+    file_handler = logging.FileHandler(filename="log.log")
+    file_handler.setLevel(logging.DEBUG)
+    # logging.root.setLevel(logging.DEBUG)
     for handler in logging.root.handlers:
-        handler.formatter = formatted
+        handler.formatter = _get_formatter(this_level)
+    logging.root.addHandler(file_handler)
     return this_level
 
 

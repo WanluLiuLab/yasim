@@ -36,7 +36,6 @@ def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneView.from_file(args.gtf)
     transcript_numbers = []
-    gene_span_length = []
     transcript_span_length = []
     transcript_length = []
     exon_numbers = []
@@ -45,7 +44,6 @@ def main(args: List[str]):
     gene_with_antisense_transcripts = defaultdict(lambda: [])
     gene_with_antisense_transcripts_on_same_chr = defaultdict(lambda: [])
     transcript_with_antisense_exons = defaultdict(lambda: [])
-    overlapping_transcript = defaultdict(lambda: [])
 
     for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
         max_transcript_span_length = 0
@@ -81,7 +79,6 @@ def main(args: List[str]):
         start_and_end_sites = start_sites
         start_and_end_sites.update(end_sites)
         start_and_end_sites_number.append(len(start_and_end_sites))
-        gene_span_length.append(max_transcript_span_length)
 
     transcripts = list(gv.transcripts.values())
     with ioctl.get_writer("overlapping_transcript.gtf") as writer:
@@ -96,7 +93,6 @@ def main(args: List[str]):
     transcript_with_antisense_exons = transcript_with_antisense_exons
     stat(transcript_numbers, "transcript_numbers_in_a_gene")
     stat(exon_numbers, "exon_numbers_in_a_transcript")
-    stat(gene_span_length, "gene_span_length")
     stat(transcript_span_length, "transcript_span_length")
     stat(exon_length, "exon_length")
     stat(transcript_length, "transcript_length")

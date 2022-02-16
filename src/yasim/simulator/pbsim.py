@@ -1,23 +1,59 @@
 import glob
 import os
-from typing import List
+from typing import List, Optional
 
 from commonutils import ioctl
-from yasim.simulator import Simulator
+from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
 
 FILE_DIR = os.path.dirname(__file__)
 
-class _SimulatorPbsimBase(Simulator):
+
+class SimulatorPbsim(Simulator):
+    is_ccs: bool
+
+    def __init__(
+            self,
+            input_fasta: str,
+            output_fastq_prefix: str,
+            depth: int,
+            pbsim_exename: Optional[str] = None,
+            is_ccs: bool = False,
+            **kwargs
+    ):
+        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
+        if pbsim_exename is None:
+            self.pbsim_exename = os.path.join(ADAPTER_SHELL_PATH, "pbsim.sh")
+        else:
+            self.pbsim_exename = pbsim_exename
+        self.is_ccs = is_ccs
 
     def assemble_cmd(self) -> List[str]:
-        cmd = [
-            "pbsim",
-            "--prefix",
-            self.tmp_prefix,
-            "--depth",
-            str(self.depth),
-            self.input_fasta
-        ]
+        if self.is_ccs:
+            cmd = [
+                self.pbsim_exename,
+                "--prefix",
+                self.tmp_prefix,
+                "--depth",
+                str(self.depth),
+                "--data-type",
+                "CCS",
+                "--model_qc",
+                os.path.join(FILE_DIR, "pbsim_dist", "model_qc_ccs"),
+                self.input_fasta
+            ]
+        else:
+            cmd = [
+                self.pbsim_exename,
+                "--prefix",
+                self.tmp_prefix,
+                "--depth",
+                str(self.depth),
+                "--data-type",
+                "CLR",
+                "--model_qc",
+                os.path.join(FILE_DIR, "pbsim_dist", "model_qc_clr"),
+                self.input_fasta
+            ]
         return cmd
 
     def move_file_after_finish(self):
@@ -37,42 +73,8 @@ class _SimulatorPbsimBase(Simulator):
                         writer.write(line)
                         counter += 1
                 ioctl.rm_rf(filename)
-                ioctl.rm_rf(os.path.basename(filename) + ".maf")
-                ioctl.rm_rf(os.path.basename(filename) + ".ref")
+                ioctl.rm_rf(os.path.splitext(filename)[0] + ".maf")
+                ioctl.rm_rf(os.path.splitext(filename)[0] + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim")
-
-
-class SimulatePbsimCLR(_SimulatorPbsimBase):
-    def assemble_cmd(self) -> List[str]:
-        cmd = [
-            "pbsim",
-            "--prefix",
-            self.tmp_prefix,
-            "--depth",
-            str(self.depth),
-            "--data-type",
-            "CLR",
-            "--model_qc",
-            os.path.join(FILE_DIR, "pbsim_dist", "model_qc_clr"),
-            self.input_fasta
-        ]
-        return cmd
-
-
-class SimulatePbsimCCS(_SimulatorPbsimBase):
-    def assemble_cmd(self) -> List[str]:
-        cmd = [
-            "pbsim",
-            "--prefix",
-            self.tmp_prefix,
-            "--depth",
-            str(self.depth),
-            "--data-type",
-            "CCS",
-            "--model_qc",
-            os.path.join(FILE_DIR, "pbsim_dist", "model_qc_ccs"),
-            self.input_fasta
-        ]
-        return cmd

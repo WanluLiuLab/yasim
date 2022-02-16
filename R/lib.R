@@ -45,8 +45,8 @@ featureCounts_tsv_col_names <- c(
     "NumReads"
 )
 htseq_quant_tsv_col_types <- cols(
-    Name=col_character(),
-    NumReads=col_double()
+    Name = col_character(),
+    NumReads = col_double()
 )
 htseq_quant_tsv_col_names <- c(
     "Name",
