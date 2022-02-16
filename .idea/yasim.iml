@@ -34,6 +34,8 @@
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_R94.d" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_R103.d" />
       <excludeFolder url="file://$MODULE_DIR$/STAR_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/makefile/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/tmp_96h8RO" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

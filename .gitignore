@@ -587,3 +587,10 @@ dataset_sc_ngs*/
 /iter_*
 .vscode/
 *.transcripts_*.d/
+*.tmp
+tmp*/
+*.tracking
+*.tmap
+*.refmap
+*.stats
+*.loci
