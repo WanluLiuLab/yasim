@@ -23,11 +23,12 @@ class SimulatorDwgsim(Simulator):
             self.dwgsim_exename = dwgsim_exename
 
     def assemble_cmd(self) -> List[str]:
-        cmd = [self.dwgsim_exename]
-        cmd.append("-C")
-        cmd.append(str(self.depth))
-        cmd.append(self.input_fasta)
-        cmd.append(self.tmp_prefix)
+        cmd = [
+            self.dwgsim_exename,
+            "-C", str(self.depth),
+            self.input_fasta,
+            self.tmp_prefix
+        ]
         return cmd
 
     def move_file_after_finish(self):

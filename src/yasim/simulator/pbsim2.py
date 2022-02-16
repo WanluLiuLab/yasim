@@ -15,14 +15,10 @@ class SimulatePbsim2(Simulator):
     def assemble_cmd(self) -> List[str]:
         cmd = [
             self.pbsim2_exename,
-            "--prefix",
-            self.tmp_prefix,
-            "--id-prefix",
-            self.tmp_prefix,
-            "--depth",
-            str(self.depth),
-            "--hmm_model",
-            os.path.join(FILE_DIR, "pbsim2_dist", f"{self.hmm_model}.model"),
+            "--prefix", self.tmp_prefix,
+            "--id-prefix", self.tmp_prefix,
+            "--depth", str(self.depth),
+            "--hmm_model", os.path.join(FILE_DIR, "pbsim2_dist", f"{self.hmm_model}.model"),
             self.input_fasta
         ]
         return cmd

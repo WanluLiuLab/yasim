@@ -26,6 +26,14 @@
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/shell/.vscode" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_sel.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_dwgsim.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_badread_nanopore2018.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_badread_nanopore2020.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_badread_pacbio2016.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_P4C2.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_P5C3.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_R94.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_R103.d" />
+      <excludeFolder url="file://$MODULE_DIR$/STAR_dwgsim" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

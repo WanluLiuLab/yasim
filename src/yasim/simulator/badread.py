@@ -30,7 +30,15 @@ class SimulatorBadread(Simulator):
         """
         TODO
         """
-        cmd = ""
+        cmd = [
+            self.badread_exename, "simulate",
+            "--reference", self.input_fasta,
+            "--quantity", f"{self.depth}x",
+            "--error_model", self.model_name,
+            "--qscore_model", self.model_name,
+            "--start_adapter_seq","",
+            "--end_adapter_seq", ""
+        ]
         return cmd
 
     def move_file_after_finish(self):

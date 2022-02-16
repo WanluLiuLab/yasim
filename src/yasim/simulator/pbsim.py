@@ -32,27 +32,19 @@ class SimulatorPbsim(Simulator):
         if self.is_ccs:
             cmd = [
                 self.pbsim_exename,
-                "--prefix",
-                self.tmp_prefix,
-                "--depth",
-                str(self.depth),
-                "--data-type",
-                "CCS",
-                "--model_qc",
-                os.path.join(FILE_DIR, "pbsim_dist", "model_qc_ccs"),
+                "--prefix", self.tmp_prefix,
+                "--depth", str(self.depth),
+                "--data-type", "CCS",
+                "--model_qc", os.path.join(FILE_DIR, "pbsim_dist", "model_qc_ccs"),
                 self.input_fasta
             ]
         else:
             cmd = [
                 self.pbsim_exename,
-                "--prefix",
-                self.tmp_prefix,
-                "--depth",
-                str(self.depth),
-                "--data-type",
-                "CLR",
-                "--model_qc",
-                os.path.join(FILE_DIR, "pbsim_dist", "model_qc_clr"),
+                "--prefix", self.tmp_prefix,
+                "--depth", str(self.depth),
+                "--data-type", "CLR",
+                "--model_qc", os.path.join(FILE_DIR, "pbsim_dist", "model_qc_clr"),
                 self.input_fasta
             ]
         return cmd
