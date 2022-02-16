@@ -575,7 +575,7 @@ cmd_profiler*/
 /README
 /TODO
 *.c
-.idea/
+
 transcripts_quant/
 *.gvpkl
 dataset_sc_ngs*/

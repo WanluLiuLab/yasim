@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts.d" />
+      <excludeFolder url="file://$MODULE_DIR$/src/build" />
+      <excludeFolder url="file://$MODULE_DIR$/test/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/dataset_sc_ngs" />
+      <excludeFolder url="file://$MODULE_DIR$/transcripts_quant" />
+      <excludeFolder url="file://$MODULE_DIR$/salmon_quant_bam_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_1" />
+      <excludeFolder url="file://$MODULE_DIR$/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_2/salmon_quant_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_2/STAR_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_2" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim_ccs.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim_clr.d" />
+      <excludeFolder url="file://$MODULE_DIR$/salmon_quant_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_2/hg38.chr1.transcripts_dwgsim.d" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/PaSS" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_pbsim2_R95.d" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/shell/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_sel.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts_dwgsim.d" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
+  </component>
+  <component name="TestRunnerService">
+    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+  </component>
+</module>
