@@ -10,6 +10,7 @@ FILE_DIR = os.path.dirname(__file__)
 
 class SimulatorPbsim(Simulator):
     is_ccs: bool
+    pbsim_exename:str
 
     def __init__(
             self,
