@@ -1,16 +1,21 @@
 
 export ROOTDIR := $(abspath $(CURDIR)/../)
+export DATADIR := $(ROOTDIR)/iter_2
 export PYTHONPATH := "$(ROOTDIR)/src:$(PYTHONPATH:-)"
 export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
 export REFERENCE_FASTA := /home/yuzj/Desktop/BioRef/chr1.fa
 export REFERENCE_GTF := /home/yuzj/Desktop/BioRef/chr1.ncbiRefSeq.gtf
-export REFERENCE_CDNA := $(ROOTDIR)/hg38.chr1.reference_transcripts.fa
+export REFERENCE_CDNA := $(DATADIR)/hg38.chr1.reference_transcripts.fa
 export THREADS := 40
-export SEL_GTF := $(ROOTDIR)/Homo_sapiens.GRCh38.105_chr1_sel.gtf
-export SEL_CDNA_FASTA := $(ROOTDIR)/hg38.chr1.transcripts_sel.fa
+export SEL_GTF := $(DATADIR)/Homo_sapiens.GRCh38.105_chr1_sel.gtf
+export SEL_CDNA_FASTA := $(DATADIR)/hg38.chr1.transcripts_sel.fa
 export SEL_CDNA_FASTA_D := $(SEL_CDNA_FASTA).d
-export DEPTH_TSV := $(ROOTDIR)/hg38.chr1.gene.depth.tsv
-export FASTQ_BASENAME := $(ROOTDIR)/hg38.chr1.transcripts
+export DEPTH_TSV := $(DATADIR)/hg38.chr1.gene.depth.tsv
+export FASTQ_BASENAME := $(DATADIR)/hg38.chr1.transcripts
+
+ifeq "$(wildcard $(DATADIR) )" ""
+$(shell mkdir -p $(DATADIR))
+endif
 
 # export R_ENVIRON_USER := $(ROOTDIR)/R/.Rprofile
 
@@ -44,3 +49,6 @@ $(SEL_CDNA_FASTA_D): $(SEL_GTF) $(DEPTH_TSV)
 $(REFERENCE_CDNA):
 	$(YASIM) transcribe -g "$(REFERENCE_GTF)" -o $@ -f "$(REFERENCE_FASTA)"
 
+.PHONY: nothing
+nothing:
+	$(message Nothing made)

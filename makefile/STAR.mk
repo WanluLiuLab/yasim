@@ -11,7 +11,7 @@ $(STAR_INDEX):
 	--genomeFastaFiles "$(REFERENCE_FASTA)" \
 	--sjdbGTFfile "$(REFERENCE_GTF)"
 
-$(ROOTDIR)/STAR_%.bam:$(FASTQ_BASENAME)_%_1.fq $(STAR_INDEX)
+$(DATADIR)/STAR_%.bam:$(FASTQ_BASENAME)_%_1.fq $(STAR_INDEX)
 	STAR --genomeDir "$(STAR_INDEX)" \
 	--runThreadN $(THREADS) \
 	--readFilesIn "$<" $(subst _1.fq,_2.fq,$<)  \
