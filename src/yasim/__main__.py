@@ -67,7 +67,8 @@ valid_subcommand_names = []
 
 for spec in pkgutil.iter_modules(
         yasim.main.__dict__["__spec__"].submodule_search_locations):
-    valid_subcommand_names.append(spec.name)
+    if not spec.name.startswith("_"):
+        valid_subcommand_names.append(spec.name)
 
 _input_subcommand_name = ""
 _subcommand_help = "Use 'lscmd' to list all valid subcommands."

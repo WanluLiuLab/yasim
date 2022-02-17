@@ -3,7 +3,7 @@
 all:NGS TGS
 
 NGS: DWGSIM
-TGS: PBSIM PBSIM2 BADREAD
+TGS: PBSIM PBSIM2 BADREAD SIMLORD
 
 DWGSIM: \
 $(DATADIR)/yasim_to_salmon_quant_dwgsim.png \
@@ -46,4 +46,5 @@ $(DATADIR)/yasim_to_stringtie_quant_minimap2_badread_pacbio2016.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_nanopore2020.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_pacbio2016.png \
 
-
+SIMLORD: \
+$(DATADIR)/yasim_to_stringtie_quant_minimap2_simlord.png

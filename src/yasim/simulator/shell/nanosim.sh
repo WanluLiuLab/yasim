@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+echo "Deprecated due to sklearn.neighbors.kde import error"
+exit 1
 set -e
 if which nanosim &>> /dev/null; then
-    exec nanosim "${@}"
+    exec simulator.py "${@}"
 fi
 if ! which conda &>> /dev/null; then
     echo "conda not found!"
@@ -14,4 +16,4 @@ fi
 
 eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
 conda activate nanosim
-exec nanosim "${@}"
+exec ${CONDA_PREFIX}/bin/python3 "$(which simulator.py)" "${@}"

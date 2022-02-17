@@ -27,9 +27,6 @@ class SimulatorBadread(Simulator):
         self.model_name = model_name
 
     def assemble_cmd(self) -> List[str]:
-        """
-        TODO
-        """
         cmd = [
             self.badread_exename, "simulate",
             "--reference", self.input_fasta,

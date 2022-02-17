@@ -17,3 +17,6 @@ $(FASTQ_BASENAME)_badread_%.fq: $(SEL_CDNA_FASTA_D)
 	$(YASIM) badread -F "$<" -o $(basename $@) -m $(lastword $(subst _,\ ,$(basename $@)))
 	# rm -rf $(basename $@).d
 
+$(FASTQ_BASENAME)_simlord.fq: $(SEL_CDNA_FASTA_D)
+	$(YASIM) simlord -F "$<" -o $(basename $@)
+	# rm -rf $(basename $@).d

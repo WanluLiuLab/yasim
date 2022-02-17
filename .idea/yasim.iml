@@ -37,6 +37,11 @@
       <excludeFolder url="file://$MODULE_DIR$/iter_1/hg38.chr1.transcripts_sel.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/salmon_quant_dwgsim" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/STAR_dwgsim" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/SiLiCO-master" />
+      <excludeFolder url="file://$MODULE_DIR$/dist/longislnd-master" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_albacore" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_guppy" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_dRNA_Bham1_guppy" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
