@@ -1,17 +1,23 @@
 
 export ROOTDIR := $(abspath $(CURDIR)/../)
-export DATADIR := $(ROOTDIR)/iter_2
+export DATADIR := $(ROOTDIR)/iter_3
 export PYTHONPATH := "$(ROOTDIR)/src:$(PYTHONPATH:-)"
 export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
-export REFERENCE_FASTA := /home/yuzj/Desktop/BioRef/chr1.fa
-export REFERENCE_GTF := /home/yuzj/Desktop/BioRef/chr1.ncbiRefSeq.gtf
-export REFERENCE_CDNA := $(DATADIR)/hg38.chr1.reference_transcripts.fa
+export REFERENCE_FASTA := $(DATADIR)/ce11.fa
+export REFERENCE_GTF := $(DATADIR)/ce11.ncbiRefSeq.gtf
+export REFERENCE_CDNA := $(DATADIR)/ce11.reference_transcripts.fa
 export THREADS := 40
-export SEL_GTF := $(DATADIR)/Homo_sapiens.GRCh38.105_chr1_sel.gtf
-export SEL_CDNA_FASTA := $(DATADIR)/hg38.chr1.transcripts_sel.fa
+export SEL_GTF := $(DATADIR)/ce11_sel.gtf
+export SEL_CDNA_FASTA := $(DATADIR)/ce11_sel.fa
 export SEL_CDNA_FASTA_D := $(SEL_CDNA_FASTA).d
-export DEPTH_TSV := $(DATADIR)/hg38.chr1.gene.depth.tsv
-export FASTQ_BASENAME := $(DATADIR)/hg38.chr1.transcripts
+export DEPTH_TSV := $(DATADIR)/ce11.gene.depth.tsv
+export FASTQ_BASENAME := $(DATADIR)/ce11.transcripts
+
+$(DATADIR)/ce11.fa.gz:
+	axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz -o $@
+
+$(DATADIR)/ce11.ncbiRefSeq.gtf.gz:
+	axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz -o $@
 
 ifeq "$(wildcard $(DATADIR) )" ""
 $(shell mkdir -p $(DATADIR))
@@ -20,7 +26,9 @@ endif
 # export R_ENVIRON_USER := $(ROOTDIR)/R/.Rprofile
 
 .SECONDARY:
-.DEFAULT: all
+.DEFAULT_GOAL: all
+
+include $(CURDIR)/final_targets.mk
 
 include $(CURDIR)/general.mk
 include $(CURDIR)/simulators.mk
@@ -31,22 +39,22 @@ include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk
 include $(CURDIR)/htseq.mk
 include $(CURDIR)/stringtie.mk
-include $(CURDIR)/final_targets.mk
+
 
 .PHONY: dist
 dist:
 	$(MAKE) -C $(ROOTDIR)/dist
 
-$(SEL_GTF):
+$(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
 	$(YASIM) alternative_splicing -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
 
 $(DEPTH_TSV): $(SEL_GTF)
 	$(YASIM) dge -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100 -l 20
 
-$(SEL_CDNA_FASTA_D): $(SEL_GTF) $(DEPTH_TSV)
+$(SEL_CDNA_FASTA_D): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
 	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -d $(DEPTH_TSV) -o $(SEL_CDNA_FASTA)
 
-$(REFERENCE_CDNA):
+$(REFERENCE_CDNA): $(REFERENCE_FASTA) $(REFERENCE_GTF)
 	$(YASIM) transcribe -g "$(REFERENCE_GTF)" -o $@ -f "$(REFERENCE_FASTA)"
 
 .PHONY: nothing

@@ -21,7 +21,6 @@ featureCounts_data <- read_tsv(
     col_names = featureCounts_tsv_col_names,
     comment = "#"
 ) %>% dplyr::filter(NumReads > 0)
-print(head(featureCounts_data))
 all_table <- dplyr::inner_join(yasim_data, featureCounts_data, by = c("gene_name" = "Geneid"))
 
 message(sprintf("Read %d from yasim_tsv and %d from salmon_quant_sf. %d left merged.",

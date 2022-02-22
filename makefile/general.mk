@@ -2,7 +2,7 @@
 %.bam.bai: %.bam
 	samtools index $<
 
-%.gz:%
+%:%.gz
 	gzip -dkf $<
 
 %.fa.fai:%.fa

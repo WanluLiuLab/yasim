@@ -1,10 +1,10 @@
-export STAR_INDEX := /home/yuzj/Desktop/BioRef/chr1_STAR_index
+export STAR_INDEX := $(DATADIR)/ce11_STAR_index
 .PHONY: STAR_INDEX
 
 STAR_INDEX:$(STAR_INDEX)
 
 
-$(STAR_INDEX):
+$(STAR_INDEX): $(REFERENCE_FASTA) $(REFERENCE_GTF)
 	STAR --runThreadN $(THREADS) \
 	--runMode genomeGenerate \
 	--genomeDir "$@" \

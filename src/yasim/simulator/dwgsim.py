@@ -25,6 +25,8 @@ class SimulatorDwgsim(Simulator):
     def assemble_cmd(self) -> List[str]:
         cmd = [
             self.dwgsim_exename,
+            "-1", "140",
+            "-2", "140",
             "-C", str(self.depth),
             self.input_fasta,
             self.tmp_prefix

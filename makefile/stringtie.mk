@@ -1,23 +1,23 @@
 
-$(DATADIR)/stringtie_e_STAR_%.gtf: $(DATADIR)/STAR_%.bam
+$(DATADIR)/stringtie_e_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
 	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_STAR_%.gtf: $(DATADIR)/STAR_%.bam
+$(DATADIR)/stringtie_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
 	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_e_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam
+$(DATADIR)/stringtie_e_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
 	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam
+$(DATADIR)/stringtie_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
 	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
 $(DATADIR)/stringtie_quant_%.tsv:$(DATADIR)/stringtie_%.gtf
 	PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python $(ROOTDIR)/src/scripts/parse_stringtie_into_tsv.py -g $< -o $@
 
-$(DATADIR)/stringtie_e_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam
+$(DATADIR)/stringtie_e_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam $(REFERENCE_GTF)
 	stringtie -e -L -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam
+$(DATADIR)/stringtie_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam $(REFERENCE_GTF)
 	stringtie -L -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
 $(DATADIR)/yasim_to_stringtie_quant_e_%.png: $(DATADIR)/stringtie_quant_e_%.tsv $(DEPTH_TSV)

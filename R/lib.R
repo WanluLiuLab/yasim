@@ -52,3 +52,10 @@ htseq_quant_tsv_col_names <- c(
     "Name",
     "NumReads"
 )
+ss_tsv_col_types <- cols(
+    LEN=col_number(),
+    GC=col_number(),
+    IS_MAPPED=col_number(),
+    MAPQ=col_number(),
+    ALNQ=col_number()
+)
