@@ -6,7 +6,7 @@ from typing import List
 
 from matplotlib import pyplot as plt
 
-from bioutils.datastructure import GeneView
+from bioutils.datastructure.gene_view import GeneView
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
 

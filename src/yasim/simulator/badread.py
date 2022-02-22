@@ -1,14 +1,12 @@
-import glob
 import os
 from typing import List, Optional
 
-from commonutils import ioctl
 from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
 
 
 class SimulatorBadread(Simulator):
     model_name: str
-    badread_exename:str
+    badread_exename: str
 
     def __init__(
             self,
@@ -33,7 +31,7 @@ class SimulatorBadread(Simulator):
             "--quantity", f"{self.depth}x",
             "--error_model", self.model_name,
             "--qscore_model", self.model_name,
-            "--start_adapter_seq","",
+            "--start_adapter_seq", "",
             "--end_adapter_seq", ""
         ]
         return cmd

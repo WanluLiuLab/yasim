@@ -1,8 +1,7 @@
 import argparse
-import random
 from typing import List
 
-from bioutils.datastructure import GeneView
+from bioutils.datastructure.gene_view import GeneView
 from bioutils.io.fasta import FastaView
 from commonutils.logger import get_logger
 from commonutils.tqdm_importer import tqdm

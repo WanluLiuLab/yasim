@@ -108,7 +108,7 @@ def test_fasta_class_without_fai_in_mem() -> None:
     fh = ioctl.get_writer(f"{test_path}/1.fasta.gz")
     fh.write(fasta_seq)
     fh.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True)
+    fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=False)
     fasta_without_full_header_assets(fa)
     fa.close()
     fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=True)

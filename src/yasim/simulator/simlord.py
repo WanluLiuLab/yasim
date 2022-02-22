@@ -1,13 +1,11 @@
-import glob
 import os
 from typing import List, Optional
 
-from commonutils import ioctl
 from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
 
 
 class SimulatorSimlord(Simulator):
-    simlord_exename:str
+    simlord_exename: str
 
     def __init__(
             self,

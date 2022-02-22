@@ -3,7 +3,7 @@ import random
 from collections import defaultdict
 from typing import Dict, List
 
-from bioutils.datastructure import GeneView
+from bioutils.datastructure.gene_view import GeneView
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
 

@@ -30,7 +30,7 @@ class Feature(object):
     Chromosome or Contig name.
     """
 
-    _sequence: Optional[bytes]
+    _sequence: Optional[str]
     """
     The cached sequence.
     """

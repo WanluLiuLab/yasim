@@ -1,5 +1,7 @@
+import os
+
 import test_tetgs
-from bioutils.datastructure import GeneView
+from bioutils.datastructure.gene_view import GeneView
 from commonutils import ioctl, logger
 
 logger.set_level(8)
@@ -47,5 +49,5 @@ def test_gene() -> None:
     assert list(gv.transcripts.keys()) == ['NM_004905', 'NM_004906', 'NM_004907', 'NM_004908']
     assert gv.transcripts['NM_004905'].exons[0].start == 173477335
     gv.to_gtf(f"{test_path}/2.gtf")
-    # os.system(f"gedit {test_path}/2.gtf")
+    os.system(f"gedit {test_path}/2.gtf")
     ioctl.rm_rf(test_path)

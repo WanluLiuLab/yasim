@@ -133,6 +133,7 @@ class GtfRecord(BaseGtfGffRecord):
         :param in_str: Input dictionary.
         """
         global lh
+        in_str = in_str.rstrip('\n\r')
         lh.debug(f'Adding {in_str}')
         line_split = in_str.split('\t')
 

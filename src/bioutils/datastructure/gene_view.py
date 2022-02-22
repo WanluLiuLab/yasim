@@ -121,7 +121,7 @@ class GeneView:
                     yield exon.to_gtf_record()
 
     def to_gtf(self, output_filename: str):
-        GtfWriter.write(
+        GtfWriter.write_iterator(
             self.get_gtf_iterator(),
             output_filename,
             [f'created by Geneview at {time.asctime()}']
@@ -131,7 +131,7 @@ class GeneView:
         raise NotImplementedError
 
     def to_gff3(self, output_filename: str):
-        Gff3Writer.write(
+        Gff3Writer.write_iterator(
             self.get_gff3_iterator(),
             output_filename,
             [f'created by Geneview at {time.asctime()}']

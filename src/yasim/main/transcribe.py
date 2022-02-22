@@ -2,7 +2,7 @@ import argparse
 import os.path
 from typing import List, Dict, Optional
 
-from bioutils.datastructure import GeneView
+from bioutils.datastructure.gene_view import GeneView
 from bioutils.io.fasta import FastaView
 from commonutils import ioctl
 from commonutils.logger import get_logger

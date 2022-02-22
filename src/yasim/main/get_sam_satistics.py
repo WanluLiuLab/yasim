@@ -1,7 +1,7 @@
+import argparse
 from statistics import mean
 from typing import List, Any
 
-import argparse
 import pysam
 
 from commonutils import ioctl
@@ -59,7 +59,7 @@ def main(args: List[str]):
                     str(round(alnq, 2))
                 )) + "\n"
             )
-    with ioctl.get_writer(args.out+".summary") as writer:
+    with ioctl.get_writer(args.out + ".summary") as writer:
         def k_v_write(k: str, v: Any):
             rv = repr(v)
             if len(rv) >= 2 and rv[0] == '\'' and rv[-1] == '\'':
@@ -68,4 +68,4 @@ def main(args: List[str]):
 
         k_v_write("KEY", "VALUE")
         k_v_write("N_READS", full_length)
-        k_v_write("MAPPING_RATE", round(num_mapped_reads/full_length * 100, 3))
+        k_v_write("MAPPING_RATE", round(num_mapped_reads / full_length * 100, 3))

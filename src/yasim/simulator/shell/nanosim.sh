@@ -16,4 +16,4 @@ fi
 
 eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
 conda activate nanosim
-exec ${CONDA_PREFIX}/bin/python3 "$(which simulator.py)" "${@}"
+exec "${CONDA_PREFIX}"/bin/python3 "$(which simulator.py)" "${@}"

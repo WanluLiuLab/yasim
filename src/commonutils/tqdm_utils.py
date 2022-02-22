@@ -1,4 +1,4 @@
-from typing import IO
+from typing import IO, Iterator
 
 from commonutils import ioctl
 from commonutils.tqdm_importer import tqdm
@@ -45,7 +45,7 @@ class tqdm_line_reader:
     fd: IO
 
     def __init__(self, path: str, underlying_opener=None, is_binary: bool = False, **kwargs):
-        if underlying_opener == None:
+        if underlying_opener is None:
             self.fd = ioctl.get_reader(path, is_binary=is_binary)
         else:
             if is_binary:
@@ -68,3 +68,24 @@ class tqdm_line_reader:
 
     def __exit__(self, *args, **kwargs):
         return self.tqdm.__exit__(*args, **kwargs)
+
+
+class tqdm_line_iterator:
+    """
+    A very simple tqdm reader with only :py:func:``readline`` functions.
+    """
+    fd: IO
+
+    def __init__(self, path: str, underlying_opener=None, is_binary: bool = False, **kwargs):
+        self.path = path
+        self.underlying_opener = underlying_opener
+        self.is_binary = is_binary
+        self.kwargs = kwargs
+
+    def __iter__(self) -> Iterator[str]:
+        with tqdm_line_reader(self.path, self.underlying_opener, self.is_binary, **self.kwargs) as reader:
+            while True:
+                line = reader.readline()
+                if not line:
+                    break
+                yield line.rstrip('\n\r')
