@@ -7,7 +7,7 @@ from typing import Optional, Dict, Iterator
 from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
 from bioutils.datastructure.gff_gtf_record import GtfRecord, Gff3Record
 from bioutils.io import get_file_type_from_suffix
-from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Writer
+from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
 from commonutils import ioctl, pickle_with_tqdm
 from commonutils.logger import get_logger
 
@@ -56,8 +56,8 @@ class GeneView:
     def _from_gtf(cls, filename: str):
         def register_gene(_new_instance: GeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
-            if not record.attribute['gene_id'] in new_instance.genes.keys():
-                new_instance.genes[gene_id] = Gene.from_gtf_record(record)
+            if not record.attribute['gene_id'] in _new_instance.genes.keys():
+                _new_instance.genes[gene_id] = Gene.from_gtf_record(record)
 
         def register_transcript(_new_instance: GeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
@@ -95,10 +95,10 @@ class GeneView:
         self.standardize_genes()
 
     def standardize_transcripts(self):
-        pass
+        raise NotImplementedError  # TODO: Implement
 
     def standardize_genes(self):
-        pass
+        raise NotImplementedError  # TODO: Implement
 
     def get_transcript_iterator(self) -> Iterator[Transcript]:
         for transcript in self.transcripts.values():
@@ -110,7 +110,20 @@ class GeneView:
 
     @classmethod
     def _from_gff3(cls, filename: str):
-        raise NotImplementedError  # TODO: Implement
+        raise NotImplementedError # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+        
+        def gff3_bfs(_new_instance:GeneView, root_id:str):
+            # TODO: new_instance()
+            
+            for child_id in gff3_tree.get_child_ids(root_id):
+                gff3_bfs(new_instance, child_id)
+            
+        
+        new_instance = cls()
+        
+        gff3_tree = Gff3Tree(filename)
+        for root_id in gff3_tree.get_toplevel_ids():
+            gff3_bfs(new_instance, root_id)
 
     def get_gtf_iterator(self) -> Iterator[GtfRecord]:
         for gene in self.genes.values():
@@ -128,7 +141,7 @@ class GeneView:
         )
 
     def get_gff3_iterator(self) -> Iterator[Gff3Record]:
-        raise NotImplementedError
+        raise NotImplementedError  # TODO: Implement
 
     def to_gff3(self, output_filename: str):
         Gff3Writer.write_iterator(

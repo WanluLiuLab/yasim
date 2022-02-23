@@ -1,10 +1,14 @@
 from abc import abstractmethod
-from typing import Iterator, Union, Optional, List, TextIO
+from collections import defaultdict
+from curses import echo
+from msilib.schema import Error
+from typing import Dict, Iterable, Iterator, Union, Optional, List, TextIO
 
 from bioutils.datastructure import Feature
-from bioutils.datastructure.gff_gtf_record import Gff3Record
+from bioutils.datastructure.gff_gtf_record import GFF3_TOPLEVEL_NAME, Gff3Record
 from bioutils.datastructure.gff_gtf_record import GtfRecord
 from commonutils import ioctl
+from commonutils.tqdm_importer import tqdm
 from commonutils.tqdm_utils import tqdm_line_iterator
 
 
@@ -27,10 +31,8 @@ class _FeatureIterator:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        """
-        """
-        pass
+    def __exit__(self, *args, **kwargs):
+        return
 
 
 class GtfIterator(_FeatureIterator):
@@ -48,6 +50,8 @@ class Gff3Iterator(_FeatureIterator):
 
     def __iter__(self) -> Iterator[Gff3Record]:
         for line in tqdm_line_iterator(self.filename):
+            if line.startswith('##FASTA'):
+                return
             if line.startswith('#') or line == '':
                 continue
             yield Gff3Record.from_string(line)
@@ -88,10 +92,85 @@ class _FeatureWriter:
     def __exit__(self, *args, **kwargs):
         return
 
+    def tell(self) -> int:
+        try:
+            return self.fd.tell()
+        except Error:
+            return -1
+
+    def __repr__(self) -> str:
+        return f"Feature writter of {self.output_filename} at {self.tell()}"
+
+
+    __str__ = __repr__
+
 
 class GtfWriter(_FeatureWriter):
     pass
 
 
 class Gff3Writer(_FeatureWriter):
-    pass
+
+    def __init__(self, output_filename: str):
+        super().__init__(output_filename=output_filename)
+        self.write_comment("#gff-version 3") # This comment should be wrieen at the first line.
+
+    def write_feature(self, feature: Feature):
+        self.fd.write(str(feature) + "\n")
+
+    def write_comment(self, comment: str):
+        self.fd.write('#' + comment + "\n")
+
+
+class Gff3Tree:
+    filename:str
+    
+    _flat_record:Dict[str, Gff3Record]
+    """An ID -> Record mapping"""
+    
+    _id_tree:Dict[str, List[str]]
+    """An parent ID -> child ID mapping"""
+    
+    def __init__(self, filename: str):
+        self.filename = ioctl.ensure_input_existence(filename)
+        self._flat_record={}
+        self._id_tree = defaultdict(lambda: [])
+        self._load()
+        self._parse_tree()
+    
+    def _load(self):
+        self._flat_record={}
+        for gff3_record in Gff3Iterator(self.filename):
+            self._flat_record[gff3_record.id] = gff3_record
+    
+    def _parse_tree(self):
+        for k, v in tqdm(iterable=self._flat_record.items(), desc="Parsing GFF3 to a Tree..."):
+            self._id_tree[v.parent_id].append(k)
+    
+    def get(self, gff3_id:str) -> Gff3Record:
+        if gff3_id == GFF3_TOPLEVEL_NAME:
+            raise ValueError(f"Cannot reach for {GFF3_TOPLEVEL_NAME} -- It is toplevel virtual ID")
+        return self._flat_record[gff3_id]
+
+    def get_child_ids(self, gff3_id:str) -> Iterable[str]:
+        return self._id_tree[gff3_id]
+    
+    def get_all_ids(self) -> Iterable[str]:
+        return self._flat_record.keys()
+
+    def get_toplevel_ids(self) -> Iterable[str]:
+        return self.get_child_ids(GFF3_TOPLEVEL_NAME)
+    
+    def __len__(self) -> int:
+        return len(self._flat_record)
+
+    def get_parent_id(self, gff3_id:str) -> str:
+        return self.get(gff3_id).parent_id
+
+    def get_backtrack_feature(self, gff3_id:str, parent_feature_name:str) -> str:
+        while True:
+            gff3_id = self.get_parent_id(gff3_id)
+            if self.get(gff3_id).feature == parent_feature_name:
+                return gff3_id
+            
+        raise ValueError("Backtrack failed!")

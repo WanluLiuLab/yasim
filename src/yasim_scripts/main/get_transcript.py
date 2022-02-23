@@ -1,3 +1,8 @@
+"""
+get_transcript.py -- Filter GTF records by a specific attributes
+"""
+
+
 import argparse
 import sys
 from typing import List
@@ -11,10 +16,10 @@ lh = get_logger(__name__)
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gtf", required=True)
-    parser.add_argument("--field_name", required=False, default="transcript_id")
-    parser.add_argument("--field_value", required=True)
-    parser.add_argument("--out", required=True)
+    parser.add_argument("-g", "--gtf", required=True, help="Gtf to filter from", nargs='?',type=str, action='store')
+    parser.add_argument("--field_name", required=False, help="Attribute to be filtered", nargs='?',type=str, action='store', default="transcript_id")
+    parser.add_argument("--field_value", required=True, help="Filename that contains legal values, once per line, can be quoted", nargs='?',type=str, action='store')
+    parser.add_argument("--out", required=True, help="Filtered output", nargs='?',type=str, action='store')
     return parser.parse_args(args)
 
 
