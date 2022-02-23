@@ -12,7 +12,7 @@ $(DATADIR)/stringtie_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
 	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
 $(DATADIR)/stringtie_quant_%.tsv:$(DATADIR)/stringtie_%.gtf
-	PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python $(ROOTDIR)/src/scripts/parse_stringtie_into_tsv.py -g $< -o $@
+	$(YASIM_SCRIPTS) parse_stringtie_into_tsv -g $< -o $@
 
 $(DATADIR)/stringtie_e_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam $(REFERENCE_GTF)
 	stringtie -e -L -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<

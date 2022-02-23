@@ -3,6 +3,7 @@ export ROOTDIR := $(abspath $(CURDIR)/../)
 export DATADIR := $(ROOTDIR)/iter_3
 export PYTHONPATH := "$(ROOTDIR)/src:$(PYTHONPATH:-)"
 export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
+export YASIM_SCRIPTS := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim_scripts
 export REFERENCE_FASTA := $(DATADIR)/ce11.fa
 export REFERENCE_GTF := $(DATADIR)/ce11.ncbiRefSeq.gtf
 export REFERENCE_CDNA := $(DATADIR)/ce11.reference_transcripts.fa

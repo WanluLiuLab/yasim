@@ -49,7 +49,3 @@ def main(args: List[str]):
                 for key in POSSIBLE_KEYS:
                     current_line.append(get_with_defaults(gtf_record, key))
                 writer.write("\t".join(current_line) + "\n")
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

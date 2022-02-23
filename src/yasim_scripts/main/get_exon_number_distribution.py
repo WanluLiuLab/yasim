@@ -109,7 +109,3 @@ def main(args: List[str]):
     with ioctl.get_writer("gene_with_antisense_transcripts_on_same_chr.gtf") as writer:
         for gtf_str in gene_with_antisense_transcripts_on_same_chr.values():
             writer.writelines(gtf_str)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

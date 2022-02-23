@@ -40,7 +40,3 @@ def main(args: List[str]):
                 final_record_num += 1
     lh.info(
         f"{input_record_num} processed with {final_record_num} ({round(final_record_num / input_record_num, 2) * 100}%) records output")
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

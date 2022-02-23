@@ -4,7 +4,7 @@
 #  This file is a part of tetgs, which is licensed under MIT,
 #  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
 #
-#  NAME: __main__.py -- yasim main frontend.
+#  NAME: __main__.py -- yasim_scripts main frontend.
 #
 #  VERSION HISTORY:
 #  2021-08-15 0.1  : Purposed from the shell script by YU Zhejian.
@@ -12,7 +12,7 @@
 #
 # ==============================================================================
 """
-__main__.py -- yasim main frontend.
+__main__.py -- yasim_scripts main frontend.
 
 Please refer to the documentation :doc:`/cmd_interface` to see command-line options.
 
@@ -21,7 +21,7 @@ Description
 
 This script will:
 
-1) Search for all valid sub-command in :py:mod:`yasim.main`;
+1) Search for all valid sub-command in :py:mod:`yasim_scripts.main`;
 2) Parse arguments provided by user.
 
 If the first non-option (not started by ``-``) is a valid subcommand,
@@ -36,7 +36,7 @@ This file also handles log levels.
 Subcommand Specifications
 -------------------------
 
-A valid subcommand should be a module under :py:mod:`yasim.main` with :py:func:`main` function defined.
+A valid subcommand should be a module under :py:mod:`yasim_scripts.main` with :py:func:`main` function defined.
 Raw un-parsed arguments EXCEPT sub-module name will be passed to :py:func:`main` function.
 """
 
@@ -47,7 +47,7 @@ import pkgutil
 import sys
 from typing import List
 
-import yasim.main
+import yasim_scripts.main
 from commonutils import logger
 
 __all__ = ['main']
@@ -66,7 +66,7 @@ __version__ = 0.1
 valid_subcommand_names = []
 
 for spec in pkgutil.iter_modules(
-        yasim.main.__dict__["__spec__"].submodule_search_locations):
+        yasim_scripts.main.__dict__["__spec__"].submodule_search_locations):
     if not spec.name.startswith("_"):
         valid_subcommand_names.append(spec.name)
 
@@ -123,8 +123,8 @@ def _get_main_func_from_subcommand(name: str):
     """
     global lh
     if name in valid_subcommand_names:
-        __import__(f'yasim.main.{name}')
-        i = yasim.main.__dict__[name]
+        __import__(f'yasim_scripts.main.{name}')
+        i = yasim_scripts.main.__dict__[name]
         if hasattr(i, 'main') and inspect.isfunction(getattr(i, 'main')):
             return i.main
 
@@ -133,7 +133,7 @@ def main():
     """
     Interface accepting raw un-parsed cmdline arguments.
 
-    Should be invoked by :py:mod:`yasim` only.
+    Should be invoked by :py:mod:`yasim_scripts` only.
     """
     global lh, _input_subcommand_name, _subcommand_help
     if os.environ.get('LOG_LEVEL') is None:

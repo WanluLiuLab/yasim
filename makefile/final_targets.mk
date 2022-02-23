@@ -94,7 +94,7 @@ $(DATADIR)/yasim_to_featureCounts_quant_minimap2_simlord.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_simlord.png \
 
 $(DATADIR)/%.bam.tsv:$(DATADIR)/%.bam $(DATADIR)/%.bam.bai
-	$(YASIM) get_sam_satistics --sam $< --out $@
+	$(YASIM_SCRIPTS) get_sam_satistics --sam $< --out $@
 
 $(DATADIR)/%.bam.LEN.png: $(DATADIR)/%.bam.tsv
 	Rscript $(ROOTDIR)/R/test_bam_satistics.R --libfile "$(ROOTDIR)/R/lib.R" --ss_tsv $< --output  $(basename $(basename $@))
