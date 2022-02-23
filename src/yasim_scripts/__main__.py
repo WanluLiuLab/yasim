@@ -46,7 +46,7 @@ import os
 import pkgutil
 import sys
 from typing import List
-
+from yasim import __version__
 import yasim_scripts.main
 from commonutils import logger
 
@@ -60,8 +60,6 @@ lh = logger.get_logger(__name__)
 
 if os.environ.get('LOG_LEVEL') is None:
     logger.set_level('INFO')
-
-__version__ = 0.1
 
 valid_subcommand_names = []
 

@@ -91,6 +91,7 @@ class GeneView:
         return new_instance
 
     def standardize(self):
+        return
         self.standardize_transcripts()
         self.standardize_genes()
 

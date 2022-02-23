@@ -44,6 +44,9 @@
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_dRNA_Bham1_guppy" />
       <excludeFolder url="file://$MODULE_DIR$/iter_3" />
       <excludeFolder url="file://$MODULE_DIR$/.virtualenv" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/yasim-0.1" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

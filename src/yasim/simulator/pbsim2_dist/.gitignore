@@ -1,0 +1,8 @@
+# Ignores custome model but add bundled model
+*.model
+!P4C2.model
+!P5C3.model
+!P6C4.model
+!R94.model
+!R95.model
+!R103.model

@@ -1,119 +1,3 @@
-# =================== autotools ===================
-# http://www.gnu.org/software/automake
-
-Makefile.in
-/ar-lib
-/mdate-sh
-/py-compile
-/test-driver
-/ylwrap
-.deps/
-.dirstamp
-
-# http://www.gnu.org/software/autoconf
-
-autom4te.cache
-/autoscan.log
-/autoscan-*.log
-/aclocal.m4
-/compile
-/config.cache
-/config.guess
-/config.h.in
-/config.log
-/config.status
-/config.sub
-/configure
-/configure.scan
-/depcomp
-/install-sh
-/missing
-/stamp-h1
-
-# https://www.gnu.org/software/libtool/
-
-/ltmain.sh
-
-# http://www.gnu.org/software/texinfo
-
-/texinfo.tex
-
-# http://www.gnu.org/software/m4/
-
-m4/libtool.m4
-m4/ltoptions.m4
-m4/ltsugar.m4
-m4/ltversion.m4
-m4/lt~obsolete.m4
-
-# Generated Makefile
-# (meta build system like autotools,
-# can automatically generate from config.status script
-# (which is called by configure script))
-# Makefile
-
-# =================== C ===================
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-# =================== CPP ===================
-# Compiled Object files
-*.slo
-
-# Fortran module files
-*.mod
-*.smod
-
 # =================== Microsoft Windows ===================
 # Windows thumbnail cache files
 Thumbs.db
@@ -129,13 +13,6 @@ ehthumbs_vista.db
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
 
 # Windows shortcuts
 *.lnk
@@ -205,19 +82,6 @@ tags
 .idea/**/gradle.xml
 .idea/**/libraries
 
-# Gradle and Maven with auto-import
-# When using Gradle or Maven with auto-import, you should exclude module files,
-# since they will be recreated, and may cause churn.  Uncomment if using
-# auto-import.
-# .idea/artifacts
-# .idea/compiler.xml
-# .idea/jarRepositories.xml
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
-# *.iml
-# *.ipr
-
 # CMake
 cmake-build-*/
 
@@ -227,29 +91,6 @@ cmake-build-*/
 # File-based project format
 *.iws
 
-# IntelliJ
-out/
-
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# JIRA plugin
-atlassian-ide-plugin.xml
-
-# Cursive Clojure plugin
-.idea/replstate.xml
-
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
-
-# Editor-based Rest Client
-.idea/httpRequests
-
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
 
 # =================== EMACS ===================
 # -*- mode: gitignore; -*-
@@ -300,7 +141,7 @@ flycheck_*.el
 # network security
 /network-security.data
 
-# =================== autotools ===================
+# =================== Python ===================
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -308,7 +149,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+/build/
+/dist/
 develop-eggs/
 downloads/
 eggs/
@@ -438,19 +280,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# =================== CMake ===================
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-# Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-
 # =================== MacOS ===================
 # General
 .DS_Store
@@ -560,25 +389,13 @@ Temporary Items
 *.diff
 tmp/
 temp/
+
 # Axel download file
 *.st
 
 # =================== Packing ===================
-/tetgs-dev.yaml
-/tetgs.yaml
 *.tsv
-cmd_profiler*/
-/COPYING
-/DEVELOPMENT
-/INSTALL
-/LICENSE
-/README
-/TODO
-*.c
-
-transcripts_quant/
 *.gvpkl
-dataset_sc_ngs*/
 *.html
 *.csv
 /STAR_*/
@@ -595,3 +412,4 @@ tmp*/
 *.stats
 *.loci
 SiLiCO_Scratch/
+/yasim-*/
