@@ -2,8 +2,6 @@ import glob
 import shutil
 from typing import List, Union, Optional
 
-import commonutils.io.file_system
-import commonutils.shell_utils
 from commonutils import shell_utils
 from commonutils.io import file_system
 from commonutils.shell_utils import gz_decompress

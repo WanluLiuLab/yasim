@@ -5,10 +5,10 @@ from abc import abstractmethod
 from typing import Dict, Union
 
 from bioutils.datastructure import Feature
-from commonutils import logger
+from commonutils.stdlib_helper import logger_helper
 from commonutils.str_utils import to_dict
 
-lh = logger.get_logger(__name__)
+lh = logger_helper.get_logger(__name__)
 
 __version__ = 0.1
 

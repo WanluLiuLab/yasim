@@ -1,127 +1,201 @@
+"""
+commonutils.io -- Enhanced Python IO Functions/Classes
+======================================================
+
+TODO
+"""
+
 import bz2
 import gzip
+import io
 import lzma
-from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional
+from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type
+
+from commonutils.stdlib_helper.docstring_helper import copy_doc
 
 
 class ArchiveBaseIO(IO):
-    fd: IO
+    """
+    An IO implementation which may read/write archives or texts.
+
+    This IO wrapper will open archives of ``.gz``, ``.xz``, ``.lzma`` or ``.bz2`` suffix,
+    with standard IO functions like ``read``,
+    with iteration and context management (aka., ``__enter__`` or ``with`` statement) support.
+    """
+
+    _fd: IO
+    """
+    The underlying file descriptor.
+    """
 
     def __init__(self,
                  filename: str,
                  opener: Optional[Callable[..., IO]] = None,
                  *args,
                  **kwargs):
+        """
+        Open a file.
+
+        :param filename: The filename to be opened.
+        :param opener: The underlying opener you wish to use. Should return some IO.
+        :param args: Positional arguments passed to underlying opener.
+        :param kwargs: Keyword arguments passed to underlying opener.
+        TODO: Example using zstd library.
+        """
         if opener is not None:
-            self.fd = opener(filename, *args, **kwargs)
+            self._fd = opener(filename, *args, **kwargs)
         if filename.endswith('.gz'):
-            self.fd = gzip.open(filename, *args, **kwargs)
+            self._fd = gzip.open(filename, *args, **kwargs)
         elif filename.endswith('.xz') or filename.endswith('.lzma'):
-            self.fd = lzma.open(filename, *args, **kwargs)
+            self._fd = lzma.open(filename, *args, **kwargs)
         elif filename.endswith('.bz2'):
-            self.fd = bz2.open(filename, *args, **kwargs)
+            self._fd = bz2.open(filename, *args, **kwargs)
         else:
-            self.fd = open(filename, *args, **kwargs)
+            self._fd = open(filename, *args, **kwargs)
 
     @property
     def mode(self) -> str:
-        return self.fd.mode
+        return self._fd.mode
 
     @property
     def name(self) -> str:
-        return self.fd.name
+        return self._fd.name
 
     @property
     def closed(self) -> bool:
-        return self.fd.closed
+        return self._fd.closed
 
+    @copy_doc(io.RawIOBase.close)
     def close(self) -> None:
-        return self.fd.close()
+        return self._fd.close()
 
+    @copy_doc(io.RawIOBase.fileno)
     def fileno(self) -> int:
-        return self.fd.fileno()
+        return self._fd.fileno()
 
+    @copy_doc(io.RawIOBase.flush)
     def flush(self) -> None:
-        self.fd.flush()
+        self._fd.flush()
 
+    @copy_doc(io.RawIOBase.isatty)
     def isatty(self) -> bool:
-        return self.fd.isatty()
+        return self._fd.isatty()
 
-    def read(self, *args, **kwargs) -> AnyStr:
-        return self.fd.read(*args, **kwargs)
+    @copy_doc(io.RawIOBase.read)
+    def read(self, size: Optional[int]) -> AnyStr:
+        return self._fd.read(size)
 
+    @copy_doc(io.RawIOBase.readable)
     def readable(self) -> bool:
-        return self.fd.readable()
+        return self._fd.readable()
 
-    def readline(self, *args, **kwargs) -> AnyStr:
-        return self.fd.readline(*args, **kwargs)
+    @copy_doc(io.RawIOBase.readline)
+    def readline(self, limit: int = -1) -> AnyStr:
+        return self._fd.readline(limit)
 
-    def readlines(self, *args, **kwargs) -> list[AnyStr]:
-        return self.fd.readlines(*args, **kwargs)
+    @copy_doc(io.RawIOBase.readlines)
+    def readlines(self, hint: int = -1) -> list[AnyStr]:
+        return self._fd.readlines(hint)
 
-    def seek(self, *args, **kwargs) -> int:
-        return self.fd.seek(*args, **kwargs)
+    @copy_doc(io.RawIOBase.seek)
+    def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
+        return self._fd.seek(offset, whence)
 
+    @copy_doc(io.RawIOBase.seekable)
     def seekable(self) -> bool:
-        return self.fd.seekable()
+        return self._fd.seekable()
 
+    @copy_doc(io.RawIOBase.tell)
     def tell(self) -> int:
-        return self.fd.tell()
+        return self._fd.tell()
 
-    def truncate(self, *args, **kwargs) -> int:
-        return self.fd.truncate(*args, **kwargs)
+    @copy_doc(io.RawIOBase.truncate)
+    def truncate(self, size: Optional[int]) -> int:
+        return self._fd.truncate(size)
 
+    @copy_doc(io.RawIOBase.writable)
     def writable(self) -> bool:
-        return self.fd.writable()
+        return self._fd.writable()
 
+    @copy_doc(io.RawIOBase.write)
     def write(self, s: AnyStr) -> int:
-        return self.fd.write(s)
+        return self._fd.write(s)
 
+    @copy_doc(io.RawIOBase.writelines)
     def writelines(self, lines: Iterable[AnyStr]) -> None:
-        self.fd.writelines(lines)
+        self._fd.writelines(lines)
 
+    @copy_doc(io.RawIOBase.__next__)
     def __next__(self) -> AnyStr:
-        return self.fd.__next__()
+        return self._fd.__next__()
 
+    @copy_doc(io.RawIOBase.__iter__)
     def __iter__(self) -> Iterator[AnyStr]:
-        return self.fd.__iter__()
+        return self._fd.__iter__()
 
+    @copy_doc(io.RawIOBase.__enter__)
     def __enter__(self) -> IO[AnyStr]:
         try:
-            return self.fd.__enter__()
+            return self._fd.__enter__()
         except AttributeError:
             pass
 
-    def __exit__(self, *args, **kwargs):
+    @copy_doc(io.RawIOBase.__exit__)
+    def __exit__(self,
+                 exc_type: Optional[Type[BaseException]],
+                 exc_val: Optional[BaseException],
+                 exc_tb: Optional[BaseException]):
         try:
-            self.fd.__exit__(*args, **kwargs)
+            self._fd.__exit__(exc_type, exc_val, exc_tb)
         except AttributeError:
             return
 
 
 class SequentialReader(ArchiveBaseIO):
+    """
+    A sequential reader that is based on :py:class:`ArchiveBaseIO`
+    which does not support random-access functions like :py:func:`seek`
+    or writting functions like :py:func:`write`
+    """
+
     def seek(self, *args, **kwargs) -> int:
+        """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
     def seekable(self) -> bool:
+        """False"""
         return False
 
     def truncate(self, *args, **kwargs) -> int:
+        """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
     def writable(self) -> bool:
+        """False"""
         return False
 
     def write(self, *args, **kwargs) -> int:
+        """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
     def writelines(self, *args, **kwargs) -> None:
+        """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
 
 def get_reader(filename: str, is_binary: bool = False, **kwargs) -> IO:
     """
     Get a reader for multiple format.
+    
+    This function is for newbies or others who does not wish to have full control over what they opened.
+    The IO wrapper given by this function may satisfy 95% of the needs.
+
+    :param filename: Filename to be opened.
+    :param is_binary: Whether to read as binary.
+    :param kwargs: Other arguments passed to underlying opener.
+
+    :: warning..
+        Do NOT specify ``mode`` keyword arguments!
     """
     if is_binary:
         mode = "rb"
@@ -131,8 +205,18 @@ def get_reader(filename: str, is_binary: bool = False, **kwargs) -> IO:
 
 
 def get_writer(filename: str, is_binary: bool = False, **kwargs) -> IO:
-    """
+    f"""
     Get a writer for multiple format.
+    
+    This function is for newbies or others who does not wish to have full control over what they opened.
+    The IO wrapper given by this function may satisfy 95% of the needs.
+    
+    :param filename: Filename to be opened.
+    :param is_binary: Whether to read as binary.
+    :param kwargs: Other arguments passed to underlying opener.
+    
+    :: warning..
+        Do NOT specify ``mode`` keyword arguments!
     """
     if is_binary:
         mode = "wb"
@@ -142,8 +226,18 @@ def get_writer(filename: str, is_binary: bool = False, **kwargs) -> IO:
 
 
 def get_appender(filename: str, is_binary: bool = False, **kwargs) -> IO:
-    """
+    f"""
     Get an appender for multiple format.
+    
+    This function is for newbies or others who does not wish to have full control over what they opened.
+    The IO wrapper given by this function may satisfy 95% of the needs.
+    
+    :param filename: Filename to be opened.
+    :param is_binary: Whether to read as binary.
+    :param kwargs: Other arguments passed to underlying opener.
+    
+    :: warning..
+        Do NOT specify ``mode`` keyword arguments!
     """
     if is_binary:
         mode = "ab"

@@ -1,9 +1,10 @@
 import test_tetgs
 from bioutils.datastructure.gene_view import GeneView
-from commonutils import logger, shell_utils
+from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
+from commonutils.stdlib_helper import logger_helper
 
-logger.set_level(8)
+logger_helper.set_level(8)
 
 test_path = test_tetgs.initialize(__name__)
 

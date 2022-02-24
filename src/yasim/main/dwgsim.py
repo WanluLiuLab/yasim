@@ -3,10 +3,10 @@ import glob
 import os.path
 from typing import List, Optional
 
-import commonutils.parallel_helper
+import commonutils.stdlib_helper.parallel_helper
 import yasim.simulator.dwgsim
 from commonutils.importer.tqdm_importer import tqdm
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim import simulator
 from yasim.main._helper import get_depth_from_intermediate_fasta
 
@@ -36,7 +36,7 @@ def simulate(
         dwgsim_exename: Optional[str] = None
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    simulating_pool = commonutils.parallel_helper.ParallelJobQueue(
+    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
         pool_name="Simulating jobs"
     )
     transcript_depths = get_depth_from_intermediate_fasta(intermediate_fasta_dir)

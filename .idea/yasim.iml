@@ -49,6 +49,10 @@
       <excludeFolder url="file://$MODULE_DIR$/.maint" />
       <excludeFolder url="file://$MODULE_DIR$/makefile_test_data/.vscode" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/_apidoc" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/_build" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/_root" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/_templates" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

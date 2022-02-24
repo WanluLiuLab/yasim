@@ -5,7 +5,7 @@ from typing import IO, Callable
 
 from commonutils.io import get_reader
 from commonutils.io.file_system import get_abspath, file_exists, is_soft_link
-from commonutils.logger import chronolog, get_logger
+from commonutils.stdlib_helper.logger_helper import chronolog, get_logger
 
 lh = get_logger(__name__)
 
@@ -151,7 +151,6 @@ def rm_rf(path: str):
         os.remove(path)
     else:
         lh.debug(f"{dbg_head} not exist")
-    return 0
 
 
 def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9):

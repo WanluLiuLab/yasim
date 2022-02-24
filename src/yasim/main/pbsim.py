@@ -4,11 +4,11 @@ import os.path
 from typing import List, Optional
 
 import commonutils.io.file_system
-import commonutils.parallel_helper
 import commonutils.shell_utils
+import commonutils.stdlib_helper.parallel_helper
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main._helper import get_depth_from_intermediate_fasta
 from yasim.simulator import pbsim
 
@@ -41,7 +41,7 @@ def simulate(
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     shell_utils.mkdir_p(output_fastq_dir)
-    simulating_pool = commonutils.parallel_helper.ParallelJobQueue(
+    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
         pool_name="Simulating jobs"
     )
     transcript_depths = get_depth_from_intermediate_fasta(intermediate_fasta_dir)

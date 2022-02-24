@@ -3,13 +3,14 @@ import hashlib
 import logging
 import os
 import re
-from typing import Optional
 
 import requests
 import tqdm
 
 logging.basicConfig(level=logging.INFO)
 logger_handler = logging.getLogger()
+
+raise DeprecationWarning
 
 
 def ftp_get_download(

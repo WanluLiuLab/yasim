@@ -7,7 +7,7 @@ from bioutils.io.fasta import FastaView
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main import dge
 
 logger = get_logger(__name__)

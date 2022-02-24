@@ -48,7 +48,7 @@ import sys
 from typing import List
 
 import yasim_scripts.main
-from commonutils import logger
+from commonutils.stdlib_helper import logger_helper
 from yasim import __version__
 
 __all__ = ['main']
@@ -57,10 +57,10 @@ HELP_INFO = """
 TODO
 """
 
-lh = logger.get_logger(__name__)
+lh = logger_helper.get_logger(__name__)
 
 if os.environ.get('LOG_LEVEL') is None:
-    logger.set_level('INFO')
+    logger_helper.set_level('INFO')
 
 valid_subcommand_names = []
 
@@ -95,9 +95,9 @@ def _parse_args(args: List[str]) -> List[str]:
             args.pop(i)
         i += 1
     if VERBOSE_LEVEL == 1:
-        logger.set_level(logging.DEBUG, quiet=False)
+        logger_helper.set_level(logging.DEBUG, quiet=False)
     elif VERBOSE_LEVEL >= 2:
-        logger.set_level(logger.TRACE, quiet=False)
+        logger_helper.set_level(logger_helper.TRACE, quiet=False)
     if _input_subcommand_name == "lscmd":
         lh.info("Listing modules...")
         for item in valid_subcommand_names:
@@ -136,7 +136,7 @@ def main():
     """
     global lh, _input_subcommand_name, _subcommand_help
     if os.environ.get('LOG_LEVEL') is None:
-        logger.set_level('INFO')
+        logger_helper.set_level('INFO')
     lh.info(f'{__doc__.splitlines()[1]} ver. {__version__}')
     lh.info(f'Called by: {" ".join(sys.argv)}')
 

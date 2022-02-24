@@ -7,3 +7,5 @@ build
 twine==3.8.0
 Sphinx==4.4.0
 sphinx-book-theme==0.2.0
+rst2pdf==0.99
+myst-parser==0.17.0

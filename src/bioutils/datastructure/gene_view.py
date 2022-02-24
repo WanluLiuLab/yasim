@@ -9,8 +9,7 @@ from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
 from bioutils.datastructure.gff_gtf_record import GtfRecord, Gff3Record
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
-from commonutils import pickle_with_tqdm
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 

@@ -22,7 +22,7 @@ import pytest
 
 import test_tetgs
 from bioutils.io import fasta
-from commonutils import logger, shell_utils
+from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
 
 logger.set_level(8)
@@ -56,7 +56,6 @@ def cleanup() -> None:
     shell_utils.rm_rf(f"{test_path}/1.fasta.fxi")
     shell_utils.rm_rf(f"{test_path}/1.fasta.gz.fai")
     shell_utils.rm_rf(f"{test_path}/1.fasta.fai")
-
 
 
 def fasta_with_full_header_assets(fa: fasta.FastaView) -> None:

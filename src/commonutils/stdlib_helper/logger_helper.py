@@ -4,7 +4,7 @@
 #  This file is a part of tetgs, which is licensed under MIT,
 #  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
 #
-#  NAME: logger.py -- System-wide logger.
+#  NAME: logger_helper.py -- System-wide logger.
 #
 #  VERSION HISTORY:
 #  2021-08-10 0.1  : Purposed and added by YU Zhejian, uses logger class.
@@ -17,7 +17,7 @@
 # ==============================================================================
 
 """
-logger.py -- System-wide logger.
+logger_helper.py -- System-wide logger.
 
 Features
 --------

@@ -1,7 +1,7 @@
 import os
 import stat
 
-from commonutils.logger import chronolog
+from commonutils.stdlib_helper.logger_helper import chronolog
 
 
 @chronolog(display_time=True)
@@ -32,6 +32,15 @@ def file_exists(path: str, allow_special_paths: bool = True) -> bool:
         return os.path.exists(path) and not os.path.isdir(path)
     else:
         return os.path.isfile(path)
+
+
+def directory_exists(path: str) -> bool:
+    """
+    Check the existence of a directory. Can check regular and special files.
+
+    :param path: The path you wish to examine.
+    """
+    return os.path.exists(path) and os.path.isdir(path)
 
 
 @chronolog(display_time=True)

@@ -1,8 +1,8 @@
 from typing import Union, Callable, Optional
 
-from commonutils import logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 
-lh = logger.get_logger(__name__)
+lh = get_logger(__name__)
 
 __version__ = 0.1
 

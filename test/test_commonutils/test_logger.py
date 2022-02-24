@@ -17,8 +17,6 @@ import logging
 
 import pytest
 
-from commonutils import logger
-
 
 def test_logger():
     lh = logging.getLogger()

@@ -1,4 +1,8 @@
-raise NotImplementedError
+# raise NotImplementedError
+import warnings
+from typing import IO
+
+warnings.warn("NotImplemented")
 
 
 class NetIO(IO):

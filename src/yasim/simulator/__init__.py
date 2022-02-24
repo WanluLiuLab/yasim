@@ -5,7 +5,7 @@ from abc import abstractmethod
 from typing import Dict, Any, Optional, Union, List
 
 from commonutils import shell_utils
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 
 ADAPTER_SHELL_PATH = os.path.join(os.path.dirname(__file__), "shell")
 

@@ -2,6 +2,7 @@ import sys
 from importlib import reload
 
 import pytest
+
 from commonutils import sysctl
 
 pytest.mark.skipif(sysctl.is_windows(), "Not tested on Windows")

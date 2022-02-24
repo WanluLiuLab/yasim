@@ -35,12 +35,11 @@ import os
 from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict
 
-from commonutils import logger
 from commonutils.io.safe_io import get_reader, get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
-from commonutils.logger import chronolog
+from commonutils.stdlib_helper.logger_helper import chronolog, get_logger
 
-lh = logger.get_logger(__name__)
+lh = get_logger(__name__)
 
 __all__ = [
     '_FastaView',

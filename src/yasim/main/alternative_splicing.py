@@ -4,7 +4,7 @@ from typing import List
 from bioutils.datastructure.gene_view import GeneView
 from bioutils.io.fasta import FastaView
 from commonutils.importer.tqdm_importer import tqdm
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 
 logger = get_logger(__name__)
 

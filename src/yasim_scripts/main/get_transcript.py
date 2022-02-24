@@ -7,7 +7,7 @@ from typing import List
 
 from bioutils.io.feature import GtfIterator, GtfWriter
 from commonutils.io.safe_io import get_reader
-from commonutils.logger import get_logger
+from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
