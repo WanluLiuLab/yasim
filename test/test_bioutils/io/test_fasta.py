@@ -20,9 +20,12 @@ import typing
 
 import pytest
 
+import commonutils.io.file_system
+import commonutils.shutil
 import test_tetgs
 from bioutils.io import fasta
-from commonutils import ioctl, logger
+from commonutils import logger
+from commonutils.io.safe_io import get_writer
 
 logger.set_level(8)
 
@@ -50,11 +53,11 @@ N
 
 
 def cleanup() -> None:
-    ioctl.rm_rf(f"{test_path}/1.fasta.gz")
-    ioctl.rm_rf(f"{test_path}/1.fasta")
-    ioctl.rm_rf(f"{test_path}/1.fasta.fxi")
-    ioctl.rm_rf(f"{test_path}/1.fasta.gz.fai")
-    ioctl.rm_rf(f"{test_path}/1.fasta.fai")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fxi")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
 
 
 def test_rev_compl() -> None:
@@ -103,9 +106,9 @@ def fasta_without_full_header_assets(fa: fasta.FastaView) -> None:
 
 def test_fasta_class_without_fai_in_mem() -> None:
     global fasta_seq
-    ioctl.rm_rf(f"{test_path}/1.fasta.fai")
-    ioctl.rm_rf(f"{test_path}/1.fasta.gz.fai")
-    fh = ioctl.get_writer(f"{test_path}/1.fasta.gz")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    fh = get_writer(f"{test_path}/1.fasta.gz")
     fh.write(fasta_seq)
     fh.close()
     fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=False)
@@ -119,9 +122,9 @@ def test_fasta_class_without_fai_in_mem() -> None:
 
 def test_fasta_class_without_fai_without_mem() -> None:
     global fasta_seq
-    ioctl.rm_rf(f"{test_path}/1.fasta.fai")
-    ioctl.rm_rf(f"{test_path}/1.fasta.gz.fai")
-    fh = ioctl.get_writer(f"{test_path}/1.fasta")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
+    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    fh = get_writer(f"{test_path}/1.fasta")
     fh.write(fasta_seq)
     fh.close()
     fa = fasta.FastaView(f"{test_path}/1.fasta", read_into_memory=False)
@@ -140,7 +143,7 @@ def test_fasta_class_with_fai_without_mem() -> None:
     except ImportError:
         return
     global fasta_seq
-    fh = ioctl.get_writer(f"{test_path}/1.fasta")
+    fh = get_writer(f"{test_path}/1.fasta")
     fh.write(fasta_seq)
     fh.close()
     pysam.faidx(f"{test_path}/1.fasta")
@@ -185,7 +188,7 @@ def test_dynamic_asserts() -> None:
         import pyfaidx
     except ImportError:
         return
-    fh = ioctl.get_writer(f"{test_path}/2.fasta")
+    fh = get_writer(f"{test_path}/2.fasta")
     retv = _fatsa_gen(fh)
     fh.close()
     tru = pyfaidx.FastaView(f"{test_path}/2.fasta", one_based_attributes=False)
@@ -196,8 +199,8 @@ def test_dynamic_asserts() -> None:
         i += 1
     tru.close()
     this.close()
-    ioctl.rm_rf(f"{test_path}/2.fasta")
-    ioctl.rm_rf(f"{test_path}/2.fasta.fai")
+    commonutils.shutil.rm_rf(f"{test_path}/2.fasta")
+    commonutils.shutil.rm_rf(f"{test_path}/2.fasta.fai")
 
 
 if __name__ == "__main__":

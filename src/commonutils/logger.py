@@ -77,13 +77,10 @@ def set_level(level: Union[str, int], quiet: bool = True) -> int:
     The log will be more verbose if the level is below debug.
 
     # FIXME: File set DEBUG.
+    :raise ValueError: Raise this error if level not exist
     """
+    _lh.setLevel(level)
     this_level = _lh.getEffectiveLevel()
-    try:
-        _lh.setLevel(level)
-        this_level = _lh.getEffectiveLevel()
-    except ValueError:
-        pass
     if not quiet:
         _lh.info(f'Resetting log level: {logging.getLevelName(this_level)}')
 

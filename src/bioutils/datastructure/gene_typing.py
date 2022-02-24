@@ -57,6 +57,7 @@ class SimpleData:
                        other.start < self.start and
                        self.end < other.end
                )
+
     def __repr__(self):
         return "SimpleData"
 
@@ -107,9 +108,9 @@ class Exon(SimpleData):
             }
         )
 
-
     def __repr__(self):
         return f"Exon {self.exon_number} of {self.transcript_id}"
+
 
 class Transcript(SimpleData):
     __slots__ = (
@@ -178,9 +179,9 @@ class Transcript(SimpleData):
             }
         )
 
-
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
+
 
 class Gene(SimpleData):
     __slots__ = (
@@ -215,5 +216,6 @@ class Gene(SimpleData):
                 "gene_id": self.gene_id
             }
         )
+
     def __repr__(self):
         return f"Gene {self.gene_id}"

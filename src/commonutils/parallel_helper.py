@@ -5,7 +5,7 @@ import threading
 import time
 from typing import Union
 
-from commonutils.tqdm_importer import tqdm
+from commonutils.importer.tqdm_importer import tqdm
 
 
 class ParallelJobQueue(threading.Thread):

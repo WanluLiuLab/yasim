@@ -1,0 +1,3 @@
+[submodule ".maint"]
+	path = .maint
+	url = https://gitee.com/yuzjlab/gpmf

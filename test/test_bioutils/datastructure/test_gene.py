@@ -1,8 +1,9 @@
-import os
-
+import commonutils.io.file_system
+import commonutils.shutil
 import test_tetgs
 from bioutils.datastructure.gene_view import GeneView
-from commonutils import ioctl, logger
+from commonutils import logger
+from commonutils.io.safe_io import get_writer
 
 logger.set_level(8)
 
@@ -41,7 +42,7 @@ chr1	refGene	exon	173485361	173485507	.	+	.	gene_id "PRDX7"; transcript_id "NM_0
 
 def test_gene() -> None:
     global gene_gtf
-    fh = ioctl.get_writer(f"{test_path}/1.gtf.gz")
+    fh = get_writer(f"{test_path}/1.gtf.gz")
     fh.write(gene_gtf)
     fh.close()
     gv = GeneView.from_file(f"{test_path}/1.gtf.gz")
@@ -49,5 +50,5 @@ def test_gene() -> None:
     assert list(gv.transcripts.keys()) == ['NM_004905', 'NM_004906', 'NM_004907', 'NM_004908']
     assert gv.transcripts['NM_004905'].exons[0].start == 173477335
     gv.to_gtf(f"{test_path}/2.gtf")
-    os.system(f"gedit {test_path}/2.gtf")
-    ioctl.rm_rf(test_path)
+    # FIXME: (f"gedit {test_path}/2.gtf")
+    commonutils.shutil.rm_rf(test_path)

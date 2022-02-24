@@ -35,9 +35,10 @@ import os
 from abc import abstractmethod
 from typing import List, Union, Tuple, Dict
 
-from commonutils import ioctl, logger
+from commonutils import logger
+from commonutils.io.safe_io import get_reader, get_writer
+from commonutils.io.tqdm_reader import get_tqdm_line_reader
 from commonutils.logger import chronolog
-from commonutils.tqdm_utils import tqdm_line_reader, tqdm_line_iterator
 
 lh = logger.get_logger(__name__)
 
@@ -88,7 +89,6 @@ class _FastaView:
     def __init__(self, filename: str, all_header: bool = False):
         self.all_header = all_header
         self.filename = filename
-        self.realname = ioctl.ensure_input_existence(self.filename)
         self.backend = ''
         self._chr_dict = dict()
 
@@ -142,7 +142,7 @@ class _FastaView:
 
     @abstractmethod
     def to_file(self, output_filename: str):
-        with ioctl.get_writer(output_filename) as writer:
+        with get_writer(output_filename) as writer:
             for k in self._chr_dict.keys():
                 fa_str = f">{k}\n{self.sequence(k)}\n"
                 writer.write(fa_str)
@@ -151,13 +151,13 @@ class _FastaView:
         return self.sequence(*query)
 
     def subset(self, output_filename: str, querys: List[QueryTuple]):
-        with ioctl.get_writer(output_filename) as writer:
+        with get_writer(output_filename) as writer:
             for query in querys:
                 fa_str = f">{query[0]}\n{self.query(query)}\n"
                 writer.write(fa_str)
 
     def subset_chr(self, output_filename: str, querys: List[str]):
-        with ioctl.get_writer(output_filename) as writer:
+        with get_writer(output_filename) as writer:
             for query in querys:
                 fa_str = f">{query}\n{self.sequence(query)}\n"
                 writer.write(fa_str)
@@ -183,7 +183,7 @@ class _MemoryAccessFastaView(_FastaView):
         chr_name = ""
         seq = ""
         line_len = 0
-        for line in tqdm_line_iterator(self.realname):
+        for line in get_tqdm_line_reader(self.filename):
             if line[0] == '>':  # FASTA header
                 if chr_name != '':
                     self._all_dict[chr_name] = seq
@@ -222,15 +222,15 @@ class _DiskAccessFastaView(_FastaView):
         super().__init__(filename, all_header)
         self.backend = 'tetgs'
         # If has prebuilt index file, read it
-        self._reader = ioctl.get_reader(self.realname)
-        if os.path.exists(self.realname + '.fai'):
-            self._read_index_from_fai(self.realname + '.fai')
+        self._reader = get_reader(self.filename)
+        if os.path.exists(self.filename + '.fai'):
+            self._read_index_from_fai(self.filename + '.fai')
         else:
             self._create_index()
 
     @chronolog(display_time=True)
     def _read_index_from_fai(self, index_filename: str):
-        with ioctl.get_reader(index_filename) as fh:
+        with get_reader(index_filename) as fh:
             while True:
                 line = fh.readline()
                 if not line:
@@ -246,7 +246,7 @@ class _DiskAccessFastaView(_FastaView):
         chr_name = ""
         seq_len = 0
         line_len = 0
-        with tqdm_line_reader(self.realname) as reader:  # do not use tqdm_line_iterator; it does not `tell`.
+        with get_tqdm_line_reader(self.filename) as reader:  # do not use get_tqdm_line_reader; it does not `tell`.
             while True:
                 line = reader.readline()
                 if not line:

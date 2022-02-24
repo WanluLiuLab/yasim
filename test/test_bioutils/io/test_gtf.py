@@ -15,7 +15,7 @@ test_gtf.py -- Unit test of corresponding module.
 
 import test_tetgs
 from bioutils.io.feature import GtfRecord
-from commonutils import ioctl
+from commonutils.io.safe_io import get_writer
 
 test_path = test_tetgs.initialize(__name__)
 
@@ -57,10 +57,10 @@ chr1	hg38_rmsk	exon	481	777	1892.000000	+	.	gene_id "MYTE1"; transcript_id "MYTE
 fasta_path = f'{test_path}/2.fa'
 gtf_path = f'{test_path}/2.gtf'
 
-with ioctl.get_writer(fasta_path) as writer:
+with get_writer(fasta_path) as writer:
     writer.write(fasta_contents)
 
-with ioctl.get_writer(gtf_path) as writer:
+with get_writer(gtf_path) as writer:
     writer.write(gtf_contents)
 
 

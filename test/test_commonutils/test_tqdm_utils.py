@@ -1,6 +1,6 @@
-from commonutils.tqdm_utils import tqdm_line_iterator
+from commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
-def test_tqdm_line_iterator():
-    for line in tqdm_line_iterator(__file__):
+def test_get_tqdm_line_reader():
+    for line in get_tqdm_line_reader(__file__):
         print(line)

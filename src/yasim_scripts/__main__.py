@@ -46,9 +46,10 @@ import os
 import pkgutil
 import sys
 from typing import List
-from yasim import __version__
+
 import yasim_scripts.main
 from commonutils import logger
+from yasim import __version__
 
 __all__ = ['main']
 

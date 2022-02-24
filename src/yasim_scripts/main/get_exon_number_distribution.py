@@ -1,14 +1,13 @@
 import argparse
 import statistics
-import sys
 from collections import defaultdict
 from typing import List
 
 from matplotlib import pyplot as plt
 
 from bioutils.datastructure.gene_view import GeneView
-from commonutils import ioctl
-from commonutils.tqdm_importer import tqdm
+from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.safe_io import get_writer
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -81,7 +80,7 @@ def main(args: List[str]):
         start_and_end_sites_number.append(len(start_and_end_sites))
 
     transcripts = list(gv.transcripts.values())
-    with ioctl.get_writer("overlapping_transcript.gtf") as writer:
+    with get_writer("overlapping_transcript.gtf") as writer:
         for t_i in tqdm(desc="Iterating over transcripts...", iterable=range(len(transcripts))):
             transcript = transcripts[t_i]
             for t_j in range(t_i, len(transcripts)):
@@ -98,14 +97,14 @@ def main(args: List[str]):
     stat(transcript_length, "transcript_length")
     stat(start_and_end_sites_number, "start_and_end_sites_number_in_a_gene")
     print(f"gene_with_antisense_transcripts: {len(gene_with_antisense_transcripts)}")
-    with ioctl.get_writer("gene_with_antisense_transcripts.gtf") as writer:
+    with get_writer("gene_with_antisense_transcripts.gtf") as writer:
         for gtf_str in gene_with_antisense_transcripts.values():
             writer.writelines(gtf_str)
     print(f"transcript_with_antisense_exons: {len(transcript_with_antisense_exons)}")
-    with ioctl.get_writer("transcript_with_antisense_exons.gtf") as writer:
+    with get_writer("transcript_with_antisense_exons.gtf") as writer:
         for gtf_str in transcript_with_antisense_exons.values():
             writer.writelines(gtf_str)
     print(f"gene_with_antisense_transcripts_on_same_chr: {len(gene_with_antisense_transcripts_on_same_chr)}")
-    with ioctl.get_writer("gene_with_antisense_transcripts_on_same_chr.gtf") as writer:
+    with get_writer("gene_with_antisense_transcripts_on_same_chr.gtf") as writer:
         for gtf_str in gene_with_antisense_transcripts_on_same_chr.values():
             writer.writelines(gtf_str)

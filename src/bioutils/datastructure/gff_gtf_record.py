@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Dict, Union, List, Optional
 import uuid
+from abc import abstractmethod
+from typing import Dict, Union
 
 from bioutils.datastructure import Feature
 from commonutils import logger
@@ -15,6 +15,7 @@ __version__ = 0.1
 GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
 
 GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
+
 
 class BaseGtfGffRecord(Feature):
     """
@@ -73,17 +74,17 @@ class Gff3Record(BaseGtfGffRecord):
     """
     A general GTF Record.
     """
-    
+
     id: str
     """The ID field in Gff3, cannot be none. Will initialized to UUID if not present"""
-    
-    parent_id:str
+
+    parent_id: str
     """
     FIXME: Multi parents
     
     https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
     """
-    
+
     def __init__(self,
                  seqname: str,
                  source: str,
@@ -107,7 +108,6 @@ class Gff3Record(BaseGtfGffRecord):
         )
         self.id = attribute.get("ID", uuid.uuid4())
         self.parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
-
 
     @classmethod
     def from_string(cls, in_str: str):

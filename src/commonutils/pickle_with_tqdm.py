@@ -17,11 +17,11 @@ import pickle
 from pickle import Unpickler
 from typing import Any
 
-from commonutils import ioctl
-
 __version__ = 0.1
 
-from commonutils.tqdm_utils import tqdm_reader
+from commonutils.io.safe_io import get_writer
+
+from commonutils.io.tqdm_reader import get_tqdm_reader
 
 
 # noinspection all
@@ -31,12 +31,12 @@ def load(filename: str):
 
     :return: Picked object.
     """
-    with tqdm_reader(filename, is_binary=True) as pbfd:
+    with get_tqdm_reader(filename, is_binary=True) as pbfd:
         up = Unpickler(pbfd)
         obj = up.load()
     return obj
 
 
 def dump(obj: Any, filename: str):
-    with ioctl.get_writer(filename, is_binary=True) as writer:
+    with get_writer(filename, is_binary=True) as writer:
         pickle.dump(obj, writer)

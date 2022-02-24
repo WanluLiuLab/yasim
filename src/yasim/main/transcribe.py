@@ -2,11 +2,13 @@ import argparse
 import os.path
 from typing import List, Dict, Optional
 
+import commonutils.io.file_system
+import commonutils.shutil
 from bioutils.datastructure.gene_view import GeneView
 from bioutils.io.fasta import FastaView
-from commonutils import ioctl
+from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.safe_io import get_writer
 from commonutils.logger import get_logger
-from commonutils.tqdm_importer import tqdm
 from yasim.main import dge
 
 logger = get_logger(__name__)
@@ -35,8 +37,7 @@ def transcribe(
         fv: FastaView,
         depth: Optional[Dict[str, int]] = None
 ):
-    ioctl.ensure_output_existence(output_fasta)
-    with ioctl.get_writer(os.path.join(output_fasta)) as writer:
+    with get_writer(os.path.join(output_fasta)) as writer:
         for k, v in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
             fa_name = k
             fa_value = v.cdna_sequence(sequence_func=fv.sequence)
@@ -46,7 +47,7 @@ def transcribe(
         return
     depth_cluster = dge.cluster_depth(depth)
     intermediate_fasta_dir = output_fasta + ".d"
-    ioctl.mkdir_p(intermediate_fasta_dir)
+    commonutils.shutil.mkdir_p(intermediate_fasta_dir)
     ofv = FastaView(output_fasta)
     for transcript_depth, transcript_names in tqdm(iterable=depth_cluster.items(), desc="Transcribing DGE..."):
         transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_depth}.fa")

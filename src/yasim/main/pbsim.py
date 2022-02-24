@@ -3,10 +3,11 @@ import glob
 import os.path
 from typing import List, Optional
 
+import commonutils.io.file_system
 import commonutils.parallel_helper
-from commonutils import ioctl
+import commonutils.shutil
+from commonutils.importer.tqdm_importer import tqdm
 from commonutils.logger import get_logger
-from commonutils.tqdm_importer import tqdm
 from yasim.main._helper import get_depth_from_intermediate_fasta
 from yasim.simulator import pbsim
 
@@ -38,7 +39,7 @@ def simulate(
         pbsim_exename: Optional[str] = None
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    ioctl.mkdir_p(output_fastq_dir)
+    commonutils.shutil.mkdir_p(output_fastq_dir)
     simulating_pool = commonutils.parallel_helper.ParallelJobQueue(
         pool_name="Simulating jobs"
     )

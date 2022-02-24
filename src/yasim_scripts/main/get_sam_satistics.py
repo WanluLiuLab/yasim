@@ -4,8 +4,8 @@ from typing import List, Any
 
 import pysam
 
-from commonutils import ioctl
-from commonutils.tqdm_importer import tqdm
+from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.safe_io import get_writer
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -20,7 +20,7 @@ def main(args: List[str]):
     sam = pysam.AlignmentFile(args.sam)
     num_mapped_reads = 0
 
-    with ioctl.get_writer(args.out) as writer:
+    with get_writer(args.out) as writer:
         writer.write(
             "\t".join((
                 "LEN",
@@ -59,7 +59,7 @@ def main(args: List[str]):
                     str(round(alnq, 2))
                 )) + "\n"
             )
-    with ioctl.get_writer(args.out + ".summary") as writer:
+    with get_writer(args.out + ".summary") as writer:
         def k_v_write(k: str, v: Any):
             rv = repr(v)
             if len(rv) >= 2 and rv[0] == '\'' and rv[-1] == '\'':

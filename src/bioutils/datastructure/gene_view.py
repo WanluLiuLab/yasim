@@ -4,11 +4,12 @@ import os
 import time
 from typing import Optional, Dict, Iterator
 
+import commonutils.io.file_system
 from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
 from bioutils.datastructure.gff_gtf_record import GtfRecord, Gff3Record
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
-from commonutils import ioctl, pickle_with_tqdm
+from commonutils import pickle_with_tqdm
 from commonutils.logger import get_logger
 
 lh = get_logger(__name__)
@@ -21,7 +22,7 @@ class GeneView:
     @classmethod
     def from_file(cls, filename: str, file_type: Optional[str] = None):
         index_filename = filename + ".gvpkl.xz"
-        if ioctl.file_exists(index_filename) and \
+        if commonutils.io.file_system.file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
             try:
                 return cls._from_gvpkl(index_filename)
@@ -111,17 +112,16 @@ class GeneView:
 
     @classmethod
     def _from_gff3(cls, filename: str):
-        raise NotImplementedError # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
-        
-        def gff3_bfs(_new_instance:GeneView, root_id:str):
+        raise NotImplementedError  # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+
+        def gff3_bfs(_new_instance: GeneView, root_id: str):
             # TODO: new_instance()
-            
+
             for child_id in gff3_tree.get_child_ids(root_id):
                 gff3_bfs(new_instance, child_id)
-            
-        
+
         new_instance = cls()
-        
+
         gff3_tree = Gff3Tree(filename)
         for root_id in gff3_tree.get_toplevel_ids():
             gff3_bfs(new_instance, root_id)

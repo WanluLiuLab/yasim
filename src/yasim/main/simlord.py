@@ -4,8 +4,8 @@ import os.path
 from typing import List
 
 import commonutils.parallel_helper
+from commonutils.importer.tqdm_importer import tqdm
 from commonutils.logger import get_logger
-from commonutils.tqdm_importer import tqdm
 from yasim.main._helper import get_depth_from_intermediate_fasta
 from yasim.simulator import simlord
 

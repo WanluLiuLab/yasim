@@ -1,12 +1,12 @@
 import argparse
-import sys
 from typing import List
 
 from bioutils.datastructure.gff_gtf_record import GtfRecord
 from bioutils.io.feature import GtfIterator
-from commonutils import ioctl
 
 __version__ = 0.1
+
+from commonutils.io.safe_io import get_writer
 
 POSSIBLE_KEYS = (
     "gene_id",
@@ -41,7 +41,7 @@ def get_with_defaults(transcript_gtf_record: GtfRecord, key: str) -> str:
 def main(args: List[str]):
     args = _parse_args(args)
     ans_gv = GtfIterator(args.gtf)
-    with ioctl.get_writer(args.out) as writer:
+    with get_writer(args.out) as writer:
         writer.write("\t".join(POSSIBLE_KEYS) + "\n")
         for gtf_record in ans_gv:
             if gtf_record.feature == "transcript":

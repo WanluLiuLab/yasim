@@ -34,9 +34,9 @@ from typing import Dict, Iterable, Iterator, Union, Optional, List, TextIO
 from bioutils.datastructure import Feature
 from bioutils.datastructure.gff_gtf_record import GFF3_TOPLEVEL_NAME, Gff3Record
 from bioutils.datastructure.gff_gtf_record import GtfRecord
-from commonutils import ioctl
-from commonutils.tqdm_importer import tqdm
-from commonutils.tqdm_utils import tqdm_line_iterator
+from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.safe_io import get_writer
+from commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
 class _FeatureIterator:
@@ -44,7 +44,7 @@ class _FeatureIterator:
     filetype: str = "UNKNOWN"
 
     def __init__(self, filename: str):
-        self.filename = ioctl.ensure_input_existence(filename)
+        self.filename = filename
 
     @abstractmethod
     def __iter__(self) -> Iterator[Feature]:
@@ -66,7 +66,7 @@ class GtfIterator(_FeatureIterator):
     filetype: str = "GTF"
 
     def __iter__(self) -> Iterator[GtfRecord]:
-        for line in tqdm_line_iterator(self.filename):
+        for line in get_tqdm_line_reader(self.filename):
             if line.startswith('#') or line == '':
                 continue
             yield GtfRecord.from_string(line)
@@ -76,7 +76,7 @@ class Gff3Iterator(_FeatureIterator):
     filetype: str = "GFF3"
 
     def __iter__(self) -> Iterator[Gff3Record]:
-        for line in tqdm_line_iterator(self.filename):
+        for line in get_tqdm_line_reader(self.filename):
             if line.startswith('##FASTA'):
                 return
             if line.startswith('#') or line == '':
@@ -102,7 +102,7 @@ class _FeatureWriter:
 
     def __init__(self, output_filename: str):
         self.output_filename = output_filename
-        self.fd = ioctl.get_writer(self.output_filename)
+        self.fd = get_writer(self.output_filename)
 
     def write_feature(self, feature: Feature):
         self.fd.write(str(feature) + "\n")
@@ -158,7 +158,7 @@ class Gff3Tree:
     """An parent ID -> child ID mapping"""
 
     def __init__(self, filename: str):
-        self.filename = ioctl.ensure_input_existence(filename)
+        self.filename = filename
         self._flat_record = {}
         self._id_tree = defaultdict(lambda: [])
         self._load()

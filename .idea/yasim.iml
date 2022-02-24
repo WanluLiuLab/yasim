@@ -20,7 +20,6 @@
       <excludeFolder url="file://$MODULE_DIR$/iter_2/hg38.chr1.transcripts_dwgsim.d" />
       <excludeFolder url="file://$MODULE_DIR$/dist/PaSS" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/shell/.vscode" />
-      <excludeFolder url="file://$MODULE_DIR$/makefile/.vscode" />
       <excludeFolder url="file://$MODULE_DIR$/tmp_96h8RO" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/hg38.chr1.transcripts_badread_nanopore2018.d" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/hg38.chr1.transcripts_badread_nanopore2020.d" />
@@ -47,6 +46,9 @@
       <excludeFolder url="file://$MODULE_DIR$/src/yasim.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/yasim-0.1" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/.maint" />
+      <excludeFolder url="file://$MODULE_DIR$/makefile_test_data/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

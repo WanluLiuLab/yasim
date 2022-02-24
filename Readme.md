@@ -18,6 +18,6 @@ This software uses Python and R (optional). See `requirements.txt` and `requirem
 
 If you wish to execute the scripts inside `src/scripts`, you need to install Python modules in `src/scripts/requirements.txt`.
 
-If you wish to utilize Makefiles inside `makefile` directory, you need GNU Make. BSD-flavored `make` is not supported.
+If you wish to utilize Makefiles inside `makefile_test_data` directory, you need GNU Make. BSD-flavored `make` is not supported.
 
 If you wish to test the Python package, see `requirements_test.txt`.

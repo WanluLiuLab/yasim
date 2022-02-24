@@ -1,4 +1,4 @@
-# Readme for `makefile`
+# Readme for `makefile_test_data`
 
 Here stores the makefiles used for testing. **They should NOT be used in processing purpose!**
 

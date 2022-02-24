@@ -3,8 +3,8 @@ from typing import List
 
 from bioutils.datastructure.gene_view import GeneView
 from bioutils.io.fasta import FastaView
+from commonutils.importer.tqdm_importer import tqdm
 from commonutils.logger import get_logger
-from commonutils.tqdm_importer import tqdm
 
 logger = get_logger(__name__)
 

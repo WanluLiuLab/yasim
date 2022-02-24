@@ -3,9 +3,11 @@ import random
 from collections import defaultdict
 from typing import Dict, List
 
+import commonutils.io.file_system
+import commonutils.shutil
 from bioutils.datastructure.gene_view import GeneView
-from commonutils import ioctl
-from commonutils.tqdm_importer import tqdm
+from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.safe_io import get_writer, get_reader
 
 __version__ = 0.1
 
@@ -33,7 +35,7 @@ def simulate_dge_uniform(
 ) -> Dict[str, int]:
     transcript_names = gv.transcripts.keys()
     depth = {}
-    with ioctl.get_writer(output_tsv) as writer:
+    with get_writer(output_tsv) as writer:
         writer.write(f"gene_name\tdepth\n")
         for transcript_name in tqdm(iterable=transcript_names, desc="Simulating..."):
             d = int(random.uniform(1, max_depth)) * levels // max_depth * int(max_depth / levels) + 1
@@ -44,8 +46,8 @@ def simulate_dge_uniform(
 
 def read_depth(input_tsv: str) -> Dict[str, int]:
     retd = {}
-    total = ioctl.wc_l(input_tsv)
-    with ioctl.get_reader(input_tsv) as reader:
+    total = commonutils.shutil.wc_l(input_tsv)
+    with get_reader(input_tsv) as reader:
         reader.readline()  # Skip line 1
         for l in tqdm(iterable=reader.readlines(), desc="Reading depth file...", total=total - 1):
             l = l.strip()

@@ -2,7 +2,9 @@ import glob
 import os
 from typing import List, Optional
 
-from commonutils import ioctl
+import commonutils.io.file_system
+import commonutils.shutil
+from commonutils.io.safe_io import get_reader, get_writer
 from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
 
 FILE_DIR = os.path.dirname(__file__)
@@ -51,9 +53,9 @@ class SimulatorPbsim(Simulator):
 
     def move_file_after_finish(self):
         counter = 0
-        with ioctl.get_writer(self.output_fastq_prefix + ".fq") as writer:
+        with get_writer(self.output_fastq_prefix + ".fq") as writer:
             for filename in glob.glob(self.tmp_prefix + "_*.fastq"):
-                with ioctl.get_reader(filename) as reader:
+                with get_reader(filename) as reader:
 
                     while True:
                         line = reader.readline()
@@ -65,9 +67,9 @@ class SimulatorPbsim(Simulator):
                             line = "+\n"
                         writer.write(line)
                         counter += 1
-                ioctl.rm_rf(filename)
-                ioctl.rm_rf(os.path.splitext(filename)[0] + ".maf")
-                ioctl.rm_rf(os.path.splitext(filename)[0] + ".ref")
+                commonutils.shutil.rm_rf(filename)
+                commonutils.shutil.rm_rf(os.path.splitext(filename)[0] + ".maf")
+                commonutils.shutil.rm_rf(os.path.splitext(filename)[0] + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim")

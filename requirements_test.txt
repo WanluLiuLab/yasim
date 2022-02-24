@@ -1,1 +1,9 @@
-pytest
+pytest==7.0.1
+pytest-cov==3.0.0
+pytest-html==3.1.1
+setuptools
+wheel
+build
+twine==3.8.0
+Sphinx==4.4.0
+sphinx-book-theme==0.2.0
