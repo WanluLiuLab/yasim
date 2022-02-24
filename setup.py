@@ -17,10 +17,9 @@ import sys
 import setuptools
 from setuptools import setup
 
-
 PKG_NAME = "yasim"
 
-ROOT_DIR=os.path.dirname(__file__)
+ROOT_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_DIR, "src"))
 
 install_requires = []
@@ -31,7 +30,6 @@ with  open('requirements.txt', 'rt', encoding='utf-8') as reader:
             install_requires.append(line.strip())
 
 from yasim import __version__
-
 
 with  open('Readme.md', 'rt', encoding='utf-8') as reader:
     long_description = reader.read()
@@ -66,8 +64,8 @@ setup(
         include=['*'],
     ),
     package_dir={"": 'src'},
-    package_data ={
-        '': glob.glob(os.path.join(ROOT_DIR, "src","yasim", "simulator", "**"),recursive=True),
+    package_data={
+        '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "simulator", "**"), recursive=True),
     },
     install_requires=install_requires
 )

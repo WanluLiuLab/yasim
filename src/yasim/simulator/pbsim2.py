@@ -2,8 +2,7 @@ import glob
 import os
 from typing import List
 
-import commonutils.io.file_system
-import commonutils.shutil
+from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer, get_reader
 from yasim.simulator import Simulator
 
@@ -36,9 +35,9 @@ class SimulatePbsim2(Simulator):
                             break
                         writer.write(line)
                         counter += 1
-                commonutils.shutil.rm_rf(filename)
-                commonutils.shutil.rm_rf(os.path.splitext(filename)[0] + ".maf")
-                commonutils.shutil.rm_rf(os.path.splitext(filename)[0] + ".ref")
+                shell_utils.rm_rf(filename)
+                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".maf")
+                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim2")

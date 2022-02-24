@@ -3,9 +3,8 @@ import random
 from collections import defaultdict
 from typing import Dict, List
 
-import commonutils.io.file_system
-import commonutils.shutil
 from bioutils.datastructure.gene_view import GeneView
+from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer, get_reader
 
@@ -46,12 +45,12 @@ def simulate_dge_uniform(
 
 def read_depth(input_tsv: str) -> Dict[str, int]:
     retd = {}
-    total = commonutils.shutil.wc_l(input_tsv)
+    total = shell_utils.wc_l(input_tsv)
     with get_reader(input_tsv) as reader:
         reader.readline()  # Skip line 1
-        for l in tqdm(iterable=reader.readlines(), desc="Reading depth file...", total=total - 1):
-            l = l.strip()
-            lkv = l.split("\t")
+        for line in tqdm(iterable=reader.readlines(), desc="Reading depth file...", total=total - 1):
+            line = line.strip()
+            lkv = line.split("\t")
             retd[lkv[0]] = int(lkv[1])
     return retd
 

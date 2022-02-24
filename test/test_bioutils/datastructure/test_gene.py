@@ -1,8 +1,6 @@
-import commonutils.io.file_system
-import commonutils.shutil
 import test_tetgs
 from bioutils.datastructure.gene_view import GeneView
-from commonutils import logger
+from commonutils import logger, shell_utils
 from commonutils.io.safe_io import get_writer
 
 logger.set_level(8)
@@ -51,4 +49,4 @@ def test_gene() -> None:
     assert gv.transcripts['NM_004905'].exons[0].start == 173477335
     gv.to_gtf(f"{test_path}/2.gtf")
     # FIXME: (f"gedit {test_path}/2.gtf")
-    commonutils.shutil.rm_rf(test_path)
+    shell_utils.rm_rf(test_path)

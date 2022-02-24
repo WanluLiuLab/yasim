@@ -99,7 +99,7 @@ def set_level(level: Union[str, int], quiet: bool = True) -> int:
     return this_level
 
 
-if not "_global_level" in locals() and not "_global_level" in globals():
+if "_global_level" not in locals() and not "_global_level" in globals():
     # set the global log-level.
     # Will read from LOG_LEVEL environment variable.
     # And fall to DEBUG if fails.

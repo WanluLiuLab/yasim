@@ -5,7 +5,8 @@ from typing import List, Optional
 
 import commonutils.io.file_system
 import commonutils.parallel_helper
-import commonutils.shutil
+import commonutils.shell_utils
+from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.logger import get_logger
 from yasim.main._helper import get_depth_from_intermediate_fasta
@@ -39,7 +40,7 @@ def simulate(
         pbsim_exename: Optional[str] = None
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    commonutils.shutil.mkdir_p(output_fastq_dir)
+    shell_utils.mkdir_p(output_fastq_dir)
     simulating_pool = commonutils.parallel_helper.ParallelJobQueue(
         pool_name="Simulating jobs"
     )

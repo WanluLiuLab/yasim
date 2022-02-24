@@ -1,3 +1,4 @@
+import gzip
 import os
 import shutil
 from typing import IO, Callable
@@ -31,32 +32,34 @@ def readlink_f(path: str) -> str:
 
 
 @chronolog(display_time=True)
-def wc_l(path: str, opener: Callable[[str], IO] = None) -> int:
+def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
     """
     Count lines in a file.
 
-    :param path: File path.
+    :param filename: Input filename
+    :param opener: Function to open this file. I.e., return an IO object.
     :return: Line number.
     """
     if opener is None:
-        fd = get_reader(path)
+        fd = get_reader(filename)
     else:
-        fd = opener(path)
+        fd = opener(filename)
     return wc_l_io(fd)
 
 
 @chronolog(display_time=True)
-def wc_c(path: str, opener: Callable[[str], IO] = None) -> int:
+def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
-    :param path: File to open.
+    :param filename: Input filename
+    :param opener: Function to open this file. I.e., return an IO object.
     :return: File length.
     """
     if opener is None:
-        fd = get_reader(path)
+        fd = get_reader(filename)
     else:
-        fd = opener(path)
+        fd = opener(filename)
     return wc_c_io(fd)
 
 
@@ -65,7 +68,7 @@ def wc_l_io(fd: IO) -> int:
     """
     Count lines in a file.
 
-    :param path: File path.
+    :param fd: An IO object.
     :return: Line number.
     """
     if fd.seekable():
@@ -85,7 +88,7 @@ def wc_c_io(fd: IO) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
-    :param path: File to open.
+    :param fd: An IO object.
     :return: File length.
     """
     if fd.seekable():
@@ -149,3 +152,17 @@ def rm_rf(path: str):
     else:
         lh.debug(f"{dbg_head} not exist")
     return 0
+
+
+def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9):
+    with open(in_file, 'rb') as f_in, gzip.open(out_file, 'wb', compresslevel=compresslevel) as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    if not keep_in_file:
+        rm_rf(in_file)
+
+
+def gz_decompress(in_file: str, out_file: str, keep_in_file: bool = False):
+    with gzip.open(in_file, 'rb') as f_in, open(out_file, 'wb') as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    if not keep_in_file:
+        rm_rf(in_file)

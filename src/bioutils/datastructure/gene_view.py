@@ -114,10 +114,10 @@ class GeneView:
     def _from_gff3(cls, filename: str):
         raise NotImplementedError  # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
 
-        def gff3_bfs(_new_instance: GeneView, root_id: str):
+        def gff3_bfs(_new_instance: GeneView, _root_id: str):
             # TODO: new_instance()
 
-            for child_id in gff3_tree.get_child_ids(root_id):
+            for child_id in gff3_tree.get_child_ids(_root_id):
                 gff3_bfs(new_instance, child_id)
 
         new_instance = cls()

@@ -20,11 +20,9 @@ import typing
 
 import pytest
 
-import commonutils.io.file_system
-import commonutils.shutil
 import test_tetgs
 from bioutils.io import fasta
-from commonutils import logger
+from commonutils import logger, shell_utils
 from commonutils.io.safe_io import get_writer
 
 logger.set_level(8)
@@ -53,15 +51,12 @@ N
 
 
 def cleanup() -> None:
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fxi")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.gz")
+    shell_utils.rm_rf(f"{test_path}/1.fasta")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.fxi")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.fai")
 
-
-def test_rev_compl() -> None:
-    assert fasta.reverse_complement("CTGACTGA") == 'TCAGTCAG'
 
 
 def fasta_with_full_header_assets(fa: fasta.FastaView) -> None:
@@ -106,8 +101,8 @@ def fasta_without_full_header_assets(fa: fasta.FastaView) -> None:
 
 def test_fasta_class_without_fai_in_mem() -> None:
     global fasta_seq
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.gz.fai")
     fh = get_writer(f"{test_path}/1.fasta.gz")
     fh.write(fasta_seq)
     fh.close()
@@ -122,8 +117,8 @@ def test_fasta_class_without_fai_in_mem() -> None:
 
 def test_fasta_class_without_fai_without_mem() -> None:
     global fasta_seq
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.fai")
-    commonutils.shutil.rm_rf(f"{test_path}/1.fasta.gz.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.fai")
+    shell_utils.rm_rf(f"{test_path}/1.fasta.gz.fai")
     fh = get_writer(f"{test_path}/1.fasta")
     fh.write(fasta_seq)
     fh.close()
@@ -157,7 +152,7 @@ def test_fasta_class_with_fai_without_mem() -> None:
     cleanup()
 
 
-def _fatsa_gen(writer: typing.TextIO) -> []:
+def _fatsa_gen(writer: typing.IO) -> []:
     retv = []
     this_tras = str.maketrans('01234', 'NAGCT')
 
@@ -199,12 +194,11 @@ def test_dynamic_asserts() -> None:
         i += 1
     tru.close()
     this.close()
-    commonutils.shutil.rm_rf(f"{test_path}/2.fasta")
-    commonutils.shutil.rm_rf(f"{test_path}/2.fasta.fai")
+    shell_utils.rm_rf(f"{test_path}/2.fasta")
+    shell_utils.rm_rf(f"{test_path}/2.fasta.fai")
 
 
 if __name__ == "__main__":
-    test_rev_compl()
     test_fasta_class_without_fai_in_mem()
     test_fasta_class_without_fai_without_mem()
     test_fasta_class_with_fai_without_mem()

@@ -32,7 +32,7 @@ Highlights: This utility can read all format supported by :py:mod:`ioctl`, while
 """
 
 import os
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict
 
 from commonutils import logger
@@ -140,7 +140,6 @@ class _FastaView:
     def __del__(self):
         self.close()
 
-    @abstractmethod
     def to_file(self, output_filename: str):
         with get_writer(output_filename) as writer:
             for k in self._chr_dict.keys():
@@ -305,7 +304,7 @@ class _DiskAccessFastaView(_FastaView):
             pass
 
 
-class FastaView(_FastaView):
+class FastaView(_FastaView, ABC):
     """
     The major Fasta handler class, supporting multiple backends.
     """

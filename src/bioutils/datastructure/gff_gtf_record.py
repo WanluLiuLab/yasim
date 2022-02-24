@@ -125,7 +125,7 @@ class Gff3Record(BaseGtfGffRecord):
 
         # Score should be an integer
         if required_fields[5] == ".":
-            required_fields[5] = 0
+            required_fields[5] = "0"
         return Gff3Record(seqname=required_fields[0],
                           source=required_fields[1],
                           feature=required_fields[2],
@@ -181,7 +181,7 @@ class GtfRecord(BaseGtfGffRecord):
 
         # Score should be an integer
         if required_fields[5] == ".":
-            required_fields[5] = 0
+            required_fields[5] = "0"
         return GtfRecord(seqname=required_fields[0],
                          source=required_fields[1],
                          feature=required_fields[2],

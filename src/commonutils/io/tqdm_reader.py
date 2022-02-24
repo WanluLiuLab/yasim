@@ -1,7 +1,6 @@
 from typing import IO, Iterator, AnyStr, List
 
-import commonutils.io.file_system
-import commonutils.shutil
+from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io import SequentialReader
 
@@ -14,7 +13,7 @@ class TqdmReader(SequentialReader):
     def __init__(self, filename: str, *args, **kwargs):
         super().__init__(filename, *args, **kwargs)
         self.tqdm = tqdm(
-            desc=f"Reading {filename}", total=commonutils.shutil.wc_c_io(self.fd), unit='B', unit_scale=True,
+            desc=f"Reading {filename}", total=shell_utils.wc_c_io(self.fd), unit='B', unit_scale=True,
             unit_divisor=1024
         )
 
@@ -59,7 +58,7 @@ class TqdmLineReader(TqdmReader):
 
     def __init__(self, filename: str, *args, **kwargs):
         super().__init__(filename, *args, **kwargs)
-        self.tqdm = tqdm(desc=f"Reading {filename}", total=commonutils.shutil.wc_l_io(self.fd), unit='L')
+        self.tqdm = tqdm(desc=f"Reading {filename}", total=shell_utils.wc_l_io(self.fd), unit='L')
 
     def read(self, *args, **kwargs):
         raise OSError('Illegal operation read.')

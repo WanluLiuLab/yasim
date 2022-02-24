@@ -3,8 +3,10 @@ import shutil
 from typing import List, Union, Optional
 
 import commonutils.io.file_system
-import commonutils.shutil
-from commonutils.compressor import gz_decompress
+import commonutils.shell_utils
+from commonutils import shell_utils
+from commonutils.io import file_system
+from commonutils.shell_utils import gz_decompress
 from yasim.simulator import Simulator
 
 
@@ -48,9 +50,8 @@ class SimulatorDwgsim(Simulator):
             ".bwa.read2.fq"
         )
         for suffix_r1, suffix_r2 in zip(try_read1_suffix, try_read2_suffix):
-            if not commonutils.io.file_system.file_exists(
-                    self.tmp_prefix + suffix_r1) or not commonutils.io.file_system.file_exists(
-                self.tmp_prefix + suffix_r2):
+            if not file_system.file_exists(self.tmp_prefix + suffix_r1) or \
+                    not file_system.file_exists(self.tmp_prefix + suffix_r2):
                 continue
             if suffix_r1.endswith(".gz"):
                 gz_decompress(
@@ -74,7 +75,7 @@ class SimulatorDwgsim(Simulator):
         else:
             self.lh.error(f"Unable to find output")
         for filename in glob.glob(self.tmp_prefix + ".bfast.fastq*"):
-            commonutils.shutil.rm_rf(filename)
+            shell_utils.rm_rf(filename)
 
     def run(self) -> None:
         self.run_simulator_as_process("dwgsim")
