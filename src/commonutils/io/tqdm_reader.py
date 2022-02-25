@@ -86,7 +86,7 @@ class TqdmLineReader(TqdmReader):
         return update_bytes
 
     def __iter__(self) -> Iterator[str]:
-        """Iteratr over lines with removal of trailing line feed (``LF``, ``\n``)/carriage return (``CR``, ``\r``)"""
+        """Iterator over lines with removal of trailing line feed (``LF``, ``\n``)/carriage return (``CR``, ``\r``)"""
         while True:
             line = self.readline()
             if not line:

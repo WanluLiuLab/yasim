@@ -21,7 +21,7 @@ import typing
 import pytest
 
 import test_tetgs
-from bioutils.io import fasta
+from bioutils.io import fastx
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
 
@@ -58,7 +58,7 @@ def cleanup() -> None:
     shell_utils.rm_rf(f"{test_path}/1.fasta.fai")
 
 
-def fasta_with_full_header_assets(fa: fasta.FastaView) -> None:
+def fasta_with_full_header_assets(fa: fastx.FastaView) -> None:
     assert len(fa) == 3
     assert fa.sequence('chr1 some att', 0, 1) == 'N'
     assert fa.sequence('chr1 some att', 26, 29) == 'CCA'  # Cross the line
@@ -79,7 +79,7 @@ def fasta_with_full_header_assets(fa: fasta.FastaView) -> None:
                        -1) == 'NNNNNNNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTTCTNNNNNNNNN'
 
 
-def fasta_without_full_header_assets(fa: fasta.FastaView) -> None:
+def fasta_without_full_header_assets(fa: fastx.FastaView) -> None:
     assert len(fa) == 3
     assert fa.sequence('chr1', 0, 1) == 'N'
     assert fa.sequence('chr1', 26, 29) == 'CCA'  # Cross the line
@@ -105,10 +105,10 @@ def test_fasta_class_without_fai_in_mem() -> None:
     fh = get_writer(f"{test_path}/1.fasta.gz")
     fh.write(fasta_seq)
     fh.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=False)
+    fa = fastx.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=False)
     fasta_without_full_header_assets(fa)
     fa.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=True)
+    fa = fastx.FastaView(f"{test_path}/1.fasta.gz", read_into_memory=True, all_header=True)
     fasta_with_full_header_assets(fa)
     fa.close()
     cleanup()
@@ -121,10 +121,10 @@ def test_fasta_class_without_fai_without_mem() -> None:
     fh = get_writer(f"{test_path}/1.fasta")
     fh.write(fasta_seq)
     fh.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta", read_into_memory=False)
+    fa = fastx.FastaView(f"{test_path}/1.fasta", read_into_memory=False)
     fasta_without_full_header_assets(fa)
     fa.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta", read_into_memory=False, all_header=True)
+    fa = fastx.FastaView(f"{test_path}/1.fasta", read_into_memory=False, all_header=True)
     fasta_with_full_header_assets(fa)
     fa.close()
     cleanup()
@@ -141,10 +141,10 @@ def test_fasta_class_with_fai_without_mem() -> None:
     fh.write(fasta_seq)
     fh.close()
     pysam.faidx(f"{test_path}/1.fasta")
-    fa = fasta.FastaView(f"{test_path}/1.fasta", read_into_memory=False)
+    fa = fastx.FastaView(f"{test_path}/1.fasta", read_into_memory=False)
     fasta_without_full_header_assets(fa)
     fa.close()
-    fa = fasta.FastaView(f"{test_path}/1.fasta", read_into_memory=False, all_header=True)
+    fa = fastx.FastaView(f"{test_path}/1.fasta", read_into_memory=False, all_header=True)
     with pytest.raises(ValueError):
         fasta_with_full_header_assets(fa)
     fa.close()
@@ -186,7 +186,7 @@ def test_dynamic_asserts() -> None:
     retv = _fatsa_gen(fh)
     fh.close()
     tru = pyfaidx.FastaView(f"{test_path}/2.fasta", one_based_attributes=False)
-    this = fasta.FastaView(f"{test_path}/2.fasta", read_into_memory=False)
+    this = fastx.FastaView(f"{test_path}/2.fasta", read_into_memory=False)
     i = 0
     for item in retv:
         assert tru[f'chr{i}'][item[1]: item[2]].seq == this.sequence(f'chr{i}', item[1], item[2])
