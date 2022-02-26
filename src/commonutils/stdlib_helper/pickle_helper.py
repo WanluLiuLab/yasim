@@ -42,7 +42,6 @@ from commonutils.io.safe_io import get_writer, get_reader
 from commonutils.io.tqdm_reader import get_tqdm_reader
 
 
-# noinspection all
 def load(filename: str, with_tqdm: bool = True) -> Any:
     """
     Unpickle a file with tqdm.

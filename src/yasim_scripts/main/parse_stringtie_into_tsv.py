@@ -1,7 +1,7 @@
 import argparse
 from typing import List
 
-from bioutils.datastructure.gff_gtf_record import GtfRecord
+from bioutils.typing.feature import GtfRecord
 from bioutils.io.feature import GtfIterator
 
 __version__ = 0.1

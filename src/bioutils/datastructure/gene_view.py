@@ -6,9 +6,10 @@ from typing import Optional, Dict, Iterator
 
 import commonutils.io.file_system
 from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
-from bioutils.datastructure.gff_gtf_record import GtfRecord, Gff3Record
+from bioutils.typing.feature import GtfRecord, Gff3Record
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
+from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
@@ -43,14 +44,14 @@ class GeneView:
     @classmethod
     def _from_gvpkl(cls, index_filename: str):
         new_instance = cls()
-        (version, new_instance.genes, new_instance.transcripts) = pickle_with_tqdm.load(index_filename)
+        (version, new_instance.genes, new_instance.transcripts) = pickle_helper.load(index_filename)
         if version != __version__:
             raise ValueError("Version mismatch")
         return new_instance
 
     def to_gvpkl(self, index_filename: str):
         lh.info("Pickling to gvpkl...")
-        pickle_with_tqdm.dump((__version__, self.genes, self.transcripts), index_filename)
+        pickle_helper.dump((__version__, self.genes, self.transcripts), index_filename)
 
     @classmethod
     def _from_gtf(cls, filename: str):

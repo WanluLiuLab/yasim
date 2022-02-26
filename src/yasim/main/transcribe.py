@@ -3,7 +3,7 @@ import os.path
 from typing import List, Dict, Optional
 
 from bioutils.datastructure.gene_view import GeneView
-from bioutils.io.fastx import FastaView
+from bioutils.datastructure.fasta_view import FastaView
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer

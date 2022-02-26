@@ -205,7 +205,7 @@ def get_reader(filename: str, is_binary: bool = False, **kwargs) -> IO:
 
 
 def get_writer(filename: str, is_binary: bool = False, **kwargs) -> IO:
-    f"""
+    """
     Get a writer for multiple format.
     
     This function is for newbies or others who does not wish to have full control over what they opened.
@@ -226,7 +226,7 @@ def get_writer(filename: str, is_binary: bool = False, **kwargs) -> IO:
 
 
 def get_appender(filename: str, is_binary: bool = False, **kwargs) -> IO:
-    f"""
+    """
     Get an appender for multiple format.
     
     This function is for newbies or others who does not wish to have full control over what they opened.

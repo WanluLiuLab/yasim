@@ -57,10 +57,10 @@ HELP_INFO = """
 TODO
 """
 
-lh = logger.get_logger(__name__)
+lh = logger_helper.get_logger(__name__)
 
 if os.environ.get('LOG_LEVEL') is None:
-    logger.set_level('INFO')
+    logger_helper.set_level('INFO')
 
 valid_subcommand_names = []
 
@@ -95,7 +95,7 @@ def _parse_args(args: List[str]) -> List[str]:
             args.pop(i)
         i += 1
     if VERBOSE_LEVEL == 1:
-        logger.set_level(logging.DEBUG, quiet=False)
+        logger_helper.set_level(logging.DEBUG, quiet=False)
     elif VERBOSE_LEVEL >= 2:
         logger_helper.set_level(logger_helper.TRACE, quiet=False)
     if _input_subcommand_name == "lscmd":

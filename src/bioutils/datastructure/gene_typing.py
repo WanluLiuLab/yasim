@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional
 
-from bioutils.datastructure.gff_gtf_record import GtfRecord
-from bioutils.io import fastx
+from bioutils.algorithm.sequence import complement
+from bioutils.typing.feature import GtfRecord
 
 
 class SimpleData:
@@ -147,7 +147,7 @@ class Transcript(SimpleData):
             except ValueError:
                 pass
         if self.strand == '-':
-            self._cdna_sequence = fastx.complement(self._cdna_sequence)
+            self._cdna_sequence = complement(self._cdna_sequence)
         return self._cdna_sequence
 
     def __eq__(self, other: Transcript):

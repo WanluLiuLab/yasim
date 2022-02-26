@@ -21,7 +21,7 @@ Warnings:
 This module does not:
 
 * Parse a GTF/GFF3 record string into :py:class:`GtfRecord`.
-See :py:class:`bioutils.datastructure.gff_gtf_record.GtfRecord` for this feature.
+See :py:class:`bioutils.typing.feature.GtfRecord` for this feature.
 
 * Parse a GTF/GFF3 file into a three-tier Exon-Transcript-GeneView structure.
 See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
@@ -31,39 +31,16 @@ from abc import abstractmethod
 from collections import defaultdict
 from typing import Dict, Iterable, Iterator, Union, Optional, List, TextIO
 
-from bioutils.datastructure import Feature
-from bioutils.datastructure.gff_gtf_record import GFF3_TOPLEVEL_NAME, Gff3Record
-from bioutils.datastructure.gff_gtf_record import GtfRecord
+from bioutils.typing.feature import Feature, GFF3_TOPLEVEL_NAME, Gff3Record, GtfRecord
+from bioutils.typing.misc import BaseIterator
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
-class _FeatureIterator:
-    filename: str = ""
-    filetype: str = "UNKNOWN"
-
-    def __init__(self, filename: str):
-        self.filename = filename
-
-    @abstractmethod
-    def __iter__(self) -> Iterator[Feature]:
-        pass
-
-    def __repr__(self):
-        return f"{self.filetype} Iterator for {self.filename}"
-
-    __str__ = __repr__
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args, **kwargs):
-        return
-
-
-class GtfIterator(_FeatureIterator):
+class GtfIterator(BaseIterator):
     filetype: str = "GTF"
+    record_type = GtfRecord
 
     def __iter__(self) -> Iterator[GtfRecord]:
         for line in get_tqdm_line_reader(self.filename):
@@ -72,8 +49,9 @@ class GtfIterator(_FeatureIterator):
             yield GtfRecord.from_string(line)
 
 
-class Gff3Iterator(_FeatureIterator):
+class Gff3Iterator(BaseIterator):
     filetype: str = "GFF3"
+    record_type = Gff3Record
 
     def __iter__(self) -> Iterator[Gff3Record]:
         for line in get_tqdm_line_reader(self.filename):
@@ -89,7 +67,7 @@ class _FeatureWriter:
 
     @staticmethod
     def write_iterator(
-            iterable: Union[_FeatureIterator, Iterator[Feature]],
+            iterable: Union[GtfIterator, GtfIterator, Iterator[Feature]],
             output_filename: str,
             prefix_annotations: Optional[List[str]] = None
     ):
@@ -200,3 +178,6 @@ class Gff3Tree:
                 return gff3_id
 
         raise ValueError("Backtrack failed!")
+
+
+

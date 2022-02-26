@@ -14,7 +14,7 @@ test_gtf.py -- Unit test of corresponding module.
 """
 
 import test_tetgs
-from bioutils.io.feature import GtfRecord
+from bioutils.typing.feature import GtfRecord
 from commonutils.io.safe_io import get_writer
 
 test_path = test_tetgs.initialize(__name__)
@@ -62,22 +62,3 @@ with get_writer(fasta_path) as writer:
 
 with get_writer(gtf_path) as writer:
     writer.write(gtf_contents)
-
-
-def test_gtf_record():
-    gtf_str = 'chr1	hg38_rmsk	exon	50331337	50332274	1587.000000	+	.	gene_id "HAL1"; transcript_id "HAL1"; '
-    gtf_from_line = GtfRecord.from_string(gtf_str)
-    assert gtf_from_line.seqname == 'chr1'
-    assert gtf_from_line.source == 'hg38_rmsk'
-    assert gtf_from_line.feature == 'exon'
-    assert gtf_from_line.start == 50331337
-    assert gtf_from_line.end == 50332274
-    assert gtf_from_line.score == 1587
-    assert gtf_from_line.strand == '+'
-    assert gtf_from_line.attribute['gene_id'] == 'HAL1'
-    assert str(
-        gtf_from_line) == 'chr1	hg38_rmsk	exon	50331337	50332274	1587	+	.	gene_id "HAL1"; transcript_id "HAL1"; '
-
-
-if __name__ == "__main__":
-    test_gtf_record()
