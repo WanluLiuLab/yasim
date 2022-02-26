@@ -3,7 +3,7 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 """
 
 import sys
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Sized
 
 
 class tqdm:
@@ -65,9 +65,12 @@ class tqdm:
         self._n = 0
         self._quarters = 0
         if total is None and iterable is not None:
-            try:
-                self.total = len(iterable)
-            except (TypeError, AttributeError):
+            if isinstance(iterable,Sized):
+                try:
+                    self.total = len(iterable)
+                except (TypeError, AttributeError):
+                    self.total = None
+            else:
                 self.total = None
         else:
             self.total = total

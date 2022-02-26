@@ -416,3 +416,5 @@ SiLiCO_Scratch/
 /COPYING
 /README
 /TODO
+/test/dist/pytest/junit.xml
+*.so
