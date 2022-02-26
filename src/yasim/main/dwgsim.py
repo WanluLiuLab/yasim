@@ -8,7 +8,7 @@ import yasim.simulator.dwgsim
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim import simulator
-from yasim.main._helper import get_depth_from_intermediate_fasta
+from yasim.main._helper import remark_fastq_pair_end
 
 logger = get_logger(__name__)
 

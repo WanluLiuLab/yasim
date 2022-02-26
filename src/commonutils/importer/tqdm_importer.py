@@ -6,7 +6,6 @@ This module imports `tqdm`, the progress bar implementation on Python.
 If import is failed or stderr is not a Pseudo Terminal,
 will use a home-made fallback which is more silent.
 """
-
 import sys
 
 try:

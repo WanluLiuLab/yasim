@@ -42,16 +42,15 @@ def transcribe(
             fa_value = v.cdna_sequence(sequence_func=fv.sequence)
             fa_str = f">{fa_name}\n{fa_value}\n"
             writer.write(fa_str)
-    if depth is None:
-        return
-    depth_cluster = dge.cluster_depth(depth)
     intermediate_fasta_dir = output_fasta + ".d"
     shell_utils.mkdir_p(intermediate_fasta_dir)
     ofv = FastaView(output_fasta)
-    for transcript_depth, transcript_names in tqdm(iterable=depth_cluster.items(), desc="Transcribing DGE..."):
-        transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_depth}.fa")
+    if depth is None:
+        return
+    for transcript_name, transcript_depth in tqdm(iterable=depth.items(), desc="Transcribing DGE..."):
+        transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
         try:
-            ofv.subset_chr(transcript_output_fasta, transcript_names)
+            ofv.subset_chr(transcript_output_fasta, [transcript_name])
         except ValueError:
             pass
 

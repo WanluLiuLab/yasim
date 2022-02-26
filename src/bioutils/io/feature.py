@@ -62,6 +62,8 @@ class Gff3Iterator(BaseIterator):
             yield Gff3Record.from_string(line)
 
 
+
+
 class _FeatureWriter:
     df: TextIO
 

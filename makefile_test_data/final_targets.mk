@@ -10,8 +10,8 @@ $(DATADIR)/minimap2_pbsim_clr.bam \
 $(DATADIR)/minimap2_pbsim_ccs.bam \
 $(DATADIR)/minimap2_pbsim2_R95.bam \
 $(DATADIR)/minimap2_pbsim2_P6C4.bam \
-$(DATADIR)/minimap2_simlord.bam \
 $(DATADIR)/minimap2_pbsim2_P4C2.bam \
+# $(DATADIR)/minimap2_simlord.bam \
 
 export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
 $(DATADIR)/STAR_dwgsim.bam \
@@ -88,9 +88,9 @@ $(DATADIR)/yasim_to_featureCounts_quant_minimap2_badread_pacbio2016.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_nanopore2020.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_pacbio2016.png \
 
-SIMLORD: \
-$(DATADIR)/yasim_to_stringtie_quant_minimap2_simlord.png \
-$(DATADIR)/yasim_to_featureCounts_quant_minimap2_simlord.png \
+SIMLORD: \ # deprecated, quality too poor
+# $(DATADIR)/yasim_to_stringtie_quant_minimap2_simlord.png \
+# $(DATADIR)/yasim_to_featureCounts_quant_minimap2_simlord.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_simlord.png \
 
 $(DATADIR)/%.bam.tsv:$(DATADIR)/%.bam $(DATADIR)/%.bam.bai

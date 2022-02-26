@@ -7,9 +7,11 @@ class BaseIterator(Iterable):
     filename: str = ""
     filetype: str = None
     record_type: Type = None
+    fd:Optional[IO]
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, show_tqdm:bool=True):
         self.filename = filename
+        self.show_tqdm = show_tqdm
 
     @abstractmethod
     def __iter__(self) -> Iterator[record_type]:

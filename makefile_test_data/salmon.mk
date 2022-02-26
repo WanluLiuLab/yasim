@@ -1,5 +1,7 @@
 export SALMON_INDEX := $(DATADIR)/ce11_salmon_index
 
+.PHONY: SALMON_INDEX
+SALMON_INDEX: $(SALMON_INDEX)
 
 $(SALMON_INDEX): $(REFERENCE_CDNA)
 	salmon index --transcripts "$(REFERENCE_CDNA)" --index $@ -p $(THREADS)
