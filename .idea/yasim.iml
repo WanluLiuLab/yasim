@@ -55,6 +55,8 @@
       <excludeFolder url="file://$MODULE_DIR$/doc/_templates" />
       <excludeFolder url="file://$MODULE_DIR$/iter_4" />
       <excludeFolder url="file://$MODULE_DIR$/dataset_sc_ngs_STARtmp" />
+      <excludeFolder url="file://$MODULE_DIR$/test/htmlcov" />
+      <excludeFolder url="file://$MODULE_DIR$/test/dist" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

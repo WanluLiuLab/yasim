@@ -3,6 +3,8 @@ pickle_helper.py -- Pickle helper with compression and progress-bar.
 
 Example:
 
+We may firstly generate some random sequence:
+
 >>> import random
 >>> import tempfile
 >>> from commonutils.shell_utils import rm_rf

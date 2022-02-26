@@ -1,18 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: test_io.py -- Unit test of corresponding module.
-#
-#  VERSION HISTORY:
-#  2021-08-10 0.1  : Added by YU Zhejian.
-#
-# ==============================================================================
-"""
-test_io.py -- Unit test of corresponding module.
-"""
 import random
 import string
 
@@ -30,7 +15,7 @@ len_contents = len(contents)
 
 contents_list = contents.splitlines()
 
-def get_opener_family_assertions(suffix):
+def get_opener_family_assertions(suffix:str):
     filename = f"{test_path}/1.{suffix}"
     shell_utils.rm_rf(filename)
     with get_writer(filename) as writer:

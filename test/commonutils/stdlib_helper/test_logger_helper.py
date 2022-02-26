@@ -1,18 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: test_logger.py -- Unit test of corresponding module.
-#
-#  VERSION HISTORY:
-#  2021-08-15 0.1  : Added by YU Zhejian.
-#
-# ==============================================================================
-"""
-test_logger.py -- Unit test of corresponding module.
-"""
 import logging
 
 import pytest
