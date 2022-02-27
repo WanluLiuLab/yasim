@@ -77,15 +77,13 @@ class TqdmLineReader(_BaseTqdmReader):
         """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError('Illegal operation read.')
 
-    @copy_doc(ArchiveBaseIO.readlines)
     def readlines(self, *args, **kwargs):
-        update_bytes_arr = super().readlines(*args, **kwargs)
-        self._tqdm.update(len(update_bytes_arr))
-        return update_bytes_arr
+        """This function is disabled, will raise :py:class:`OSError`"""
+        raise OSError('Illegal operation read.')
 
     @copy_doc(ArchiveBaseIO.readline)
     def readline(self, *args, **kwargs) -> AnyStr:
-        update_bytes = super().readline(*args, **kwargs)
+        update_bytes = super().readline(-1) # Size limit canceled.
         self._tqdm.update(1)
         return update_bytes
 

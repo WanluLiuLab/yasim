@@ -5,10 +5,42 @@ load_package <- function(name) {
 
 load_package("tidyverse")
 
-yasim_tsv_col_types <- cols(
-    gene_name = col_character(),
-    depth = col_double()
+yasim_depth_tsv_col_types <- cols(
+    TRANSCRIPT_ID = col_character(),
+    DEPTH = col_double()
 )
+yasim_fa_stats_col_types <- cols(
+    TRANSCRIPT_ID = col_character(),
+    GENE_ID = col_character(),
+    SEQNAME = col_character(),
+    START = col_number(),
+    END = col_number(),
+    STRAND = col_character(),
+    LEN = col_number(),
+    GC = col_number()
+)
+yasim_fq_stats_col_types <- cols(
+    TRANSCRIPT_ID = col_character(),
+    THEORETICAL_DEPTH = col_number(),
+    ACTUAL_N_OF_READS = col_number()
+)
+yasim_ground_truth_col_types <- cols(
+    TRANSCRIPT_ID = col_character(),
+    GENE_ID = col_character(),
+    SEQNAME = col_character(),
+    START = col_number(),
+    END = col_number(),
+    STRAND = col_character(),
+    LEN = col_number(),
+    GC = col_number(),
+    THEORETICAL_DEPTH = col_number(),
+    ACTUAL_N_OF_READS = col_number(),
+    ACTUAL_RPM = col_number(),
+    ACTUAL_RPK = col_number(),
+    ACTUAL_RPKM = col_number(),
+    ACTUAL_TPM = col_number()
+)
+
 salmon_quant_sf_col_types <- cols(
     Name = col_character(),
     Length = col_double(),
@@ -21,7 +53,7 @@ stringtie_quant_tsv_col_types <- cols(
     transcript_id = col_character(),
     reference_id = col_character(),
     ref_gene_id = col_character(),
-    ref_gene_name = col_character(),
+    ref_TRANSCRIPT_ID = col_character(),
     cov = col_double(),
     FPKM = col_double(),
     TPM = col_double()

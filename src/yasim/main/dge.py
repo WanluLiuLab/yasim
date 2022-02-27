@@ -32,14 +32,14 @@ def simulate_dge_uniform(
         max_depth: int,
         levels: int = 100
 ) -> Dict[str, int]:
-    transcript_names = gv.transcripts.keys()
+    transcript_ids = gv.transcripts.keys()
     depth = {}
     with get_writer(output_tsv) as writer:
-        writer.write(f"gene_name\tdepth\n")
-        for transcript_name in tqdm(iterable=transcript_names, desc="Simulating..."):
+        writer.write(f"TRANSCRIPT_ID\tDEPTH\n")
+        for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
             d = int(random.uniform(1, max_depth)) * levels // max_depth * int(max_depth / levels) + 1
-            writer.write(f"{transcript_name}\t{d}\n")
-            depth[transcript_name] = d
+            writer.write(f"{transcript_id}\t{d}\n")
+            depth[transcript_id] = d
     return depth
 
 
@@ -53,14 +53,6 @@ def read_depth(input_tsv: str) -> Dict[str, int]:
             lkv = line.split("\t")
             retd[lkv[0]] = int(lkv[1])
     return retd
-
-
-def cluster_depth(depth: Dict[str, int]) -> Dict[int, List[str]]:
-    retd = defaultdict(lambda: [])
-    for k, v in depth.items():
-        retd[v].append(k)
-    return dict(retd)
-
 
 def main(args: List[str]):
     args = _parse_args(args)

@@ -47,8 +47,10 @@ $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
 $(DEPTH_TSV): $(SEL_GTF)
 	$(YASIM) dge -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100 -l 20
 
-$(SEL_CDNA_FASTA_D): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
+$(SEL_CDNA_FASTA): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
 	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -d $(DEPTH_TSV) -o $(SEL_CDNA_FASTA)
+
+$(SEL_CDNA_FASTA).stats:$(SEL_CDNA_FASTA)
 
 $(REFERENCE_CDNA): $(REFERENCE_FASTA) $(REFERENCE_GTF)
 	$(YASIM) transcribe -g "$(REFERENCE_GTF)" -o $@ -f "$(REFERENCE_FASTA)"
@@ -56,3 +58,10 @@ $(REFERENCE_CDNA): $(REFERENCE_FASTA) $(REFERENCE_GTF)
 .PHONY: nothing
 nothing:
 	$(message Nothing made)
+
+
+
+$(FASTQ_BASENAME)_%_ground_truth.tsv:$(FASTQ_BASENAME)_dwgsim.fq.stats $(SEL_CDNA_FASTA).stats
+	Rscript $(ROOTDIR)/R/generate_ground_truth.R --libfile "$(ROOTDIR)/R/lib.R" --fq_stats $(FASTQ_BASENAME)_dwgsim.fq.stats --fa_stats $(SEL_CDNA_FASTA).stats --output  $@
+
+

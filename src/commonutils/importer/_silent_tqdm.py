@@ -3,7 +3,7 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 """
 
 import sys
-from typing import Optional, Iterable, Sized
+from typing import Optional, Iterable, Sized, TypeVar
 
 
 class tqdm:
@@ -54,7 +54,6 @@ class tqdm:
 
     _n: int
     _quarters: float
-
     def __init__(self,
                  iterable: Optional[Iterable] = None,
                  desc: Optional[str] = None,

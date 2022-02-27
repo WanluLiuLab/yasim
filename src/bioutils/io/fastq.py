@@ -24,9 +24,9 @@ class FastqIterator(BaseIterator):
 
     def __iter__(self) -> Iterator[FastqRecord]:
         while True:
-            lines = self.fd.readlines(4)
-            if not lines or len(lines) < 4:
-                return
+            lines = [self.fd.readline(-1) for _ in range(4)]
+            if '' in lines:
+                break
             yield FastqRecord.from_str(lines)
 
 class FastqWriter:

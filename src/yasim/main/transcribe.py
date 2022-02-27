@@ -2,11 +2,13 @@ import argparse
 import os.path
 from typing import List, Dict, Optional
 
+from bioutils.algorithm.sequence import get_gc_percent
 from bioutils.datastructure.gene_view import GeneView
 from bioutils.datastructure.fasta_view import FastaView
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
+from commonutils.shell_utils import mkdir_p
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main import dge
 
@@ -36,19 +38,40 @@ def transcribe(
         fv: FastaView,
         depth: Optional[Dict[str, int]] = None
 ):
-    with get_writer(os.path.join(output_fasta)) as writer:
-        for k, v in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
-            fa_name = k
-            fa_value = v.cdna_sequence(sequence_func=fv.sequence)
-            fa_str = f">{fa_name}\n{fa_value}\n"
-            writer.write(fa_str)
+    with get_writer(output_fasta) as fasta_writer, \
+            get_writer(output_fasta + ".stats") as stats_writer:
+        stats_writer.write("\t".join((
+            "TRANSCRIPT_ID",
+            "GENE_ID",
+            "SEQNAME",
+            "START",
+            "END",
+            "STRAND",
+            "LEN",
+            "GC"
+        ))+"\n")
+        for transcript_name, transcript_value in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
+            cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
+            fa_str = f">{transcript_name}\n{cdna_seq}\n"
+            fasta_writer.write(fa_str)
+            stats_writer.write("\t".join((
+                transcript_name,
+                transcript_value.gene_id,
+                transcript_value.seqname,
+                str(transcript_value.start),
+                str(transcript_value.end),
+                transcript_value.strand,
+                str(transcript_value.end - transcript_value.start),
+                str(round(get_gc_percent(cdna_seq) * 100, 2))
+            ))+"\n")
     intermediate_fasta_dir = output_fasta + ".d"
     shell_utils.mkdir_p(intermediate_fasta_dir)
     ofv = FastaView(output_fasta)
     if depth is None:
         return
     for transcript_name, transcript_depth in tqdm(iterable=depth.items(), desc="Transcribing DGE..."):
-        transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
+        transcript_output_fasta = os.path.join(intermediate_fasta_dir, str(transcript_depth), f"{transcript_name}.fa")
+        mkdir_p(os.path.join(intermediate_fasta_dir, str(transcript_depth)))
         try:
             ofv.subset_chr(transcript_output_fasta, [transcript_name])
         except ValueError:

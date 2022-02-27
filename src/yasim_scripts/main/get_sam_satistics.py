@@ -3,6 +3,7 @@ from statistics import mean
 from typing import List, Any
 
 import pysam
+from bioutils.algorithm.sequence import get_gc_percent
 
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -46,14 +47,10 @@ def main(args: List[str]):
                 continue
             read_lenth = alignment.query_length
             alnq = mean(alignment.query_qualities)
-            gc = 0
-            for base in alignment.query_sequence:
-                if base in ("C", "G", "c", "g"):
-                    gc += 1
             writer.write(
                 "\t".join((
                     str(read_lenth),
-                    str(round(gc / read_lenth * 100, 2)),
+                    str(round(get_gc_percent( alignment.query_sequence) * 100, 2)),
                     str(ismapped),
                     str(round(alignment.mapping_quality, 2)),
                     str(round(alnq, 2))
