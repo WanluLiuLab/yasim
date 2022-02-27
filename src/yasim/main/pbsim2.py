@@ -6,7 +6,7 @@ from typing import List
 import commonutils.stdlib_helper.parallel_helper
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.main._helper import get_depth_from_intermediate_fasta
+from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_single_end
 from yasim.simulator import pbsim2
 
 logger = get_logger(__name__)
@@ -45,11 +45,11 @@ def simulate(
     simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
         pool_name="Simulating jobs"
     )
-    transcript_depths = get_depth_from_intermediate_fasta(intermediate_fasta_dir)
-    for transcript_depth in tqdm(iterable=transcript_depths, desc="Submitting jobs..."):
+    depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir))
+    for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         sim_thread = pbsim2.SimulatePbsim2(
-            input_fasta=os.path.join(intermediate_fasta_dir, f"{transcript_depth}.fa"),
-            output_fastq_prefix=os.path.join(output_fastq_dir, transcript_depth),
+            input_fasta=transcript_filename,
+            output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
             depth=transcript_depth,
             hmm_model=hmm_model,
             pbsim2_exename=pbsim2_exename
@@ -57,10 +57,7 @@ def simulate(
         simulating_pool.append(sim_thread)
     simulating_pool.start()
     simulating_pool.join()
-    with open(output_fastq_prefix + ".fq", "wb") as writer:
-        for file in tqdm(iterable=list(glob.glob(os.path.join(output_fastq_dir, "*.fq"))),
-                         desc="Assembling read"):
-            writer.write(open(file, "rb").read())
+    assemble_single_end(depth_info, output_fastq_prefix, simulator_name=f"pbsim2_{hmm_model}")
 
 
 def main(args: List[str]):

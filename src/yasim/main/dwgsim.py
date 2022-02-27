@@ -4,12 +4,10 @@ from typing import List, Optional
 
 import commonutils.stdlib_helper.parallel_helper
 import yasim.simulator.dwgsim
-from bioutils.io.fastq import FastqWriter
 from commonutils.importer.tqdm_importer import tqdm
-from commonutils.io.safe_io import get_writer
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim import simulator
-from yasim.main._helper import remark_fastq_pair_end, get_depth_from_intermediate_fasta
+from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_pair_end
 
 logger = get_logger(__name__)
 
@@ -51,30 +49,8 @@ def simulate(
         simulating_pool.append(sim_thread)
     simulating_pool.start()
     simulating_pool.join()
-    with FastqWriter(output_fastq_prefix + "_1.fq") as writer1, \
-            FastqWriter(output_fastq_prefix + "_2.fq") as writer2, \
-            get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
-        stats_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "THEORETICAL_DEPTH",
-            "ACTUAL_N_OF_READS",
-        ))+"\n")
-        for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
-            this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
-            num_of_reads = remark_fastq_pair_end(
-                input_filename_1=this_fastq_basename+"_1.fq",
-                input_filename_2=this_fastq_basename + "_2.fq",
-                writer1=writer1,
-                writer2=writer2,
-                transcript_id=transcript_id,
-                transcript_depth=transcript_depth,
-                simulator_name="dwgsim"
-            )
-            stats_writer.write("\t".join((
-                transcript_id,
-                str(transcript_depth),
-                str(num_of_reads)
-            ))+"\n")
+    assemble_pair_end(depth_info, output_fastq_prefix, simulator_name="dwgsim")
+
 
 
 def main(args: List[str]):
