@@ -34,13 +34,13 @@ BAM_BW: BAM_BW_NGS BAM_BW_TGS
 DWGSIM: \
 $(DATADIR)/yasim_to_salmon_quant_dwgsim.png \
 $(DATADIR)/yasim_to_featureCounts_quant_STAR_dwgsim.png \
-$(DATADIR)/yasim_to_htseq_quant_STAR_dwgsim.png \
 $(DATADIR)/yasim_to_stringtie_quant_STAR_dwgsim.png \
 $(DATADIR)/yasim_to_stringtie_quant_e_STAR_dwgsim.png \
 $(DATADIR)/yasim_to_stringtie_quant_hisat2_dwgsim.png \
 $(DATADIR)/yasim_to_stringtie_quant_e_hisat2_dwgsim.png \
 $(DATADIR)/yasim_to_featureCounts_quant_hisat2_dwgsim.png \
-$(DATADIR)/yasim_to_htseq_quant_hisat2_dwgsim.png
+# $(DATADIR)/yasim_to_htseq_quant_STAR_dwgsim.png \
+# $(DATADIR)/yasim_to_htseq_quant_hisat2_dwgsim.png
 
 BAM_FIGS_NGS: $(BAM_FIGS_NGS_FIG_FILENAME)
 BAM_FIGS_TGS: $(BAM_FIGS_TGS_FIG_FILENAME)

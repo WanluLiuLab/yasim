@@ -7,7 +7,7 @@ load_package("tidyverse")
 
 yasim_depth_tsv_col_types <- cols(
     TRANSCRIPT_ID = col_character(),
-    DEPTH = col_double()
+    INPUT_DEPTH = col_double()
 )
 yasim_fa_stats_col_types <- cols(
     TRANSCRIPT_ID = col_character(),
@@ -21,8 +21,8 @@ yasim_fa_stats_col_types <- cols(
 )
 yasim_fq_stats_col_types <- cols(
     TRANSCRIPT_ID = col_character(),
-    THEORETICAL_DEPTH = col_number(),
-    ACTUAL_N_OF_READS = col_number()
+    INPUT_DEPTH = col_number(),
+    SIMULATED_N_OF_READS = col_number()
 )
 yasim_ground_truth_col_types <- cols(
     TRANSCRIPT_ID = col_character(),
@@ -33,12 +33,12 @@ yasim_ground_truth_col_types <- cols(
     STRAND = col_character(),
     LEN = col_number(),
     GC = col_number(),
-    THEORETICAL_DEPTH = col_number(),
-    ACTUAL_N_OF_READS = col_number(),
-    ACTUAL_RPM = col_number(),
-    ACTUAL_RPK = col_number(),
-    ACTUAL_RPKM = col_number(),
-    ACTUAL_TPM = col_number()
+    INPUT_DEPTH = col_number(),
+    SIMULATED_N_OF_READS = col_number(),
+    SIMULATED_RPM = col_number(),
+    SIMULATED_RPK = col_number(),
+    SIMULATED_RPKM = col_number(),
+    SIMULATED_TPM = col_number()
 )
 
 salmon_quant_sf_col_types <- cols(
@@ -76,14 +76,14 @@ featureCounts_tsv_col_names <- c(
     "Length",
     "NumReads"
 )
-htseq_quant_tsv_col_types <- cols(
-    Name = col_character(),
-    NumReads = col_double()
-)
-htseq_quant_tsv_col_names <- c(
-    "Name",
-    "NumReads"
-)
+# htseq_quant_tsv_col_types <- cols(
+#     Name = col_character(),
+#     NumReads = col_double()
+# )
+# htseq_quant_tsv_col_names <- c(
+#     "Name",
+#     "NumReads"
+# )
 ss_tsv_col_types <- cols(
     LEN=col_number(),
     GC=col_number(),

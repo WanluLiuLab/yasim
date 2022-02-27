@@ -28,5 +28,5 @@ all_table <- dplyr::inner_join(yasim_data, stringtie_quant_data, by = c("TRANSCR
 message(sprintf("Read %d from yasim_tsv and %d from salmon_quant_sf. %d left merged.",
                 nrow(yasim_data), nrow(stringtie_quant_data), nrow(all_table)))
 
-g <- ggplot(all_table) + stat_summary(aes(x = DEPTH, y = cov))
+g <- ggplot(all_table) + stat_summary(aes(x = INPUT_DEPTH, y = cov))
 ggsave(paste0(argv$output, ".png"), plot = g)

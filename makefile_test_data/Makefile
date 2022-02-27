@@ -38,7 +38,7 @@ include $(CURDIR)/STAR.mk
 include $(CURDIR)/minimap2.mk
 include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk
-include $(CURDIR)/htseq.mk
+# include $(CURDIR)/htseq.mk
 include $(CURDIR)/stringtie.mk
 
 $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)

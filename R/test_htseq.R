@@ -1,3 +1,5 @@
+.Deprecated(old="test_htseq.R", msg="Deprecated module")
+
 file_description <- ""
 
 library(argparser)
@@ -25,5 +27,5 @@ all_table <- dplyr::inner_join(yasim_data, htseq_quant_data, by = c("TRANSCRIPT_
 message(sprintf("Read %d from yasim_tsv and %d from htseq_quant_tsv. %d left merged.",
                 nrow(yasim_data), nrow(htseq_quant_data), nrow(all_table)))
 
-g <- ggplot(all_table) + stat_summary(aes(x = DEPTH, y = NumReads))
+g <- ggplot(all_table) + stat_summary(aes(x = INPUT_DEPTH, y = NumReads))
 ggsave(paste(argv$output, "png", sep = "."), plot = g)

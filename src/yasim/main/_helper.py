@@ -70,8 +70,8 @@ def assemble_pair_end(
             get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
-            "THEORETICAL_DEPTH",
-            "ACTUAL_N_OF_READS",
+            "INPUT_DEPTH",
+            "SIMULATED_N_OF_READS",
         ))+"\n")
         for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
@@ -100,8 +100,8 @@ def assemble_single_end(
     with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
-            "THEORETICAL_DEPTH",
-            "ACTUAL_N_OF_READS",
+            "INPUT_DEPTH",
+            "SIMULATED_N_OF_READS",
         ))+"\n")
         for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
