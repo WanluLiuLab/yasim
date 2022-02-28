@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import pysam
+
 from bioutils.algorithm.alignment import smith_waterman_backtrack
 from bioutils.datastructure.fasta_view import FastaView
 from bioutils.datastructure.fastq_view import FastqView
@@ -35,33 +37,40 @@ def main(args: List[str]):
     fqv = FastqView(args.reads_fq)
     fav = FastaView(args.fasta)
     unmapped_transcripts_dict = defaultdict(lambda: 0)
+    mapped_transcripts_dict = defaultdict(lambda: 0)
     curr_pos = sam.tell()
     full_length = 0
     for _ in sam.fetch(until_eof=True):
         full_length += 1
     sam.seek(curr_pos)
     with get_writer(args.out) as aln_writer:
-        for alignment in tqdm(iterable=sam.fetch(until_eof=True), total=full_length):
-            if not alignment.is_unmapped:
-                pass
+        for alignment in tqdm(desc="Aligning unmapped reads...", iterable=sam.fetch(until_eof=True), total=full_length):
             seq_id = alignment.query_name
             if seq_id is None:
                 continue
-            fastq_record = fqv.get(seq_id)
             transcript_name = seq_id.split(":")[0]
-            sw_backtrack = smith_waterman_backtrack(
-                seq1=fastq_record.sequence,
-                seq2=fav.sequence(seq_id),
-                alignment_title=seq_id
-            )
-            unmapped_transcripts_dict[transcript_name] += 1
-        for backtrack in sw_backtrack:
-            aln_writer.write(backtrack + "/n")
+            if not alignment.is_unmapped:
+                mapped_transcripts_dict[transcript_name] += 1
+            else:
+                unmapped_transcripts_dict[transcript_name] += 1
+                fastq_record = fqv.get(seq_id)
+                sw_backtrack = smith_waterman_backtrack(
+                    seq1=fastq_record.sequence,
+                    seq2=fav.sequence(transcript_name),
+                    alignment_title=seq_id
+                )
+                for backtrack in sw_backtrack:
+                    aln_writer.write(backtrack + "\n")
     with get_writer(args.out + ".stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "ALN",
             "FAILED_ALN"
-        )))
-        for transcript_id, count in unmapped_transcripts_dict:
-            pass
+        ))+"\n")
+        for transcript_id, count in unmapped_transcripts_dict.items():
+            stats_writer.write("\t".join((
+                transcript_id,
+                str(mapped_transcripts_dict[transcript_id]),
+                str(count)
+            ))+"\n")
+

@@ -24,10 +24,3 @@ yasim_ground_truth <- dplyr::inner_join(fa_stats_data, fq_stats_data, by = c("TR
         SIMULATED_TPM=SIMULATED_RPK/sum(SIMULATED_RPK)*1000
     )
 write_tsv(yasim_ground_truth, argv$output, col_names = TRUE)
-
-ggplot(a, aes(x=INPUT_DEPTH)) +
-    stat_summary(aes(y=SIMULATED_N_OF_READS), color="red") +
-    stat_summary(aes(y=SIMULATED_RPM), color="blue") +
-    stat_summary(aes(y=SIMULATED_RPK), color="purple") +
-    stat_summary(aes(y=SIMULATED_RPKM), color="yellow") +
-    stat_summary(aes(y=SIMULATED_TPM), color="green")

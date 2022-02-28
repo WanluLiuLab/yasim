@@ -29,9 +29,10 @@ def remark_fastq_single_end(
     Re-mark all seq_id in FASTQ files.
     """
     num_of_reads = 0
-    for fastq_record in FastqIterator(input_filename):
+    for fastq_record in FastqIterator(input_filename, show_tqdm=False):
         fastq_record.seq_id = f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}"
         writer.write(fastq_record)
+        num_of_reads += 1
     return num_of_reads
 
 

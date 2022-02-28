@@ -43,7 +43,8 @@ def simulate(
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
-        pool_name="Simulating jobs"
+        pool_name="Simulating jobs",
+        pool_size=64
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
