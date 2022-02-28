@@ -418,3 +418,4 @@ SiLiCO_Scratch/
 /TODO
 /test/dist/pytest/junit.xml
 *.so
+/venv_*/
