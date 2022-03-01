@@ -6,7 +6,8 @@ import argparse
 from typing import List
 
 from bioutils.io.feature import GtfIterator, GtfWriter
-from commonutils.io.safe_io import get_reader
+from bioutils.main.sample_transcript import subset_gtf_by_transcript_id
+from commonutils.io.tqdm_reader import get_tqdm_line_reader
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
@@ -23,26 +24,17 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Filtered output", nargs='?', type=str, action='store')
     return parser.parse_args(args)
 
-
 def main(args: List[str]):
     args = _parse_args(args)
     possible_values = []
-    with get_reader(args.field_value) as reader:
-        while True:
-            line = reader.readline()
-            if not line:
-                break
-            line = line.strip().strip("\"\'")  # Get rid of quotation marks produced by R
-            possible_values.append(line)
+    for line in get_tqdm_line_reader(args.field_value):
+        line = line.strip().strip("\"\'")  # Get rid of quotation marks produced by R
+        possible_values.append(line)
     lh.info(f"{len(possible_values)} values loaded")
-    gi = GtfIterator(args.gtf)
-    final_record_num = 0
-    input_record_num = 0
-    with GtfWriter(args.out) as writer:
-        for gtf_record in gi:
-            input_record_num += 1
-            if gtf_record.attribute.get(args.field_name, None) in possible_values:
-                writer.write_feature(gtf_record)
-                final_record_num += 1
-    lh.info(
-        f"{input_record_num} processed with {final_record_num} ({round(final_record_num / input_record_num, 2) * 100}%) records output")
+    subset_gtf_by_transcript_id(
+        possible_values=possible_values,
+        field_name=args.field_name,
+        gtf_filename=args.gtf,
+        out_filename=args.out
+    )
+

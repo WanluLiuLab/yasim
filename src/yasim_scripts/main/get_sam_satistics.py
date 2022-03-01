@@ -1,13 +1,12 @@
 """A General-Purposed SAM quality control tool"""
 
-
 import argparse
 from statistics import mean
 from typing import List, Any
 
 import pysam
-from bioutils.algorithm.sequence import get_gc_percent
 
+from bioutils.algorithm.sequence import get_gc_percent
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 
@@ -53,7 +52,7 @@ def main(args: List[str]):
             writer.write(
                 "\t".join((
                     str(read_lenth),
-                    str(round(get_gc_percent( alignment.query_sequence) * 100, 2)),
+                    str(round(get_gc_percent(alignment.query_sequence) * 100, 2)),
                     str(ismapped),
                     str(round(alignment.mapping_quality, 2)),
                     str(round(alnq, 2))

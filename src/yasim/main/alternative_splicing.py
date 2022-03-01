@@ -1,8 +1,8 @@
 import argparse
 from typing import List
 
-from bioutils.datastructure.gene_view import GeneView
 from bioutils.datastructure.fasta_view import FastaView
+from bioutils.datastructure.gene_view import GeneView
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 

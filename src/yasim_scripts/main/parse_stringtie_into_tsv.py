@@ -3,8 +3,8 @@
 import argparse
 from typing import List
 
-from bioutils.typing.feature import GtfRecord
 from bioutils.io.feature import GtfIterator
+from bioutils.typing.feature import GtfRecord
 
 __version__ = 0.1
 

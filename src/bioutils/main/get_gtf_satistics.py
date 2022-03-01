@@ -1,9 +1,7 @@
 """Get satistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
 
-
 import argparse
 import statistics
-from collections import defaultdict
 from typing import List
 
 from matplotlib import pyplot as plt
@@ -49,32 +47,32 @@ def main(args: List[str]):
     # gene_with_antisense_transcripts_on_same_chr = defaultdict(lambda: [])
     # transcript_with_antisense_exons = defaultdict(lambda: [])
 
-    with get_writer(f"{out_basename}.gene.tsv") as gene_writer,\
-            get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer,\
-        get_writer(f"{out_basename}.exons.tsv") as exons_writer:
+    with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
+            get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \
+            get_writer(f"{out_basename}.exons.tsv") as exons_writer:
         gene_writer.write("\t".join((
             "GENE_ID",
             "TRANSCRIPT_NUMBER"
-        ))+"\n")
+        )) + "\n")
         transcripts_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "GENE_ID",
             "SPAN_LENGTH",
             "TRANSCRIBED_LENGTH",
             "EXON_NUMBER"
-        ))+"\n")
+        )) + "\n")
         exons_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "EXON_ID",
             "TRANSCRIBED_LENGTH"
-        ))+"\n")
+        )) + "\n")
 
     for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
 
         gene_writer.write("\t".join((
             str(gene.gene_id),
             str(len(gene.transcripts))
-        ))+"\n")
+        )) + "\n")
 
         transcripts = list(gene.transcripts.values())
         for t_i in range(len(transcripts)):
@@ -110,7 +108,6 @@ def main(args: List[str]):
                             f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n"
                         )
 
-
     transcripts = list(gv.transcripts.values())
     with get_writer("overlapping_transcript.gtf") as writer:
         for t_i in tqdm(desc="Iterating over transcripts...", iterable=range(len(transcripts))):
@@ -119,7 +116,6 @@ def main(args: List[str]):
                 another_transcript = transcripts[t_j]
                 if transcript.overlaps(another_transcript) and transcript.gene_id != another_transcript.gene_id:
                     writer.write(f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n")
-
 
     print(f"gene_with_antisense_transcripts: {len(gene_with_antisense_transcripts)}")
     with get_writer("gene_with_antisense_transcripts.gtf") as writer:

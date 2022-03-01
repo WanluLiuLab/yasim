@@ -18,4 +18,3 @@ def manhattan_distance(d1: coordinate_type, d2: coordinate_type) -> float:
     7
     """
     return abs(d1[0] - d2[0]) + abs(d1[1] - d2[1])
-

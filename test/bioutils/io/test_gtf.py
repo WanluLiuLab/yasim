@@ -14,7 +14,6 @@ test_gtf.py -- Unit test of corresponding module.
 """
 
 import test_tetgs
-from bioutils.typing.feature import GtfRecord
 from commonutils.io.safe_io import get_writer
 
 test_path = test_tetgs.initialize(__name__)

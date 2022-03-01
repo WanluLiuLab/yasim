@@ -27,7 +27,6 @@ See :py:class:`bioutils.typing.feature.GtfRecord` for this feature.
 See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
 """
 
-from abc import abstractmethod
 from collections import defaultdict
 from typing import Dict, Iterable, Iterator, Union, Optional, List, TextIO
 
@@ -60,8 +59,6 @@ class Gff3Iterator(BaseIterator):
             if line.startswith('#') or line == '':
                 continue
             yield Gff3Record.from_string(line)
-
-
 
 
 class _FeatureWriter:
@@ -180,6 +177,3 @@ class Gff3Tree:
                 return gff3_id
 
         raise ValueError("Backtrack failed!")
-
-
-

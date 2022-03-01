@@ -56,5 +56,5 @@ class FastqRecord:
         return new_instance
 
     @classmethod
-    def from_single_str(cls, input_str:str):
+    def from_single_str(cls, input_str: str):
         return cls.from_str(input_str.splitlines())

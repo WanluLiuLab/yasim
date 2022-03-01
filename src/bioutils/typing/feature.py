@@ -107,7 +107,6 @@ class Feature(object):
     def __ne__(self, other: Feature):
         return not self == other
 
-
     def overlaps(self, other: Feature) -> bool:
         if self.seqname != other.seqname:
             return False
@@ -120,20 +119,19 @@ class Feature(object):
 
     def __gt__(self, other: Feature):
         return self.seqname > other.seqname or (
-            self.seqname == other.seqname and self.start > other.start
+                self.seqname == other.seqname and self.start > other.start
         )
 
     def __ge__(self, other: Feature):
         return self > other or self == other
 
-    def __lt__(self, other:Feature):
+    def __lt__(self, other: Feature):
         return self.seqname < other.seqname or (
-            self.seqname == other.seqname and self.start < other.start
+                self.seqname == other.seqname and self.start < other.start
         )
 
     def __le__(self, other: Feature):
         return self < other or self == other
-
 
 
 GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]

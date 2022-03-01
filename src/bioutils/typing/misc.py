@@ -1,4 +1,3 @@
-import typing
 from abc import abstractmethod
 from typing import Iterator, Type, Iterable, Optional, IO
 
@@ -7,9 +6,9 @@ class BaseIterator(Iterable):
     filename: str = ""
     filetype: str = None
     record_type: Type = None
-    fd:Optional[IO]
+    fd: Optional[IO]
 
-    def __init__(self, filename: str, show_tqdm:bool=True):
+    def __init__(self, filename: str, show_tqdm: bool = True):
         self.filename = filename
         self.show_tqdm = show_tqdm
 

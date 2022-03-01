@@ -6,9 +6,9 @@ from typing import Optional, Dict, Iterator
 
 import commonutils.io.file_system
 from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
-from bioutils.typing.feature import GtfRecord, Gff3Record
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
+from bioutils.typing.feature import GtfRecord, Gff3Record
 from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 

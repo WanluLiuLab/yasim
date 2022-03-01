@@ -10,12 +10,13 @@ test_path = test_tetgs.initialize(__name__)
 
 available_chars = list(string.ascii_letters + string.digits + "\n")
 
-contents = "".join((random.choice(available_chars) for _ in range(1024*1024)))
+contents = "".join((random.choice(available_chars) for _ in range(1024 * 1024)))
 len_contents = len(contents)
 
 contents_list = contents.splitlines()
 
-def get_opener_family_assertions(suffix:str):
+
+def get_opener_family_assertions(suffix: str):
     filename = f"{test_path}/1.{suffix}"
     shell_utils.rm_rf(filename)
     with get_writer(filename) as writer:
@@ -29,7 +30,7 @@ def get_opener_family_assertions(suffix:str):
         assert reader._tqdm.total == 1 + len(contents_list)
         for line in reader:
             assert contents_list[i] == line
-            i+=1
+            i += 1
             assert reader._tqdm._n == i
     shell_utils.rm_rf(filename)
 

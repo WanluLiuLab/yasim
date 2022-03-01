@@ -1,6 +1,5 @@
 import argparse
 import random
-from collections import defaultdict
 from typing import Dict, List
 
 from bioutils.datastructure.gene_view import GeneView
@@ -53,6 +52,7 @@ def read_depth(input_tsv: str) -> Dict[str, int]:
             lkv = line.split("\t")
             retd[lkv[0]] = int(lkv[1])
     return retd
+
 
 def main(args: List[str]):
     args = _parse_args(args)

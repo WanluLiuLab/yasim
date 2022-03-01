@@ -19,5 +19,3 @@ class GtfView(List[GtfRecord]):
         self.clear()
         for gtf_record in GtfIterator(self.filename):
             self.append(gtf_record)
-
-

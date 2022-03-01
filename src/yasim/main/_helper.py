@@ -1,12 +1,13 @@
 import glob
 import os
-from typing import List, Iterable, Tuple, TextIO
+from typing import Iterable, Tuple
 
 from bioutils.io.fastq import FastqIterator, FastqWriter
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 
 DEPTH_INFO = Iterable[Tuple[int, str, str]]
+
 
 def get_depth_from_intermediate_fasta(intermediate_fasta_dir: str) -> DEPTH_INFO:
     """
@@ -57,13 +58,14 @@ def remark_fastq_pair_end(
         fastq_record_2.seq_id = f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/2"
         writer1.write(fastq_record_1)
         writer2.write(fastq_record_2)
-        num_of_reads+=1
+        num_of_reads += 1
     return num_of_reads
 
+
 def assemble_pair_end(
-        depth_info:DEPTH_INFO,
-        output_fastq_prefix:str,
-        simulator_name:str
+        depth_info: DEPTH_INFO,
+        output_fastq_prefix: str,
+        simulator_name: str
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     with FastqWriter(output_fastq_prefix + "_1.fq") as writer1, \
@@ -73,7 +75,7 @@ def assemble_pair_end(
             "TRANSCRIPT_ID",
             "INPUT_DEPTH",
             "SIMULATED_N_OF_READS",
-        ))+"\n")
+        )) + "\n")
         for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
             num_of_reads = remark_fastq_pair_end(
@@ -93,17 +95,18 @@ def assemble_pair_end(
 
 
 def assemble_single_end(
-        depth_info:DEPTH_INFO,
-        output_fastq_prefix:str,
-        simulator_name:str
+        depth_info: DEPTH_INFO,
+        output_fastq_prefix: str,
+        simulator_name: str
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
+    with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(
+            output_fastq_prefix + ".fq.stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "INPUT_DEPTH",
             "SIMULATED_N_OF_READS",
-        ))+"\n")
+        )) + "\n")
         for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
             num_of_reads = remark_fastq_single_end(
@@ -118,5 +121,3 @@ def assemble_single_end(
                 str(transcript_depth),
                 str(num_of_reads)
             )) + "\n")
-
-

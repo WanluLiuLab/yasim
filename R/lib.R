@@ -167,10 +167,10 @@ get_stringtie_data <- function(stringtie_quant_tsv, n) { # , stringtie_e_option=
     # if (stringtie_e_option) {
     #     get_id <- "transcript_id"
     # } else {
-        get_id <- "reference_id"
+    get_id <- "reference_id"
     # }
     stringtie_quant_data <- read_tsv(stringtie_quant_tsv, quote = "\'", col_types = stringtie_quant_tsv_col_types) %>%
-    dplyr::transmute(
+        dplyr::transmute(
             TRANSCRIPT_ID = .[[get_id]],
             !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_TPM", .GlobalEnv$n)) := TPM,
             !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_RPKM", .GlobalEnv$n)) := FPKM

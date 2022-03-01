@@ -1,4 +1,4 @@
-from typing import IO, Iterator, AnyStr, List, Type
+from typing import Iterator, AnyStr, List, Type
 
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
@@ -7,7 +7,7 @@ from commonutils.stdlib_helper.docstring_helper import copy_doc
 
 
 class _BaseTqdmReader(SequentialReader):
-    _tqdm:Type[tqdm]
+    _tqdm: Type[tqdm]
 
     @copy_doc(ArchiveBaseIO.__enter__)
     def __enter__(self):
@@ -17,6 +17,7 @@ class _BaseTqdmReader(SequentialReader):
     @copy_doc(ArchiveBaseIO.__exit__)
     def __exit__(self, *args, **kwargs):
         return self._tqdm.__exit__(*args, **kwargs)
+
 
 class TqdmReader(_BaseTqdmReader):
     """
@@ -48,7 +49,6 @@ class TqdmReader(_BaseTqdmReader):
         update_bytes_arr = super().readlines(*args, **kwargs)
         self._tqdm.update(sum(map(len, update_bytes_arr)))
         return update_bytes_arr
-
 
 
 @copy_doc(get_reader)
@@ -83,7 +83,7 @@ class TqdmLineReader(_BaseTqdmReader):
 
     @copy_doc(ArchiveBaseIO.readline)
     def readline(self, *args, **kwargs) -> AnyStr:
-        update_bytes = super().readline(-1) # Size limit canceled.
+        update_bytes = super().readline(-1)  # Size limit canceled.
         self._tqdm.update(1)
         return update_bytes
 

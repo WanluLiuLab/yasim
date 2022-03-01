@@ -1,8 +1,3 @@
-
-
-
-
-
 from typing import Iterator, TextIO, Union
 
 from bioutils.typing.fastq import FastqRecord
@@ -15,7 +10,7 @@ class FastqIterator(BaseIterator):
     filetype: str = "FASTQ"
     record_type = FastqRecord
 
-    def __init__(self, filename: str, show_tqdm:bool=True):
+    def __init__(self, filename: str, show_tqdm: bool = True):
         super().__init__(filename)
         if show_tqdm:
             self.fd = get_tqdm_line_reader(self.filename)
@@ -28,6 +23,7 @@ class FastqIterator(BaseIterator):
             if '' in lines:
                 break
             yield FastqRecord.from_str(lines)
+
 
 class FastqWriter:
     df: TextIO

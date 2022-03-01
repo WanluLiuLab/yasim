@@ -36,15 +36,15 @@ all_table <- fa_stats_data
 
 sum_actual_n_of_reads <- c()
 
-mutate_tables_for_rpkm <- function(all_table, step_name, n, sum_actual_n_of_reads){
+mutate_tables_for_rpkm <- function(all_table, step_name, n, sum_actual_n_of_reads) {
     all_table <- all_table %>%
         dplyr::mutate(
-        !!sprintf("%s_%d_ACTUAL_RPM", step_name, n) :=
-            .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] /
-                sum_actual_n_of_reads[n] * 1e6,
-        !!sprintf("%s_%d_ACTUAL_RPK", step_name, n) :=
-            .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / LEN * 1e3,
-    )
+            !!sprintf("%s_%d_ACTUAL_RPM", step_name, n) :=
+                .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] /
+                    sum_actual_n_of_reads[n] * 1e6,
+            !!sprintf("%s_%d_ACTUAL_RPK", step_name, n) :=
+                .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / LEN * 1e3,
+        )
     # print(names(all_table))
     sum_rpk <- sum(
         replace_na(all_table[[sprintf("%s_%d_ACTUAL_RPK", step_name, n)]], 0)
@@ -53,13 +53,13 @@ mutate_tables_for_rpkm <- function(all_table, step_name, n, sum_actual_n_of_read
     all_table <- all_table %>% dplyr::mutate(
         !!sprintf("%s_%d_ACTUAL_RPKM", step_name, n) :=
             .[[!!sprintf("%s_%d_ACTUAL_RPM", step_name, n)]] / LEN * 1e3,
-        !!sprintf("%s_%d_ACTUAL_TPM", step_name,  n) :=
+        !!sprintf("%s_%d_ACTUAL_TPM", step_name, n) :=
             .[[!!sprintf("%s_%d_ACTUAL_RPK", step_name, n)]] / sum_rpk * 1e3
     )
     return(all_table)
 }
 
-if (!is.na(argv$fq_stats)){
+if (!is.na(argv$fq_stats)) {
     n <- 1
     for (fq_stats in argv$fq_stats) {
         fq_stats_data <- get_yasim_data(fq_stats, n)
@@ -71,10 +71,10 @@ if (!is.na(argv$fq_stats)){
         )
         message(sprintf("Loaded %d reads from %s", sum_actual_n_of_reads[n], fq_stats))
         all_table <- mutate_tables_for_rpkm(all_table, "YASIM", n, sum_actual_n_of_reads)
-        n <- n+1
+        n <- n + 1
     }
 }
-if (!is.na(argv$featureCounts_tsv)){
+if (!is.na(argv$featureCounts_tsv)) {
     n <- 1
     for (featureCounts_tsv in argv$featureCounts_tsv) {
         featureCounts_data <- get_featureCounts_data(featureCounts_tsv, n)
@@ -89,7 +89,7 @@ if (!is.na(argv$featureCounts_tsv)){
         n <- n + 1
     }
 }
-if (!is.na(argv$salmon_quant_sf)){
+if (!is.na(argv$salmon_quant_sf)) {
     n <- 1
     for (salmon_quant_sf in argv$salmon_quant_sf) {
         salmon_quant_sf_data <- get_salmon_data(salmon_quant_sf, n)
@@ -104,7 +104,7 @@ if (!is.na(argv$salmon_quant_sf)){
         n <- n + 1
     }
 }
-if (!is.na(argv$stringtie_quant_tsv)){
+if (!is.na(argv$stringtie_quant_tsv)) {
     n <- 1
     for (stringtie_quant_tsv in argv$stringtie_quant_tsv) {
         stringtie_quant_tsv_data <- get_stringtie_data(stringtie_quant_tsv, n)
@@ -119,7 +119,7 @@ if (!is.na(argv$stringtie_quant_tsv)){
         n <- n + 1
     }
 }
-if (!is.na(argv$cpptetgs_tsv)){
+if (!is.na(argv$cpptetgs_tsv)) {
     n <- 1
     for (cpptetgs_tsv in argv$cpptetgs_tsv) {
         cpptetgs_tsv_data <- get_cpptetgs_data(cpptetgs_tsv, n)

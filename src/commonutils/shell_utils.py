@@ -125,6 +125,7 @@ def touch(filename: str):
 
     :param filename: The filename you wish to touch
     """
+    filename = get_abspath(filename)
     if file_exists(filename):
         lh.debug(f"File '{filename}' exists")
     elif os.path.isdir(filename):

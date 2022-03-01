@@ -1,5 +1,4 @@
 import argparse
-import glob
 import os.path
 from typing import List, Optional
 
@@ -58,9 +57,9 @@ def simulate(
     simulating_pool.join()
     simulator_name = "pbsim_"
     if is_ccs:
-        simulator_name+="ccs"
+        simulator_name += "ccs"
     else:
-        simulator_name+="clr"
+        simulator_name += "clr"
     assemble_single_end(depth_info, output_fastq_prefix, simulator_name=simulator_name)
 
 

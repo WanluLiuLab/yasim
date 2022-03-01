@@ -3,8 +3,8 @@ import os.path
 from typing import List, Dict, Optional
 
 from bioutils.algorithm.sequence import get_gc_percent
-from bioutils.datastructure.gene_view import GeneView
 from bioutils.datastructure.fasta_view import FastaView
+from bioutils.datastructure.gene_view import GeneView
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -49,7 +49,7 @@ def transcribe(
             "STRAND",
             "LEN",
             "GC"
-        ))+"\n")
+        )) + "\n")
         for transcript_name, transcript_value in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
             fa_str = f">{transcript_name}\n{cdna_seq}\n"
@@ -63,7 +63,7 @@ def transcribe(
                 transcript_value.strand,
                 str(transcript_value.end - transcript_value.start),
                 str(round(get_gc_percent(cdna_seq) * 100, 2))
-            ))+"\n")
+            )) + "\n")
     intermediate_fasta_dir = output_fasta + ".d"
     shell_utils.mkdir_p(intermediate_fasta_dir)
     ofv = FastaView(output_fasta)
