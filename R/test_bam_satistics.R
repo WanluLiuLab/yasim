@@ -21,11 +21,11 @@ g <- ggplot(ss_data) + geom_density(aes(x = GC))
 ggsave(paste(argv$output, "GC", "png", sep = "."), plot = g)
 
 # if (1 == length(unique(ss_data$LEN))){
-    g <- ggplot(ss_data) + geom_density(aes(x = MAPQ))
-    ggsave(paste(argv$output, "MAPQ", "png", sep = "."), plot = g)
+g <- ggplot(ss_data) + geom_density(aes(x = MAPQ))
+ggsave(paste(argv$output, "MAPQ", "png", sep = "."), plot = g)
 
-    g <- ggplot(ss_data) + geom_density(aes(x = ALNQ))
-    ggsave(paste(argv$output, "ALNQ", "png", sep = "."), plot = g)
+g <- ggplot(ss_data) + geom_density(aes(x = ALNQ))
+ggsave(paste(argv$output, "ALNQ", "png", sep = "."), plot = g)
 # } else {
 #     g <- ggplot(ss_data) + geom_density2d_filled(aes(x = LEN, y=MAPQ))
 #     ggsave(paste(argv$output, "LEN-MAPQ", "png", sep = "."), plot = g)

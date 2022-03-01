@@ -4,10 +4,9 @@ import warnings
 from typing import List, Optional
 
 import commonutils.stdlib_helper.parallel_helper
-import yasim.simulator.dwgsim
+from yasim._deprecated.simulator import dwgsim
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
-from yasim import simulator
 from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_pair_end
 
 warnings.warn("NGS simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
@@ -43,7 +42,7 @@ def simulate(
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        sim_thread = simulator.dwgsim.SimulatorDwgsim(
+        sim_thread = dwgsim.SimulatorDwgsim(
             input_fasta=transcript_filename,
             output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
             depth=transcript_depth,

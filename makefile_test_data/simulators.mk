@@ -1,10 +1,10 @@
-.PHONY:DWGSIM_FQ
-DWGSIM_FQ: $(FASTQ_BASENAME)_dwgsim_1.fq
+# .PHONY:DWGSIM_FQ
+# DWGSIM_FQ: $(FASTQ_BASENAME)_dwgsim_1.fq
 
-$(FASTQ_BASENAME)_dwgsim_1.fq: $(SEL_CDNA_FASTA)
-	$(YASIM) dwgsim -F "$<".d -o "$(FASTQ_BASENAME)"_dwgsim
-
-$(FASTQ_BASENAME)_dwgsim.fq.stats:$(FASTQ_BASENAME)_dwgsim_1.fq
+#$(FASTQ_BASENAME)_dwgsim_1.fq: $(SEL_CDNA_FASTA)
+#	$(YASIM) dwgsim -F "$<".d -o "$(FASTQ_BASENAME)"_dwgsim
+#
+#$(FASTQ_BASENAME)_dwgsim.fq.stats:$(FASTQ_BASENAME)_dwgsim_1.fq
 
 $(FASTQ_BASENAME)_pbsim_clr.fq: $(SEL_CDNA_FASTA)
 	$(YASIM) pbsim -F "$<".d -o "$(FASTQ_BASENAME)"_pbsim_clr

@@ -39,9 +39,6 @@
       <excludeFolder url="file://$MODULE_DIR$/iter_1/STAR_dwgsim" />
       <excludeFolder url="file://$MODULE_DIR$/dist/SiLiCO-master" />
       <excludeFolder url="file://$MODULE_DIR$/dist/longislnd-master" />
-      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_albacore" />
-      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_guppy" />
-      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/nanosim_dist/human_NA12878_dRNA_Bham1_guppy" />
       <excludeFolder url="file://$MODULE_DIR$/iter_3" />
       <excludeFolder url="file://$MODULE_DIR$/.virtualenv" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim.egg-info" />
@@ -59,6 +56,12 @@
       <excludeFolder url="file://$MODULE_DIR$/test/htmlcov" />
       <excludeFolder url="file://$MODULE_DIR$/test/dist" />
       <excludeFolder url="file://$MODULE_DIR$/venv_win11" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/_deprecated/simulator/nanosim_dist/human_NA12878_dRNA_Bham1_guppy" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/_deprecated/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_guppy" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/_deprecated/simulator/nanosim_dist/human_NA12878_cDNA_Bham1_albacore" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/_deprecated" />
+      <excludeFolder url="file://$MODULE_DIR$/R/deprecated" />
+      <excludeFolder url="file://$MODULE_DIR$/makefile_test_data/deprecated" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

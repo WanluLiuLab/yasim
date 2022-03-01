@@ -16,11 +16,11 @@ fa_stats_data <- read_tsv(argv$fa_stats, col_types = yasim_fa_stats_col_types)
 
 yasim_ground_truth <- dplyr::inner_join(fa_stats_data, fq_stats_data, by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")) %>%
     dplyr::mutate(
-        SIMULATED_RPM=SIMULATED_N_OF_READS/sum(SIMULATED_N_OF_READS)*1e6,
-        SIMULATED_RPK=SIMULATED_N_OF_READS/LEN*1e3,
+        SIMULATED_RPM = SIMULATED_N_OF_READS / sum(SIMULATED_N_OF_READS) * 1e6,
+        SIMULATED_RPK = SIMULATED_N_OF_READS / LEN * 1e3,
     ) %>%
     dplyr::mutate(
-        SIMULATED_RPKM=SIMULATED_RPM/LEN*1e3,
-        SIMULATED_TPM=SIMULATED_RPK/sum(SIMULATED_RPK)*1000
+        SIMULATED_RPKM = SIMULATED_RPM / LEN * 1e3,
+        SIMULATED_TPM = SIMULATED_RPK / sum(SIMULATED_RPK) * 1000
     )
 write_tsv(yasim_ground_truth, argv$output, col_names = TRUE)

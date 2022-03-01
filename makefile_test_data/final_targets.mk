@@ -16,8 +16,8 @@ $(DATADIR)/minimap2_pbsim2_P4C2.bam \
 # export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
 # $(DATADIR)/STAR_dwgsim.bam \
 
-# ALL_BAM_TGS: $(ALL_BAM_TGS_FILENAME)
-ALL_BAM_NGS: $(ALL_BAM_NGS_FILENAME)
+ALL_BAM_TGS: $(ALL_BAM_TGS_FILENAME)
+# ALL_BAM_NGS: $(ALL_BAM_NGS_FILENAME)
 
 export BAM_FIGS_TGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_TGS_FILENAME))
 # export BAM_FIGS_NGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_NGS_FILENAME))
@@ -91,10 +91,13 @@ $(DATADIR)/yasim_to_featureCounts_quant_minimap2_badread_pacbio2016.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_nanopore2020.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_badread_pacbio2016.png \
 
-SIMLORD: \ # deprecated, quality too poor
+# SIMLORD: \ # deprecated, quality too poor
 # $(DATADIR)/yasim_to_stringtie_quant_minimap2_simlord.png \
 # $(DATADIR)/yasim_to_featureCounts_quant_minimap2_simlord.png \
 # $(DATADIR)/yasim_to_stringtie_quant_e_minimap2_simlord.png \
+
+$(DATADIR)/%.bam.tsv:$(DATADIR)/%.bam $(DATADIR)/%.bam.bai
+	$(YASIM_SCRIPTS) get_sam_satistics --sam $< --out $@
 
 $(DATADIR)/%.bam.tsv:$(DATADIR)/%.bam $(DATADIR)/%.bam.bai
 	$(YASIM_SCRIPTS) get_sam_satistics --sam $< --out $@

@@ -43,7 +43,7 @@ def main(args: List[str]):
     for _ in sam.fetch(until_eof=True):
         full_length += 1
     sam.seek(curr_pos)
-    with get_writer(args.out) as aln_writer:
+    with get_writer(args.out+".fastq") as aln_writer:
         for alignment in tqdm(desc="Aligning unmapped reads...", iterable=sam.fetch(until_eof=True), total=full_length):
             seq_id = alignment.query_name
             if seq_id is None:
@@ -53,10 +53,11 @@ def main(args: List[str]):
                 mapped_transcripts_dict[transcript_name] += 1
             else:
                 unmapped_transcripts_dict[transcript_name] += 1
-                fastq_record = fqv.get(seq_id)
+                fastq_sequence = fqv.get(seq_id).sequence
+                fasta_sequence = fav.sequence(transcript_name)
                 # sw_backtrack = smith_waterman_backtrack(
-                #     seq1=fastq_record.sequence,
-                #     seq2=fav.sequence(transcript_name),
+                #     seq1=fastq_record,
+                #     seq2=,
                 #     alignment_title=seq_id
                 # )
                 # for backtrack in sw_backtrack:
@@ -64,7 +65,7 @@ def main(args: List[str]):
     with get_writer(args.out + ".stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
-            "ALN",
+            "SUCCESS_ALN",
             "FAILED_ALN"
         ))+"\n")
         for transcript_id, count in unmapped_transcripts_dict.items():

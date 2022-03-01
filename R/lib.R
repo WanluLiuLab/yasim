@@ -48,12 +48,20 @@ salmon_quant_sf_col_types <- cols(
     TPM = col_double(),
     NumReads = col_double()
 )
+cpptetgs_tsv_col_types <- cols(
+    Name = col_character(),
+    NumReads = col_double()
+)
+cpptetgs_tsv_col_names <- c(
+    "Name",
+    "NumReads"
+)
 stringtie_quant_tsv_col_types <- cols(
     gene_id = col_character(),
     transcript_id = col_character(),
     reference_id = col_character(),
     ref_gene_id = col_character(),
-    ref_TRANSCRIPT_ID = col_character(),
+    ref_transcript_id = col_character(),
     cov = col_double(),
     FPKM = col_double(),
     TPM = col_double()
@@ -85,9 +93,88 @@ featureCounts_tsv_col_names <- c(
 #     "NumReads"
 # )
 ss_tsv_col_types <- cols(
-    LEN=col_number(),
-    GC=col_number(),
-    IS_MAPPED=col_number(),
-    MAPQ=col_number(),
-    ALNQ=col_number()
+    LEN = col_number(),
+    GC = col_number(),
+    IS_MAPPED = col_number(),
+    MAPQ = col_number(),
+    ALNQ = col_number()
 )
+
+#' Get featureCounts data and parse them into standard form
+get_featureCounts_data <- function(featureCounts_tsv, n) {
+    message(sprintf("Reading %s...", featureCounts_tsv))
+    featureCounts_data <- read_tsv(
+        featureCounts_tsv,
+        quote = "\'",
+        col_types = featureCounts_tsv_col_types,
+        col_names = featureCounts_tsv_col_names,
+        comment = "#"
+    )
+    featureCounts_data <- featureCounts_data %>%
+        dplyr::filter(NumReads > 0) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = Geneid,
+            !!rlang::sym(sprintf("FEATURECOUNTS_%d_ACTUAL_N_OF_READS", .GlobalEnv$n)) := NumReads
+        )
+    message(sprintf("Reading %s... DONE", featureCounts_tsv))
+    return(featureCounts_data)
+}
+
+get_yasim_data <- function(fq_stats, n) {
+    message(sprintf("Reading %s...", fq_stats))
+    fq_stats_data <- read_tsv(
+        fq_stats,
+        col_types = yasim_fq_stats_col_types,
+        comment = "#"
+    ) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = TRANSCRIPT_ID,
+            !!rlang::sym(sprintf("YASIM_%d_ACTUAL_N_OF_READS", .GlobalEnv$n)) := SIMULATED_N_OF_READS
+        )
+    message(sprintf("Reading %s... DONE", fq_stats))
+    return(fq_stats_data)
+}
+
+get_salmon_data <- function(salmon_quant_sf, n) {
+    message(sprintf("Reading %s...", salmon_quant_sf))
+    salmon_quant_sf_data <- read_tsv(salmon_quant_sf, col_types = salmon_quant_sf_col_types) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = Name,
+            !!rlang::sym(sprintf("SALMON_%d_ACTUAL_N_OF_READS", .GlobalEnv$n)) := NumReads
+        )
+    message(sprintf("Reading %s... DONE", salmon_quant_sf))
+    return(salmon_quant_sf_data)
+}
+
+get_cpptetgs_data <- function(cpptetgs_tsv, n) {
+    message(sprintf("Reading %s...", cpptetgs_tsv))
+    cpptetgs_data <- read_tsv(
+        cpptetgs_tsv,
+        col_types = cpptetgs_tsv_col_types,
+        col_names = cpptetgs_tsv_col_names,
+        comment = "#"
+    ) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = Name,
+            !!rlang::sym(sprintf("CPPTETGS_%d_ACTUAL_N_OF_READS", .GlobalEnv$n)) := NumReads
+        )
+    message(sprintf("Reading %s... DONE", cpptetgs_tsv))
+    return(cpptetgs_data)
+}
+
+get_stringtie_data <- function(stringtie_quant_tsv, n) { # , stringtie_e_option=NULL
+
+    # if (stringtie_e_option) {
+    #     get_id <- "transcript_id"
+    # } else {
+        get_id <- "reference_id"
+    # }
+    stringtie_quant_data <- read_tsv(stringtie_quant_tsv, quote = "\'", col_types = stringtie_quant_tsv_col_types) %>%
+    dplyr::transmute(
+            TRANSCRIPT_ID = .[[get_id]],
+            !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_TPM", .GlobalEnv$n)) := TPM,
+            !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_RPKM", .GlobalEnv$n)) := FPKM
+        )
+    message(sprintf("Reading %s... DONE", stringtie_quant_tsv))
+    return(stringtie_quant_data)
+}

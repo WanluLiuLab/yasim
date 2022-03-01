@@ -8,7 +8,7 @@ import commonutils.stdlib_helper.parallel_helper
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main._helper import get_depth_from_intermediate_fasta
-from yasim.simulator import simlord
+from yasim._deprecated.simulator import simlord
 
 warnings.warn("SimLoRD simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
 
