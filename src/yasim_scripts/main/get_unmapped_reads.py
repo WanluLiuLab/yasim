@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import pysam
 
-from bioutils.algorithm.alignment import smith_waterman_backtrack
+# from bioutils.algorithm.alignment import smith_waterman_backtrack
 from bioutils.datastructure.fasta_view import FastaView
 from bioutils.datastructure.fastq_view import FastqView
 
@@ -54,13 +54,13 @@ def main(args: List[str]):
             else:
                 unmapped_transcripts_dict[transcript_name] += 1
                 fastq_record = fqv.get(seq_id)
-                sw_backtrack = smith_waterman_backtrack(
-                    seq1=fastq_record.sequence,
-                    seq2=fav.sequence(transcript_name),
-                    alignment_title=seq_id
-                )
-                for backtrack in sw_backtrack:
-                    aln_writer.write(backtrack + "\n")
+                # sw_backtrack = smith_waterman_backtrack(
+                #     seq1=fastq_record.sequence,
+                #     seq2=fav.sequence(transcript_name),
+                #     alignment_title=seq_id
+                # )
+                # for backtrack in sw_backtrack:
+                #     aln_writer.write(backtrack + "\n")
     with get_writer(args.out + ".stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",

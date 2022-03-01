@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
 
-warnings.warn("SimLoRD simulator is not used, sonot updated.", DeprecationWarning, stacklevel=2)
+warnings.warn("SimLoRD simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
 
 
 class SimulatorSimlord(Simulator):

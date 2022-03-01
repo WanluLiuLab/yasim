@@ -1,3 +1,5 @@
+"""Parse stringtie GTF output into a TSV file suitable for downstream analysis using R"""
+
 import argparse
 from typing import List
 

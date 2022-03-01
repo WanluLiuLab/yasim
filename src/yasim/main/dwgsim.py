@@ -1,5 +1,6 @@
 import argparse
 import os.path
+import warnings
 from typing import List, Optional
 
 import commonutils.stdlib_helper.parallel_helper
@@ -8,6 +9,8 @@ from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim import simulator
 from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_pair_end
+
+warnings.warn("NGS simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
 
 logger = get_logger(__name__)
 

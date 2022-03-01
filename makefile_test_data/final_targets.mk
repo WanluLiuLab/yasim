@@ -13,41 +13,41 @@ $(DATADIR)/minimap2_pbsim2_P6C4.bam \
 $(DATADIR)/minimap2_pbsim2_P4C2.bam \
 # $(DATADIR)/minimap2_simlord.bam \
 
-export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
-$(DATADIR)/STAR_dwgsim.bam \
+# export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
+# $(DATADIR)/STAR_dwgsim.bam \
 
-ALL_BAM_TGS: $(ALL_BAM_TGS_FILENAME)
+# ALL_BAM_TGS: $(ALL_BAM_TGS_FILENAME)
 ALL_BAM_NGS: $(ALL_BAM_NGS_FILENAME)
 
 export BAM_FIGS_TGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_TGS_FILENAME))
-export BAM_FIGS_NGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_NGS_FILENAME))
+# export BAM_FIGS_NGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_NGS_FILENAME))
 export BAM_FIGS_TGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_TGS_FILENAME))
-export BAM_FIGS_NGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_NGS_FILENAME))
+# export BAM_FIGS_NGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_NGS_FILENAME))
 
 
 .PHONY:all DWGSIM PBSIM PBSIM2 BADREAD NGS TGS
 
-all:NGS TGS
+all: TGS # NGS
 
-NGS: DWGSIM BAM_FIGS_NGS BAM_BW_NGS
+# NGS: DWGSIM BAM_FIGS_NGS BAM_BW_NGS
 TGS: PBSIM PBSIM2 BADREAD SIMLORD BAM_FIGS_TGS BAM_BW_TGS
-BAM_FIGS: BAM_FIGS_NGS BAM_FIGS_TGS
-BAM_BW: BAM_BW_NGS BAM_BW_TGS
+BAM_FIGS: BAM_FIGS_TGS # BAM_FIGS_NGS
+BAM_BW: BAM_BW_TGS # BAM_BW_NGS
 
-DWGSIM: \
-$(DATADIR)/yasim_to_salmon_quant_dwgsim.png \
-$(DATADIR)/yasim_to_featureCounts_quant_STAR_dwgsim.png \
-$(DATADIR)/yasim_to_stringtie_quant_STAR_dwgsim.png \
-$(DATADIR)/yasim_to_stringtie_quant_e_STAR_dwgsim.png \
-$(DATADIR)/yasim_to_stringtie_quant_hisat2_dwgsim.png \
-$(DATADIR)/yasim_to_stringtie_quant_e_hisat2_dwgsim.png \
-$(DATADIR)/yasim_to_featureCounts_quant_hisat2_dwgsim.png \
+# DWGSIM: \
+# $(DATADIR)/yasim_to_salmon_quant_dwgsim.png \
+# $(DATADIR)/yasim_to_featureCounts_quant_STAR_dwgsim.png \
+# $(DATADIR)/yasim_to_stringtie_quant_STAR_dwgsim.png \
+# $(DATADIR)/yasim_to_stringtie_quant_e_STAR_dwgsim.png \
+# $(DATADIR)/yasim_to_stringtie_quant_hisat2_dwgsim.png \
+# $(DATADIR)/yasim_to_stringtie_quant_e_hisat2_dwgsim.png \
+# $(DATADIR)/yasim_to_featureCounts_quant_hisat2_dwgsim.png \
 # $(DATADIR)/yasim_to_htseq_quant_STAR_dwgsim.png \
 # $(DATADIR)/yasim_to_htseq_quant_hisat2_dwgsim.png
 
-BAM_FIGS_NGS: $(BAM_FIGS_NGS_FIG_FILENAME)
+# BAM_FIGS_NGS: $(BAM_FIGS_NGS_FIG_FILENAME)
 BAM_FIGS_TGS: $(BAM_FIGS_TGS_FIG_FILENAME)
-BAM_BW_NGS: $(BAM_FIGS_NGS_BW_FILENAME)
+# BAM_BW_NGS: $(BAM_FIGS_NGS_BW_FILENAME)
 BAM_BW_TGS: $(BAM_FIGS_TGS_BW_FILENAME)
 
 # -e is not that good in TGS, so not used.

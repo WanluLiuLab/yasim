@@ -10,7 +10,7 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main._helper import get_depth_from_intermediate_fasta
 from yasim.simulator import simlord
 
-warnings.warn("SimLoRD simulator is not used, sonot updated.", DeprecationWarning, stacklevel=2)
+warnings.warn("SimLoRD simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
 
 
 logger = get_logger(__name__)

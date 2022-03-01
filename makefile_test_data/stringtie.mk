@@ -1,15 +1,15 @@
 
-$(DATADIR)/stringtie_e_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
-	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
+# $(DATADIR)/stringtie_e_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
+# 	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
-	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
+# $(DATADIR)/stringtie_STAR_%.gtf: $(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
+# 	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_e_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
-	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
+# $(DATADIR)/stringtie_e_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
+# 	stringtie -e -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
-$(DATADIR)/stringtie_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
-	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
+# $(DATADIR)/stringtie_hisat2_%.gtf: $(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
+# 	stringtie -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
 
 $(DATADIR)/stringtie_quant_%.tsv:$(DATADIR)/stringtie_%.gtf
 	$(YASIM_SCRIPTS) parse_stringtie_into_tsv -g $< -o $@

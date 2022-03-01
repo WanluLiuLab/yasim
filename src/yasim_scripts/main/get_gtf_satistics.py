@@ -1,3 +1,6 @@
+"""Get satistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
+
+
 import argparse
 import statistics
 from collections import defaultdict
@@ -13,6 +16,7 @@ from commonutils.io.safe_io import get_writer
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--gtf", required=True)
+    parser.add_argument("--out", required=True)
     return parser.parse_args(args)
 
 
@@ -33,37 +37,68 @@ def stat(item: List[int], fig_name: str):
 
 def main(args: List[str]):
     args = _parse_args(args)
+    out_basename = args.out
     gv = GeneView.from_file(args.gtf)
-    transcript_numbers = []
-    transcript_span_length = []
-    transcript_length = []
-    exon_numbers = []
-    exon_length = []
-    start_and_end_sites_number = []
-    gene_with_antisense_transcripts = defaultdict(lambda: [])
-    gene_with_antisense_transcripts_on_same_chr = defaultdict(lambda: [])
-    transcript_with_antisense_exons = defaultdict(lambda: [])
+    # transcript_numbers = []
+    # """Total number of transcripts"""
+    #
+    # exon_numbers = []
+    # exon_length = []
+    # start_and_end_sites_number = []
+    # gene_with_antisense_transcripts = defaultdict(lambda: [])
+    # gene_with_antisense_transcripts_on_same_chr = defaultdict(lambda: [])
+    # transcript_with_antisense_exons = defaultdict(lambda: [])
+
+    with get_writer(f"{out_basename}.gene.tsv") as gene_writer,\
+            get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer,\
+        get_writer(f"{out_basename}.exons.tsv") as exons_writer:
+        gene_writer.write("\t".join((
+            "GENE_ID",
+            "TRANSCRIPT_NUMBER"
+        ))+"\n")
+        transcripts_writer.write("\t".join((
+            "TRANSCRIPT_ID",
+            "GENE_ID",
+            "SPAN_LENGTH",
+            "TRANSCRIBED_LENGTH",
+            "EXON_NUMBER"
+        ))+"\n")
+        exons_writer.write("\t".join((
+            "TRANSCRIPT_ID",
+            "EXON_ID",
+            "TRANSCRIBED_LENGTH"
+        ))+"\n")
 
     for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
-        max_transcript_span_length = 0
-        start_sites = set()
-        end_sites = set()
-        transcript_numbers.append(len(gene.transcripts))
+
+        gene_writer.write("\t".join((
+            str(gene.gene_id),
+            str(len(gene.transcripts))
+        ))+"\n")
+
         transcripts = list(gene.transcripts.values())
         for t_i in range(len(transcripts)):
             transcript = transcripts[t_i]
-            exon_numbers.append(len(transcript.exons))
-            tmp_transcript_length = transcript.end - transcript.start
-            transcript_span_length.append(tmp_transcript_length)
-            max_transcript_span_length = max(max_transcript_span_length, tmp_transcript_length)
+
+            transcript_transcribed_length = 0
             exons = list(transcript.exons)
             for e_i in range(len(exons)):
                 exon = exons[e_i]
-                tmp_exon_length = exon.end - exon.start
-                tmp_transcript_length += tmp_exon_length
-                exon_length.append(tmp_exon_length)
-                start_sites.add((exon.seqname, exon.start))
-                end_sites.add((exon.seqname, exon.end))
+                exon_length = exon.end - exon.start
+                transcript_transcribed_length += exon_length
+                exons_writer.write("\t".join((
+                    transcript.transcript_id,
+                    str(e_i),
+                    str(exon_length)
+                )) + "\n")
+            transcripts_writer.write("\t".join((
+                transcript.transcript_id,
+                transcript.gene_id,
+                str(transcript.end - transcript.start),
+                str(transcript_transcribed_length),
+                len(transcript.exons)
+            )) + "\n")
+
             for t_j in range(t_i, len(transcripts)):
                 another_transcript = transcripts[t_j]
                 if transcript.strand != another_transcript.strand:
@@ -74,10 +109,7 @@ def main(args: List[str]):
                         gene_with_antisense_transcripts_on_same_chr[gene.gene_id].append(
                             f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n"
                         )
-            transcript_length.append(tmp_transcript_length)
-        start_and_end_sites = start_sites
-        start_and_end_sites.update(end_sites)
-        start_and_end_sites_number.append(len(start_and_end_sites))
+
 
     transcripts = list(gv.transcripts.values())
     with get_writer("overlapping_transcript.gtf") as writer:
@@ -88,14 +120,7 @@ def main(args: List[str]):
                 if transcript.overlaps(another_transcript) and transcript.gene_id != another_transcript.gene_id:
                     writer.write(f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n")
 
-    gene_with_antisense_transcripts = gene_with_antisense_transcripts
-    transcript_with_antisense_exons = transcript_with_antisense_exons
-    stat(transcript_numbers, "transcript_numbers_in_a_gene")
-    stat(exon_numbers, "exon_numbers_in_a_transcript")
-    stat(transcript_span_length, "transcript_span_length")
-    stat(exon_length, "exon_length")
-    stat(transcript_length, "transcript_length")
-    stat(start_and_end_sites_number, "start_and_end_sites_number_in_a_gene")
+
     print(f"gene_with_antisense_transcripts: {len(gene_with_antisense_transcripts)}")
     with get_writer("gene_with_antisense_transcripts.gtf") as writer:
         for gtf_str in gene_with_antisense_transcripts.values():

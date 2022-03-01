@@ -33,8 +33,8 @@ include $(CURDIR)/final_targets.mk
 
 include $(CURDIR)/general.mk
 include $(CURDIR)/simulators.mk
-include $(CURDIR)/hisat2.mk
-include $(CURDIR)/STAR.mk
+# include $(CURDIR)/hisat2.mk
+# include $(CURDIR)/STAR.mk
 include $(CURDIR)/minimap2.mk
 include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk

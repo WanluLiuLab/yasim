@@ -1,5 +1,6 @@
 import glob
 import shutil
+import warnings
 from typing import List, Union, Optional
 
 from commonutils import shell_utils
@@ -7,6 +8,7 @@ from commonutils.io import file_system
 from commonutils.shell_utils import gz_decompress
 from yasim.simulator import Simulator
 
+warnings.warn("NGS simulator is not used, so not updated.", DeprecationWarning, stacklevel=2)
 
 class SimulatorDwgsim(Simulator):
     dwgsim_exename: str

@@ -1,3 +1,6 @@
+"""A General-Purposed SAM quality control tool"""
+
+
 import argparse
 from statistics import mean
 from typing import List, Any
