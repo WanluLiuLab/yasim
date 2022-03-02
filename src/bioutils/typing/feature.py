@@ -1,3 +1,10 @@
+"""
+feature.py -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Feature
+
+This module includes GTF/GFF3/BED record datastructure and their one-line parsers.
+"""
+
+
 from __future__ import annotations
 
 import uuid
@@ -10,6 +17,12 @@ from commonutils.str_utils import to_dict
 lh = get_logger(__name__)
 
 __version__ = 0.1
+
+
+
+GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
+GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
+"""The top-level virtual parent for GFF record that does not have a parent"""
 
 
 class Feature(object):
@@ -64,7 +77,7 @@ class Feature(object):
 
     strand: str
     """
-    Positive (``+``) or negative(``-``)
+    Positive (``+``) or negative(``-``) or unknown (``.``)
     """
 
     frame: str
@@ -132,10 +145,6 @@ class Feature(object):
 
     def __le__(self, other: Feature):
         return self < other or self == other
-
-
-GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
-GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
 
 
 class BaseGtfGffRecord(Feature):
