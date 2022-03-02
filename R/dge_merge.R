@@ -1,4 +1,7 @@
-file_description <- ""
+file_description <- "dge_compare.R -- Merge TSVs Produced by Transcript-Level Quantifiers for Downstream DGE Analysis"
+
+#' This file is used to merge TSVs produced by Transcript-Level Quantifiers for Downstream DGE Analysis.
+#' The
 
 library(argparser)
 
@@ -30,21 +33,31 @@ argv <- parse_args(p)
 
 source(argv$libfile)
 
+#' The metadata of transcripts, like length, position, GC, etc.
 fa_stats_data <- read_tsv(argv$fa_stats, col_types = yasim_fa_stats_col_types)
+
 #' The entire large wide table
 all_table <- fa_stats_data
 
+#' Number of reads in ground truth.
 sum_actual_n_of_reads <- c()
 
-mutate_tables_for_rpkm <- function(all_table, step_name, n, sum_actual_n_of_reads) {
+
+#' Function that calculates TPM, RPM, RPK and RPKM from Number of Reads and Transcript Length
+#' @param all_table: Table that need to be parsed. Should be some dataframe-like structure.
+#' @param step_name: Name of the step. Can be name of Simulators (Ground Truth, in this case) or Quantifiers.
+#' @param n: The replication number.
+mutate_tables_for_rpkm <- function(all_table, step_name, n) {
+    sum_n_of_reads <- sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]])
     all_table <- all_table %>%
         dplyr::mutate(
             !!sprintf("%s_%d_ACTUAL_RPM", step_name, n) :=
                 .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] /
-                    sum_actual_n_of_reads[n] * 1e6,
+                    sum_n_of_reads * 1e6,
             !!sprintf("%s_%d_ACTUAL_RPK", step_name, n) :=
                 .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / LEN * 1e3,
         )
+        #' sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", .GlobalEnv$n)]])
     # print(names(all_table))
     sum_rpk <- sum(
         replace_na(all_table[[sprintf("%s_%d_ACTUAL_RPK", step_name, n)]], 0)
@@ -59,6 +72,8 @@ mutate_tables_for_rpkm <- function(all_table, step_name, n, sum_actual_n_of_read
     return(all_table)
 }
 
+#' Start parsing ground truth.
+
 if (!is.na(argv$fq_stats)) {
     n <- 1
     for (fq_stats in argv$fq_stats) {
@@ -67,10 +82,10 @@ if (!is.na(argv$fq_stats)) {
         all_table <- replace(all_table, is.na(all_table), 0)
         sum_actual_n_of_reads <- c(
             sum_actual_n_of_reads,
-            sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", .GlobalEnv$n)]])
+            sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", n)]])
         )
         message(sprintf("Loaded %d reads from %s", sum_actual_n_of_reads[n], fq_stats))
-        all_table <- mutate_tables_for_rpkm(all_table, "YASIM", n, sum_actual_n_of_reads)
+        all_table <- mutate_tables_for_rpkm(all_table, "YASIM", n)
         n <- n + 1
     }
 }
@@ -85,7 +100,7 @@ if (!is.na(argv$featureCounts_tsv)) {
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
         all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
-        all_table <- mutate_tables_for_rpkm(all_table, "FEATURECOUNTS", n, sum_actual_n_of_reads)
+        all_table <- mutate_tables_for_rpkm(all_table, "FEATURECOUNTS", n)
         n <- n + 1
     }
 }
@@ -100,7 +115,7 @@ if (!is.na(argv$salmon_quant_sf)) {
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
         all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
-        all_table <- mutate_tables_for_rpkm(all_table, "SALMON", n, sum_actual_n_of_reads)
+        all_table <- mutate_tables_for_rpkm(all_table, "SALMON", n)
         n <- n + 1
     }
 }
@@ -130,7 +145,7 @@ if (!is.na(argv$cpptetgs_tsv)) {
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
         all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
-        all_table <- mutate_tables_for_rpkm(all_table, "CPPTETGS", n, sum_actual_n_of_reads)
+        all_table <- mutate_tables_for_rpkm(all_table, "CPPTETGS", n)
         n <- n + 1
     }
 }

@@ -1,4 +1,5 @@
 """
+fastq.py -- An Im-Memory FastQ Record.
 
 >>> fastq_seq = ["@A\\n", "AGCT\\n", "+\\n", "0000\\n"]
 >>> fastq_record = FastqRecord.from_str(fastq_seq)
@@ -10,6 +11,7 @@
 '0000'
 >>> str(fastq_record) == '@A\\nAGCT\\n+\\n0000'
 True
+>>> fastq_record = FastqRecord.from_single_str('@A\\nAGCT\\n+\\n0000')
 >>> str(fastq_record) == '@A\\nAGCT\\n+\\n0000'
 True
 """
@@ -18,9 +20,24 @@ from typing import List
 
 
 class FastqRecord:
+    """
+    A naive in-memory FASTQ record.
+    """
+
     seq_id: str
+    """
+    Sequence ID.
+    """
+
     sequence: str
+    """
+    The sequence.
+    """
+
     quality: str
+    """
+    The corresponding quality, whose length should be equal to ``sequence``.
+    """
 
     def __int__(self, seq_id: str, sequence: str, quality: str):
         if len(sequence) != len(quality):
@@ -42,7 +59,9 @@ class FastqRecord:
     @classmethod
     def from_str(cls, lines: List[str]):
         """
-        FASTQ sequence, 4 lines.
+        Generate from FASTQ sequence, 4 lines.
+
+        This method is set to generate record from arbitrary :py:mod:`typing.TextIO` readers.
         """
         if len(lines) != 4:
             raise ValueError("Should get a 4-element aray representing 4 FASTQ lines.")
@@ -57,4 +76,7 @@ class FastqRecord:
 
     @classmethod
     def from_single_str(cls, input_str: str):
+        """
+        Generate from FASTQ sequence, 1 line.
+        """
         return cls.from_str(input_str.splitlines())
