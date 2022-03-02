@@ -27,6 +27,10 @@ p <- add_argument(
     p, "--fq_stats", default = c(), nargs = Inf,
     help = "*.fq.stats produced by YASIM simulator"
 )
+p <- add_argument(
+    p, "--unmapped_stats", default = c(), nargs = Inf,
+    help = "*_unmapped.stats produced by aligner"
+)
 p <- add_argument(p, "--fa_stats", help = "*.fa.stats produced by YASIM transcriptor", type = "character")
 p <- add_argument(p, "--output", help = "Output basename", type = "character")
 argv <- parse_args(p)
@@ -42,18 +46,20 @@ all_table <- fa_stats_data
 #' Number of reads in ground truth.
 sum_actual_n_of_reads <- c()
 
+#' Number of mapped reads in ground truth.
+sum_simulated_n_of_reads <- c()
 
 #' Function that calculates TPM, RPM, RPK and RPKM from Number of Reads and Transcript Length
 #' @param all_table: Table that need to be parsed. Should be some dataframe-like structure.
 #' @param step_name: Name of the step. Can be name of Simulators (Ground Truth, in this case) or Quantifiers.
 #' @param n: The replication number.
 mutate_tables_for_rpkm <- function(all_table, step_name, n) {
+    all_table <- all_table %>% dplyr::filter(LEN != 0) # Filter transcripts added by accident.
     sum_n_of_reads <- sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]])
     all_table <- all_table %>%
         dplyr::mutate(
             !!sprintf("%s_%d_ACTUAL_RPM", step_name, n) :=
-                .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] /
-                    sum_n_of_reads * 1e6,
+                .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / sum_n_of_reads * 1e6,
             !!sprintf("%s_%d_ACTUAL_RPK", step_name, n) :=
                 .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / LEN * 1e3,
         )
@@ -77,15 +83,30 @@ mutate_tables_for_rpkm <- function(all_table, step_name, n) {
 if (!is.na(argv$fq_stats)) {
     n <- 1
     for (fq_stats in argv$fq_stats) {
-        fq_stats_data <- get_yasim_data(fq_stats, n)
+        fq_stats_data <- get_fq_stats_data(fq_stats, n)
         all_table <- dplyr::full_join(all_table, fq_stats_data, by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID"))
+        all_table <- replace(all_table, is.na(all_table), 0)
+        sum_simulated_n_of_reads <- c(
+            sum_simulated_n_of_reads,
+            sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", n)]])
+        )
+        message(sprintf("Loaded %d reads from %s", sum_simulated_n_of_reads[n], fq_stats))
+        all_table <- mutate_tables_for_rpkm(all_table, "YASIM", n)
+        n <- n + 1
+    }
+}
+if (!is.na(argv$unmapped_stats)) {
+    n <- 1
+    for (unmapped_stats in argv$unmapped_stats) {
+        unmapped_stats_data <- get_unmapped_stats_data(unmapped_stats, n)
+        all_table <- dplyr::full_join(all_table, unmapped_stats_data, by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID"))
         all_table <- replace(all_table, is.na(all_table), 0)
         sum_actual_n_of_reads <- c(
             sum_actual_n_of_reads,
-            sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", n)]])
+            sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM_MAPPED", n)]])
         )
         message(sprintf("Loaded %d reads from %s", sum_actual_n_of_reads[n], fq_stats))
-        all_table <- mutate_tables_for_rpkm(all_table, "YASIM", n)
+        all_table <- mutate_tables_for_rpkm(all_table, "YASIM_MAPPED", n)
         n <- n + 1
     }
 }
