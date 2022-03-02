@@ -1,9 +1,13 @@
+"""
+Naive sequence algorithms. e.g., complement, reverse or get GC content.
+"""
+
 _comp_trans = str.maketrans('ATCGatcgNnXx', 'TAGCtagcNnXx')
 
 
 def complement(seq: str) -> str:
     """
-    Get reverse-complement of a sequence
+    Get complement of a sequence
 
     >>> complement("CTGACTGA")
     'GACTGACT'
@@ -22,6 +26,12 @@ def reverse_complement(seq: str) -> str:
 
 
 def get_gc_percent(seq: str) -> float:
+    """
+    Get GC content.
+
+    >>> get_gc_percent("AAACG")
+    0.4
+    """
     if len(seq) == 0:
         return 0
     gc = 0

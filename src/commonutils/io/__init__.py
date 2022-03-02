@@ -9,7 +9,7 @@ import bz2
 import gzip
 import io
 import lzma
-from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type
+from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, List
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
@@ -94,7 +94,7 @@ class ArchiveBaseIO(IO):
         return self._fd.readline(limit)
 
     @copy_doc(io.RawIOBase.readlines)
-    def readlines(self, hint: int = -1) -> list[AnyStr]:
+    def readlines(self, hint: int = -1) -> List[AnyStr]:
         return self._fd.readlines(hint)
 
     @copy_doc(io.RawIOBase.seek)
@@ -194,7 +194,7 @@ def get_reader(filename: str, is_binary: bool = False, **kwargs) -> IO:
     :param is_binary: Whether to read as binary.
     :param kwargs: Other arguments passed to underlying opener.
 
-    :: warning..
+    .. warning::
         Do NOT specify ``mode`` keyword arguments!
     """
     if is_binary:

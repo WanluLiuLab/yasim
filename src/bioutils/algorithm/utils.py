@@ -1,3 +1,7 @@
+"""
+Utilities that may be helpful.
+"""
+
 import math
 from typing import Tuple
 
@@ -6,6 +10,8 @@ coordinate_type = Tuple[float, float]
 
 def euclid_distance(d1: coordinate_type, d2: coordinate_type) -> float:
     """
+    Get Euclid distance.
+
     >>> euclid_distance((0, 0), (3, 4))
     5.0
     """
@@ -14,6 +20,8 @@ def euclid_distance(d1: coordinate_type, d2: coordinate_type) -> float:
 
 def manhattan_distance(d1: coordinate_type, d2: coordinate_type) -> float:
     """
+    Get manhattan distance.
+
     >>> manhattan_distance((0, 0), (3, 4))
     7
     """

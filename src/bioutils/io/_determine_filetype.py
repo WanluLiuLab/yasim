@@ -12,7 +12,7 @@ archive_suffixes = {
     "LZMA": (".xz", ".lzma"),
     "LZ4": (".lz4",),
     "LZIP": (".lz",),
-    "LZOP": (".lzop"),
+    "LZOP": (".lzop",),
     "BZ2": (".bz2",),
     "COMPRESS": (".z",),
     "BROTLI": (".brotli", ".br"),

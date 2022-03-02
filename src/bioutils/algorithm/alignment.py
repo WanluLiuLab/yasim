@@ -1,3 +1,10 @@
+"""
+alignment.py -- Python-Implemented Alignment Algorithms
+
+Some Python-Implemented alignment functions, including Smith-Waterman,
+with other utilities like edit distance
+"""
+
 import functools
 import math
 from typing import Optional, List, Tuple
@@ -7,16 +14,38 @@ import numpy.typing as npt
 
 
 class SmithWatermanAligner:
+    """
+    A General-Purposed Smith-Waterman Aligner.
+
+    >>> SmithWatermanAligner('AAA', 'AAA').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:15\\nAAA\\n===\\nAAA'
+    >>> SmithWatermanAligner('AAA', 'ATA').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:6\\nA--AA\\n=IIDD\\nATA--'
+    >>> SmithWatermanAligner('AAA', 'AA').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:10\\nAAA\\n==D\\nAA-'
+    >>> SmithWatermanAligner('AA', 'TTTA').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:5\\n---AA\\nIII=D\\nTTTA-'
+    >>> SmithWatermanAligner('JHBGTYBYTJAA', 'YJGYJTVJYAA').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:10\\n-JHBGTYBY-T-J-AA\\nI=DD=D=DDI=I=I==\\nYJ--G-Y--JTVJYAA'
+    >>> SmithWatermanAligner('TATATATGCGGGTAATTTAGGGCGGATCATGA', 'ATGCGGC').get_backtrack()[0]
+    '>aln:seq1:qual:seq2:30\\nTATATATGCGGGTAATTTAGGGCGGATCATGA\\nD==DDDD====MDDDDDDDDDDDDDDDDDDDD\\n-AT----GCGGC--------------------'
+    """
+
     seq1: str
     """Sequence 1"""
+
     seq2: str
     """Sequence 2"""
+
     match_score: int
     """Score for match"""
+
     mismatch_score: int
     """Score for mismatch, should be negative"""
+
     indel_score: int
     """Score for insertions and deletions"""
+
     is_global: bool
     """Whether the alignment should be global"""
 
@@ -47,7 +76,9 @@ class SmithWatermanAligner:
         self._backtrack = None
 
     def alignment(self) -> int:
-        """Perform alignment and get the score"""
+        """
+        Perform alignment and get the score
+        """
         if self._sw_matrix is None:
             self._build_smith_waterman_matrix()
         self._score = np.max(self._sw_matrix[1:, 1:])
@@ -55,13 +86,19 @@ class SmithWatermanAligner:
 
     @property
     def score(self) -> int:
-        """Get Smith-Waterman Score"""
+        """
+        Get Smith-Waterman Score.
+        If alignment is not performed, it will be performed.
+        """
         if self._score is None:
             return self.alignment()
         else:
             return self._score
 
     def _build_smith_waterman_matrix(self):
+        """
+        Build Smith-Waterman Scoring matrix.
+        """
         l1 = len(self.seq1) + 1
         l2 = len(self.seq2) + 1
         self._sw_matrix = np.zeros((l1, l2), dtype=int)
@@ -86,18 +123,7 @@ class SmithWatermanAligner:
                       alignment_title: str = "aln"
                       ) -> Optional[List[str]]:
         """
-        # >>> smith_waterman_backtrack('AAA', 'AAA')[0]
-        # '>aln:seq1:qual:seq2:15\\nAAA\\n===\\nAAA'
-        # >>> smith_waterman_backtrack('AAA', 'ATA')[0]
-        # '>aln:seq1:qual:seq2:6\\nA--AA\\n=IIDD\\nATA--'
-        # >>> smith_waterman_backtrack('AAA', 'AA')[0]
-        # '>aln:seq1:qual:seq2:10\\nAAA\\n==D\\nAA-'
-        # >>> smith_waterman_backtrack('AA', 'TTTA')[0]
-        # '>aln:seq1:qual:seq2:5\\n---AA\\nIII=D\\nTTTA-'
-        # >>> smith_waterman_backtrack('JHBGTYBYTJAA', 'YJGYJTVJYAA')[0]
-        # '>aln:seq1:qual:seq2:10\\n-JHBGTYBY-T-J-AA\\nI=DD=D=DDI=I=I==\\nYJ--G-Y--JTVJYAA'
-        # >>> smith_waterman_backtrack('TATATATGCGGGTAATTTAGGGCGGATCATGA', 'ATGCGGC')[0]
-        # '>aln:seq1:qual:seq2:30\\nTATATATGCGGGTAATTTAGGGCGGATCATGA\\nD==DDDD====MDDDDDDDDDDDDDDDDDDDD\\n-AT----GCGGC--------------------'
+        Get Smith-Waterman Alignment Backtrack in a human-readable form.
         """
         if self._backtrack is not None:
             return self._backtrack
@@ -190,14 +216,22 @@ class SmithWatermanAligner:
 
 def hamming_distance(str1: str, str2: str) -> int:
     """
+    Generate hamming distance.
+
+    :raise ValueError: raise this error if the length of input string is not equal.
+
     >>> hamming_distance("AAAA", "AATA")
     1
     """
+    if len(str1) != len(str2):
+        raise ValueError(f"Length of input string 1={str1}, 2={str2} is not equal.")
     return sum(el1 != el2 for el1, el2 in zip(str1, str2))
 
 
 def editing_distance(str1: str, str2: str) -> int:
     """
+    Generate editing distance
+
     >>> editing_distance("AAAA", "AAAA")
     0
     >>> editing_distance("AAAA", "AATA")

@@ -99,7 +99,7 @@ class _FeatureWriter:
     def tell(self) -> int:
         try:
             return self.fd.tell()
-        except Exception:
+        except OSError:
             return -1
 
     def __repr__(self) -> str:

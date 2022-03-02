@@ -1,4 +1,4 @@
-"""Get satistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
+"""Get statistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
 
 import argparse
 import statistics
@@ -7,6 +7,7 @@ from typing import List
 from matplotlib import pyplot as plt
 
 from bioutils.datastructure.gene_view import GeneView
+from bioutils.io.feature import GtfWriter
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 
@@ -97,35 +98,13 @@ def main(args: List[str]):
                 len(transcript.exons)
             )) + "\n")
 
-            for t_j in range(t_i, len(transcripts)):
-                another_transcript = transcripts[t_j]
-                if transcript.strand != another_transcript.strand:
-                    gene_with_antisense_transcripts[gene.gene_id].append(
-                        f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n"
-                    )
-                    if transcript.seqname == another_transcript.seqname:
-                        gene_with_antisense_transcripts_on_same_chr[gene.gene_id].append(
-                            f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n"
-                        )
-
     transcripts = list(gv.transcripts.values())
-    with get_writer("overlapping_transcript.gtf") as writer:
+    with GtfWriter(f"{out_basename}.overlapping_transcript.gtf") as writer:
         for t_i in tqdm(desc="Iterating over transcripts...", iterable=range(len(transcripts))):
             transcript = transcripts[t_i]
             for t_j in range(t_i, len(transcripts)):
                 another_transcript = transcripts[t_j]
                 if transcript.overlaps(another_transcript) and transcript.gene_id != another_transcript.gene_id:
-                    writer.write(f"{transcript.to_gtf_record()}\n{another_transcript.to_gtf_record()}\n\n")
-
-    print(f"gene_with_antisense_transcripts: {len(gene_with_antisense_transcripts)}")
-    with get_writer("gene_with_antisense_transcripts.gtf") as writer:
-        for gtf_str in gene_with_antisense_transcripts.values():
-            writer.writelines(gtf_str)
-    print(f"transcript_with_antisense_exons: {len(transcript_with_antisense_exons)}")
-    with get_writer("transcript_with_antisense_exons.gtf") as writer:
-        for gtf_str in transcript_with_antisense_exons.values():
-            writer.writelines(gtf_str)
-    print(f"gene_with_antisense_transcripts_on_same_chr: {len(gene_with_antisense_transcripts_on_same_chr)}")
-    with get_writer("gene_with_antisense_transcripts_on_same_chr.gtf") as writer:
-        for gtf_str in gene_with_antisense_transcripts_on_same_chr.values():
-            writer.writelines(gtf_str)
+                    writer.write_feature(transcript.to_gtf_record())
+                    writer.write_feature(another_transcript.to_gtf_record())
+                    writer.write_comment("")

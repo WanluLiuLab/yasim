@@ -4,7 +4,6 @@ from typing import List
 
 import pysam
 
-
 from bioutils.datastructure.fastq_view import FastqView
 
 __version__ = 0.1

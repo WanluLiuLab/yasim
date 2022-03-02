@@ -5,7 +5,6 @@ get_transcript.py -- Filter GTF records by a specific attributes
 import argparse
 from typing import List
 
-from bioutils.io.feature import GtfIterator, GtfWriter
 from bioutils.main.sample_transcript import subset_gtf_by_transcript_id
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
 from commonutils.stdlib_helper.logger_helper import get_logger
@@ -24,6 +23,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="Filtered output", nargs='?', type=str, action='store')
     return parser.parse_args(args)
 
+
 def main(args: List[str]):
     args = _parse_args(args)
     possible_values = []
@@ -37,4 +37,3 @@ def main(args: List[str]):
         gtf_filename=args.gtf,
         out_filename=args.out
     )
-

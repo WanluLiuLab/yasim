@@ -16,7 +16,7 @@ def get_depth_from_intermediate_fasta(intermediate_fasta_dir: str) -> DEPTH_INFO
     for filename in glob.glob(os.path.join(intermediate_fasta_dir, "*", "*.fa")):
         depth = os.path.basename(os.path.dirname(filename))
         transcript_id = os.path.basename(os.path.splitext(filename)[0])
-        yield (depth, transcript_id, filename)
+        yield depth, transcript_id, filename
 
 
 def remark_fastq_single_end(

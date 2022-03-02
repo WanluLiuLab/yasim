@@ -1,34 +1,16 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: fasta.py -- General FASTA manipulation script
-#
-#  VERSION HISTORY:
-#  2021-08-11 0.1  : Purposed and added by YU Zhejian, support random access.
-#  2021-08-11 0.2  : .fai supported.
-#  2021-08-14 0.2  : Support backend pyfastx and pyfaidx.
-#  2021-08-14 0.2  : Uses a more OOP design, as is designed by YUAN Ruihong.
-#  2021-08-17 0.2  : __len__ added.
-#  2021-08-30 0.2  : Backends removed.
-#
-# ==============================================================================
-
 """
 fasta_view.py -- General FASTA reader
 
 Can provide random access to FASTA files, compressed or non-compressed.
 
-Highlights: This utility can read all format supported by :py:mod:`ioctl`, while others require Block GZipped ones.
+Highlights: This utility can read all format supported by :py:mod:`commonutils.io`, while others require Block GZipped ones.
 
 .. note::
-    Although this module supports all format supported by :py:mod:`ioctl`,
+    Although this module supports all format supported by :py:mod:`commonutils.io`,
     it is recommended for user to compress their files using ``bgzip`` and index them using ``tabix``.
 
 .. warning::
-    This file uses 0-based [) indexing!
+    This module uses 0-based ``[)`` indexing!
 """
 
 import os
@@ -69,8 +51,8 @@ class _FastaView:
     all_header: bool
     """
     Whether to read in all header.
-                           If False (default), will read until seeing space or tab.
-                           See :py:mod:`pybedtools` for more details.
+    If False (default), will read until seeing space or tab.
+    See :py:mod:`pybedtools` for more details.
     """
 
     backend: str
@@ -108,7 +90,7 @@ class _FastaView:
         """
         Whether a region is valid. See :py:func:`sequence` for details.
 
-        :raises ValueError:
+        :raises ValueError: Raise this error if region is not valid.
         """
         try:
             chr_len = self._chr_dict[chromosome][0]

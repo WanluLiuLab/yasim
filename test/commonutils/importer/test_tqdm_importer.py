@@ -4,6 +4,7 @@ from importlib import reload
 import pytest
 
 from commonutils import sysctl
+from commonutils.importer import tqdm_importer
 
 pytest.mark.skipif(sysctl.is_windows(), "Not tested on Windows")
 
@@ -14,8 +15,6 @@ except ImportError:
     pty = None
 
 # test if tqdm is installed
-
-from commonutils.importer import tqdm_importer
 
 
 def test_import_tty():

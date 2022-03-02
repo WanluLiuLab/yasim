@@ -264,7 +264,7 @@ class Gff3Record(BaseGtfGffRecord):
             attribute_str = f"{attribute_str}{k}={v_str}; "
         return ("\t".join((
             self.seqname,
-            (self.source),
+            self.source,
             self.feature,
             str(self.start),
             str(self.end),
@@ -330,7 +330,7 @@ class GtfRecord(BaseGtfGffRecord):
             attribute_str = f"{attribute_str}{k} " + repr(v).replace("'", '"') + "; "
         return ("\t".join((
             self.seqname,
-            (self.source),
+            self.source,
             self.feature,
             str(self.start),
             str(self.end),

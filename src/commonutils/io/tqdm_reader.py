@@ -51,18 +51,6 @@ class TqdmReader(_BaseTqdmReader):
         return update_bytes_arr
 
 
-@copy_doc(get_reader)
-def get_tqdm_reader(filename: str, is_binary: bool = False, **kwargs) -> TqdmReader:
-    """
-    Get a reader for multiple format.
-    """
-    if is_binary:
-        mode = "rb"
-    else:
-        mode = "rt"
-    return TqdmReader(filename, mode=mode, **kwargs)
-
-
 class TqdmLineReader(_BaseTqdmReader):
     """
     A very simple tqdm reader with only :py:func:``readline`` functions.
@@ -94,6 +82,18 @@ class TqdmLineReader(_BaseTqdmReader):
             if not line:
                 break
             yield line.rstrip('\n\r')
+
+
+@copy_doc(get_reader)
+def get_tqdm_reader(filename: str, is_binary: bool = False, **kwargs) -> TqdmReader:
+    """
+    Get a reader for multiple format.
+    """
+    if is_binary:
+        mode = "rb"
+    else:
+        mode = "rt"
+    return TqdmReader(filename, mode=mode, **kwargs)
 
 
 def get_tqdm_line_reader(filename: str, is_binary: bool = False, **kwargs) -> TqdmLineReader:
