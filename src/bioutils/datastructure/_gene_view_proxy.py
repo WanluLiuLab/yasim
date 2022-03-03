@@ -7,7 +7,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional, Type
 
-from bioutils.algorithm.sequence import complement
+from bioutils.algorithm.sequence import complement, reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 
 
@@ -236,7 +236,7 @@ class Transcript(_BaseFeature):
         for exon in self.exons:
             self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
         if self.strand == '-':
-            self._cdna_sequence = complement(self._cdna_sequence)
+            self._cdna_sequence = reverse_complement(self._cdna_sequence)
         return self._cdna_sequence
 
     def __eq__(self, other: Transcript):

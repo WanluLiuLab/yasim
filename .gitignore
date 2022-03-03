@@ -420,3 +420,5 @@ SiLiCO_Scratch/
 *.so
 /venv_*/
 .vs/
+*.sf
+
