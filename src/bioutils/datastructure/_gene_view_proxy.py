@@ -2,8 +2,6 @@
 _gene_view_proy -- Purposed GTF/GFF3/BED Proxy for Features in GeneView without Data Loss
 """
 
-
-
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -15,25 +13,17 @@ from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttribut
 
 class _BaseFeature(FeatureType):
     __slots__ = (
-        "start",
-        "end",
-        "strand",
-        "source",
-        "seqname",
-        "feature",
-        "strand",
-        "attribute",
         "_data"
     )
 
-    _data:Feature
+    _data: Feature
 
     @property
     def start(self) -> int:
         return self._data.start
 
     @start.setter
-    def start(self, value:int):
+    def start(self, value: int):
         self._data.start = value
 
     @property
@@ -41,7 +31,7 @@ class _BaseFeature(FeatureType):
         return self._data.end
 
     @end.setter
-    def end(self, value:int):
+    def end(self, value: int):
         self._data.end = value
 
     @property
@@ -49,7 +39,7 @@ class _BaseFeature(FeatureType):
         return self._data.strand
 
     @strand.setter
-    def strand(self, value:str):
+    def strand(self, value: str):
         self._data.strand = value
 
     @property
@@ -57,7 +47,7 @@ class _BaseFeature(FeatureType):
         return self._data.source
 
     @source.setter
-    def source(self, value:str):
+    def source(self, value: str):
         self._data.source = value
 
     @property
@@ -65,7 +55,7 @@ class _BaseFeature(FeatureType):
         return self._data.seqname
 
     @seqname.setter
-    def seqname(self, value:str):
+    def seqname(self, value: str):
         self._data.seqname = value
 
     @property
@@ -73,7 +63,7 @@ class _BaseFeature(FeatureType):
         return self._data.frame
 
     @frame.setter
-    def frame(self, value:str):
+    def frame(self, value: str):
         self._data.frame = value
 
     @property
@@ -81,7 +71,7 @@ class _BaseFeature(FeatureType):
         return self._data.attribute
 
     @attribute.setter
-    def attribute(self, value:GTFAttributeType):
+    def attribute(self, value: GTFAttributeType):
         self._data.attribute = value
 
     def get_data(self) -> Feature:
@@ -109,7 +99,7 @@ class _BaseFeature(FeatureType):
         pass
 
     @classmethod
-    def _from_gtf(cls, feature:GtfRecord):
+    def _from_gtf(cls, feature: GtfRecord):
         new_instance = cls()
         new_instance._data = feature
         new_instance._setup()
@@ -117,7 +107,7 @@ class _BaseFeature(FeatureType):
         return new_instance
 
     @classmethod
-    def _from_gff3(cls, feature:Gff3Record):
+    def _from_gff3(cls, feature: Gff3Record):
         new_instance = cls()
         new_instance._data = feature
         new_instance._setup()
@@ -125,20 +115,18 @@ class _BaseFeature(FeatureType):
         return new_instance
 
     @classmethod
-    def from_feature(cls, feature:Feature):
+    def from_feature(cls, feature: Feature):
         if isinstance(feature, GtfRecord):
             return cls._from_gtf(feature)
         elif isinstance(feature, Gff3Record):
             return cls._from_gff3(feature)
         else:
-            pass
-        pass
-
+            raise NotImplementedError(f"Not implemented for {type(feature)}!")
 
     def __eq__(self, other: _BaseFeature):
         return self._data == other._data
 
-    def __ne__(self, other:_BaseFeature):
+    def __ne__(self, other: _BaseFeature):
         return self._data != other._data
 
     def overlaps(self, other: _BaseFeature) -> bool:
@@ -164,47 +152,41 @@ class _BaseFeature(FeatureType):
 
 
 class Exon(_BaseFeature):
-    transcript_id: str
-    gene_id: str
-    exon_number: int
 
-    __slots__ = (
-        "transcript_id",
-        "gene_id",
-        "exon_number"
-    )
+    @property
+    def transcript_id(self) -> str:
+        return self._data.attribute["transcript_id"]
 
-    @classmethod
-    def from_gtf_record(cls, gtf_record: GtfRecord):
-        new_instance = cls()
-        new_instance.start = gtf_record.start
-        new_instance.end = gtf_record.end
-        new_instance.transcript_id = gtf_record.attribute['transcript_id']
-        new_instance.gene_id = gtf_record.attribute['gene_id']
-        try:
-            new_instance.exon_number = gtf_record.attribute['exon_number']
-        except KeyError:
-            new_instance.exon_number = 0
-        new_instance.strand = gtf_record.strand
-        new_instance.seqname = gtf_record.seqname
-        return new_instance
+    @transcript_id.setter
+    def transcript_id(self, value: str):
+        self._data.attribute["transcript_id"] = value
 
-    def to_gtf_record(self):
-        return GtfRecord(
-            seqname=self.seqname,
-            source="GeneView",
-            feature="exon",
-            start=self.start,
-            end=self.end,
-            score=0,
-            strand=self.strand,
-            frame='.',
-            attribute={
-                "gene_id": self.gene_id,
-                "transcript_id": self.transcript_id,
-                "exon_number": self.exon_number
-            }
-        )
+    @property
+    def gene_id(self) -> str:
+        return self._data.attribute["gene_id"]
+
+    @gene_id.setter
+    def gene_id(self, value: str):
+        self._data.attribute["gene_id"] = value
+
+    @property
+    def exon_number(self) -> int:
+        return self._data.attribute["exon_number"]
+
+    @exon_number.setter
+    def exon_number(self, value: int):
+        self._data.attribute["exon_number"] = value
+
+    def _setup_gtf(self) -> None:
+        if "transcript_id" not in self._data.attribute:
+            self._data.attribute["transcript_id"] = "UNKNOWN"
+        if "gene_id" not in self._data.attribute:
+            self._data.attribute["gene_id"] = "UNKNOWN"
+        if "exon_number" not in self._data.attribute:
+            self._data.attribute["exon_number"] = 0
+
+    def _setup_gff3(self) -> None:
+        raise NotImplementedError
 
     def __repr__(self):
         return f"Exon {self.exon_number} of {self.transcript_id}"
@@ -213,37 +195,46 @@ class Exon(_BaseFeature):
 class Transcript(_BaseFeature):
     __slots__ = (
         "exons",
-        "transcript_id",
-        "gene_id",
         "_cdna_sequence"
     )
     exons: List[Exon]
-    transcript_id: str
-    gene_id: str
     _cdna_sequence: Optional[str]
 
-    @classmethod
-    def from_gtf_record(cls, gtf_record: GtfRecord):
-        new_instance = cls()
-        new_instance.start = gtf_record.start
-        new_instance.end = gtf_record.end
-        new_instance.transcript_id = gtf_record.attribute['transcript_id']
-        new_instance.gene_id = gtf_record.attribute['gene_id']
-        new_instance.exons = []
-        new_instance.strand = gtf_record.strand
-        new_instance.seqname = gtf_record.seqname
-        new_instance._cdna_sequence = None
-        return new_instance
+    @property
+    def transcript_id(self) -> str:
+        return self._data.attribute["transcript_id"]
+
+    @transcript_id.setter
+    def transcript_id(self, value: str):
+        self._data.attribute["transcript_id"] = value
+
+    @property
+    def gene_id(self) -> str:
+        return self._data.attribute["gene_id"]
+
+    @gene_id.setter
+    def gene_id(self, value: str):
+        self._data.attribute["gene_id"] = value
+
+    def _setup(self):
+        self._cdna_sequence = None
+        self.exons = []
+
+    def _setup_gtf(self) -> None:
+        if "transcript_id" not in self._data.attribute:
+            self._data.attribute["transcript_id"] = "UNKNOWN"
+        if "gene_id" not in self._data.attribute:
+            self._data.attribute["gene_id"] = "UNKNOWN"
+
+    def _setup_gff3(self) -> None:
+        raise NotImplementedError
 
     def cdna_sequence(self, sequence_func: Callable[[str, int, int], str]) -> str:
         if self._cdna_sequence is not None:
             return self._cdna_sequence
         self._cdna_sequence = ""
         for exon in self.exons:
-            try:
-                self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
-            except ValueError:
-                pass
+            self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
         if self.strand == '-':
             self._cdna_sequence = complement(self._cdna_sequence)
         return self._cdna_sequence
@@ -261,59 +252,33 @@ class Transcript(_BaseFeature):
     def __ne__(self, other):
         return not self == other
 
-    def to_gtf_record(self):
-        return GtfRecord(
-            seqname=self.seqname,
-            source="GeneView",
-            feature="transcript",
-            start=self.start,
-            end=self.end,
-            score=0,
-            strand=self.strand,
-            frame='.',
-            attribute={
-                "gene_id": self.gene_id,
-                "transcript_id": self.transcript_id
-            }
-        )
-
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
 
 class Gene(_BaseFeature):
     __slots__ = (
-        "transcripts",
-        "gene_id"
+        "transcripts"
     )
-    gene_id: str
     transcripts: Dict[str, Transcript]
 
-    @classmethod
-    def from_gtf_record(cls, gtf_record: GtfRecord):
-        new_instance = cls()
-        new_instance.start = gtf_record.start
-        new_instance.end = gtf_record.end
-        new_instance.gene_id = gtf_record.attribute['gene_id']
-        new_instance.transcripts = {}
-        new_instance.strand = gtf_record.strand
-        new_instance.seqname = gtf_record.seqname
-        return new_instance
+    @property
+    def gene_id(self) -> str:
+        return self._data.attribute["gene_id"]
 
-    def to_gtf_record(self):
-        return GtfRecord(
-            seqname=self.seqname,
-            source="GeneView",
-            feature="gene",
-            start=self.start,
-            end=self.end,
-            score=0,
-            strand=self.strand,
-            frame='.',
-            attribute={
-                "gene_id": self.gene_id
-            }
-        )
+    @gene_id.setter
+    def gene_id(self, value: str):
+        self._data.attribute["gene_id"] = value
+
+    def _setup(self):
+        self.transcripts = {}
+
+    def _setup_gtf(self) -> None:
+        if "gene_id" not in self._data.attribute:
+            self._data.attribute["gene_id"] = "UNKNOWN"
+
+    def _setup_gff3(self) -> None:
+        raise NotImplementedError
 
     def __repr__(self):
         return f"Gene {self.gene_id}"

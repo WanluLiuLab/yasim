@@ -2,25 +2,43 @@ __version__ = 0.2
 
 import os
 import time
-from typing import Optional, Dict, Iterator
+from abc import abstractmethod
+from typing import Optional, Dict, Iterator, Union
 
 import commonutils.io.file_system
-from bioutils.datastructure.gene_typing import Gene, Transcript, Exon
+from bioutils.datastructure._gene_view_proxy import Gene, Transcript, Exon
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
-from bioutils.typing.feature import GtfRecord, Gff3Record
+from bioutils.typing.feature import GtfRecord, Gff3Record, Feature
 from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
-
-class GeneView:
+class _BaseGeneView:
     genes: Dict[str, Gene]
     transcripts: Dict[str, Transcript]
 
+    def __init__(self):
+        self.genes = {}
+        self.transcripts = {}
+
+
+    def get_transcript_iterator(self) -> Iterator[Transcript]:
+        for transcript in self.transcripts.values():
+            yield transcript
+
+
     @classmethod
-    def from_file(cls, filename: str, file_type: Optional[str] = None):
+    @abstractmethod
+    def _from_own_filetype(cls, filename:str):
+        """
+        Generate index de novo.
+        """
+        pass
+
+    @classmethod
+    def from_file(cls, filename:str):
         index_filename = filename + ".gvpkl.xz"
         if commonutils.io.file_system.file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
@@ -28,18 +46,7 @@ class GeneView:
                 return cls._from_gvpkl(index_filename)
             except Exception:
                 lh.error("Gene index broken or too old, will rebuild one.")
-        if file_type is None:
-            file_type = get_file_type_from_suffix(filename)
-        if file_type == "GTF":
-            return cls._from_gtf(filename)
-        elif file_type == "GFF3":
-            return cls._from_gff3(filename)
-        else:
-            raise ValueError(f"Unknown file type {file_type} for {filename}")
-
-    def __init__(self):
-        self.genes = {}
-        self.transcripts = {}
+        return cls._from_own_filetype(filename)
 
     @classmethod
     def _from_gvpkl(cls, index_filename: str):
@@ -53,43 +60,6 @@ class GeneView:
         lh.info("Pickling to gvpkl...")
         pickle_helper.dump((__version__, self.genes, self.transcripts), index_filename)
 
-    @classmethod
-    def _from_gtf(cls, filename: str):
-        def register_gene(_new_instance: GeneView, record: GtfRecord):
-            gene_id = record.attribute['gene_id']
-            if not record.attribute['gene_id'] in _new_instance.genes.keys():
-                _new_instance.genes[gene_id] = Gene.from_gtf_record(record)
-
-        def register_transcript(_new_instance: GeneView, record: GtfRecord):
-            gene_id = record.attribute['gene_id']
-            transcript_id = record.attribute['transcript_id']
-            transcript = Transcript.from_gtf_record(record)
-            if gene_id not in _new_instance.genes.keys():
-                register_gene(_new_instance, record)
-            if transcript_id not in _new_instance.genes[gene_id].transcripts.keys():
-                _new_instance.genes[gene_id].transcripts[transcript_id] = transcript
-            if transcript_id not in _new_instance.transcripts.keys():
-                _new_instance.transcripts[transcript_id] = transcript
-
-        def register_exon(_new_instance: GeneView, record: GtfRecord):
-            transcript_id = record.attribute['transcript_id']
-            if not record.attribute['transcript_id'] in _new_instance.transcripts.keys():
-                register_transcript(_new_instance, record)
-            _new_instance.transcripts[transcript_id].exons.append(Exon.from_gtf_record(record))
-
-        new_instance = cls()
-
-        for gtf_record in GtfIterator(filename):
-            if gtf_record.feature == "gene":
-                register_gene(new_instance, gtf_record)
-            elif gtf_record.feature == 'transcript':
-                register_transcript(new_instance, gtf_record)
-            elif gtf_record.feature == 'exon':
-                register_exon(new_instance, gtf_record)
-        new_instance.standardize()
-        index_filename = filename + ".gvpkl.xz"
-        new_instance.to_gvpkl(index_filename)
-        return new_instance
 
     def standardize(self):
         return
@@ -102,54 +72,15 @@ class GeneView:
     def standardize_genes(self):
         raise NotImplementedError  # TODO: Implement
 
-    def get_transcript_iterator(self) -> Iterator[Transcript]:
-        for transcript in self.transcripts.values():
-            yield transcript
 
-    @classmethod
-    def _from_gff2(cls, filename: str):
-        return cls._from_gtf(filename)
-
-    @classmethod
-    def _from_gff3(cls, filename: str):
-        raise NotImplementedError  # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
-
-        def gff3_bfs(_new_instance: GeneView, _root_id: str):
-            # TODO: new_instance()
-
-            for child_id in gff3_tree.get_child_ids(_root_id):
-                gff3_bfs(new_instance, child_id)
-
-        new_instance = cls()
-
-        gff3_tree = Gff3Tree(filename)
-        for root_id in gff3_tree.get_toplevel_ids():
-            gff3_bfs(new_instance, root_id)
-
-    def get_gtf_iterator(self) -> Iterator[GtfRecord]:
+    def get_iterator(self) -> Iterator[Feature]:
         for gene in self.genes.values():
-            yield gene.to_gtf_record()
+            yield gene.get_data()
             for transcript in gene.transcripts.values():
-                yield transcript.to_gtf_record()
+                yield transcript.get_data()
                 for exon in transcript.exons:
-                    yield exon.to_gtf_record()
+                    yield exon.get_data()
 
-    def to_gtf(self, output_filename: str):
-        GtfWriter.write_iterator(
-            self.get_gtf_iterator(),
-            output_filename,
-            [f'created by Geneview at {time.asctime()}']
-        )
-
-    def get_gff3_iterator(self) -> Iterator[Gff3Record]:
-        raise NotImplementedError  # TODO: Implement
-
-    def to_gff3(self, output_filename: str):
-        Gff3Writer.write_iterator(
-            self.get_gff3_iterator(),
-            output_filename,
-            [f'created by Geneview at {time.asctime()}']
-        )
 
     def del_gene(self, gene_id: str):
         if gene_id in self.genes.keys():
@@ -165,3 +96,71 @@ class GeneView:
             if len(self.genes[gene_id].transcripts) == 0:
                 self.genes.pop(gene_id)
             self.transcripts.pop(transcript_id)
+
+
+class _GtfGeneView(_BaseGeneView):
+
+    @classmethod
+    def _from_own_filetype(cls, filename:str):
+        def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
+            gene_id = record.attribute['gene_id']
+            if not record.attribute['gene_id'] in _new_instance.genes.keys():
+                _new_instance.genes[gene_id] = Gene.from_feature(record)
+
+        def register_transcript(_new_instance: _GtfGeneView, record: GtfRecord):
+            gene_id = record.attribute['gene_id']
+            transcript_id = record.attribute['transcript_id']
+            transcript = Transcript.from_feature(record)
+            if gene_id not in _new_instance.genes.keys():
+                register_gene(_new_instance, record)
+            if transcript_id not in _new_instance.genes[gene_id].transcripts.keys():
+                _new_instance.genes[gene_id].transcripts[transcript_id] = transcript
+            if transcript_id not in _new_instance.transcripts.keys():
+                _new_instance.transcripts[transcript_id] = transcript
+
+        def register_exon(_new_instance: _GtfGeneView, record: GtfRecord):
+            transcript_id = record.attribute['transcript_id']
+            if not record.attribute['transcript_id'] in _new_instance.transcripts.keys():
+                register_transcript(_new_instance, record)
+            _new_instance.transcripts[transcript_id].exons.append(Exon.from_feature(record))
+
+        new_instance = cls()
+
+        for gtf_record in GtfIterator(filename):
+            if gtf_record.feature == "gene":
+                register_gene(new_instance, gtf_record)
+            elif gtf_record.feature == 'transcript':
+                register_transcript(new_instance, gtf_record)
+            elif gtf_record.feature == 'exon':
+                register_exon(new_instance, gtf_record)
+        new_instance.standardize()
+        index_filename = filename + ".gvpkl.xz"
+        new_instance.to_gvpkl(index_filename)
+        return new_instance
+
+
+    def to_file(self, output_filename: str):
+        GtfWriter.write_iterator(
+            self.get_iterator(),
+            output_filename,
+            [f'created by Geneview at {time.asctime()}']
+        )
+
+class _Gff3GeneView(_BaseGeneView):
+    pass
+    # raise NotImplementedError
+
+
+class GeneView(_BaseGeneView):
+    @classmethod
+    def from_file(cls, filename: str, file_type: Optional[str] = None) -> Union[_GtfGeneView, _Gff3GeneView]:
+        if file_type is None:
+            file_type = get_file_type_from_suffix(filename)
+        if file_type == "GTF":
+            return _GtfGeneView.from_file(filename)
+        elif file_type == "GFF3":
+            return _Gff3GeneView.from_file(filename)
+        else:
+            raise ValueError(f"Unknown file type {file_type} for {filename}")
+
+

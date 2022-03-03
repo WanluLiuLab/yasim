@@ -44,7 +44,7 @@ def sample_exon(
     for transcript_name in tqdm(iterable=transcript_name_to_del, desc="Deleting unwanted transcripts"):
         gv.del_transcript(transcript_name)
     logger.info(f"Remaining {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
-    gv.to_gtf(output_gtf_filename)
+    gv.to_file(output_gtf_filename)
     return gv
 
 

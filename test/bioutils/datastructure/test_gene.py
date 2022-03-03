@@ -1,3 +1,5 @@
+from coverage.annotate import os
+
 import test_tetgs
 from bioutils.datastructure.gene_view import GeneView
 from commonutils import shell_utils
@@ -41,13 +43,13 @@ chr1	refGene	exon	173485361	173485507	.	+	.	gene_id "PRDX7"; transcript_id "NM_0
 
 def test_gene() -> None:
     global gene_gtf
-    fh = get_writer(f"{test_path}/1.gtf.gz")
+    fh = get_writer(os.path.join(test_path,"1.gtf.gz"))
     fh.write(gene_gtf)
     fh.close()
-    gv = GeneView.from_file(f"{test_path}/1.gtf.gz")
+    gv = GeneView.from_file(os.path.join(test_path,"1.gtf.gz"))
     assert list(gv.genes.keys()) == ['PRDX6', 'PRDX7']
     assert list(gv.transcripts.keys()) == ['NM_004905', 'NM_004906', 'NM_004907', 'NM_004908']
     assert gv.transcripts['NM_004905'].exons[0].start == 173477335
-    gv.to_gtf(f"{test_path}/2.gtf")
-    # FIXME: (f"gedit {test_path}/2.gtf")
+    gv.to_file(os.path.join(test_path,"2.gtf"))
+    os.system(f"gedit {test_path}/2.gtf")
     shell_utils.rm_rf(test_path)

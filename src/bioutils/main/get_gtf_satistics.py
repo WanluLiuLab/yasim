@@ -105,6 +105,6 @@ def main(args: List[str]):
             for t_j in range(t_i, len(transcripts)):
                 another_transcript = transcripts[t_j]
                 if transcript.overlaps(another_transcript) and transcript.gene_id != another_transcript.gene_id:
-                    writer.write_feature(transcript.to_gtf_record())
-                    writer.write_feature(another_transcript.to_gtf_record())
+                    writer.write_feature(transcript.get_data())
+                    writer.write_feature(another_transcript.get_data())
                     writer.write_comment("")
