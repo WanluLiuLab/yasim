@@ -25,9 +25,9 @@ GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
 """The top-level virtual parent for GFF record that does not have a parent"""
 
 
-class Feature(object):
+class FeatureType(object):
     """
-    A general GTF/GFF/BED Record.
+    Abstract type of a general GTF/GFF/BED Record.
     """
 
     __slots__ = (
@@ -39,6 +39,7 @@ class Feature(object):
         'score',
         'strand',
         'frame',
+        'attribute',
     )
 
     seqname: str
@@ -86,6 +87,43 @@ class Feature(object):
                     ``1`` (the second base is the first base of a codon) or ``2``.
     """
 
+    attribute: GTFAttributeType
+    """Other attributes presented in Key-Value pair"""
+
+    @abstractmethod
+    def __eq__(self, other: FeatureType):
+        pass
+
+    @abstractmethod
+    def __ne__(self, other: FeatureType):
+        pass
+
+    @abstractmethod
+    def overlaps(self, other: FeatureType) -> bool:
+        pass
+
+    @abstractmethod
+    def __gt__(self, other: FeatureType):
+        pass
+
+    @abstractmethod
+    def __ge__(self, other: FeatureType):
+        pass
+
+    @abstractmethod
+    def __lt__(self, other: FeatureType):
+        pass
+
+    @abstractmethod
+    def __le__(self, other: FeatureType):
+        pass
+
+class Feature(FeatureType):
+    """
+    A general GTF/GFF/BED Record.
+    """
+
+
     def __init__(self,
                  seqname: str,
                  source: str,
@@ -94,7 +132,8 @@ class Feature(object):
                  end: int,
                  score: Union[int, float],
                  strand: str,
-                 frame: str
+                 frame: str,
+                 attribute: Optional[GTFAttributeType]=None
                  ):
         """
         The filenames are named after Ensembl specifications.
@@ -110,6 +149,9 @@ class Feature(object):
         self.score = score
         self.strand = strand
         self.frame = frame
+        if attribute is None:
+            attribute = {}
+        self.attribute=attribute
 
     def __eq__(self, other: Feature):
         return self.start == other.start and \
@@ -146,43 +188,6 @@ class Feature(object):
     def __le__(self, other: Feature):
         return self < other or self == other
 
-
-class BaseGtfGffRecord(Feature):
-    """
-    A general GTF Record.
-    """
-
-    __slots__ = ('attribute',)
-    attribute: GTFAttributeType
-
-    def __init__(self,
-                 seqname: str,
-                 source: str,
-                 feature: str,
-                 start: int,
-                 end: int,
-                 score: float,
-                 strand: str,
-                 frame: str,
-                 attribute: GTFAttributeType):
-        """
-        The filenames are named after Ensembl specifications.
-
-        .. warning::
-            Ensembl uses different way to represent 5'UTR.
-        """
-        super(BaseGtfGffRecord, self).__init__(
-            seqname=seqname,
-            source=source,
-            feature=feature,
-            start=start,
-            end=end,
-            score=score,
-            strand=strand,
-            frame=frame
-        )
-        self.attribute = attribute
-
     @classmethod
     def from_string(cls, in_str: str):
         """
@@ -192,15 +197,7 @@ class BaseGtfGffRecord(Feature):
         """
         pass
 
-    @abstractmethod
-    def __repr__(self):
-        pass
-
-    def __str__(self):
-        return repr(self)
-
-
-class Gff3Record(BaseGtfGffRecord):
+class Gff3Record(Feature):
     """
     A general GTF Record.
     """
@@ -284,7 +281,7 @@ class Gff3Record(BaseGtfGffRecord):
         )))
 
 
-class GtfRecord(BaseGtfGffRecord):
+class GtfRecord(Feature):
     """
     A general GTF Record.
     

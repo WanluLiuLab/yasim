@@ -1,66 +1,160 @@
+"""
+_gene_view_proy -- Purposed GTF/GFF3/BED Proxy for Features in GeneView without Data Loss
+"""
+
+
+
 from __future__ import annotations
 
-import warnings
-
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional
+from typing import List, Dict, Callable, Optional, Type
 
 from bioutils.algorithm.sequence import complement
-from bioutils.typing.feature import GtfRecord
-
-warnings.warn("This module will be replaced by _gene_view_proxy", DeprecationWarning, stacklevel=2)
+from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 
 
-class _BaseFeature:
+class _BaseFeature(FeatureType):
     __slots__ = (
         "start",
         "end",
         "strand",
-        "seqname"
+        "source",
+        "seqname",
+        "feature",
+        "strand",
+        "attribute",
+        "_data"
     )
 
-    start: int
-    end: int
-    strand: str
-    seqname: str
+    _data:Feature
 
-    def __eq__(self, other: _BaseFeature):
-        return self.start == other.start and \
-               self.end == other.end and \
-               self.seqname == other.seqname \
-               and self.strand == other.strand
+    @property
+    def start(self) -> int:
+        return self._data.start
 
-    def __ne__(self, other: _BaseFeature):
-        return not self == other
+    @start.setter
+    def start(self, value:int):
+        self._data.start = value
 
-    @classmethod
+    @property
+    def end(self) -> int:
+        return self._data.end
+
+    @end.setter
+    def end(self, value:int):
+        self._data.end = value
+
+    @property
+    def strand(self) -> str:
+        return self._data.strand
+
+    @strand.setter
+    def strand(self, value:str):
+        self._data.strand = value
+
+    @property
+    def source(self) -> str:
+        return self._data.source
+
+    @source.setter
+    def source(self, value:str):
+        self._data.source = value
+
+    @property
+    def seqname(self) -> str:
+        return self._data.seqname
+
+    @seqname.setter
+    def seqname(self, value:str):
+        self._data.seqname = value
+
+    @property
+    def frame(self) -> str:
+        return self._data.frame
+
+    @frame.setter
+    def frame(self, value:str):
+        self._data.frame = value
+
+    @property
+    def attribute(self) -> GTFAttributeType:
+        return self._data.attribute
+
+    @attribute.setter
+    def attribute(self, value:GTFAttributeType):
+        self._data.attribute = value
+
+    def get_data(self) -> Feature:
+        """Read-only _data"""
+        return self._data
+
     @abstractmethod
-    def from_gtf_record(cls, gtf_record: GtfRecord):
+    def _setup_gtf(self) -> None:
+        """
+        This method prepares underlying method to set the record up for GTF
+        """
         pass
 
     @abstractmethod
-    def to_gtf_record(self) -> GtfRecord:
-        return GtfRecord(
-            seqname=self.seqname,
-            source="GeneView",
-            feature="exon",
-            start=self.start,
-            end=self.end,
-            score=0,
-            strand=self.strand,
-            frame='.',
-            attribute={}
-        )
+    def _setup_gff3(self) -> None:
+        """
+        This method prepares underlying method to set the record up for GFF3
+        """
+        pass
+
+    def _setup(self):
+        """
+        This method prepares the object for arbitrary :py:class:`Feature` types from `data`.
+        """
+        pass
+
+    @classmethod
+    def _from_gtf(cls, feature:GtfRecord):
+        new_instance = cls()
+        new_instance._data = feature
+        new_instance._setup()
+        new_instance._setup_gtf()
+        return new_instance
+
+    @classmethod
+    def _from_gff3(cls, feature:Gff3Record):
+        new_instance = cls()
+        new_instance._data = feature
+        new_instance._setup()
+        new_instance._setup_gff3()
+        return new_instance
+
+    @classmethod
+    def from_feature(cls, feature:Feature):
+        if isinstance(feature, GtfRecord):
+            return cls._from_gtf(feature)
+        elif isinstance(feature, Gff3Record):
+            return cls._from_gff3(feature)
+        else:
+            pass
+        pass
+
+
+    def __eq__(self, other: _BaseFeature):
+        return self._data == other._data
+
+    def __ne__(self, other:_BaseFeature):
+        return self._data != other._data
 
     def overlaps(self, other: _BaseFeature) -> bool:
-        if self.seqname != other.seqname:
-            return False
-        return self.start < other.start < self.end or \
-               self.start < other.end < self.end or \
-               (
-                       other.start < self.start and
-                       self.end < other.end
-               )
+        return self._data.overlaps(other._data)
+
+    def __gt__(self, other: _BaseFeature):
+        return self._data > other._data
+
+    def __ge__(self, other: _BaseFeature):
+        return self._data >= other._data
+
+    def __lt__(self, other: _BaseFeature):
+        return self._data < other._data
+
+    def __le__(self, other: _BaseFeature):
+        return self._data <= other._data
 
     def __repr__(self):
         return "_BaseFeature"
