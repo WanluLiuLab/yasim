@@ -164,6 +164,8 @@ class _MemoryAccessFastaView(_FastaView):
         seq = ""
         line_len = 0
         for line in get_tqdm_line_reader(self.filename):
+            if line == "":
+                continue
             if line[0] == '>':  # FASTA header
                 if chr_name != '':
                     self._all_dict[chr_name] = seq
@@ -301,7 +303,8 @@ class FastaView(_FastaView, ABC):
         :param all_header: Whether to read full headers.
         :param read_into_memory: Whether to read into memory.
         """
-        if read_into_memory:
-            return _MemoryAccessFastaView(filename, all_header)
-        else:
-            return _DiskAccessFastaView(filename, all_header)
+        return _MemoryAccessFastaView(filename, all_header)
+        # if read_into_memory:
+        #     return _MemoryAccessFastaView(filename, all_header)
+        # else:
+        #     return _DiskAccessFastaView(filename, all_header)

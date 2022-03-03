@@ -4,6 +4,7 @@ _gene_view_proy -- Purposed GTF/GFF3/BED Proxy for Features in GeneView without 
 
 from __future__ import annotations
 
+import sys
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional, Type
 
@@ -233,10 +234,14 @@ class Transcript(_BaseFeature):
         if self._cdna_sequence is not None:
             return self._cdna_sequence
         self._cdna_sequence = ""
-        for exon in self.exons:
-            self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
         if self.strand == '-':
-            self._cdna_sequence = reverse_complement(self._cdna_sequence)
+            for exon in sorted(self.exons):
+                # print(self.seqname, exon.start - 1, exon.end, exon.exon_number)
+                self._cdna_sequence += reverse_complement(sequence_func(self.seqname, exon.start - 1, exon.end))
+            # print()
+        else:
+            for exon in self.exons:
+                self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
         return self._cdna_sequence
 
     def __eq__(self, other: Transcript):

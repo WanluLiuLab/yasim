@@ -1,6 +1,6 @@
 
 export ROOTDIR := $(abspath $(CURDIR)/../)
-export DATADIR := $(ROOTDIR)/iter_4
+export DATADIR := $(ROOTDIR)/iter_5
 export PYTHONPATH := "$(ROOTDIR)/src:$(PYTHONPATH:-)"
 export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
 export YASIM_SCRIPTS := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim_scripts

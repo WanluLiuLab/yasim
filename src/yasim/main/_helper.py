@@ -4,6 +4,7 @@ from typing import Iterable, Tuple
 
 from bioutils.io.fastq import FastqIterator, FastqWriter
 from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io import file_system
 from commonutils.io.safe_io import get_writer
 
 DEPTH_INFO = Iterable[Tuple[int, str, str]]
@@ -109,6 +110,8 @@ def assemble_single_end(
         )) + "\n")
         for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
+            if not file_system.file_exists(this_fastq_basename + ".fq"):
+                continue
             num_of_reads = remark_fastq_single_end(
                 input_filename=this_fastq_basename + ".fq",
                 writer=writer,

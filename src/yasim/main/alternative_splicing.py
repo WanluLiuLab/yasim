@@ -1,4 +1,5 @@
 import argparse
+import random
 from typing import List
 
 from bioutils.datastructure.fasta_view import FastaView
@@ -35,8 +36,8 @@ def sample_exon(
     logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
     transcript_name_to_del = []
     for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
-        # indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
-        # v.exons = [v.exons[i] for i in sorted(indices)]
+        indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
+        v.exons = [v.exons[i] for i in sorted(indices)]
         if len(v.cdna_sequence(sequence_func=fasta_handler.sequence)) >= 250:
             pass
         else:

@@ -1,4 +1,4 @@
-__version__ = 0.2
+__version__ = 0.3
 
 import os
 import time
@@ -75,11 +75,11 @@ class _BaseGeneView:
 
     def get_iterator(self) -> Iterator[Feature]:
         for gene in self.genes.values():
-            yield gene.get_data()
+            yield gene._data
             for transcript in gene.transcripts.values():
-                yield transcript.get_data()
+                yield transcript._data
                 for exon in transcript.exons:
-                    yield exon.get_data()
+                    yield exon._data
 
 
     def del_gene(self, gene_id: str):

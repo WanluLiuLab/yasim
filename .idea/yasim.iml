@@ -62,6 +62,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/_deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/R/deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/makefile_test_data/deprecated" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_5" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
