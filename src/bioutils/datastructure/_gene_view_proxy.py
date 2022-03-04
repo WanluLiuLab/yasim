@@ -235,7 +235,7 @@ class Transcript(_BaseFeature):
             return self._cdna_sequence
         self._cdna_sequence = ""
         if self.strand == '-':
-            for exon in sorted(self.exons):
+            for exon in sorted(self.exons)[::-1]:
                 # print(self.seqname, exon.start - 1, exon.end, exon.exon_number)
                 self._cdna_sequence += reverse_complement(sequence_func(self.seqname, exon.start - 1, exon.end))
             # print()

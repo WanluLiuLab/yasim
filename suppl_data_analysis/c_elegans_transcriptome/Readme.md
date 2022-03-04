@@ -57,9 +57,7 @@ bwa mem -t 16 CE11_TRANSCRIPTOME_BWA_INDEX <(zcat SRR5123644_1.fastq.gz SRR51236
 <(zcat SRR5123644_2.fastq.gz SRR5123648_2.fastq.gz SRR5123649_2.fastq.gz) |\
 samtools sort -@ 16 -o ngs_transcript.bam
 
-samtools index *.bam
-
-for fn in *.bam; do samtools depth $fn > $fn.depth.tsv; done
+for fn in *.bam; do samtools index $fn; samtools depth $fn > $fn.depth.tsv; done
 ```
 
 

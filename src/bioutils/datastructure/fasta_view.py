@@ -198,6 +198,8 @@ class _DiskAccessFastaView(_FastaView):
     """
     Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
     Slow but memory-efficient.
+
+    # FIXME: Error handling one-line FASTA
     """
 
     def __init__(self, filename: str, all_header: bool = False):
