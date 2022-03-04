@@ -63,6 +63,7 @@
       <excludeFolder url="file://$MODULE_DIR$/R/deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/makefile_test_data/deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/iter_5" />
+      <excludeFolder url="file://$MODULE_DIR$/.vs" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

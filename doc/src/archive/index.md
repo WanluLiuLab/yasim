@@ -3,6 +3,5 @@
 :glob:
 :maxdepth: 2
 
-reviews/index
-archive/index
+*
 ```

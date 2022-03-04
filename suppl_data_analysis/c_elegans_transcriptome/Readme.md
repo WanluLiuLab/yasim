@@ -9,8 +9,6 @@ Using Illumina HiSeq 2500
 
 SRR5123644 SRR5123648 SRR5123649
 
-
-
 ### ERP114391: Nanopore based direct RNA sequencing across development of C elegans.
 
 Using Oxford Nanopore GridION
@@ -41,6 +39,8 @@ EOF
 ```
 
 ## Align to Transcriptome
+
+The reason why we align to transcriptome instead ofgenome is because using this method we may get coverage from aligned data without transformation.
 
 Using minimap2 2.17-r941, bwa 0.7.17-r1188, samtools 1.11 (using htslib 1.11-4)
 
