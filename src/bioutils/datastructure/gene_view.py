@@ -1,5 +1,6 @@
 __version__ = 0.3
 
+import math
 import os
 import time
 from abc import abstractmethod
@@ -10,6 +11,7 @@ from bioutils.datastructure._gene_view_proxy import Gene, Transcript, Exon
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
 from bioutils.typing.feature import GtfRecord, Gff3Record, Feature
+from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 
@@ -17,7 +19,14 @@ lh = get_logger(__name__)
 
 class _BaseGeneView:
     genes: Dict[str, Gene]
+    """
+    Stores a mapping of gene_id -> Gene proxy object.
+    """
+
     transcripts: Dict[str, Transcript]
+    """
+    Stores a mapping of transcript_id -> Transcript proxy object.
+    """
 
     def __init__(self):
         self.genes = {}
@@ -62,22 +71,44 @@ class _BaseGeneView:
 
 
     def standardize(self):
-        return
-        self.standardize_transcripts()
-        self.standardize_genes()
+        self._standardize_transcripts()
+        self._standardize_genes()
 
-    def standardize_transcripts(self):
-        raise NotImplementedError  # TODO: Implement
+    def _standardize_transcripts(self):
+        for transcript in tqdm(iterable=self.transcripts.values(),desc="Standardizing transcripts"):
+            if transcript.feature != "transcript":
+                transcript.copy_data()
+                exon_s_min = math.inf
+                exon_e_max = - math.inf
+                for exon in transcript.exons:
+                    exon_s_min = min(exon_s_min, exon.start)
+                    exon_e_max = max(exon_e_max, exon.end)
+                transcript.start = exon_s_min
+                transcript.end = exon_e_max
+                transcript.feature = "transcript"
 
-    def standardize_genes(self):
-        raise NotImplementedError  # TODO: Implement
+
+    def _standardize_genes(self):
+        for gene in tqdm(iterable=self.genes.values(),desc="Standardizing genes"):
+            if gene.feature != "gene":
+                gene.copy_data()
+                transcript_s_min = math.inf
+                transcript_e_max = - math.inf
+                for transcripts in gene.transcripts.values():
+                    transcript_s_min = min(transcript_s_min, transcripts.start)
+                    transcript_e_max = max(transcript_e_max, transcripts.end)
+                gene.start = transcript_s_min
+                gene.end = transcript_e_max
+                gene.feature = "gene"
 
 
     def get_iterator(self) -> Iterator[Feature]:
         for gene in self.genes.values():
-            yield gene._data
+            if gene.feature == "gene":
+                yield gene._data
             for transcript in gene.transcripts.values():
-                yield transcript._data
+                if transcript.feature == "transcript":
+                    yield transcript._data
                 for exon in transcript.exons:
                     yield exon._data
 
@@ -133,7 +164,6 @@ class _GtfGeneView(_BaseGeneView):
                 register_transcript(new_instance, gtf_record)
             elif gtf_record.feature == 'exon':
                 register_exon(new_instance, gtf_record)
-        new_instance.standardize()
         index_filename = filename + ".gvpkl.xz"
         new_instance.to_gvpkl(index_filename)
         return new_instance

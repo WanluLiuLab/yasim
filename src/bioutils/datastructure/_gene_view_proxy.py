@@ -4,6 +4,8 @@ _gene_view_proy -- Purposed GTF/GFF3/BED Proxy for Features in GeneView without 
 
 from __future__ import annotations
 
+import copy
+import math
 import sys
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional, Type
@@ -12,12 +14,21 @@ from bioutils.algorithm.sequence import complement, reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 
 
+UNKNOWN_TRANSCRIPT_ID = 'UNKNOWN_TRANSCRIPT_ID'
+UNKNOWN_GENE_ID = 'UNKNOWN_GENE_ID'
+
 class _BaseFeature(FeatureType):
     __slots__ = (
         "_data"
     )
 
     _data: Feature
+
+    def copy_data(self):
+        """
+        Make a copy of data
+        """
+        self._data = copy.deepcopy(self._data)
 
     @property
     def start(self) -> int:
@@ -58,6 +69,14 @@ class _BaseFeature(FeatureType):
     @seqname.setter
     def seqname(self, value: str):
         self._data.seqname = value
+
+    @property
+    def feature(self) -> str:
+        return self._data.feature
+
+    @feature.setter
+    def feature(self, value: str):
+        self._data.feature = value
 
     @property
     def frame(self) -> str:
@@ -180,9 +199,9 @@ class Exon(_BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = "UNKNOWN"
+            self._data.attribute["transcript_id"] = UNKNOWN_TRANSCRIPT_ID
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = "UNKNOWN"
+            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
         if "exon_number" not in self._data.attribute:
             self._data.attribute["exon_number"] = 0
 
@@ -223,12 +242,41 @@ class Transcript(_BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = "UNKNOWN"
+            self._data.attribute["transcript_id"] = UNKNOWN_TRANSCRIPT_ID
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = "UNKNOWN"
+            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError
+
+    @property
+    def naive_length(self) -> int:
+        """
+        The length on GTF
+        """
+        return self.end - self.start + 1
+
+    @property
+    def span_length(self) -> int:
+        """
+        The spanning length of all exons
+        """
+        exon_s_min = math.inf
+        exon_e_max = - math.inf
+        for exon in self.exons:
+            exon_s_min = min(exon_s_min, exon.start)
+            exon_e_max = max(exon_e_max, exon.end)
+        return exon_e_max - exon_s_min + 1
+
+    @property
+    def transcribed_length(self) -> int:
+        """
+        Length after transcribed to cDNA
+        """
+        reti = 0
+        for exon in self.exons:
+            reti += exon.end - exon.start + 1
+        return reti
 
     def cdna_sequence(self, sequence_func: Callable[[str, int, int], str]) -> str:
         if self._cdna_sequence is not None:
@@ -280,7 +328,7 @@ class Gene(_BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = "UNKNOWN"
+            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError
