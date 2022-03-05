@@ -51,41 +51,35 @@ all_data <- fa_stats_data %>%
     dplyr::full_join(nanopore_depth_data, by="TRANSCRIPT_ID") %>%
     dplyr::mutate(across(where(is.numeric), replace_na, 0)) %>%
     dplyr::filter(
-        NANOPORE_AVG_DEPTH>10,
-        PACB_AVG_DEPTH>10,
         NANOPORE_AVG_DEPTH+PACB_AVG_DEPTH != Inf
     )
 
-fig_data_depth <- all_data %>%
-     tidyr::gather(
-         key="key",
-         value = "value",
-         -TRANSCRIPT_ID,
-         -GENE_ID,
-         -SEQNAME,
-         -START,
-         -END,
-         -STRAND,
-         -LEN,
-         -GC
-     )
+write_tsv(all_data, "all_data.tsv")
 
-ggplot(fig_data_depth, aes(x=log(value))) + geom_histogram(aes(color=key))
+NANOPORE_AVG_DEPTH <- all_data$NANOPORE_AVG_DEPTH %>% .[! . == 0]
+PACB_AVG_DEPTH <- all_data$PACB_AVG_DEPTH %>% .[! . == 0]
 
-diff_data <- all_data %>%
-    dplyr::mutate(DIFF=(NANOPORE_AVG_DEPTH-PACB_AVG_DEPTH)/(NANOPORE_AVG_DEPTH+PACB_AVG_DEPTH)) %>%
-    dplyr::filter(abs(DIFF)<0.5)
+fit_gamma_ont <- fitdistrplus::fitdist(NANOPORE_AVG_DEPTH, "gamma")
+fit_nb_ont <- fitdistrplus::fitdist(as.integer(NANOPORE_AVG_DEPTH), "nbinom")
+fit_gamma_pacb <- fitdistrplus::fitdist(PACB_AVG_DEPTH, "gamma")
+fit_nb_pacb <- fitdistrplus::fitdist(as.integer(PACB_AVG_DEPTH), "nbinom")
 
-ggplot(diff_data, aes(x=PACB_AVG_DEPTH, y=NANOPORE_AVG_DEPTH)) + geom_point()
+fit_gamma_ont$aic > fit_nb_ont$aic
+fit_gamma_pacb$aic > fit_nb_pacb$aic
+
+fit_gamma_ont$bic > fit_nb_ont$bic
+fit_gamma_pacb$bic > fit_nb_pacb$bic
 
 
-fit <- fitDist(
-    diff_data$NANOPORE_AVG_DEPTH,
-    k = 2,
-    type = "realAll",
-    try.gamlss = TRUE,
-    parallel="snow"
-)
+get_replicatated_params <- function (){
+    estimates <- replicate(
+        1e3,{
+        fd <- fitdistrplus::fitdist(as.integer(
+            sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
+        ), "nbinom")
+        fd$estimate
+    }
+    )
+    c(mean(estimates[1, ]), mean(estimates[2, ]))
+}
 
-plot(fit)
-summary(fit)
