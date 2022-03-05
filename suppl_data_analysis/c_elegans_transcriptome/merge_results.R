@@ -1,5 +1,7 @@
 library("tidyverse")
 library("ggpubr")
+library("gamlss")
+library("fitdistrplus")
 
 depth_data_col_type <- cols(
     TRANSCRIPT_ID=col_character(),
@@ -76,7 +78,6 @@ diff_data <- all_data %>%
 
 ggplot(diff_data, aes(x=PACB_AVG_DEPTH, y=NANOPORE_AVG_DEPTH)) + geom_point()
 
-library(gamlss)
 
 fit <- fitDist(
     diff_data$NANOPORE_AVG_DEPTH,
