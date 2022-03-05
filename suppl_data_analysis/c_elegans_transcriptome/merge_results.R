@@ -4,6 +4,8 @@ library(gamlss)
 library(fitdistrplus)
 library(parallel)
 
+setwd("suppl_data_analysis/c_elegans_transcriptome")
+
 depth_data_col_type <- cols(
     TRANSCRIPT_ID=col_character(),
     BASE=col_number(),
@@ -57,6 +59,7 @@ all_data <- fa_stats_data %>%
 
 write_tsv(all_data, "all_data.tsv")
 
+
 NANOPORE_AVG_DEPTH <- all_data$NANOPORE_AVG_DEPTH %>% .[! . == 0]
 PACB_AVG_DEPTH <- all_data$PACB_AVG_DEPTH %>% .[! . == 0]
 
@@ -72,23 +75,19 @@ fit_gamma_ont$bic > fit_nb_ont$bic
 fit_gamma_pacb$bic > fit_nb_pacb$bic
 
 
-cl <- snow::makeCluster(parallel::detectCores()-1)
+cl <- parallel::makeCluster(parallel::detectCores()-1)
 
-get_replicatated_params <- function (){
-    estimates <- replicate(
-        1e3,{
-        fd <-
-        fd$estimate
-    }
+clusterExport(cl, varlist = ls())
+
+psr <- parSapply(cl, 1:1e6, function(x){
+    c(
+        fitdistrplus::fitdist(as.integer(
+            sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
+        ), "nbinom")$estimate,
+        fitdistrplus::fitdist(as.integer(
+            sample(PACB_AVG_DEPTH, as.integer(length(PACB_AVG_DEPTH)/10))
+        ), "nbinom")$estimate
     )
-    c(mean(estimates[1, ]), mean(estimates[2, ]))
-}
-
-parSapply(cl, 1:1e3, function(x){
-    c(fitdistrplus::fitdist(as.integer(
-        sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
-    ), "nbinom")$estimate,
-    fitdistrplus::fitdist(as.integer(
-        sample(PACB_AVG_DEPTH, as.integer(length(PACB_AVG_DEPTH)/10))
-    ), "nbinom")$estimate)
 })
+
+

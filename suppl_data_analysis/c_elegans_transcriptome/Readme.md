@@ -31,3 +31,12 @@ The alignment details can be found at `get_data.sh`.
 
 ## Merge Results
 
+The results from NGS and TGS data are merged using R, with following steps:
+
+- Generate a distribution. From literature [^Manz2021], we can see that it is a negative binomial (NB) distribution.
+- Get the parameters of NB using bootstrap.
+
+
+## References
+
+[^Manz2021] Quirin Manz, Olga Tsoy, Amit Fenn, Jan Baumbach, Uwe Völker, Markus List, Tim Kacprowski, ASimulatoR: splice-aware RNA-Seq data simulation, Bioinformatics, Volume 37, Issue 18, 15 September 2021, Pages 3008–3010, <https://doi.org/10.1093/bioinformatics/btab142> 
