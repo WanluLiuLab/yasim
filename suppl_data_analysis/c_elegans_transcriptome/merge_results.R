@@ -1,7 +1,8 @@
-library("tidyverse")
-library("ggpubr")
-library("gamlss")
-library("fitdistrplus")
+library(tidyverse)
+library(ggpubr)
+library(gamlss)
+library(fitdistrplus)
+library(parallel)
 
 depth_data_col_type <- cols(
     TRANSCRIPT_ID=col_character(),
@@ -71,15 +72,23 @@ fit_gamma_ont$bic > fit_nb_ont$bic
 fit_gamma_pacb$bic > fit_nb_pacb$bic
 
 
+cl <- snow::makeCluster(parallel::detectCores()-1)
+
 get_replicatated_params <- function (){
     estimates <- replicate(
         1e3,{
-        fd <- fitdistrplus::fitdist(as.integer(
-            sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
-        ), "nbinom")
+        fd <-
         fd$estimate
     }
     )
     c(mean(estimates[1, ]), mean(estimates[2, ]))
 }
 
+parSapply(cl, 1:1e3, function(x){
+    c(fitdistrplus::fitdist(as.integer(
+        sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
+    ), "nbinom")$estimate,
+    fitdistrplus::fitdist(as.integer(
+        sample(PACB_AVG_DEPTH, as.integer(length(PACB_AVG_DEPTH)/10))
+    ), "nbinom")$estimate)
+})
