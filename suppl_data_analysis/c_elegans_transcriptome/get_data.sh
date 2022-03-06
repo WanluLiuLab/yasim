@@ -20,8 +20,10 @@ samtools sort -@ 16 -o nanopore_transcriptome_1.bam # 84.24% mapping rate
 minimap2 -x splice -a -t 16 ce11.reference_transcripts.fa.mmi SRR8568877_subreads.fastq.gz SRR8568878_subreads.fastq.gz | \
 samtools sort -@ 16 -o pacbio_transcriptome_1.bam # 96.65% mapping rate
 
-bwa mem -t 16 CE11_TRANSCRIPTOME_BWA_INDEX <(zcat SRR5123644_1.fastq.gz SRR5123648_1.fastq.gz SRR5123649_1.fastq.gz) \
-<(zcat SRR5123644_2.fastq.gz SRR5123648_2.fastq.gz SRR5123649_2.fastq.gz) |\
+
+# SRR5123648_1.fastq.gz SRR5123649_1.fastq.gz
+# SRR5123648_2.fastq.gz SRR5123649_2.fastq.gz
+bwa mem -t 16 CE11_TRANSCRIPTOME_BWA_INDEX <(zcat SRR5123644_1.fastq.gz) <(zcat SRR5123644_2.fastq.gz) |\
 samtools sort -@ 16 -o ngs_transcript.bam
 
 for fn in *.bam; do samtools index $fn; samtools depth $fn > $fn.depth.tsv; done

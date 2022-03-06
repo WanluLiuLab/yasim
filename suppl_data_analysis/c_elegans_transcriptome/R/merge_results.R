@@ -30,14 +30,14 @@ yasim_fa_stats_col_types <- cols(
 )
 
 nanopore_depth_data <- read_tsv(
-    "nanopore_transcriptome_1.bam.depth.tsv",
+    "../nanopore_transcriptome_1.bam.depth.tsv",
     col_types = depth_data_col_type,
     col_names = depth_data_col_name
 )%>%
     dplyr::group_by(TRANSCRIPT_ID) %>%
     dplyr::summarise(NANOPORE_AVG_DEPTH=mean(DEPTH))
 pbsim_depth_data <- read_tsv(
-    "pacbio_transcriptome_1.bam.depth.tsv",
+    "../pacbio_transcriptome_1.bam.depth.tsv",
     col_types = depth_data_col_type,
     col_names = depth_data_col_name
 )%>%
@@ -45,7 +45,7 @@ pbsim_depth_data <- read_tsv(
     dplyr::summarise(PACB_AVG_DEPTH=mean(DEPTH))
 
 fa_stats_data <- read_tsv(
-    "ce11.reference_transcripts.fa.stats",
+    "../ce11.reference_transcripts.fa.stats",
     col_types = yasim_fa_stats_col_types
 )
 
@@ -57,7 +57,7 @@ all_data <- fa_stats_data %>%
         NANOPORE_AVG_DEPTH+PACB_AVG_DEPTH != Inf
     )
 
-write_tsv(all_data, "all_data.tsv")
+write_tsv(all_data, "../all_data.tsv")
 
 
 NANOPORE_AVG_DEPTH <- all_data$NANOPORE_AVG_DEPTH %>% .[! . == 0]
