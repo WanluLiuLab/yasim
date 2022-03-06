@@ -1,4 +1,4 @@
-# Downstream Simulators
+# Low-Level Read Generators (LLRG)
 
 ## Next Generation Sequencing
 

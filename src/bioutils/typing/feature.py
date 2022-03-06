@@ -21,8 +21,25 @@ __version__ = 0.1
 
 
 GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
+"""Type of GTF/GFF fields"""
+
 GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
 """The top-level virtual parent for GFF record that does not have a parent"""
+
+VAILD_GTF_QUOTE_OPTONS = (
+    "none",
+    "blank",
+    "string",
+    "all"
+)
+"""
+Valid GTF Quoting Options. They are:
+
+* "none": Never quote, even if blanks found inside.
+* "blank": Quote if blanks (\\r, \\n, \\t, space, etc.) found inside.
+* "string": Quote if the field have type string. Will not quote for numeric types.
+* "all": Quote all fields.
+"""
 
 
 class FeatureType(object):
@@ -118,6 +135,10 @@ class FeatureType(object):
     def __le__(self, other: FeatureType):
         pass
 
+    @abstractmethod
+    def format_string(self, **kwargs) -> str:
+        pass
+
 class Feature(FeatureType):
     """
     A general GTF/GFF/BED Record.
@@ -197,6 +218,13 @@ class Feature(FeatureType):
         """
         pass
 
+    @abstractmethod
+    def format_string(self, **kwargs) -> str:
+        pass
+
+    def __repr__(self):
+        return self.format_string()
+
 class Gff3Record(Feature):
     """
     A general GTF Record.
@@ -263,7 +291,7 @@ class Gff3Record(Feature):
                           frame=(required_fields[7]),
                           attribute=attributes)
 
-    def __repr__(self):
+    def format_string(self):
         attribute_str = ""
         for k, v in self.attribute.items():
             v_str = repr(v).replace("'", '"')
@@ -330,10 +358,24 @@ class GtfRecord(Feature):
                          frame=(required_fields[7]),
                          attribute=attributes)
 
-    def __repr__(self):
-        attribute_str = ""
+    def format_string(
+            self,
+            quote:str="string"
+            ):
+        if quote not in VAILD_GTF_QUOTE_OPTONS:
+            raise ValueError(f"Invalid quoting option {quote}, should be one in {VAILD_GTF_QUOTE_OPTONS}.")
+        attribute_full_str = ""
         for k, v in self.attribute.items():
-            attribute_str = f"{attribute_str}{k} " + repr(v).replace("'", '"') + "; "
+            attr_str = repr(v).replace("'", '')
+            if quote == "blank":
+                if "\r" in attr_str or "\n" in attr_str or "\f" in attr_str or "\t" in attr_str or " " in attr_str:
+                    attr_str = f"\"{attr_str}\""
+            elif quote == "string":
+                if not isinstance(v, int) and not isinstance(v, float) :
+                    attr_str = f"\"{attr_str}\""
+            elif quote == "all":
+                attr_str = f"\"{attr_str}\""
+            attribute_full_str = f"{attribute_full_str}{k} " + attr_str + "; "
         return ("\t".join((
             self.seqname,
             self.source,
@@ -343,5 +385,6 @@ class GtfRecord(Feature):
             str(self.score),
             self.strand,
             self.frame,
-            attribute_str
+            attribute_full_str
         )))
+

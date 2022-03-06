@@ -81,8 +81,8 @@ class _FeatureWriter:
         self.output_filename = output_filename
         self.fd = get_writer(self.output_filename)
 
-    def write_feature(self, feature: Feature):
-        self.fd.write(str(feature) + "\n")
+    def write_feature(self, feature: Feature, **kwargs):
+        self.fd.write(feature.format_string(**kwargs) + "\n")
 
     def write_comment(self, comment: str):
         self.fd.write('#' + comment + "\n")
@@ -117,12 +117,6 @@ class Gff3Writer(_FeatureWriter):
     def __init__(self, output_filename: str):
         super().__init__(output_filename=output_filename)
         self.write_comment("#gff-version 3")  # This comment should be wrieen at the first line.
-
-    def write_feature(self, feature: Feature):
-        self.fd.write(str(feature) + "\n")
-
-    def write_comment(self, comment: str):
-        self.fd.write('#' + comment + "\n")
 
 
 class Gff3Tree:

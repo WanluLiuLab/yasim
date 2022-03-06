@@ -17,6 +17,7 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
+
 class _BaseGeneView:
     genes: Dict[str, Gene]
     """
@@ -32,22 +33,23 @@ class _BaseGeneView:
         self.genes = {}
         self.transcripts = {}
 
-
     def get_transcript_iterator(self) -> Iterator[Transcript]:
         for transcript in self.transcripts.values():
             yield transcript
 
-
     @classmethod
     @abstractmethod
-    def _from_own_filetype(cls, filename:str):
+    def _from_own_filetype(cls, filename: str):
         """
         Generate index de novo.
         """
         pass
 
     @classmethod
-    def from_file(cls, filename:str):
+    def from_file(cls,
+                  filename: str,
+                  not_build_index: bool = False,
+                  **kwargs):
         index_filename = filename + ".gvpkl.xz"
         if commonutils.io.file_system.file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
@@ -55,7 +57,11 @@ class _BaseGeneView:
                 return cls._from_gvpkl(index_filename)
             except Exception:
                 lh.error("Gene index broken or too old, will rebuild one.")
-        return cls._from_own_filetype(filename)
+        new_instance = cls._from_own_filetype(filename)
+        if not not_build_index:
+            index_filename = filename + ".gvpkl.xz"
+            new_instance.to_gvpkl(index_filename)
+        return new_instance
 
     @classmethod
     def _from_gvpkl(cls, index_filename: str):
@@ -69,13 +75,12 @@ class _BaseGeneView:
         lh.info("Pickling to gvpkl...")
         pickle_helper.dump((__version__, self.genes, self.transcripts), index_filename)
 
-
     def standardize(self):
         self._standardize_transcripts()
         self._standardize_genes()
 
     def _standardize_transcripts(self):
-        for transcript in tqdm(iterable=self.transcripts.values(),desc="Standardizing transcripts"):
+        for transcript in tqdm(iterable=self.transcripts.values(), desc="Standardizing transcripts"):
             if transcript.feature != "transcript":
                 transcript.copy_data()
                 exon_s_min = math.inf
@@ -87,9 +92,8 @@ class _BaseGeneView:
                 transcript.end = exon_e_max
                 transcript.feature = "transcript"
 
-
     def _standardize_genes(self):
-        for gene in tqdm(iterable=self.genes.values(),desc="Standardizing genes"):
+        for gene in tqdm(iterable=self.genes.values(), desc="Standardizing genes"):
             if gene.feature != "gene":
                 gene.copy_data()
                 transcript_s_min = math.inf
@@ -101,7 +105,6 @@ class _BaseGeneView:
                 gene.end = transcript_e_max
                 gene.feature = "gene"
 
-
     def get_iterator(self) -> Iterator[Feature]:
         for gene in self.genes.values():
             if gene.feature == "gene":
@@ -111,7 +114,6 @@ class _BaseGeneView:
                     yield transcript._data
                 for exon in transcript.exons:
                     yield exon._data
-
 
     def del_gene(self, gene_id: str):
         if gene_id in self.genes.keys():
@@ -132,7 +134,7 @@ class _BaseGeneView:
 class _GtfGeneView(_BaseGeneView):
 
     @classmethod
-    def _from_own_filetype(cls, filename:str):
+    def _from_own_filetype(cls, filename: str):
         def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
             if not record.attribute['gene_id'] in _new_instance.genes.keys():
@@ -164,10 +166,7 @@ class _GtfGeneView(_BaseGeneView):
                 register_transcript(new_instance, gtf_record)
             elif gtf_record.feature == 'exon':
                 register_exon(new_instance, gtf_record)
-        index_filename = filename + ".gvpkl.xz"
-        new_instance.to_gvpkl(index_filename)
         return new_instance
-
 
     def to_file(self, output_filename: str):
         GtfWriter.write_iterator(
@@ -176,6 +175,7 @@ class _GtfGeneView(_BaseGeneView):
             [f'created by Geneview at {time.asctime()}']
         )
 
+
 class _Gff3GeneView(_BaseGeneView):
     pass
     # raise NotImplementedError
@@ -183,14 +183,16 @@ class _Gff3GeneView(_BaseGeneView):
 
 class GeneView(_BaseGeneView):
     @classmethod
-    def from_file(cls, filename: str, file_type: Optional[str] = None) -> Union[_GtfGeneView, _Gff3GeneView]:
+    def from_file(cls,
+                  filename: str,
+                  file_type: Optional[str] = None,
+                  **kwargs
+                  ) -> Union[_GtfGeneView, _Gff3GeneView]:
         if file_type is None:
             file_type = get_file_type_from_suffix(filename)
         if file_type == "GTF":
-            return _GtfGeneView.from_file(filename)
+            return _GtfGeneView.from_file(filename, **kwargs)
         elif file_type == "GFF3":
-            return _Gff3GeneView.from_file(filename)
+            return _Gff3GeneView.from_file(filename, **kwargs)
         else:
             raise ValueError(f"Unknown file type {file_type} for {filename}")
-
-
