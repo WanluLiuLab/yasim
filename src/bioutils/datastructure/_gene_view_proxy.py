@@ -6,16 +6,15 @@ from __future__ import annotations
 
 import copy
 import math
-import sys
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional, Type
+from typing import List, Dict, Callable, Optional
 
-from bioutils.algorithm.sequence import complement, reverse_complement
+from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
-
 
 UNKNOWN_TRANSCRIPT_ID = 'UNKNOWN_TRANSCRIPT_ID'
 UNKNOWN_GENE_ID = 'UNKNOWN_GENE_ID'
+
 
 class _BaseFeature(FeatureType):
     __slots__ = (

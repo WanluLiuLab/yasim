@@ -1,5 +1,3 @@
-import pdb
-
 from coverage.annotate import os
 
 import test_tetgs
@@ -28,15 +26,15 @@ chrI	ncbiRefSeq	exon	16473	16585	.	+	.	gene_id "nlp-40"; transcript_id "NM_00130
 
 def test_gene() -> None:
     global gene_gtf
-    fh = get_writer(os.path.join(test_path,"1.gtf.gz"))
+    fh = get_writer(os.path.join(test_path, "1.gtf.gz"))
     fh.write(gene_gtf)
     fh.close()
-    gv = GeneView.from_file(os.path.join(test_path,"1.gtf.gz"))
+    gv = GeneView.from_file(os.path.join(test_path, "1.gtf.gz"))
     assert list(gv.genes.keys()) == ['homt-1', 'nlp-40']
     assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1']
     assert gv.transcripts['NM_058260.4'].exons[0].start == 4221
     gv.to_file(os.path.join(test_path, "2.gtf"))
     gv.standardize()
-    gv.to_file(os.path.join(test_path,"3.gtf"))
+    gv.to_file(os.path.join(test_path, "3.gtf"))
     os.system(f"gedit {test_path}/*.gtf")
     shell_utils.rm_rf(test_path)

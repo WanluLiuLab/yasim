@@ -9,9 +9,43 @@ import bz2
 import gzip
 import io
 import lzma
+import os
 from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, List
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
+
+
+def determine_line_endings(fd: IO):
+    """
+    Determine line endings. If failed, will return OS default.
+
+    """
+    FIND_CR = False
+    FIND_LF = False
+    while True:
+        c = fd.read(1)
+        if c is None:
+            break
+        elif c == '\r':
+            FIND_CR = True
+            if FIND_LF:
+                return '\n\r'
+        elif c == '\n':
+            FIND_LF = True
+            if FIND_CR:
+                return '\r\n'
+        else:
+            if FIND_CR:
+                return '\r'
+            if FIND_LF:
+                return '\n'
+            FIND_CR = False
+            FIND_LF = False
+    return os.linesep
+
+
+def determine_file_line_endings(filename: str):
+    return determine_line_endings(ArchiveBaseIO(filename))
 
 
 class ArchiveBaseIO(IO):
@@ -82,7 +116,7 @@ class ArchiveBaseIO(IO):
         return self._fd.isatty()
 
     @copy_doc(io.RawIOBase.read)
-    def read(self, size: Optional[int]) -> AnyStr:
+    def read(self, size: int = -1) -> AnyStr:
         return self._fd.read(size)
 
     @copy_doc(io.RawIOBase.readable)

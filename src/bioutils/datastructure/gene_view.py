@@ -6,12 +6,12 @@ import time
 from abc import abstractmethod
 from typing import Optional, Dict, Iterator, Union
 
-import commonutils.io.file_system
 from bioutils.datastructure._gene_view_proxy import Gene, Transcript, Exon
 from bioutils.io import get_file_type_from_suffix
-from bioutils.io.feature import Gff3Tree, GtfIterator, GtfWriter, Gff3Writer
-from bioutils.typing.feature import GtfRecord, Gff3Record, Feature
+from bioutils.io.feature import GtfIterator, GtfWriter
+from bioutils.typing.feature import GtfRecord, Feature
 from commonutils.importer.tqdm_importer import tqdm
+from commonutils.io.file_system import file_exists
 from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 
@@ -51,7 +51,7 @@ class _BaseGeneView:
                   not_build_index: bool = False,
                   **kwargs):
         index_filename = filename + ".gvpkl.xz"
-        if commonutils.io.file_system.file_exists(index_filename) and \
+        if file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
             try:
                 return cls._from_gvpkl(index_filename)
@@ -59,7 +59,6 @@ class _BaseGeneView:
                 lh.error("Gene index broken or too old, will rebuild one.")
         new_instance = cls._from_own_filetype(filename)
         if not not_build_index:
-            index_filename = filename + ".gvpkl.xz"
             new_instance.to_gvpkl(index_filename)
         return new_instance
 

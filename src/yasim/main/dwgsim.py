@@ -1,14 +1,12 @@
 import argparse
 import os.path
-import warnings
 from typing import List, Optional
 
 import commonutils.stdlib_helper.parallel_helper
-from yasim.simulator import dwgsim
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_pair_end
-
+from yasim.simulator import dwgsim
 
 logger = get_logger(__name__)
 
@@ -51,7 +49,6 @@ def simulate(
     simulating_pool.start()
     simulating_pool.join()
     assemble_pair_end(depth_info, output_fastq_prefix, simulator_name="dwgsim")
-
 
 
 def main(args: List[str]):

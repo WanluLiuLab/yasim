@@ -4,7 +4,6 @@ feature.py -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Fea
 This module includes GTF/GFF3/BED record datastructure and their one-line parsers.
 """
 
-
 from __future__ import annotations
 
 import uuid
@@ -17,8 +16,6 @@ from commonutils.str_utils import to_dict
 lh = get_logger(__name__)
 
 __version__ = 0.1
-
-
 
 GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
 """Type of GTF/GFF fields"""
@@ -139,11 +136,11 @@ class FeatureType(object):
     def format_string(self, **kwargs) -> str:
         pass
 
+
 class Feature(FeatureType):
     """
     A general GTF/GFF/BED Record.
     """
-
 
     def __init__(self,
                  seqname: str,
@@ -154,7 +151,7 @@ class Feature(FeatureType):
                  score: Union[int, float],
                  strand: str,
                  frame: str,
-                 attribute: Optional[GTFAttributeType]=None
+                 attribute: Optional[GTFAttributeType] = None
                  ):
         """
         The filenames are named after Ensembl specifications.
@@ -172,7 +169,7 @@ class Feature(FeatureType):
         self.frame = frame
         if attribute is None:
             attribute = {}
-        self.attribute=attribute
+        self.attribute = attribute
 
     def __eq__(self, other: Feature):
         return self.start == other.start and \
@@ -224,6 +221,7 @@ class Feature(FeatureType):
 
     def __repr__(self):
         return self.format_string()
+
 
 class Gff3Record(Feature):
     """
@@ -360,8 +358,8 @@ class GtfRecord(Feature):
 
     def format_string(
             self,
-            quote:str="string"
-            ):
+            quote: str = "string"
+    ):
         if quote not in VAILD_GTF_QUOTE_OPTONS:
             raise ValueError(f"Invalid quoting option {quote}, should be one in {VAILD_GTF_QUOTE_OPTONS}.")
         attribute_full_str = ""
@@ -371,7 +369,7 @@ class GtfRecord(Feature):
                 if "\r" in attr_str or "\n" in attr_str or "\f" in attr_str or "\t" in attr_str or " " in attr_str:
                     attr_str = f"\"{attr_str}\""
             elif quote == "string":
-                if not isinstance(v, int) and not isinstance(v, float) :
+                if not isinstance(v, int) and not isinstance(v, float):
                     attr_str = f"\"{attr_str}\""
             elif quote == "all":
                 attr_str = f"\"{attr_str}\""
@@ -387,4 +385,3 @@ class GtfRecord(Feature):
             self.frame,
             attribute_full_str
         )))
-
