@@ -1,29 +1,11 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: logger_helper.py -- System-wide logger.
-#
-#  VERSION HISTORY:
-#  2021-08-10 0.1  : Purposed and added by YU Zhejian, uses logger class.
-#  2021-08-11 0.1  : Rewritten using global logger.
-#  2021-08-13 0.1  : RegisteredLoggerHandler and chronolog (time_recorder) added.
-#  2021-08-15 0.1  : Logger class and RegisteredLoggerHandler deprecated.
-#  2021-08-15 0.1  : Trace level added.
-#  2021-09-07 0.1  : Logger injection removed.
-#
-# ==============================================================================
-
 """
-logger_helper.py -- System-wide logger.
+logger_helper.py -- System-Wide Logger.
 
 Features
 --------
 
 This logger defines a "trace" level (TRACE = 8) and a logging decorator.
-It can also reads environment variable named 'LOG_LEVEL' and fallback to DEBUG (10) by default.
+It can also read environment variable named 'LOG_LEVEL' and fallback to DEBUG (10) by default.
 
 Usage
 -----
@@ -37,10 +19,14 @@ which is only snake-case wrappers for those contents inside :py:mod:`logging` st
 import logging
 import os
 
-__all__ = ['__version__', 'TRACE', 'chronolog', 'set_level', 'get_logger']
-__version__ = 0.1
-
 from typing import Union
+
+__all__ = (
+    'TRACE',
+    'chronolog',
+    'set_level',
+    'get_logger'
+)
 
 _SB = os.environ.get('SPHINX_BUILD')
 

@@ -5,6 +5,7 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 import sys
 from typing import Optional, Iterable, Sized
 
+__all__ = ("tqdm",)
 
 class tqdm:
     """

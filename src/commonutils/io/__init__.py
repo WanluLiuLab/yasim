@@ -2,7 +2,12 @@
 commonutils.io -- Enhanced Python IO Functions/Classes
 ======================================================
 
-TODO
+This module includes some enhanced IO functions,
+like IO that automatically creates missing intermediate directories or IO with tqdm progress bar.
+It also supports Python standard archive types like ``bz2``, ``gzip`` or ``lzma``.
+
+For those who wish to get a ``gzip`` command-like utilities,
+please visit :py:mod:`commonutils.shell_utils` for more information
 """
 
 import bz2
@@ -14,33 +19,42 @@ from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, Lis
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
+__all__ = (
+    "determine_line_endings",
+    "determine_file_line_endings",
+    "ArchiveBaseIO",
+    "SequentialReader",
+    "get_reader",
+    "get_writer",
+    "get_appender"
+)
 
 def determine_line_endings(fd: IO):
     """
     Determine line endings. If failed, will return OS default.
 
     """
-    FIND_CR = False
-    FIND_LF = False
+    find_cr = False
+    find_lf = False
     while True:
         c = fd.read(1)
         if c is None:
             break
         elif c == '\r':
-            FIND_CR = True
-            if FIND_LF:
+            find_cr = True
+            if find_lf:
                 return '\n\r'
         elif c == '\n':
-            FIND_LF = True
-            if FIND_CR:
+            find_lf = True
+            if find_cr:
                 return '\r\n'
         else:
-            if FIND_CR:
+            if find_cr:
                 return '\r'
-            if FIND_LF:
+            if find_lf:
                 return '\n'
-            FIND_CR = False
-            FIND_LF = False
+            find_cr = False
+            find_lf = False
     return os.linesep
 
 
@@ -189,7 +203,7 @@ class SequentialReader(ArchiveBaseIO):
     """
     A sequential reader that is based on :py:class:`ArchiveBaseIO`
     which does not support random-access functions like :py:func:`seek`
-    or writting functions like :py:func:`write`
+    or writing functions like :py:func:`write`
     """
 
     def seek(self, *args, **kwargs) -> int:

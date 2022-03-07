@@ -79,7 +79,20 @@ class _BaseGeneView:
         self._standardize_genes()
 
     def _standardize_transcripts(self):
+        transcript_id_to_del = []
+        """Transcript to be deleted for reason like no exons."""
         for transcript in tqdm(iterable=self.transcripts.values(), desc="Standardizing transcripts"):
+            if len(transcript.exons) == 0:
+                transcript_id_to_del.append(transcript.transcript_id)
+                continue
+            transcript.exons = sorted(transcript.exons)
+            if transcript.strand == '-':
+                for i in range(len(transcript.exons)):
+                    transcript.exons[i].exon_number = i +1
+            else:
+                for i in range(len(transcript.exons)):
+                    transcript.exons[len(transcript.exons) - i - 1].exon_number = i + 1
+
             if transcript.feature != "transcript":
                 transcript.copy_data()
                 exon_s_min = math.inf
@@ -90,6 +103,8 @@ class _BaseGeneView:
                 transcript.start = exon_s_min
                 transcript.end = exon_e_max
                 transcript.feature = "transcript"
+        for transcript_id in transcript_id_to_del:
+            self.del_transcript(transcript_id)
 
     def _standardize_genes(self):
         for gene in tqdm(iterable=self.genes.values(), desc="Standardizing genes"):
@@ -129,6 +144,9 @@ class _BaseGeneView:
                 self.genes.pop(gene_id)
             self.transcripts.pop(transcript_id)
 
+    @abstractmethod
+    def to_file(self, output_filename: str):
+        pass
 
 class _GtfGeneView(_BaseGeneView):
 

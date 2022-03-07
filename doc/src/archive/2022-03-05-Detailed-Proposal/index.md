@@ -4,7 +4,7 @@ Zhejian YU, Yaqi SU, Ruihong YUAN
 
 ## Introduction
 
-Alternative splicing (AS) is a molecular mechanism that modifies pre-mRNA constructs prior to translation. This process can produce a diversity of mRNAs from a single gene by arranging coding sequences (exons) from recently spliced RNA transcripts into different combinations. The mechanisms of AS help to explain how one gene can be encoded into numerous proteins with various functions. This complexity helps drive the cellular differentiation and diversity observed throughout biology. 
+Alternative splicing (AS) is a molecular mechanism that modifies pre-mRNA constructs prior to translation. This process can produce a diversity of mRNAs from a single gene by arranging coding sequences (exons) from recently spliced RNA transcripts into different combinations. The mechanisms of AS help to explain how one gene can be encoded into numerous proteins with various functions. This complexity helps drive the cellular differentiation and diversity observed throughout biology.
 
 RNA-Seq is commonly used for AS identification and numerous tools are available for this kind of analysis. To objectively assess their sensitivity and specificity together with scalability, gold standard datasets are required. Since the true number and types of AS events (such as, exon skipping, intron retention etc) in an experimental dataset is not known, suitable datasets need to be simulated. Moreover, Third-Generation Sequencing (TGS), which is developed in recent years, allows sequencing of single transcript without splitting to short reads. With this method, the transcribed exons can be better preserved, allowing us to perform AS analysis more accurately.
 
@@ -12,21 +12,37 @@ RNA-Seq is commonly used for AS identification and numerous tools are available 
 
 ### BEERS
 
-BEERS (Benchmarker for Evaluating the Effectiveness of RNA-Seq Software) [^Grant2011] is a NGS RNA-Seq AS generator with built-in LLRG. It uses DEG data from one real experimental dataset from mouse.
+BEERS (Benchmarker for Evaluating the Effectiveness of RNA-Seq Software) [^Grant2011] is a NGS RNA-Seq AS generator with built-in LLRG. It can simulate DGE using one real experimental dataset from mouse. It can simulate alternative splicing by randomly remove exons from transcript.
 
 ### RNASeqEval
 
-[RNASeqEval](https://github.com/kkrizanovic/RNAseqEval) [^Krešimir2018] is a general-purpose RNA-Seq AS Generator. This simulator simulates data in following steps:
+[RNASeqEval](https://github.com/kkrizanovic/RNAseqEval) [^Krešimir2018] is a general-purpose RNA-Seq AS Generator. It can simulate alternative splicing by randomly remove exons from transcript. It can also simulate DGE, but in an interesting way introduced below.
 
-1. Analyze real datasets to determine error profiles.
-2. Filter annotations (keep only primary assembly information) and unify chromosome names.
-3. Separate annotations for genes with one isoform and genes with alternative splicing, keeping up to 3 isoforms randomly for each gene with alternative splicing.
-4. Generate a transcriptome from processed annotations and a reference genome.
-5. Analyze gene expression data and determine gene coverage histogram (see Figure).
-6. Approximate gene coverage histogram with 3 points to determine coverage and number of genes in simulated dataset. Scale coverages proportionally down to make a smaller dataset, more suitable for testing.
-7. Extract 6 subsets of sequences from generated transcriptome, 3 for genes with single splicing and 3 for genes with alternative splicing. Each set contains a number of transcripts corresponding to the number of genes from a previous step.
-8. Using PBSIM, simulate reads on each generated subset of transcriptome, using coverages determined in step 6 and error profiles determined in step 1.
-9. Combine generated reads into a single generated dataset.
+On its article, this simulator simulates data in following steps:
+
+> 1. Analyze real datasets to determine error profiles.
+> 2. Filter annotations (keep only primary assembly information) and unify chromosome names.
+> 3. Separate annotations for genes with one isoform and genes with alternative splicing, keeping up to 3 isoforms randomly for each gene with alternative splicing.
+> 4. Generate a transcriptome from processed annotations and a reference genome.
+> 5. Analyze gene expression data and determine gene coverage histogram (see Figure).
+> 6. Approximate gene coverage histogram with 3 points to determine coverage and number of genes in simulated dataset. Scale coverages proportionally down to make a smaller dataset, more suitable for testing.
+> 7. Extract 6 subsets of sequences from generated transcriptome, 3 for genes with single splicing and 3 for genes with alternative splicing. Each set contains a number of transcripts corresponding to the number of genes from a previous step.
+> 8. Using PBSIM, simulate reads on each generated subset of transcriptome, using coverages determined in step 6 and error profiles determined in step 1.
+> 9. Combine generated reads into a single generated dataset.
+
+The figure below shows how RNASeqEval generates DGE. From its `Readme`, it says:
+
+> Gene expression histogram was approximated with three points (red squares in the figure), each point was described by a total number of genes and average coverage of those genes.
+
+A table of these group is as follows:
+
+> | Group | Total no. genes | Coverage | Genes without alternative splicing | Genes with alternative splicing | Transcripts with alternative splicing | Coverage for AS transcripts |
+> | ----- | --------------- | -------- | ---------------------------------- | ------------------------------- | ------------------------------------- | --------------------------- |
+> | 1     | 5000            | 5        | 4500                               | 500                             | 1500                                  | 2                           |
+> | 2     | 2000            | 50       | 1750                               | 250                             | 750                                   | 15                          |
+> | 3     | 2000            | 100      | 1750                               | 250                             | 750                                   | 30                          |
+
+The data is said to be from _D. Melanogaster_ at <http://bowtie-bio.sourceforge.net/recount/>.
 
 ![The "Differentially Expressed Genes" Simulated by RNASeqEval](DGE-by-RNASeqEval.png)
 
@@ -34,7 +50,7 @@ The main ideology of yasim is from this simulator.
 
 ### Polyester
 
-[Polyester](https://bioconductor.org/packages/release/bioc/html/polyester.html) [^Frazee2005] is an RNA-Seq read generator and DGE simulator. It is designed to simulate isoform-level DEG from a series of technical-replicates RNA-Seq experiments.
+[Polyester](https://bioconductor.org/packages/release/bioc/html/polyester.html) [^Frazee2005] is an RNA-Seq read generator and DGE simulator. It is designed to simulate isoform-level DGE from a series of technical-replicates RNA-Seq experiments.
 
 From statistics on DGE patterns provided by [^Anders2010] and [^Robinson2010] and parameter estimation from Genetic European Variation in health and Disease (GEUVADIS) [^Lappalainen2013], [^Peter2013] dataset, the author stated that the number of reads to simulate from each transcript is drawn from the negative binomial distribution, across biological replicates [^Anders2010], [^Robinson2010].
 
@@ -51,10 +67,9 @@ The statistics on Bioconductor can be seen [here](http://bioconductor.org/packag
 
 [ASimulatoR](https://github.com/biomedbigdata/ASimulatoR) [^Quirin2021] is a NGS RNA-Seq AS Generator, with builtin LLRG provided by Polyester.
 
-Whether to introduce a specific type of AS events on a gene is based on some unknown distribution (with mean and SE without name).
+Whether to introduce a specific type of AS events on a gene is based on some unknown distribution (with mean and SE, but without name). Its workflow is displayed as follows:
 
 ![ASimulatoR Workflow](ASimulatoR-workflow.jpeg)
-
 
 ## Proposed Workflows
 

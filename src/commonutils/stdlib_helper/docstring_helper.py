@@ -1,5 +1,12 @@
+"""
+docstring_helper.py -- Functions for Docstring
+
+This contains function that makes docstrings easier.
+"""
+
 from typing import Callable
 
+__all__ = ('copy_doc', )
 
 def copy_doc(copy_func: Callable) -> Callable:
     """
@@ -21,6 +28,19 @@ def copy_doc(copy_func: Callable) -> Callable:
     ...         pass
     >>> Test.this.__doc__
     'Woa'
+
+    This function should be used on so-called "proxy" classes. For example,
+
+    >>> class A:
+    ...     def foo(self) -> None:
+    ...         \"\"\"Woa\"\"\"
+    ...         ...
+    ...
+    >>> class AProxy:
+    ...     _A: A
+    ...     @copy_doc(A.foo)
+    ...     def foo(self) -> None:
+    ...         self._A.foo()
     """
 
     def wrapper(func: Callable) -> Callable:

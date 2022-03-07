@@ -421,4 +421,4 @@ SiLiCO_Scratch/
 /venv_*/
 .vs/
 *.sf
-
+*_cache/

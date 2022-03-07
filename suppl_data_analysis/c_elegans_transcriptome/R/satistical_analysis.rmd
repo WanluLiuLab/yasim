@@ -3,21 +3,68 @@ title: "Satistical Analysis on Merged C. Elegans Dataset"
 output: html_notebook
 ---
 
-```{r}
-library(tidyverse)
-library(ggpubr)
-library(gamlss)
-library(fitdistrplus)
-library(parallel)
+# Load Packages
+
+
+```{r Load Package}
+load_package <- function(name) {
+    message(sprintf("Loading %s", name))
+    suppressWarnings(suppressMessages(library(name, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)))
+}
+
+load_package("tidyverse")
+load_package("ggpubr")
+load_package("gamlss")
+load_package("fitdistrplus")
+load_package("parallel")
+load_package("knitr")
+
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width = 16)
+knitr::opts_chunk$set(cache = TRUE)
+sessionInfo()
+version
+
+cl <- parallel::makeCluster(parallel::detectCores() - 1)
+clusterExport(cl, varlist = ls())
+```
+
+# Read Data
+
+```{r Read Data}
+all_data <- read_tsv("../all_data.tsv")
+
+NANOPORE_AVG_DEPTH <- all_data$NANOPORE_AVG_DEPTH %>% .[!. == 0]
+PACB_AVG_DEPTH <- all_data$PACB_AVG_DEPTH %>% .[!. == 0]
+ILLM1_AVG_DEPTH <- all_data$ILLM1_AVG_DEPTH %>% .[!. == 0]
+ILLM2_AVG_DEPTH <- all_data$ILLM2_AVG_DEPTH %>% .[!. == 0]
+ILLM3_AVG_DEPTH <- all_data$ILLM3_AVG_DEPTH %>% .[!. == 0]
+```
+
+# Fit using GAMLSS
+
+```{r Fit using GAMLSS}
+PACB_AVG_DEPTH_FIT <- gamlss::fitDist(PACB_AVG_DEPTH, cl=cl)
+NANOPORE_AVG_DEPTH_FIT <- gamlss::fitDist(NANOPORE_AVG_DEPTH, cl=cl)
+ILLM1_AVG_DEPTH_FIT <- gamlss::fitDist(ILLM1_AVG_DEPTH, cl=cl)
+ILLM2_AVG_DEPTH_FIT <- gamlss::fitDist(ILLM2_AVG_DEPTH, cl=cl)
+ILLM3_AVG_DEPTH_FIT <- gamlss::fitDist(ILLM3_AVG_DEPTH, cl=cl)
+
+summary(PACB_AVG_DEPTH_FIT)
+plot(PACB_AVG_DEPTH_FIT)
+summary(NANOPORE_AVG_DEPTH_FIT)
+plot(NANOPORE_AVG_DEPTH_FIT)
+summary(ILLM1_AVG_DEPTH_FIT)
+plot(ILLM1_AVG_DEPTH_FIT)
+summary(ILLM2_AVG_DEPTH_FIT)
+plot(ILLM2_AVG_DEPTH_FIT)
+summary(ILLM3_AVG_DEPTH_FIT)
+plot(ILLM3_AVG_DEPTH_FIT)
 ```
 
 
-```{r}
-all_data <- read_tsv("../all_data.tsv")
-
-NANOPORE_AVG_DEPTH <- all_data$NANOPORE_AVG_DEPTH %>% .[! . == 0]
-PACB_AVG_DEPTH <- all_data$PACB_AVG_DEPTH %>% .[! . == 0]
-ILLM1_AVG_DEPTH <- all_data$ILLM1_AVG_DEPTH %>% .[! . == 0]
+```{r Fit using Gamma and NB Distribution}
 
 fit_gamma_ont <- fitdistrplus::fitdist(NANOPORE_AVG_DEPTH, "gamma")
 fit_nb_ont <- fitdistrplus::fitdist(as.integer(NANOPORE_AVG_DEPTH), "nbinom")
@@ -31,31 +78,22 @@ fit_gamma_pacb$aic > fit_nb_pacb$aic
 
 fit_gamma_ont$bic > fit_nb_ont$bic
 fit_gamma_pacb$bic > fit_nb_pacb$bic
-
-
-
 ```
 
 
-```{r}
-cl <- parallel::makeCluster(parallel::detectCores()-1)
-
-clusterExport(cl, varlist = ls())
-```
-
 
 ```{r}
-psr <- parSapply(cl, 1:1e3, function(x){
-    c(
-        fitdistrplus::fitdist(as.integer(
-            sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH)/10))
-        ), "nbinom")$estimate,
-        fitdistrplus::fitdist(as.integer(
-            sample(PACB_AVG_DEPTH, as.integer(length(PACB_AVG_DEPTH)/10))
-        ), "nbinom")$estimate,
-        fitdistrplus::fitdist(as.integer(
-            sample(ILLM1_AVG_DEPTH, as.integer(length(ILLM1_AVG_DEPTH)/10))
-        ), "nbinom")$estimate
-    )
-})
+# psr <- parSapply(cl, 1:1e3, function(x) {
+#     c(
+#         fitdistrplus::fitdist(as.integer(
+#             sample(NANOPORE_AVG_DEPTH, as.integer(length(NANOPORE_AVG_DEPTH) / 10))
+#         ), "nbinom")$estimate,
+#         fitdistrplus::fitdist(as.integer(
+#             sample(PACB_AVG_DEPTH, as.integer(length(PACB_AVG_DEPTH) / 10))
+#         ), "nbinom")$estimate,
+#         fitdistrplus::fitdist(as.integer(
+#             sample(ILLM1_AVG_DEPTH, as.integer(length(ILLM1_AVG_DEPTH) / 10))
+#         ), "nbinom")$estimate
+#     )
+# })
 ```

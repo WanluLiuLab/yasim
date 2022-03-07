@@ -1,3 +1,9 @@
+"""
+tqdm_reader.py -- Reader with Progress Bar
+
+Here are wrappings for basic IO classes & functions in :py:mod:`commonutils.io` with additional progress bar.
+"""
+
 from typing import Iterator, AnyStr, List, Type
 
 from commonutils import shell_utils
@@ -5,6 +11,13 @@ from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io import SequentialReader, ArchiveBaseIO, get_reader
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
+
+__all__ = (
+    "TqdmReader",
+    "TqdmLineReader",
+    "get_tqdm_reader",
+    "get_tqdm_line_reader"
+)
 
 class _BaseTqdmReader(SequentialReader):
     _tqdm: Type[tqdm]
@@ -53,7 +66,9 @@ class TqdmReader(_BaseTqdmReader):
 
 class TqdmLineReader(_BaseTqdmReader):
     """
-    A very simple tqdm reader with only :py:func:``readline`` functions.
+    A very simple tqdm reader with only :py:func:`readline` functions.
+
+    .. warning:: This class has different ``__iter__`` method!
     """
 
     @copy_doc(ArchiveBaseIO.__init__)

@@ -8,6 +8,8 @@ will use a home-made fallback which is more silent.
 """
 import sys
 
+__all__ = ("tqdm","IMPORTED_TQDM_TYPE")
+
 try:
     import tqdm as _external_tqdm
 except ImportError:

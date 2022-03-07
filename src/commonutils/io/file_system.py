@@ -1,8 +1,23 @@
+"""
+file_system.py -- Basic Filesystem Functions
+
+Here are very low-level filesystem functions used by other Python modules,
+like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
+"""
+
+
 import os
 import stat
 
 from commonutils.stdlib_helper.logger_helper import chronolog
 
+
+__all__ = (
+    "get_abspath",
+    "file_exists",
+    "directory_exists",
+    "is_soft_link"
+)
 
 @chronolog(display_time=True)
 def get_abspath(path: str) -> str:

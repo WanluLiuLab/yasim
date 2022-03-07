@@ -52,14 +52,14 @@ illumina_2_depth_data <- read_tsv(
     col_names = depth_data_col_name
 )%>%
     dplyr::group_by(TRANSCRIPT_ID) %>%
-    dplyr::summarise(ILLM1_AVG_DEPTH=mean(DEPTH))
+    dplyr::summarise(ILLM2_AVG_DEPTH=mean(DEPTH))
 illumina_3_depth_data <- read_tsv(
     "../illumina_transcriptome_3.bam.depth.tsv",
     col_types = depth_data_col_type,
     col_names = depth_data_col_name
 )%>%
     dplyr::group_by(TRANSCRIPT_ID) %>%
-    dplyr::summarise(ILLM1_AVG_DEPTH=mean(DEPTH))
+    dplyr::summarise(ILLM3_AVG_DEPTH=mean(DEPTH))
 
 
 
