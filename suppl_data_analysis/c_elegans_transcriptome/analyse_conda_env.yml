@@ -1,9 +1,9 @@
 name: yasim_c_elegans_data_analysis
 channels:
-#  - conda-forge
+  - conda-forge # Enable this on Windows
   - defaults
 dependencies:
-  - tensorflow-gpu=2.4.1
+  - tensorflow-gpu=2.6.0
   - numpy=1.21.2
   - pandas=1.3.5
   - matplotlib=3.5.1

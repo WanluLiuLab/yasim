@@ -24,6 +24,6 @@ samtools sort -@ 16 -o pacbio_transcriptome_1.bam # 96.65% mapping rate
 # SRR5123648_1.fastq.gz SRR5123649_1.fastq.gz
 # SRR5123648_2.fastq.gz SRR5123649_2.fastq.gz
 bwa mem -t 16 CE11_TRANSCRIPTOME_BWA_INDEX <(zcat SRR5123644_1.fastq.gz) <(zcat SRR5123644_2.fastq.gz) |\
-samtools sort -@ 16 -o ngs_transcript.bam
+samtools sort -@ 16 -o ngs_transcript.bam # 70.35%, 74.77%, 88.43% respectively
 
 for fn in *.bam; do samtools index $fn; samtools depth $fn > $fn.depth.tsv; done
