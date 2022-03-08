@@ -10,8 +10,6 @@ from yasim.simulator import dwgsim
 
 logger = get_logger(__name__)
 
-__version__ = 0.1
-
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -20,8 +18,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-o', '--out', required=True, help="Output transcript prefix", nargs='?',
                         type=str, action='store')
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     parser.add_argument('-e', '--dwgsim_exename', required=False, help="Executable name or absolute path of dwgsim",
                         nargs='?',
                         type=str, action='store', default=None)

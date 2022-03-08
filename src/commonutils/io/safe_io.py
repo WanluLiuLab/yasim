@@ -16,11 +16,12 @@ from commonutils.io import get_reader as _get_reader, file_system
 from commonutils.io import get_writer as _get_writer
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
-__all__ =(
+__all__ = (
     "get_reader",
     "get_writer",
     "get_appender"
 )
+
 
 @copy_doc(_get_reader)
 def get_reader(filename: str, **kwargs) -> IO:

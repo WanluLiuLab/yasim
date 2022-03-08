@@ -7,7 +7,7 @@ from __future__ import annotations
 import copy
 import math
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional
+from typing import List, Dict, Callable, Optional, Iterable, Tuple
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
@@ -295,11 +295,23 @@ class Transcript(_BaseFeature):
         for exon_s, exon_o in zip(self.exons, other.exons):
             if not exon_s == exon_o:
                 return False
-        return True  # Do not require span length equality
-        # return self.start == other.start and \
-        #        self.end == other.end and \
-        #        self.seqname == other.seqname \
-        #        and self.strand == other.strand
+        return True
+
+    @property
+    def exon_start_end(self) -> Iterable[Tuple[str, int, int]]:
+        for exon in self.exons:
+            yield exon.seqname, exon.start, exon.end
+
+    def sort_exons(self):
+        if len(self.exons) == 0:
+            return
+        self.exons = sorted(self.exons)
+        if self.strand == '-':
+            for i in range(len(self.exons)):
+                self.exons[i].exon_number = i + 1
+        else:
+            for i in range(len(self.exons)):
+                self.exons[len(self.exons) - i - 1].exon_number = i + 1
 
     def __ne__(self, other):
         return not self == other

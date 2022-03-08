@@ -29,6 +29,7 @@ __all__ = (
     "get_appender"
 )
 
+
 def determine_line_endings(fd: IO):
     """
     Determine line endings. If failed, will return OS default.

@@ -5,12 +5,10 @@ Here are very low-level filesystem functions used by other Python modules,
 like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
 """
 
-
 import os
 import stat
 
 from commonutils.stdlib_helper.logger_helper import chronolog
-
 
 __all__ = (
     "get_abspath",
@@ -18,6 +16,7 @@ __all__ = (
     "directory_exists",
     "is_soft_link"
 )
+
 
 @chronolog(display_time=True)
 def get_abspath(path: str) -> str:

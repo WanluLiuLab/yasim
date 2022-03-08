@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Readme for `doc` in `yasim`
 
 This contains configurations of a GPMF-style documentation builder for `yasim`. If you wish to build your own copy of documentation, do as follows:

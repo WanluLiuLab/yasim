@@ -7,8 +7,6 @@ from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer, get_reader
 
-__version__ = 0.1
-
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -20,8 +18,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=int, action='store', default=100)
     parser.add_argument('-l', '--levels', required=False, help="Max number of levels", nargs='?',
                         type=int, action='store', default=100)
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
 
 

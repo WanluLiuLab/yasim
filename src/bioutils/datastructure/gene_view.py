@@ -1,21 +1,22 @@
-__version__ = 0.3
-
 import math
 import os
 import time
 from abc import abstractmethod
-from typing import Optional, Dict, Iterator, Union
+from typing import Optional, Dict, Iterator, Union, Type
 
 from bioutils.datastructure._gene_view_proxy import Gene, Transcript, Exon
 from bioutils.io import get_file_type_from_suffix
-from bioutils.io.feature import GtfIterator, GtfWriter
-from bioutils.typing.feature import GtfRecord, Feature
+from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
+from bioutils.typing.feature import GtfRecord, Feature, Gff3Record
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.file_system import file_exists
 from commonutils.stdlib_helper import pickle_helper
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
+
+GVPKL_VERSION = 0.3
+"""Current version of GVPKL standard."""
 
 
 class _BaseGeneView:
@@ -63,16 +64,21 @@ class _BaseGeneView:
         return new_instance
 
     @classmethod
+    @abstractmethod
+    def from_iterator(cls, iterator: Iterator[Feature]):
+        pass
+
+    @classmethod
     def _from_gvpkl(cls, index_filename: str):
         new_instance = cls()
         (version, new_instance.genes, new_instance.transcripts) = pickle_helper.load(index_filename)
-        if version != __version__:
+        if version != GVPKL_VERSION:
             raise ValueError("Version mismatch")
         return new_instance
 
     def to_gvpkl(self, index_filename: str):
         lh.info("Pickling to gvpkl...")
-        pickle_helper.dump((__version__, self.genes, self.transcripts), index_filename)
+        pickle_helper.dump((GVPKL_VERSION, self.genes, self.transcripts), index_filename)
 
     def standardize(self):
         self._standardize_transcripts()
@@ -85,13 +91,7 @@ class _BaseGeneView:
             if len(transcript.exons) == 0:
                 transcript_id_to_del.append(transcript.transcript_id)
                 continue
-            transcript.exons = sorted(transcript.exons)
-            if transcript.strand == '-':
-                for i in range(len(transcript.exons)):
-                    transcript.exons[i].exon_number = i +1
-            else:
-                for i in range(len(transcript.exons)):
-                    transcript.exons[len(transcript.exons) - i - 1].exon_number = i + 1
+            transcript.sort_exons()
 
             if transcript.feature != "transcript":
                 transcript.copy_data()
@@ -107,7 +107,12 @@ class _BaseGeneView:
             self.del_transcript(transcript_id)
 
     def _standardize_genes(self):
+        gene_id_to_del = []
+        """Genes to be deleted for reason like no transcripts"""
         for gene in tqdm(iterable=self.genes.values(), desc="Standardizing genes"):
+            if len(gene.transcripts) == 0:
+                gene_id_to_del.append(gene.gene_id)
+                continue
             if gene.feature != "gene":
                 gene.copy_data()
                 transcript_s_min = math.inf
@@ -118,16 +123,18 @@ class _BaseGeneView:
                 gene.start = transcript_s_min
                 gene.end = transcript_e_max
                 gene.feature = "gene"
+        for gene_id in gene_id_to_del:
+            self.del_gene(gene_id)
 
     def get_iterator(self) -> Iterator[Feature]:
         for gene in self.genes.values():
             if gene.feature == "gene":
-                yield gene._data
+                yield gene.get_data()
             for transcript in gene.transcripts.values():
                 if transcript.feature == "transcript":
-                    yield transcript._data
+                    yield transcript.get_data()
                 for exon in transcript.exons:
-                    yield exon._data
+                    yield exon.get_data()
 
     def del_gene(self, gene_id: str):
         if gene_id in self.genes.keys():
@@ -148,10 +155,15 @@ class _BaseGeneView:
     def to_file(self, output_filename: str):
         pass
 
+    def __len__(self) -> int:
+        return len(list(self.get_iterator()))
+
+
 class _GtfGeneView(_BaseGeneView):
 
     @classmethod
-    def _from_own_filetype(cls, filename: str):
+    @abstractmethod
+    def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator]):
         def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
             if not record.attribute['gene_id'] in _new_instance.genes.keys():
@@ -176,7 +188,7 @@ class _GtfGeneView(_BaseGeneView):
 
         new_instance = cls()
 
-        for gtf_record in GtfIterator(filename):
+        for gtf_record in iterator:
             if gtf_record.feature == "gene":
                 register_gene(new_instance, gtf_record)
             elif gtf_record.feature == 'transcript':
@@ -184,6 +196,10 @@ class _GtfGeneView(_BaseGeneView):
             elif gtf_record.feature == 'exon':
                 register_exon(new_instance, gtf_record)
         return new_instance
+
+    @classmethod
+    def _from_own_filetype(cls, filename: str):
+        return cls.from_iterator(GtfIterator(filename))
 
     def to_file(self, output_filename: str):
         GtfWriter.write_iterator(
@@ -213,3 +229,12 @@ class GeneView(_BaseGeneView):
             return _Gff3GeneView.from_file(filename, **kwargs)
         else:
             raise ValueError(f"Unknown file type {file_type} for {filename}")
+
+    @classmethod
+    def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None):
+        if record_type == GtfRecord or isinstance(iterator, GtfIterator):
+            return _GtfGeneView.from_iterator(iterator)
+        elif record_type == Gff3Record or isinstance(iterator, Gff3Iterator):
+            return _Gff3GeneView.from_iterator(iterator)
+        else:
+            raise ValueError(f"Unknown iterator type {type(iterator)}")

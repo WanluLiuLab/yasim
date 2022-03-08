@@ -5,9 +5,6 @@ from typing import List
 
 from bioutils.io.feature import GtfIterator
 from bioutils.typing.feature import GtfRecord
-
-__version__ = 0.1
-
 from commonutils.io.safe_io import get_writer
 
 POSSIBLE_KEYS = (
@@ -28,8 +25,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-o', '--out', required=True, help="Output TSV", nargs='?',
                         type=str, action='store')
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
 
 

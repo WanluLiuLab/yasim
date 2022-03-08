@@ -6,7 +6,9 @@ import argparse
 import random
 from typing import List, Iterable
 
-from bioutils.io.feature import GtfIterator, GtfWriter
+from bioutils.datastructure.gene_view import GeneView
+from bioutils.io.feature import GtfIterator
+from bioutils.typing.feature import GtfRecord
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
@@ -19,14 +21,17 @@ def subset_gtf_by_transcript_id(
         out_filename: str
 ):
     gi = GtfIterator(gtf_filename)
-    final_record_num = 0
     input_record_num = 0
-    with GtfWriter(out_filename) as writer:
-        for gtf_record in gi:
-            input_record_num += 1
-            if gtf_record.attribute.get(field_name, None) in possible_values:
-                writer.write_feature(gtf_record)
-                final_record_num += 1
+    intermediate_records = []
+    for gtf_record in gi:
+        input_record_num += 1
+        if gtf_record.attribute.get(field_name, None) in possible_values:
+            intermediate_records.append(gtf_record)
+    gv = GeneView.from_iterator(intermediate_records, record_type=GtfRecord)
+    gv.standardize()
+    final_record_num = len(gv)
+    gv.to_file(out_filename)
+
     lh.info(
         f"{input_record_num} processed with {final_record_num} ({round(final_record_num / input_record_num, 2) * 100}%) records output")
 

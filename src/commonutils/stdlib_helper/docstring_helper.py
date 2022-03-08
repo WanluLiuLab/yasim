@@ -6,7 +6,8 @@ This contains function that makes docstrings easier.
 
 from typing import Callable
 
-__all__ = ('copy_doc', )
+__all__ = ('copy_doc',)
+
 
 def copy_doc(copy_func: Callable) -> Callable:
     """

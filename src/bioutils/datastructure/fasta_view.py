@@ -27,11 +27,8 @@ lh = get_logger(__name__)
 
 __all__ = [
     '_BaseFastaView',
-    'FastaView',
-    '__version__'
+    'FastaView'
 ]
-
-__version__ = 0.2
 
 QueryTuple = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 

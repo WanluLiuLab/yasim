@@ -1,6 +1,6 @@
 # Detailed Project Proposal
 
-Zhejian YU, Yaqi SU, Ruihong YUAN
+2022-03-05, Zhejian YU, Yaqi SU, Ruihong YUAN
 
 ## Introduction
 
@@ -54,10 +54,11 @@ The main ideology of yasim is from this simulator.
 
 From statistics on DGE patterns provided by [^Anders2010] and [^Robinson2010] and parameter estimation from Genetic European Variation in health and Disease (GEUVADIS) [^Lappalainen2013], [^Peter2013] dataset, the author stated that the number of reads to simulate from each transcript is drawn from the negative binomial distribution, across biological replicates [^Anders2010], [^Robinson2010].
 
-Define {math}`Y_{ijk}` as the number of reads simulated from replicate {math}`i`, experimental condition {math}`j` and transcript {math}`k` and dispersion parameter {math}`r`. We may have:
+Define $Y_{ijk}$ as the number of reads simulated from replicate $i$, experimental condition $j$ and transcript $k$ and dispersion parameter $r$. We may have:
 
-```{math} Y_{ijk} \sim NB(mean = \mu_{jk}, size = r_{jk})
-```
+$$
+Y_{ijk} \sim NB(mean = \mu_{jk}, size = r_{jk})
+$$
 
 Since the Poisson distribution is suitable for capturing read count variability across technical replicates [^Robinson2010], users can create experiments with simulated technical replicates only by making all $r_{jk}$ very large.
 

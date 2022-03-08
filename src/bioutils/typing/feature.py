@@ -15,8 +15,6 @@ from commonutils.str_utils import to_dict
 
 lh = get_logger(__name__)
 
-__version__ = 0.1
-
 GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
 """Type of GTF/GFF fields"""
 
@@ -358,7 +356,7 @@ class GtfRecord(Feature):
 
     def format_string(
             self,
-            quote: str = "string"
+            quote: str = "all"
     ):
         if quote not in VAILD_GTF_QUOTE_OPTONS:
             raise ValueError(f"Invalid quoting option {quote}, should be one in {VAILD_GTF_QUOTE_OPTONS}.")

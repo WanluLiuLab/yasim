@@ -11,8 +11,6 @@ from yasim.simulator import pbsim2
 
 logger = get_logger(__name__)
 
-__version__ = 0.1
-
 ALL_POSSIBLE_MODELS = [os.path.basename(os.path.splitext(filename)[0]) for filename in
                        glob.glob(os.path.join(pbsim2.FILE_DIR, "pbsim2_dist", f"*.model"))]
 
@@ -29,8 +27,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('-e', '--pbsim2_exename', required=False,
                         help="Executable name of pbsim2, may be pbsim2 or pbsim.", nargs='?',
                         type=str, action='store', default="pbsim2")
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
 
     return parser.parse_args(args)
 

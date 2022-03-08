@@ -13,8 +13,6 @@ from yasim.simulator import pbsim
 
 logger = get_logger(__name__)
 
-__version__ = 0.1
-
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -27,8 +25,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('-e', '--pbsim_exename', required=False, help="Executable name or absolute path of pbsim",
                         nargs='?',
                         type=str, action='store', default=None)
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
 
 

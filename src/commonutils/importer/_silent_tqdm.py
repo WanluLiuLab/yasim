@@ -7,6 +7,7 @@ from typing import Optional, Iterable, Sized
 
 __all__ = ("tqdm",)
 
+
 class tqdm:
     """
     A silent tqdm that does not pollute stderr.

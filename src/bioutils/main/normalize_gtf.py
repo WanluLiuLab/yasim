@@ -20,7 +20,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         help="Whether to parse the GTF into Gene-Transcript-Exon Three-Tier Structure. Other features will be discarded, and missing genes & transcripts will be added by maximun span length",
                         action='store_true')
     parser.add_argument("--quote", required=False, help="Whether to add quotes in alternative field of output GTF",
-                        nargs='?', type=str, action='store', choices=VAILD_GTF_QUOTE_OPTONS, default="string")
+                        nargs='?', type=str, action='store', choices=VAILD_GTF_QUOTE_OPTONS, default="all")
     parser.add_argument("--out", required=True, help="Output GTF", nargs='?', type=str, action='store')
     return parser.parse_args(args)
 

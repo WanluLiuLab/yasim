@@ -14,6 +14,7 @@ from commonutils.importer.tqdm_importer import tqdm
 
 _JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
 
+
 class ParallelJobQueue(threading.Thread):
     """
     This is a parallel job queue,
@@ -30,22 +31,22 @@ class ParallelJobQueue(threading.Thread):
     How many jobs is allowed to be executed in one time
     """
 
-    pool_name:str
+    pool_name: str
     """
     name of pool to be showed on progress bar, etc.
     """
 
-    refresh_interval:float
+    refresh_interval: float
     """
     Interval for probing job status.
     """
 
-    _pending_job_queue:List[_JOB_TYPE]
+    _pending_job_queue: List[_JOB_TYPE]
     """
     Job waiting to be executed
     """
 
-    _is_terminated:bool
+    _is_terminated: bool
     """
     Whether termination signal was sent to this thread
     """
@@ -80,6 +81,7 @@ class ParallelJobQueue(threading.Thread):
         Run the queue.
         """
         self._is_appendable = False
+
         def _scan_through_process():
             """
             Scan through all processes and terminate the exited process.
@@ -97,8 +99,7 @@ class ParallelJobQueue(threading.Thread):
         pbar = tqdm(desc=self.pool_name, total=self._max_queue_len)
         while len(self._pending_job_queue) > 0 and not self._is_terminated:
             while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self.pool_size:
-                new_processs = self._pending_job_queue[0]
-                self._pending_job_queue.remove(new_processs)
+                new_processs = self._pending_job_queue.pop(0)
                 self._running_job_queue.append(new_processs)
                 new_processs.start()
             _scan_through_process()

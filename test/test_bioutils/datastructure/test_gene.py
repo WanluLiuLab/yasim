@@ -33,7 +33,8 @@ def test_gene() -> None:
     fh.close()
     gv = GeneView.from_file(os.path.join(test_path, "1.gtf.gz"))
     assert list(gv.genes.keys()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
-    assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3', "NM_001322685.1"]
+    assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
+                                           "NM_001322685.1"]
     assert gv.transcripts['NM_058260.4'].exons[0].start == 4221
     gv.to_file(os.path.join(test_path, "2.gtf"))
     gv.standardize()

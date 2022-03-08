@@ -37,10 +37,7 @@ import pickle
 from pickle import Unpickler
 from typing import Any
 
-__version__ = 0.1
-
 from commonutils.io.safe_io import get_writer, get_reader
-
 from commonutils.io.tqdm_reader import get_tqdm_reader
 
 

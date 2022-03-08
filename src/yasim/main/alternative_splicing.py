@@ -2,14 +2,13 @@ import argparse
 import random
 from typing import List
 
+from bioutils.datastructure._gene_view_proxy import Transcript
 from bioutils.datastructure.fasta_view import FastaView
 from bioutils.datastructure.gene_view import GeneView
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 logger = get_logger(__name__)
-
-__version__ = 0.1
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -20,9 +19,11 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-o', '--out', required=True, help="Output GTF", nargs='?',
                         type=str, action='store')
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
+
+
+def introduce_intron_retention(transcript: Transcript):
+    transcript
 
 
 def sample_exon(
