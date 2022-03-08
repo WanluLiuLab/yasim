@@ -2,8 +2,6 @@
 
 2022-03-08, Zhejian YU, Yaqi SU, Ruihong YUAN
 
-## Review of Simulation Process
-
 ## Tasks needed to be Done
 
 ### Find Datasets

@@ -1,25 +1,27 @@
 import glob
 import os
-from typing import List
+from typing import List, Optional
 
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer, get_reader
-from yasim.simulator import Simulator
+from yasim.llrg_adapter import BaseLLRGAdapter
 
-FILE_DIR = os.path.dirname(__file__)
+PBSIM2_DIST = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
+"""
+Where PBSIM2 stores its model.
+"""
 
 
-class SimulatePbsim2(Simulator):
+class Pbsim2Adapter(BaseLLRGAdapter):
     hmm_model: str
-    pbsim2_exename: str
 
     def assemble_cmd(self) -> List[str]:
         cmd = [
-            self.pbsim2_exename,
+            self.exename,
             "--prefix", self.tmp_prefix,
             "--id-prefix", self.tmp_prefix,
             "--depth", str(self.depth),
-            "--hmm_model", os.path.join(FILE_DIR, "pbsim2_dist", f"{self.hmm_model}.model"),
+            "--hmm_model", os.path.join(PBSIM2_DIST, f"{self.hmm_model}.model"),
             self.input_fasta
         ]
         return cmd
@@ -48,8 +50,11 @@ class SimulatePbsim2(Simulator):
             output_fastq_prefix: str,
             depth: int,
             hmm_model: str,
-            pbsim2_exename: str = "pbsim2",
+            exename: Optional[str] = None,
             **kwargs):
         super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
         self.hmm_model = hmm_model
-        self.pbsim2_exename = pbsim2_exename
+        if self.exename is None:
+            self.exename = "pbsim2"
+        else:
+            self.exename = exename

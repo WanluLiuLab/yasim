@@ -45,7 +45,7 @@ $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
 	$(YASIM) alternative_splicing -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
 
 $(DEPTH_TSV): $(SEL_GTF)
-	$(YASIM) dge -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100 -l 20
+	$(YASIM) dge -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100
 
 $(SEL_CDNA_FASTA): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
 	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -d $(DEPTH_TSV) -o $(SEL_CDNA_FASTA)

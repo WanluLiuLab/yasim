@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/.virtualenv" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans_transcriptome/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/build" />
@@ -20,7 +21,6 @@
       <excludeFolder url="file://$MODULE_DIR$/iter_2" />
       <excludeFolder url="file://$MODULE_DIR$/iter_2/hg38.chr1.transcripts_dwgsim.d" />
       <excludeFolder url="file://$MODULE_DIR$/dist/PaSS" />
-      <excludeFolder url="file://$MODULE_DIR$/src/yasim/simulator/shell/.vscode" />
       <excludeFolder url="file://$MODULE_DIR$/tmp_96h8RO" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/hg38.chr1.transcripts_badread_nanopore2018.d" />
       <excludeFolder url="file://$MODULE_DIR$/iter_1/hg38.chr1.transcripts_badread_nanopore2020.d" />
@@ -65,6 +65,7 @@
       <excludeFolder url="file://$MODULE_DIR$/iter_5" />
       <excludeFolder url="file://$MODULE_DIR$/.vs" />
       <excludeFolder url="file://$MODULE_DIR$/src/bioutils/datastructure/_deprecated" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/llrg_adapter/shell/.vscode" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

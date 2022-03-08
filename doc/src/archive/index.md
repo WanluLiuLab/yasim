@@ -2,12 +2,16 @@
 
 Here are documentations produced in the development progress.
 
+```{warning}
+The terminology may change during developmental progress! For latest terminology, see {doc}`/src/devel/design`.
+```
+
 ```{toctree}
 :caption: 'Contents:'
 :glob:
 :maxdepth: 2
 
-2022-03-04-Proposal/index.md
-2022-03-05-Detailed-Proposal/index.md
-2022-03-08-Problems/index.md
+2022-03-04-Proposal/index
+2022-03-05-Detailed-Proposal/index
+2022-03-08-Problems/index
 ```

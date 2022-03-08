@@ -65,7 +65,7 @@ setup(
     ),
     package_dir={"": 'src'},
     package_data={
-        '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "simulator", "**"), recursive=True),
+        '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "llrg_adapter", "**"), recursive=True),
     },
     install_requires=install_requires
 )

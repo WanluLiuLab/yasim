@@ -6,13 +6,13 @@ from typing import List
 import commonutils.stdlib_helper.parallel_helper
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.main._helper import get_depth_from_intermediate_fasta, assemble_single_end
-from yasim.simulator import pbsim2
+from yasim.helper.llrg_helper import get_depth_from_intermediate_fasta, assemble_single_end
+from yasim.llrg_adapter import pbsim2
 
 logger = get_logger(__name__)
 
 ALL_POSSIBLE_MODELS = [os.path.basename(os.path.splitext(filename)[0]) for filename in
-                       glob.glob(os.path.join(pbsim2.FILE_DIR, "pbsim2_dist", f"*.model"))]
+                       glob.glob(os.path.join(pbsim2.PBSIM2_DIST, "*.model"))]
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -24,7 +24,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-m', '--hmm_model', required=True, help="Basename of HMM file", nargs='?',
                         type=str, action='store', choices=ALL_POSSIBLE_MODELS)
-    parser.add_argument('-e', '--pbsim2_exename', required=False,
+    parser.add_argument('-e', '--exename', required=False,
                         help="Executable name of pbsim2, may be pbsim2 or pbsim.", nargs='?',
                         type=str, action='store', default="pbsim2")
 
@@ -35,7 +35,7 @@ def simulate(
         intermediate_fasta_dir: str,
         output_fastq_prefix: str,
         hmm_model: str,
-        pbsim2_exename: str
+        exename: str
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
@@ -44,12 +44,12 @@ def simulate(
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        sim_thread = pbsim2.SimulatePbsim2(
+        sim_thread = pbsim2.Pbsim2Adapter(
             input_fasta=transcript_filename,
             output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
             depth=transcript_depth,
             hmm_model=hmm_model,
-            pbsim2_exename=pbsim2_exename
+            exename=exename
         )
         simulating_pool.append(sim_thread)
     simulating_pool.start()
@@ -59,4 +59,4 @@ def simulate(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    simulate(args.fastas, args.out, args.hmm_model, args.pbsim2_exename)
+    simulate(args.fastas, args.out, args.hmm_model, args.exename)

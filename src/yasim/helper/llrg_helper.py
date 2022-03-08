@@ -2,17 +2,22 @@ import glob
 import os
 from typing import Iterable, Tuple
 
-from bioutils.io.fastq import FastqIterator, FastqWriter
+from bioutils.io.fastq import FastqWriter, FastqIterator
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io import file_system
 from commonutils.io.safe_io import get_writer
 
 DEPTH_INFO = Iterable[Tuple[int, str, str]]
+"""
+Depth information used by LLRG frontend interfaces.
+
+They are: [depth, transcript_id, filename]
+"""
 
 
 def get_depth_from_intermediate_fasta(intermediate_fasta_dir: str) -> DEPTH_INFO:
     """
-    For a filename line base_dir/1/transcript_id.fasta, return iterator of [depth, transcript_id, filename]
+    Glob and parse a filename line base_dir/1/transcript_id.fasta.
     """
     for filename in glob.glob(os.path.join(intermediate_fasta_dir, "*", "*.fa")):
         depth = os.path.basename(os.path.dirname(filename))
@@ -68,6 +73,9 @@ def assemble_pair_end(
         output_fastq_prefix: str,
         simulator_name: str
 ):
+    """
+    Assemble pair-end reads into one.
+    """
     output_fastq_dir = output_fastq_prefix + ".d"
     with FastqWriter(output_fastq_prefix + "_1.fq") as writer1, \
             FastqWriter(output_fastq_prefix + "_2.fq") as writer2, \
@@ -100,6 +108,9 @@ def assemble_single_end(
         output_fastq_prefix: str,
         simulator_name: str
 ):
+    """
+    Assemble single_end reads into one.
+    """
     output_fastq_dir = output_fastq_prefix + ".d"
     with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(
             output_fastq_prefix + ".fq.stats") as stats_writer:

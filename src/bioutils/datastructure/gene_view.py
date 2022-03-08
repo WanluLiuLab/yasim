@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 import os
 import time
@@ -220,7 +222,7 @@ class GeneView(_BaseGeneView):
                   filename: str,
                   file_type: Optional[str] = None,
                   **kwargs
-                  ) -> Union[_GtfGeneView, _Gff3GeneView]:
+                  ) -> GeneView:
         if file_type is None:
             file_type = get_file_type_from_suffix(filename)
         if file_type == "GTF":

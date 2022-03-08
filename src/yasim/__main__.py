@@ -1,16 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: __main__.py -- yasim main frontend.
-#
-#  VERSION HISTORY:
-#  2021-08-15 0.1  : Purposed from the shell script by YU Zhejian.
-#  2021-08-21 0.1  : Added; shell script deprecated.
-#
-# ==============================================================================
 """
 __main__.py -- yasim main frontend.
 

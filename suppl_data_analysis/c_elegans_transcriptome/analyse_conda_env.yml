@@ -1,6 +1,7 @@
 name: yasim_c_elegans_data_analysis
 channels:
-  - conda-forge # Enable this on Windows
+  - conda-forge
+  # - bioconda
   - defaults
 dependencies:
   - tensorflow-gpu=2.7
@@ -11,3 +12,8 @@ dependencies:
   - ipython=7.31
   - python=3.8
   - keras=2.7
+  - jupyter=1.0
+  - easydev=0.12.0
+  - pip
+  - pip:
+      - fitter=1.4

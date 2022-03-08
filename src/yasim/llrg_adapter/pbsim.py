@@ -4,48 +4,52 @@ from typing import List, Optional
 
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_reader, get_writer
-from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
+from yasim.llrg_adapter import BaseLLRGAdapter, LLRG_SHELL_ADAPTER_PATH
 
-FILE_DIR = os.path.dirname(__file__)
+PBSIM_DIST_DIR = os.path.join(os.path.dirname(__file__), "pbsim_dist")
+"""
+Where pbsim stores its models
+"""
 
-
-class SimulatorPbsim(Simulator):
+class PbsimAdapter(BaseLLRGAdapter):
     is_ccs: bool
-    pbsim_exename: str
+    """
+    Whether to simulate CCS or CLR reads.
+    """
 
     def __init__(
             self,
             input_fasta: str,
             output_fastq_prefix: str,
             depth: int,
-            pbsim_exename: Optional[str] = None,
+            exename: Optional[str] = None,
             is_ccs: bool = False,
             **kwargs
     ):
-        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
-        if pbsim_exename is None:
-            self.pbsim_exename = os.path.join(ADAPTER_SHELL_PATH, "pbsim.sh")
+        super().__init__(input_fasta, output_fastq_prefix, depth, exename, **kwargs)
+        if self.exename is None:
+            self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "pbsim.sh")
         else:
-            self.pbsim_exename = pbsim_exename
+            self.exename = exename
         self.is_ccs = is_ccs
 
     def assemble_cmd(self) -> List[str]:
         if self.is_ccs:
             cmd = [
-                self.pbsim_exename,
+                self.exename,
                 "--prefix", self.tmp_prefix,
                 "--depth", str(self.depth),
                 "--data-type", "CCS",
-                "--model_qc", os.path.join(FILE_DIR, "pbsim_dist", "model_qc_ccs"),
+                "--model_qc", os.path.join(PBSIM_DIST_DIR, "model_qc_ccs"),
                 self.input_fasta
             ]
         else:
             cmd = [
-                self.pbsim_exename,
+                self.exename,
                 "--prefix", self.tmp_prefix,
                 "--depth", str(self.depth),
                 "--data-type", "CLR",
-                "--model_qc", os.path.join(FILE_DIR, "pbsim_dist", "model_qc_clr"),
+                "--model_qc", os.path.join(PBSIM_DIST_DIR, "model_qc_clr"),
                 self.input_fasta
             ]
         return cmd

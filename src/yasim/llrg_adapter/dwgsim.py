@@ -5,27 +5,26 @@ from typing import List, Union, Optional
 from commonutils import shell_utils
 from commonutils.io import file_system
 from commonutils.shell_utils import gz_decompress
-from yasim.simulator import Simulator
+from yasim.llrg_adapter import BaseLLRGAdapter
 
 
-class SimulatorDwgsim(Simulator):
-    dwgsim_exename: str
+class DwgsimAdapter(BaseLLRGAdapter):
 
     def __init__(self,
                  input_fasta: str,
                  output_fastq_prefix: str,
                  depth: Union[int, float],
-                 dwgsim_exename: Optional[str] = None,
+                 exename: Optional[str] = None,
                  **kwargs):
-        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
-        if dwgsim_exename is None:
-            self.dwgsim_exename = "dwgsim"
+        super().__init__(input_fasta, output_fastq_prefix, depth, exename, **kwargs)
+        if self.exename is None:
+            self.exename = "dwgsim"
         else:
-            self.dwgsim_exename = dwgsim_exename
+            self.exename = exename
 
     def assemble_cmd(self) -> List[str]:
         cmd = [
-            self.dwgsim_exename,
+            self.exename,
             "-1", "140",
             "-2", "140",
             "-C", str(self.depth),

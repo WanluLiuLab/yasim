@@ -10,7 +10,7 @@ from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 from commonutils.shell_utils import mkdir_p
 from commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.main import dge
+from yasim.helper import dge_helper
 
 logger = get_logger(__name__)
 
@@ -79,7 +79,7 @@ def main(args: List[str]):
     gv = GeneView.from_file(args.gtf)
     fv = FastaView(args.fasta)
     if args.depth is not None:
-        depth = dge.read_depth(args.depth)
+        depth = dge_helper.read_depth(args.depth)
     else:
         depth = None
     transcribe(gv, args.out, fv, depth)

@@ -1,12 +1,12 @@
 import os
 from typing import List, Optional
 
-from yasim.simulator import Simulator, ADAPTER_SHELL_PATH
+from yasim.llrg_adapter import BaseLLRGAdapter, LLRG_SHELL_ADAPTER_PATH
 
 
-class SimulatorBadread(Simulator):
+class BadreadAdapter(BaseLLRGAdapter):
     model_name: str
-    badread_exename: str
+    """Filename of pre-defined model."""
 
     def __init__(
             self,
@@ -14,19 +14,19 @@ class SimulatorBadread(Simulator):
             output_fastq_prefix: str,
             depth: int,
             model_name: str,
-            badread_exename: Optional[str] = None,
+            exename: Optional[str] = None,
             **kwargs
     ):
-        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
-        if badread_exename is None:
-            self.badread_exename = os.path.join(ADAPTER_SHELL_PATH, "badread.sh")
+        super().__init__(input_fasta, output_fastq_prefix, depth, exename, **kwargs)
+        if self.exename is None:
+            self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "badread.sh")
         else:
-            self.badread_exename = badread_exename
+            self.exename = self.exename
         self.model_name = model_name
 
     def assemble_cmd(self) -> List[str]:
         cmd = [
-            self.badread_exename, "simulate",
+            self.exename, "simulate",
             "--reference", self.input_fasta,
             "--quantity", f"{self.depth}x",
             "--error_model", self.model_name,
@@ -38,7 +38,7 @@ class SimulatorBadread(Simulator):
 
     def move_file_after_finish(self):
         """
-        This funcyion is passed due to badread pours read into stdout.
+        This function is passed since badread pours read into stdout.
         """
         return
 

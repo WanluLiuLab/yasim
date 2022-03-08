@@ -6,6 +6,8 @@ This includes a very basic job pool.
 
 import gc
 import multiprocessing
+import os
+import subprocess
 import threading
 import time
 from typing import Union, List
@@ -13,6 +15,7 @@ from typing import Union, List
 from commonutils.importer.tqdm_importer import tqdm
 
 _JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
+_PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
 
 
 class ParallelJobQueue(threading.Thread):
@@ -26,9 +29,11 @@ class ParallelJobQueue(threading.Thread):
 
     """
 
-    pool_size: int
+    pool_size: Union[int, float]
     """
-    How many jobs is allowed to be executed in one time
+    How many jobs is allowed to be executed in one time.
+    
+    Use ``math.inf`` to set unlimited or ``0`` to auto determine.
     """
 
     pool_name: str
@@ -63,7 +68,7 @@ class ParallelJobQueue(threading.Thread):
 
     def __init__(self,
                  pool_name: str = "Unnamed pool",
-                 pool_size: int = 0,
+                 pool_size: Union[int, float] = 0,
                  refresh_interval: float = 0.01):
         super().__init__()
         self.pool_size = pool_size
@@ -75,6 +80,7 @@ class ParallelJobQueue(threading.Thread):
         self.pool_name = pool_name
         self._running_job_queue = []
         self.refresh_interval = refresh_interval
+        self._is_appendable = True
 
     def run(self):
         """
@@ -107,7 +113,6 @@ class ParallelJobQueue(threading.Thread):
         while len(self._running_job_queue) > 0 and not self._is_terminated:
             _scan_through_process()
             time.sleep(self.refresh_interval)
-        pbar.close()
         self._is_terminated = True
 
     def stop(self):
@@ -128,3 +133,28 @@ class ParallelJobQueue(threading.Thread):
             self._max_queue_len += 1
         else:
             raise ValueError("Job queue not appendable!")
+
+
+class TimeOutKiller(threading.Thread):
+    _pid:int
+    timeout: int
+
+    def __init__(self, process_or_pid:Union[_PROCESS_TYPE, int], timeout: int = 30):
+        super().__init__()
+        if isinstance(process_or_pid, int):
+            self._pid = process_or_pid
+        else:
+            self._pid = process_or_pid.pid
+        self.timeout = timeout
+
+    def run(self):
+        time.sleep(self.timeout)
+        try:
+            os.kill(self._pid, 15)
+        except ProcessLookupError:
+            return
+        time.sleep(3)
+        try:
+            os.kill(self._pid, 9)
+        except ProcessLookupError:
+            pass
