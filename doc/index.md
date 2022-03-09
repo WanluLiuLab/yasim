@@ -9,9 +9,7 @@ This contains documentation for Users and Developers.
 
 _root/Readme
 _root/Copying
-_apidoc/bioutils
-_apidoc/commonutils
-_apidoc/yasim
+apidoc_index
 src/index
 _root/TODO
 ```

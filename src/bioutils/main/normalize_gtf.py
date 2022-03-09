@@ -28,7 +28,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 def main(args: List[str]):
     args = _parse_args(args)
     if args.three_tier:
-        gv = GeneView.from_file(args.gtf, not_build_index=True)
+        gv = GeneView.from_file(args.gtf, not_save_index=True)
         gv.standardize()
         gi = gv.get_iterator()
     else:

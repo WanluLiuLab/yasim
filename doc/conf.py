@@ -42,7 +42,7 @@ THIS_DIR = os.path.dirname(__file__)
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
 # Enable scan of packages in src which is not installed.
-sys.path.insert(0, os.path.abspath(os.path.join(ROOT_DIR, 'src')))
+sys.path.insert(0, os.path.join(ROOT_DIR, 'src'))
 
 
 def copy_doc_files(from_path: str, to_path: str):

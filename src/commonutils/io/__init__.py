@@ -15,7 +15,7 @@ import gzip
 import io
 import lzma
 import os
-from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, List
+from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, List, Union
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
@@ -28,6 +28,8 @@ __all__ = (
     "get_writer",
     "get_appender"
 )
+
+from commonutils.typing import PathOrFDType
 
 
 def determine_line_endings(fd: IO):
@@ -78,29 +80,32 @@ class ArchiveBaseIO(IO):
     """
 
     def __init__(self,
-                 filename: str,
-                 opener: Optional[Callable[..., IO]] = None,
+                 path_or_fd:PathOrFDType,
                  *args,
                  **kwargs):
         """
         Open a file.
 
-        :param filename: The filename to be opened.
-        :param opener: The underlying opener you wish to use. Should return some IO.
+        :param path_or_fd: The filename to be opened.
         :param args: Positional arguments passed to underlying opener.
         :param kwargs: Keyword arguments passed to underlying opener.
         TODO: Example using zstd library.
         """
-        if opener is not None:
-            self._fd = opener(filename, *args, **kwargs)
-        if filename.endswith('.gz'):
-            self._fd = gzip.open(filename, *args, **kwargs)
-        elif filename.endswith('.xz') or filename.endswith('.lzma'):
-            self._fd = lzma.open(filename, *args, **kwargs)
-        elif filename.endswith('.bz2'):
-            self._fd = bz2.open(filename, *args, **kwargs)
+        if isinstance(path_or_fd, str):
+            if path_or_fd.endswith('.gz'):
+                self._fd = gzip.open(path_or_fd, *args, **kwargs)
+            elif path_or_fd.endswith('.xz') or path_or_fd.endswith('.lzma'):
+                self._fd = lzma.open(path_or_fd, *args, **kwargs)
+            elif path_or_fd.endswith('.bz2'):
+                self._fd = bz2.open(path_or_fd, *args, **kwargs)
+            else:
+                self._fd = open(path_or_fd, *args, **kwargs)
+        elif isinstance(path_or_fd, IO) or isinstance(path_or_fd, io.IOBase):
+            self._fd = path_or_fd
         else:
-            self._fd = open(filename, *args, **kwargs)
+            raise TypeError(f"Type {type(path_or_fd)} not supported!")
+
+
 
     @property
     def mode(self) -> str:

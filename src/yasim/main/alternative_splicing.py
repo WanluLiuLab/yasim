@@ -2,7 +2,7 @@ import argparse
 import random
 from typing import List
 
-from bioutils.datastructure._gene_view_proxy import Transcript
+from bioutils.datastructure.gene_view_proxy import Transcript
 from bioutils.datastructure.fasta_view import FastaView
 from bioutils.datastructure.gene_view import GeneView
 from commonutils.importer.tqdm_importer import tqdm

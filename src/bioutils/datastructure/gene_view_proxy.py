@@ -1,5 +1,5 @@
 """
-_gene_view_proy -- Purposed GTF/GFF3/BED Proxy for Features in GeneView without Data Loss
+gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Data Loss
 """
 
 from __future__ import annotations
@@ -16,7 +16,10 @@ UNKNOWN_TRANSCRIPT_ID = 'UNKNOWN_TRANSCRIPT_ID'
 UNKNOWN_GENE_ID = 'UNKNOWN_GENE_ID'
 
 
-class _BaseFeature(FeatureType):
+class BaseFeature(FeatureType):
+    """
+    Base class of Feature Proxy.
+    """
     __slots__ = (
         "_data"
     )
@@ -142,35 +145,35 @@ class _BaseFeature(FeatureType):
         else:
             raise NotImplementedError(f"Not implemented for {type(feature)}!")
 
-    def __eq__(self, other: _BaseFeature):
+    def __eq__(self, other: BaseFeature):
         return self._data == other._data
 
-    def __ne__(self, other: _BaseFeature):
+    def __ne__(self, other: BaseFeature):
         return self._data != other._data
 
-    def overlaps(self, other: _BaseFeature) -> bool:
+    def overlaps(self, other: BaseFeature) -> bool:
         return self._data.overlaps(other._data)
 
-    def __gt__(self, other: _BaseFeature):
+    def __gt__(self, other: BaseFeature):
         return self._data > other._data
 
-    def __ge__(self, other: _BaseFeature):
+    def __ge__(self, other: BaseFeature):
         return self._data >= other._data
 
-    def __lt__(self, other: _BaseFeature):
+    def __lt__(self, other: BaseFeature):
         return self._data < other._data
 
-    def __le__(self, other: _BaseFeature):
+    def __le__(self, other: BaseFeature):
         return self._data <= other._data
 
     def __repr__(self):
-        return "_BaseFeature"
+        return "BaseFeature"
 
     def __str__(self):
         return repr(self)
 
 
-class Exon(_BaseFeature):
+class Exon(BaseFeature):
 
     @property
     def transcript_id(self) -> str:
@@ -211,7 +214,7 @@ class Exon(_BaseFeature):
         return f"Exon {self.exon_number} of {self.transcript_id}"
 
 
-class Transcript(_BaseFeature):
+class Transcript(BaseFeature):
     __slots__ = (
         "exons",
         "_cdna_sequence"
@@ -320,7 +323,7 @@ class Transcript(_BaseFeature):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
 
-class Gene(_BaseFeature):
+class Gene(BaseFeature):
     __slots__ = (
         "transcripts"
     )

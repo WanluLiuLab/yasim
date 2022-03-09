@@ -1,8 +1,14 @@
+import bz2
+import gzip
+import io
+import lzma
+import os
 import random
 import string
 
 import test_tetgs
 from commonutils import shell_utils
+from commonutils.io import ArchiveBaseIO
 from commonutils.io.safe_io import get_writer, get_reader
 from commonutils.io.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader
 
@@ -16,8 +22,7 @@ len_contents = len(contents)
 contents_list = contents.splitlines()
 
 
-def get_opener_family_assertions(suffix: str):
-    filename = f"{test_path}/1.{suffix}"
+def assess_archive_io(filename: str):
     shell_utils.rm_rf(filename)
     with get_writer(filename) as writer:
         writer.write(contents)
@@ -32,24 +37,56 @@ def get_opener_family_assertions(suffix: str):
             assert contents_list[i] == line
             i += 1
             assert reader._tqdm._n == i
-    shell_utils.rm_rf(filename)
+
 
 
 def test_txt():
-    get_opener_family_assertions("txt")
+    filename = os.path.join(test_path, f"1.txt")
+    assess_archive_io(filename)
+    bare_archive_io = ArchiveBaseIO(open(filename, "rt"))
+    assert bare_archive_io.read(len_contents) == contents
+    bare_archive_io.close()
+    shell_utils.rm_rf(filename)
 
 
 def test_bz2():
-    get_opener_family_assertions("bz2")
+    filename = os.path.join(test_path, f"1.bz2")
+    assess_archive_io(filename)
+    bare_archive_io = ArchiveBaseIO(bz2.open(filename, "rt"))
+    assert bare_archive_io.read(len_contents) == contents
+    bare_archive_io.close()
+    shell_utils.rm_rf(filename)
 
 
 def test_gz():
-    get_opener_family_assertions("gz")
+    filename = os.path.join(test_path, f"1.gz")
+    assess_archive_io(filename)
+    bare_archive_io = ArchiveBaseIO(gzip.open(filename, "rt"))
+    assert bare_archive_io.read(len_contents) == contents
+    bare_archive_io.close()
+    shell_utils.rm_rf(filename)
 
 
 def test_xz():
-    get_opener_family_assertions("xz")
+    filename = os.path.join(test_path, f"1.xz")
+    assess_archive_io(filename)
+    bare_archive_io = ArchiveBaseIO(lzma.open(filename, "rt"))
+    assert bare_archive_io.read(len_contents) == contents
+    bare_archive_io.close()
+    shell_utils.rm_rf(filename)
 
 
 def test_lzma():
-    get_opener_family_assertions("lzma")
+    filename = os.path.join(test_path, f"1.lzma")
+    bare_archive_io = ArchiveBaseIO(lzma.open(filename, "rt"))
+    assert bare_archive_io.read(len_contents) == contents
+    bare_archive_io.close()
+    shell_utils.rm_rf(filename)
+
+def test_string_io():
+    # FIXME
+    sio = io.StringIO(contents)
+    bare_archive_io = ArchiveBaseIO(sio)
+    assert bare_archive_io.read(len_contents) == contents
+
+

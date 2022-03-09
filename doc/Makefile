@@ -23,6 +23,7 @@ SPHINX_APIDOC_ARGS := --separate \
 	--doc-project 'API Docs'
 
 BUILD_DIR := $(CURDIR)/_build
+SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
 
 .PHONY: all
 
@@ -30,9 +31,10 @@ all: pdf html
 
 .PHONY: apidoc
 apidoc:
-	sphinx-apidoc $(SPHINX_APIDOC_ARGS) $(PWD)/src/bioutils
-	sphinx-apidoc $(SPHINX_APIDOC_ARGS) $(PWD)/src/commonutils
-	sphinx-apidoc $(SPHINX_APIDOC_ARGS) $(PWD)/src/yasim
+	rm -rf $(CURDIR)/_apidoc
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/bioutils
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/commonutils
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/yasim
 
 html:
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
@@ -41,6 +43,6 @@ pdf: apidoc
 	sphinx-build -M latexpdf $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
 clean:
-	$(RM) $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
 
 distclean:
