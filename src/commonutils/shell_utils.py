@@ -1,3 +1,9 @@
+"""
+shell_utils -- Enhanced :py:mod:`shutils` Module
+
+More shell-like utilities.
+"""
+
 import gzip
 import os
 import shutil

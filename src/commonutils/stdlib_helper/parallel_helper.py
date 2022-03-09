@@ -1,7 +1,7 @@
 """
 parallel_helper.py -- Helper for Multiprocessing
 
-This includes a very basic job pool.
+This includes a very basic job pool and some helper classes
 """
 
 import gc
@@ -136,10 +136,32 @@ class ParallelJobQueue(threading.Thread):
 
 
 class TimeOutKiller(threading.Thread):
-    _pid:int
-    timeout: int
+    """
+    A timer that kills a process if time out is reached.
 
-    def __init__(self, process_or_pid:Union[_PROCESS_TYPE, int], timeout: int = 30):
+    A process can be either represented using :py:class:`multiprocessing.Process` or :py:class`subprocess.Popen`,
+    or by its PID.
+
+    After reaching the timeout, the killer will firstly send SIGTERM (15).
+    If the process is alive after 3 seconds, it will send SIGKILL (9).
+
+    TODO: Check whether the PIDs are in the same round.
+    """
+
+    _pid:int
+    """
+    Monitored process ID
+    """
+
+    timeout: float
+    """
+    The timeout in seconds, default 30.0
+    """
+
+    def __init__(self, process_or_pid:Union[_PROCESS_TYPE, int], timeout: float = 30.0):
+        """
+        .. warning :: Initialize the object after starting the monitored process!
+        """
         super().__init__()
         if isinstance(process_or_pid, int):
             self._pid = process_or_pid
@@ -151,10 +173,10 @@ class TimeOutKiller(threading.Thread):
         time.sleep(self.timeout)
         try:
             os.kill(self._pid, 15)
-        except ProcessLookupError:
+        except (ProcessLookupError, PermissionError):
             return
         time.sleep(3)
         try:
             os.kill(self._pid, 9)
-        except ProcessLookupError:
+        except (ProcessLookupError, PermissionError):
             pass

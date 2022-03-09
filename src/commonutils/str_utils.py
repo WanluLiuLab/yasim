@@ -1,15 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: str_utils.py -- String utilities
-#
-#  VERSION HISTORY:
-#  2021-08-10 0.1  : Migrated from LinuxMiniPrograms.
-#
-# ==============================================================================
 """
 str_utils.py -- String utilities
 
@@ -65,6 +53,16 @@ def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
     To exchange the keys and values of one dictionary, that is,
     make a key value and make a value key.
 
+    If the value contains duplicates, will use last key.
+
+    >>> in_dict = {1: 'a', 2: 'b'}
+    >>> dict_exchange_key_val(in_dict)
+    {'a': 1, 'b': 2}
+
+    >>> in_dict = {1: 'a', 2: 'a'}
+    >>> dict_exchange_key_val(in_dict)
+    {'a': 2}
+
     :param in_dict: Dictionary to be exchanged.
     :return: Exchanged dictionary.
     """
@@ -76,14 +74,15 @@ def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
 
 def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[str, Any]:
     """
-    Dictonary Translator.
+    Dictionary Translator.
 
     This function will change the key of in_dict with the rules specified
     in trans_dict.
 
     For example:
 
-    {A:1, B:2, C:3} {A:a, B:b} -> {a:1, b:2, C:3}
+    >>> dict_translate({'A':1, 'B':2, 'C':3}, {'A':'a', 'B':'b'})
+    {'a': 1, 'b': 2, 'C':3}
 
     .. warning::
      The order of item will change!
@@ -105,9 +104,12 @@ def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[s
     """
     List Translator.
 
-    Translate the list as is specified in py:func:`_dict_traslate`.
+    Translate the list as is specified in py:func:`dict_translate`.
 
     The order of the item will NOT be changed.
+
+    >>> list_translate(['A', 'B', 'C'], {'A':'a', 'B':'b'})
+    ['a', 'b', 'C']
 
     :param in_list: Input list
     :param trans_dict: The translator.
@@ -132,6 +134,16 @@ def to_dict(
     A simple parser to get key-value pairs to a dictionary.
 
     Key: string. Value: String, float or int.
+
+    >>> in_str = '\\nCPU:\\t2\\nMEM:\\t5.1\\nPCIE:\\t3rd Gen\\nGRAPHICS:\\t"UHD630\\tRTX2070"\\nUSB: "3.1"\\nOthers:::info'
+    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=True)
+    {'CPU': 2, 'MEM': 5.1, 'PCIE': '3rd Gen', 'GRAPHICS': 'UHD630\\tRTX2070', 'USB': 3.1, 'Others': 'info'}
+    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=False)
+    {'CPU': '2', 'MEM': '5.1', 'PCIE': '3rd Gen', 'GRAPHICS': 'UHD630\\tRTX2070', 'USB': '3.1', 'Others': 'info'}
+    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=False)
+    {'CPU': '2', 'MEM': '5.1', 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
+    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=True)
+    {'CPU': 2, 'MEM': 5.1, 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
 
     :param in_str: Input string
     :param field_sep: Field separator, the FS variable in AWK programming language.

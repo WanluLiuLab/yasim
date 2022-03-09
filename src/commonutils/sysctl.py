@@ -1,15 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: sysctl.py -- System Control library.
-#
-#  VERSION HISTORY:
-#  2021-08-23 0.1  : Migrated from ioctl.py
-#
-# ==============================================================================
 """
 sysctl.py -- A rewritten of various sysadmin commands.
 
