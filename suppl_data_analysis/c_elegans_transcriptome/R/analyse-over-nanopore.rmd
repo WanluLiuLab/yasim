@@ -1,0 +1,56 @@
+# Test Analysis over Nanopore Data
+
+
+```{r Load Package}
+load_package <- function(name) {
+    message(sprintf("Loading %s", name))
+    suppressWarnings(suppressMessages(library(name, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)))
+}
+
+load_package("tidyverse")
+load_package("ggpubr")
+load_package("gamlss")
+load_package("fitdistrplus")
+load_package("parallel")
+load_package("knitr")
+load_package("rmutil")
+
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width = 16)
+knitr::opts_chunk$set(cache = TRUE)
+sessionInfo()
+version
+
+cl <- parallel::makeCluster(parallel::detectCores() - 1)
+clusterExport(cl, varlist = ls())
+
+all_data <- read_tsv("../all_data.tsv")
+
+all_data_nano <- all_data %>%
+    dplyr::select(TRANSCRIPT_ID, GENE_ID, SEQNAME, START, END, STRAND, LEN, GC, NANOPORE_AVG_DEPTH) %>%
+    dplyr::rename(count=NANOPORE_AVG_DEPTH) %>%
+    dplyr::filter(count>0)
+```
+
+```{r test ziff's law}
+all_data_nano <- all_data_nano %>%
+    dplyr::mutate(
+        rank=dplyr::dense_rank(dplyr::desc(count)),
+        zipfs_freq = max(count) / rank,
+        rank_l2n=log2(rank),
+        zipfs_freq_l2n=log2(zipfs_freq),
+        count_l2n=log2(count),
+    )
+ggplot(all_data_nano) +
+    geom_point(aes(x=count_l2n, y=rank_l2n), color="blue") +
+    geom_point(aes(x=zipfs_freq_l2n, y=rank_l2n), color="red") +
+    geom_smooth(aes(x=count_l2n, y=rank_l2n), method='lm')
+fnbiom <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "nbinom")
+fpois <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "pois")
+fgamma <- fitdistrplus::fitdist(all_data_nano$count, "gamma")
+flnorm <- fitdistrplus::fitdist(all_data_nano$count, "lnorm")
+fexp <- fitdistrplus::fitdist(all_data_nano$count, "exp")
+fweibull <- fitdistrplus::fitdist(all_data_nano$count, "weibull")
+fcauchy <- fitdistrplus::fitdist(all_data_nano$count, "cauchy")
+```
