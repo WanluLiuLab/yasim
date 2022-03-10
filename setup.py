@@ -68,4 +68,5 @@ setup(
         '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "llrg_adapter", "**"), recursive=True),
     },
     install_requires=install_requires
+    # FIXME: Errors when adding to sdists.
 )

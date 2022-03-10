@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.pytest.ini_options]
-addopts = "-vv --continue-on-collection-errors 	--junitxml=dist/pytest/junit.xml --cov --cov-report=html --html=dist/htdocs/pytest_report.html --self-contained-html --doctest-modules --doctest-continue-on-failure"
+addopts = "-vv --continue-on-collection-errors 	--junitxml=dist/pytest/junit.xml --cov --cov-report=html --html=dist/htdocs/pytest_report.html --self-contained-html --doctest-modules --doctest-continue-on-failure --ignore-glob=*/_deprecated/*"
 testpaths = "test/ src/"
 log_level = 8
 log_file = "pytest.log"

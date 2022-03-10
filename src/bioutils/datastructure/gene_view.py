@@ -265,15 +265,15 @@ class GeneView(BaseGeneView):
     GeneView Factory that creates GeneView according to different file types.
     """
     @classmethod
-    def from_file(cls, filename: str, not_save_index: Optional[str] = False, **kwargs) -> GeneView:
-        if not_save_index is None:
-            not_save_index = get_file_type_from_suffix(filename)
-        if not_save_index == "GTF":
+    def from_file(cls, filename: str, file_type:Optional[str]=None, **kwargs) -> GeneView:
+        if file_type is None:
+            file_type = get_file_type_from_suffix(filename)
+        if file_type == "GTF":
             return _GtfGeneView.from_file(filename, **kwargs)
-        elif not_save_index == "GFF3":
+        elif file_type == "GFF3":
             return _Gff3GeneView.from_file(filename, **kwargs)
         else:
-            raise ValueError(f"Unknown file type {not_save_index} for {filename}")
+            raise ValueError(f"Unknown file type {file_type} for {filename}")
 
     @classmethod
     def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None):

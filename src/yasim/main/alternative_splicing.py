@@ -23,7 +23,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 
 def introduce_intron_retention(transcript: Transcript):
-    transcript
+    pass
 
 
 def sample_exon(
@@ -31,10 +31,6 @@ def sample_exon(
         output_gtf_filename: str,
         fasta_handler: FastaView
 ) -> GeneView:
-    logger.info("Creating Geneview")
-
-    logger.info("Creating Geneview FIN")
-    logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
     transcript_name_to_del = []
     for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
         indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
@@ -54,5 +50,6 @@ def sample_exon(
 def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneView.from_file(args.gtf)
+    logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
     fv = FastaView(args.fasta)
     sample_exon(gv=gv, output_gtf_filename=args.out, fasta_handler=fv)

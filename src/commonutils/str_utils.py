@@ -82,7 +82,7 @@ def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[
     For example:
 
     >>> dict_translate({'A':1, 'B':2, 'C':3}, {'A':'a', 'B':'b'})
-    {'a': 1, 'b': 2, 'C':3}
+    {'a': 1, 'b': 2, 'C': 3}
 
     .. warning::
      The order of item will change!
@@ -100,7 +100,7 @@ def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[
     return new_dict
 
 
-def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[str]:
+def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> List[str]:
     """
     List Translator.
 
@@ -116,11 +116,13 @@ def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> Iterator[s
     :type trans_dict: dict
     :return: Translated dictionary.
     """
+    retl = []
     for old_item in copy.deepcopy(in_list):
         if old_item in trans_dict.keys():
-            yield trans_dict[old_item]
+            retl.append(trans_dict[old_item])
         else:
-            yield old_item
+            retl.append(old_item)
+    return retl
 
 
 def to_dict(

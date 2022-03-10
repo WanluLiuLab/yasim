@@ -78,6 +78,7 @@ def test_xz():
 
 def test_lzma():
     filename = os.path.join(test_path, f"1.lzma")
+    assess_archive_io(filename)
     bare_archive_io = ArchiveBaseIO(lzma.open(filename, "rt"))
     assert bare_archive_io.read(len_contents) == contents
     bare_archive_io.close()
