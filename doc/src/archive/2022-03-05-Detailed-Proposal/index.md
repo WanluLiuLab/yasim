@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Detailed Project Proposal
 
 2022-03-05, Zhejian YU, Yaqi SU, Ruihong YUAN

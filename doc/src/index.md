@@ -5,6 +5,5 @@
 
 devel/index
 reviews/index
-archive/index
 license/index
 ```

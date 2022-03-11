@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Detailed CBSB Project Proposal
 
 2022-03-11, Zhejian YU, Yaqi SU, Ruihong YUAN

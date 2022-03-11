@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Documentation Archives
 
 Here are documentations produced in the development progress.
