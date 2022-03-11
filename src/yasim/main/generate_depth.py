@@ -2,7 +2,7 @@ import argparse
 from typing import List
 
 from bioutils.datastructure.gene_view import GeneView
-from yasim.helper import dge_helper
+from yasim.helper import depth
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -23,4 +23,4 @@ def main(args: List[str]):
         gv=gv,
         mu=args.mu
     )
-    dge_helper.write_dge(dge_data, args.out)
+    depth.write_dge(dge_data, args.out)

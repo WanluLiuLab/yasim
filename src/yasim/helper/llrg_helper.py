@@ -6,8 +6,9 @@ from bioutils.io.fastq import FastqWriter, FastqIterator
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io import file_system
 from commonutils.io.safe_io import get_writer
+from yasim.helper.depth import DepthType
 
-DEPTH_INFO = Iterable[Tuple[int, str, str]]
+DepthInfoType = Iterable[Tuple[int, str, str]]
 """
 Depth information used by LLRG frontend interfaces.
 
@@ -15,14 +16,16 @@ They are: [depth, transcript_id, filename]
 """
 
 
-def get_depth_from_intermediate_fasta(intermediate_fasta_dir: str) -> DEPTH_INFO:
+def get_depth_from_intermediate_fasta(
+        intermediate_fasta_dir: str,
+        depth:DepthType
+) -> DepthInfoType:
     """
     Glob and parse a filename line base_dir/1/transcript_id.fasta.
     """
-    for filename in glob.glob(os.path.join(intermediate_fasta_dir, "*", "*.fa")):
-        depth = os.path.basename(os.path.dirname(filename))
-        transcript_id = os.path.basename(os.path.splitext(filename)[0])
-        yield depth, transcript_id, filename
+    for transcript_id, transcript_depth in depth.items():
+        filename = os.path.join(intermediate_fasta_dir, transcript_id+".fa")
+        yield transcript_depth, transcript_id, filename
 
 
 def remark_fastq_single_end(
@@ -69,7 +72,7 @@ def remark_fastq_pair_end(
 
 
 def assemble_pair_end(
-        depth_info: DEPTH_INFO,
+        depth: DepthType,
         output_fastq_prefix: str,
         simulator_name: str
 ):
@@ -85,7 +88,7 @@ def assemble_pair_end(
             "INPUT_DEPTH",
             "SIMULATED_N_OF_READS",
         )) + "\n")
-        for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
+        for transcript_id, transcript_depth in tqdm(iterable=depth.items(), desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
             num_of_reads = remark_fastq_pair_end(
                 input_filename_1=this_fastq_basename + "_1.fq",
@@ -104,7 +107,7 @@ def assemble_pair_end(
 
 
 def assemble_single_end(
-        depth_info: DEPTH_INFO,
+        depth: DepthType,
         output_fastq_prefix: str,
         simulator_name: str
 ):
@@ -119,7 +122,7 @@ def assemble_single_end(
             "INPUT_DEPTH",
             "SIMULATED_N_OF_READS",
         )) + "\n")
-        for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Merging..."):
+        for transcript_id, transcript_depth in tqdm(iterable=depth.items(), desc="Merging..."):
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
             if not file_system.file_exists(this_fastq_basename + ".fq"):
                 continue

@@ -42,13 +42,13 @@ include $(CURDIR)/featureCounts.mk
 include $(CURDIR)/stringtie.mk
 
 $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
-	$(YASIM) alternative_splicing -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
+	$(YASIM) generate_as_events -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
 
 $(DEPTH_TSV): $(SEL_GTF)
-	$(YASIM) dge -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100
+	$(YASIM) generate_depth -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100
 
 $(SEL_CDNA_FASTA): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
-	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -d $(DEPTH_TSV) -o $(SEL_CDNA_FASTA)
+	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -o $(SEL_CDNA_FASTA)
 
 $(SEL_CDNA_FASTA).stats:$(SEL_CDNA_FASTA)
 
