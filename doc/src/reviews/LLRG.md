@@ -1,9 +1,11 @@
 # Low-Level Read Generators (LLRG)
 
+This is a review of LLRGs, with definition available at {doc}`/src/devel/design`.
+
 ## Next Generation Sequencing
 
-
 ### 454sim
+
 - C++
 - Roche-454
 - <https://sourceforge.net/projects/bioinfo-454sim/>
@@ -11,6 +13,7 @@
 - Scopus Cited 24
 
 ### PIRS
+
 - C++, Perl
 - Illumina
 - <ftp://ftp.genomics.org.cn/pub/pIRS/>
@@ -18,6 +21,7 @@
 - Scopus Cited 115
 
 ### flowsim
+
 - Haskell, GPL
 - Roche-454
 - <https://hackage.haskell.org/package/flowsim>
@@ -25,6 +29,7 @@
 - Scopus Cited 103
 
 ### ART
+
 - C++
 - Roche-454, Illumina, ABI-SOLiD
 - <https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm>
@@ -32,6 +37,7 @@
 - Scopus Cited 679
 
 ### Grinder
+
 - Perl
 - \*
 - <https://sourceforge.net/projects/biogrinder/>
@@ -39,6 +45,7 @@
 - Scopus Cited 129
 
 ### GemSIM
+
 - Python
 - Roche-454, Illumina
 - <https://sourceforge.net/projects/gemsim>
@@ -46,6 +53,7 @@
 - Scopus Cited 115
 
 ### XS
+
 - C, GPL V3
 - Ion Torrent, Roche-454, Illumina, ABI-SOLiD
 - <https://bioinformatics.ua.pt/software/xs/>
@@ -53,6 +61,7 @@
 - Scopus Cited 14
 
 ### curesim
+
 - Java
 - Ion Torrent
 - <http://www.pegase-biosciences.com/curesim-a-customized-read-simulator/>
@@ -60,6 +69,7 @@
 - Scopus Cited 57
 
 ### FASTQSim
+
 - Python and Java
 - \*
 - <https://sourceforge.net/p/fastqsim>
@@ -67,16 +77,19 @@
 - Scopus Cited 22
 
 ### dwgsim
+
 - C
 - Ion Torrent, Illumina and ABI-SOLiD
 - <https://github.com/nh13/DWGSIM>
 
 ### wgsim
+
 - C
 - ?
 - <https://github.com/lh3/wgsim>
 
 ### SimSeq
+
 - C
 - Illumina
 - <https://github.com/jstjohn/SimSeq>

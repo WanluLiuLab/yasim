@@ -8,5 +8,6 @@ Here are documentations for developers.
 :maxdepth: 2
 
 design
+data_analysis
 infra
 ```

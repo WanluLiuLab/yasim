@@ -32,9 +32,9 @@ all: pdf html
 .PHONY: apidoc
 apidoc:
 	rm -rf $(CURDIR)/_apidoc
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/bioutils
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/commonutils
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(PWD)/src/yasim
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/bioutils
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/commonutils
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim
 
 html:
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)

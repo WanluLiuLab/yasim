@@ -37,15 +37,17 @@ all_data_nano <- all_data %>%
 all_data_nano <- all_data_nano %>%
     dplyr::mutate(
         rank=dplyr::dense_rank(dplyr::desc(count)),
+        rank_zipfs=rank^(-2),
         zipfs_freq = max(count) / rank,
         rank_l2n=log2(rank),
+        rank_zipfs_l2n=log2(rank_zipfs),
         zipfs_freq_l2n=log2(zipfs_freq),
         count_l2n=log2(count),
     )
 ggplot(all_data_nano) +
-    geom_point(aes(x=count_l2n, y=rank_l2n), color="blue") +
-    geom_point(aes(x=zipfs_freq_l2n, y=rank_l2n), color="red") +
-    geom_smooth(aes(x=count_l2n, y=rank_l2n), method='lm')
+    geom_point(aes(x=count_l2n, y=rank_zipfs_l2n), color="blue") +
+    geom_point(aes(x=zipfs_freq_l2n, y=rank_zipfs_l2n), color="red") +
+    geom_smooth(aes(x=count_l2n, y=rank_zipfs_l2n), method='lm')
 fnbiom <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "nbinom")
 fpois <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "pois")
 fgamma <- fitdistrplus::fitdist(all_data_nano$count, "gamma")

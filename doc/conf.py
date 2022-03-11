@@ -107,9 +107,10 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 html_theme_options = {
     'show_navbar_depth': 2,
+    'repository_url': 'http://10.109.92.4:3000/yuzj/yasim',
     'repository_branch': "master",
     "home_page_in_toc": True,
-    "toc_title": "Page Table of Contents",
+    "toc_title": "Page TOC",
     "use_download_button": True,
     "use_repository_button": True,
     "use_issues_button": True,
