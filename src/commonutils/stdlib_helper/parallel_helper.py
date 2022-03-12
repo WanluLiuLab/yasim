@@ -7,10 +7,12 @@ This includes a very basic job pool and some helper classes
 import gc
 import multiprocessing
 import os
+import queue
 import subprocess
 import threading
 import time
-from typing import Union, List
+from abc import abstractmethod
+from typing import Union, List, Iterable, TypeVar, Callable
 
 from commonutils.importer.tqdm_importer import tqdm
 
@@ -18,37 +20,27 @@ _JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
 _PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
 
 
-class ParallelJobQueue(threading.Thread):
+class BaseParallelJobExecutor(threading.Thread):
     """
-    This is a parallel job queue,
-    for jobs in a format of :py:class:`multiprocessing.Process` or :py:class:`threading.Thread`.
+    Base class of all parallel job executors.
 
-    This queue is designed for "batch" jobs.
-    That is, the user should append all jobs before they start the queue.
-
-
+    This class is an abstraction of a sized pool.
     """
-
-    pool_size: Union[int, float]
+    _pool_size: Union[int, float]
     """
     How many jobs is allowed to be executed in one time.
-    
+
     Use ``math.inf`` to set unlimited or ``0`` to auto determine.
     """
 
-    pool_name: str
+    _pool_name: str
     """
     name of pool to be showed on progress bar, etc.
     """
 
-    refresh_interval: float
+    _refresh_interval: float
     """
     Interval for probing job status.
-    """
-
-    _pending_job_queue: List[_JOB_TYPE]
-    """
-    Job waiting to be executed
     """
 
     _is_terminated: bool
@@ -61,7 +53,56 @@ class ParallelJobQueue(threading.Thread):
     Whether this queue is appendable.
     """
 
-    _max_queue_len: int
+    def __init__(self,
+                 pool_name: str = "Unnamed pool",
+                 pool_size: Union[int, float] = 0,
+                 **kwargs):
+        super().__init__()
+        self._pool_size = pool_size
+        if self._pool_size == 0:
+            self._pool_size = multiprocessing.cpu_count()
+        self._pool_name = pool_name
+        self._is_terminated = False
+        self._is_appendable = True
+
+    @abstractmethod
+    def append(self, mp_instance: _JOB_TYPE):
+        pass
+
+    def stop(self):
+        """
+        Send termination signal.
+        This will stop the job queue from adding more jobs.
+        """
+        self._is_terminated = True
+        # The job queue may receive this signal before being started.
+        self._is_appendable = False
+
+    def run(self):
+        while not self._is_terminated:
+            pass
+
+
+class ParallelJobExecutor(BaseParallelJobExecutor):
+    """
+    This is a parallel job executor,
+    for jobs in a format of :py:class:`multiprocessing.Process` or :py:class:`threading.Thread`.
+
+    This queue is designed for "batch" jobs.
+    That is, the user should append all jobs before they start the executor.
+
+    This executor is designed for non-stated jobs.
+    That is, the executor will NOT save the state of any job.
+    """
+
+    _pending_job_queue: List[_JOB_TYPE]
+    """
+    Job waiting to be executed
+    """
+
+    _running_job_queue: List[_JOB_TYPE]
+
+    _n_jobs: int
     """
     Number of jobs to be executed
     """
@@ -70,17 +111,11 @@ class ParallelJobQueue(threading.Thread):
                  pool_name: str = "Unnamed pool",
                  pool_size: Union[int, float] = 0,
                  refresh_interval: float = 0.01):
-        super().__init__()
-        self.pool_size = pool_size
-        if self.pool_size == 0:
-            self.pool_size = multiprocessing.cpu_count()
+        super().__init__(pool_name=pool_name, pool_size=pool_size)
         self._pending_job_queue = []
-        self._is_terminated = False
-        self._max_queue_len = 0
-        self.pool_name = pool_name
+        self._n_jobs = 0
         self._running_job_queue = []
-        self.refresh_interval = refresh_interval
-        self._is_appendable = True
+        self._refresh_interval = refresh_interval
 
     def run(self):
         """
@@ -102,27 +137,18 @@ class ParallelJobQueue(threading.Thread):
                     gc.collect()
                     pbar.update(1)
 
-        pbar = tqdm(desc=self.pool_name, total=self._max_queue_len)
+        pbar = tqdm(desc=self._pool_name, total=self._n_jobs)
         while len(self._pending_job_queue) > 0 and not self._is_terminated:
-            while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self.pool_size:
+            while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self._pool_size:
                 new_processs = self._pending_job_queue.pop(0)
                 self._running_job_queue.append(new_processs)
                 new_processs.start()
             _scan_through_process()
-            time.sleep(self.refresh_interval)
+            time.sleep(self._refresh_interval)
         while len(self._running_job_queue) > 0 and not self._is_terminated:
             _scan_through_process()
-            time.sleep(self.refresh_interval)
+            time.sleep(self._refresh_interval)
         self._is_terminated = True
-
-    def stop(self):
-        """
-        Send termination signal.
-        This will stop the job queue from adding more jobs.
-        """
-        self._is_terminated = True
-        # The job queue may receive this signal before being started.
-        self._is_appendable = False
 
     def append(self, mp_instance: _JOB_TYPE):
         """
@@ -130,10 +156,59 @@ class ParallelJobQueue(threading.Thread):
         """
         if self._is_appendable:
             self._pending_job_queue.append(mp_instance)
-            self._max_queue_len += 1
+            self._n_jobs += 1
         else:
             raise ValueError("Job queue not appendable!")
 
+
+class ParallelJobQueue(BaseParallelJobExecutor):
+    """
+    A FIFO stated job queue.
+
+    TODO: Under Construction
+    """
+
+
+    _pending_job_queue: List[_JOB_TYPE]
+    """
+    Job waiting to be executed
+    """
+
+    _running_job_queue: List[_JOB_TYPE]
+
+    _T = TypeVar('_T')
+
+    _get_result: Callable[..., _T]
+
+    def __init__(self,
+                 pool_name: str = "Unnamed pool",
+                 pool_size: Union[int, float] = 0,
+                 refresh_interval: float = 0.01,
+                 get_result: Callable[..., _T] = None
+                 ):
+        super().__init__(pool_name=pool_name, pool_size=pool_size)
+        self._get_result = get_result
+        self._pending_job_queue = []
+        self._max_queue_len = 0
+        self._running_job_queue = []
+        self._refresh_interval = refresh_interval
+
+
+    def get_iterator(self, _T) -> Iterable[_T]:
+        pass
+
+
+    def append(self, mp_instance: _JOB_TYPE):
+        """
+        Commit a new job to the queue
+        """
+        if self._is_appendable:
+            self._pending_job_queue.append(mp_instance)
+        else:
+            raise ValueError("Job queue not appendable!")
+
+    def have_appended_all(self):
+        self._is_appendable = False
 
 class TimeOutKiller(threading.Thread):
     """
@@ -148,7 +223,7 @@ class TimeOutKiller(threading.Thread):
     TODO: Check whether the PIDs are in the same round.
     """
 
-    _pid:int
+    _pid: int
     """
     Monitored process ID
     """
@@ -158,7 +233,7 @@ class TimeOutKiller(threading.Thread):
     The timeout in seconds, default 30.0
     """
 
-    def __init__(self, process_or_pid:Union[_PROCESS_TYPE, int], timeout: float = 30.0):
+    def __init__(self, process_or_pid: Union[_PROCESS_TYPE, int], timeout: float = 30.0):
         """
         .. warning :: Initialize the object after starting the monitored process!
         """

@@ -10,3 +10,5 @@ dependencies:
   - minimap2
   - fastqc
   - cutadapt
+  - r
+  - r-tidyverse

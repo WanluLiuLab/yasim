@@ -48,6 +48,9 @@ ggplot(all_data_nano) +
     geom_point(aes(x=count_l2n, y=rank_zipfs_l2n), color="blue") +
     geom_point(aes(x=zipfs_freq_l2n, y=rank_zipfs_l2n), color="red") +
     geom_smooth(aes(x=count_l2n, y=rank_zipfs_l2n), method='lm')
+```
+
+```{r fit common distributions}
 fnbiom <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "nbinom")
 fpois <- fitdistrplus::fitdist(as.integer(all_data_nano$count), "pois")
 fgamma <- fitdistrplus::fitdist(all_data_nano$count, "gamma")
@@ -55,4 +58,15 @@ flnorm <- fitdistrplus::fitdist(all_data_nano$count, "lnorm")
 fexp <- fitdistrplus::fitdist(all_data_nano$count, "exp")
 fweibull <- fitdistrplus::fitdist(all_data_nano$count, "weibull")
 fcauchy <- fitdistrplus::fitdist(all_data_nano$count, "cauchy")
+
+```
+
+```{r glm using lnorm}
+plot(flnorm)
+flnorm_glm <- glm(
+    count~LEN+GC,
+    data=all_data_nano,
+    family="lnorm"
+)
+
 ```

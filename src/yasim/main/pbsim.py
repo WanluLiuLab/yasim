@@ -10,7 +10,7 @@ from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg_helper import get_depth_from_intermediate_fasta, assemble_single_end
+from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_single_end
 from yasim.llrg_adapter import pbsim
 
 logger = get_logger(__name__)
@@ -45,7 +45,7 @@ def simulate(
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     shell_utils.mkdir_p(output_fastq_dir)
-    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
+    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs"
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir, depth))

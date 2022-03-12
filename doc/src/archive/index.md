@@ -18,5 +18,5 @@ The terminology may change during developmental progress! For latest terminology
 2022-03-04-Proposal
 2022-03-05-Detailed-Proposal/index
 2022-03-08-Problems
-2022-03-011-CBSB-General-Proposal/index
+2022-03-011-CBSB-General-Proposal
 ```

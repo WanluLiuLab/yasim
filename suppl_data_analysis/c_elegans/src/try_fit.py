@@ -11,7 +11,7 @@ import pandas as pd
 from scipy import stats as ss
 from scipy.stats import rv_continuous
 
-from commonutils.stdlib_helper.parallel_helper import ParallelJobQueue, TimeOutKiller
+from commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor, TimeOutKiller
 
 
 class FitResult:
@@ -110,11 +110,11 @@ if __name__ == "__main__":
                 isinstance(getattr(getattr(ss, spec), "logpdf"), Callable):
             fitable_functions.append(spec)
     print(fitable_functions)
-    all_data = pd.read_table("../all_data.tsv")
+    all_data = pd.read_table("../../c_elegans_transcriptome/all_data.tsv")
     nanopore_coverage = all_data.loc[:, 'NANOPORE_AVG_DEPTH'].to_numpy(dtype=float)
     nanopore_coverage = nanopore_coverage[np.where(nanopore_coverage > 0)]
     fs: List[FitResult] = []
-    fit_job_queue = ParallelJobQueue(pool_name="Fitting", pool_size=math.inf)
+    fit_job_queue = ParallelJobExecutor(pool_name="Fitting", pool_size=math.inf)
     sync_manager = multiprocessing.Manager()
     out_queue = sync_manager.Queue()
     for spec in fitable_functions:

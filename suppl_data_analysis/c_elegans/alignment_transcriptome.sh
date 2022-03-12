@@ -14,4 +14,5 @@ bwa mem -t 64 CE11_TRANSCRIPTOME_BWA_INDEX/ce11 \
 <(zcat SRR5123644_2_c.fastq.gz SRR5123648_2_c.fastq.gz SRR5123649_2_c.fastq.gz) |\
 samtools sort -@ 50 -o ILLM_TRANS.bam # 78.37% mapping rate
 
-for fn in *_TRANS.bam; do samtools index $fn; samtools depth $fn > $fn.depth.tsv; done
+for fn in *_TRANS.bam; do samtools index $fn; samtools depth $fn > $fn.depth.tsv & done
+wait

@@ -3,11 +3,11 @@ import multiprocessing
 import os.path
 from typing import List
 
-from commonutils.stdlib_helper.parallel_helper import ParallelJobQueue
+from commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg_helper import get_depth_from_intermediate_fasta, assemble_single_end
+from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_single_end
 from yasim.llrg_adapter import badread
 
 logger = get_logger(__name__)
@@ -44,7 +44,7 @@ def simulate(
         jobs:int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    simulating_pool = ParallelJobQueue(
+    simulating_pool = ParallelJobExecutor(
         pool_name="Simulating jobs",
         pool_size=jobs
     )

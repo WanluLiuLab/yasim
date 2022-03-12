@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
-set -e
+set -
+
+set -C
+if ! echo -e "sync\t${$}" >sync.lock 2>/dev/null; then
+    set +C
+    echo -e "$(timestamp)\tSYNC\tOCCUPIED" >>act.log
+    errh "Repository being synced by $(cat sync.lock)"
+fi
+set +C
+
+
+
 if which pbsim2 &>> /dev/null; then
     exec pbsim2 "${@}"
 fi

@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/.virtualenv" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans_transcriptome/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/build" />

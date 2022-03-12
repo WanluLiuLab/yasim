@@ -7,7 +7,7 @@ import commonutils.stdlib_helper.parallel_helper
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg_helper import get_depth_from_intermediate_fasta, assemble_pair_end
+from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_pair_end
 from yasim.llrg_adapter import dwgsim
 
 logger = get_logger(__name__)
@@ -39,7 +39,7 @@ def simulate(
         jobs:int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobQueue(
+    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs",
         pool_size=jobs
     )

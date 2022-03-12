@@ -422,4 +422,5 @@ SiLiCO_Scratch/
 .vs/
 *.sf
 *_cache/
-/suppl_data_analysis/c_elegans_transcriptome/R/.Rhistory
+/suppl_data_analysis/c_elegans/R/.Rhistory
+.Rhistory
