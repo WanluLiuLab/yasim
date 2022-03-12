@@ -1,0 +1,12 @@
+name: yasim_c_elegans_as_depth_analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - STAR
+  - bwa
+  - samtools
+  - minimap2
+  - fastqc
+  - cutadapt
