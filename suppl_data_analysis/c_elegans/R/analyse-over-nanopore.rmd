@@ -1,7 +1,10 @@
 # Test Analysis over Nanopore Data
 
 
-```{r Load Package}
+```{r Preparation}
+# Purge current environment.
+rm(list = ls())
+
 load_package <- function(name) {
     message(sprintf("Loading %s", name))
     suppressWarnings(suppressMessages(library(name, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)))
@@ -28,7 +31,7 @@ clusterExport(cl, varlist = ls())
 all_data <- read_tsv("../all_data.tsv")
 
 all_data_nano <- all_data %>%
-    dplyr::select(TRANSCRIPT_ID, GENE_ID, SEQNAME, START, END, STRAND, LEN, GC, NANOPORE_AVG_DEPTH) %>%
+    # dplyr::select(TRANSCRIPT_ID, GENE_ID, SEQNAME, START, END, STRAND, LEN, GC, NANOPORE_AVG_DEPTH) %>%
     dplyr::rename(count=NANOPORE_AVG_DEPTH) %>%
     dplyr::filter(count>0)
 ```
@@ -68,5 +71,20 @@ flnorm_glm <- glm(
     data=all_data_nano,
     family="lnorm"
 )
-
+ldata <- length(all_data_nano$count)
+sorted_count <- sort(all_data_nano$count, decreasing = FALSE)
+fFluxSim <- fitdistrplus::fitdist(
+    sorted_count, "FluxSim", 
+    start=list(k=-0.8, a=ldata, b=ldata),
+    fix.arg = list(Y_max=max(all_data_nano$count)),
+    upper=c(-0.5, 10*ldata, 10*ldata),
+    lower=c(-0.9, 1/10*ldata, 1/10*ldata)
+)
+fZipf <- fitdistrplus::fitdist(
+    sorted_count, "Zipf",
+    start=list(k=-0.8), 
+    fix.arg=list(Y_max=max(all_data_nano$count)), 
+    lower=c(-0.9), upper=c(-0.5)
+)
+qqZipf(all_data_nano$count, fZipf$estimate[1])
 ```

@@ -110,8 +110,8 @@ if __name__ == "__main__":
                 isinstance(getattr(getattr(ss, spec), "logpdf"), Callable):
             fitable_functions.append(spec)
     print(fitable_functions)
-    all_data = pd.read_table("../../c_elegans_transcriptome/all_data.tsv")
-    nanopore_coverage = all_data.loc[:, 'NANOPORE_AVG_DEPTH'].to_numpy(dtype=float)
+    all_data = pd.read_table("all_data.tsv")
+    nanopore_coverage = all_data.loc[:, 'NANO_AVG_DEPTH'].to_numpy(dtype=float)
     nanopore_coverage = nanopore_coverage[np.where(nanopore_coverage > 0)]
     fs: List[FitResult] = []
     fit_job_queue = ParallelJobExecutor(pool_name="Fitting", pool_size=math.inf)
