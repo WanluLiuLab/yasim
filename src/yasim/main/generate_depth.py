@@ -19,7 +19,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneView.from_file(args.gtf)
-    dge_data = dge_helper.simulate_dge_uniform(
+    dge_data = depth.simulate_dge_uniform(
         gv=gv,
         mu=args.mu
     )

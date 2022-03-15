@@ -85,7 +85,7 @@ Shouls we filter:
 This part is waiting for satistical tests.
 ```
 
-The Alternative Splicing events are generated at.
+Firstly, we parse the GTF and get a list of AS-able transcripts. Simulated from pre-fitted distribution of corresponding event type, AS events are then added to these transcripts.
 
 ## `generate_depth`: Simulate GEP based on a Statistical Model Given by Mining Raw Data and Works of Literature
 
@@ -117,7 +117,7 @@ The seqname of FASTA records is `transcript_id` of AS Ground Truth GTF.
 Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while `yasim` transcribed cDNA includes all transcripts and exons inside GTF.
 ```
 
-## Use LLRGs to generate raw reads for Next- or Third-Generation Sequencing
+## Use LLRGs to Generate Raw Reads for Next- or Third-Generation Sequencing
 
 - INPUT: A `TranscriptID -  Coverage` TSV, reference FASTA, AS Ground Truth GTF
 - OUTPUT: LLRG-Generated FASTQ, Ground Truth GEP TSV
@@ -201,3 +201,4 @@ Where $E_{c}$ is AS Event type $c$.
 [^Anders2010]: Anders, S., & Huber, W. (2010). Differential expression analysis for sequence count data. Genome biology, 11(10), R106. <https://doi.org/10.1186/gb-2010-11-10-r106>
 [^Robinson2010]: Robinson, M. D., McCarthy, D. J., & Smyth, G. K. (2010). edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics (Oxford, England), 26(1), 139–140. <https://doi.org/10.1093/bioinformatics/btp616>
 [^Griebel2012]: Griebel, T., Zacher, B., Ribeca, P., Raineri, E., Lacroix, V., Guigó, R., & Sammeth, M. (2012). Modelling and simulating generic RNA-Seq experiments with the flux simulator. Nucleic acids research, 40(20), 10073–10083. <https://doi.org/10.1093/nar/gks666>
+[^Quirin2021]: Quirin Manz, Olga Tsoy, Amit Fenn, Jan Baumbach, Uwe Völker, Markus List, Tim Kacprowski, ASimulatoR: splice-aware RNA-Seq data simulation, Bioinformatics, Volume 37, Issue 18, 15 September 2021, Pages 3008–3010, <https://doi.org/10.1093/bioinformatics/btab142>

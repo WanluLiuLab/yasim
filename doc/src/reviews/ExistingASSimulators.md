@@ -2,7 +2,7 @@
 
 ## BEERS
 
-BEERS (Benchmarker for Evaluating the Effectiveness of RNA-Seq Software) [^Grant2011] is an NGS RNA-Seq AS generator with built-in LLRG. It can simulate DGE using one empirical dataset from the mouse. It can simulate alternative splicing by randomly removing exons from transcripts.
+BEERS (Benchmarker for Evaluating the Effectiveness of RNA-Seq Software) [^Grant2011] is an NGS RNA-Seq AS generator with built-in LLRG. It can simulate GEP using one empirical dataset from the mouse. It can simulate alternative splicing by randomly removing exons from transcripts.
 
 ## RNASeqEval
 
@@ -20,7 +20,7 @@ From its article, this simulator simulates data in the following steps:
 > 8. Using PBSIM, simulate reads on each generated subset of the transcriptome, using coverages determined in step 6 and error profiles determined in step 1.
 > 9. Combine generated reads into a single generated dataset.
 
-The figure below shows how RNASeqEval generates DGE. From its `Readme`, it says:
+The figure below shows how RNASeqEval generates GEP. From its `Readme`, it says:
 
 > Gene expression histogram was approximated with three points (red squares in the figure), each point was described by a total number of genes and average coverage of those genes.
 
@@ -40,9 +40,9 @@ The main ideology of yasim is from this simulator.
 
 ## Polyester
 
-[Polyester](https://bioconductor.org/packages/release/bioc/html/polyester.html) [^Frazee2005] is an RNA-Seq read generator and DGE simulator. It is designed to simulate isoform-level DGE from a series of technical-replicates RNA-Seq experiments.
+[Polyester](https://bioconductor.org/packages/release/bioc/html/polyester.html) [^Frazee2005] is an RNA-Seq read generator and GEP simulator. It is designed to simulate isoform-level GEP from a series of technical-replicates RNA-Seq experiments.
 
-From statistics on DGE patterns provided by [^Anders2010] and [^Robinson2010] and parameter estimation from Genetic European Variation in health and Disease (GEUVADIS) [^Lappalainen2013], [^Peter2013] dataset, the author stated that the number of reads to simulate from each transcript is drawn from the negative binomial distribution, across biological replicates [^Anders2010], [^Robinson2010].
+From statistics on GEP patterns provided by [^Anders2010] and [^Robinson2010] and parameter estimation from Genetic European Variation in health and Disease (GEUVADIS) [^Lappalainen2013], [^Peter2013] dataset, the author stated that the number of reads to simulate from each transcript is drawn from the negative binomial distribution, across biological replicates [^Anders2010], [^Robinson2010].
 
 Define $Y_{ijk}$ as the number of reads simulated from replicate $i$, experimental condition $j$ and transcript $k$ and dispersion parameter $r$. We may have:
 
