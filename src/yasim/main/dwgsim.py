@@ -27,7 +27,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store', default="dwgsim")
     parser.add_argument('-j', '--jobs', required=False,
                         help="Number of threads", nargs='?',
-                        type=int, action='store', default=multiprocessing.cpu_count)
+                        type=int, action='store', default=multiprocessing.cpu_count())
     return parser.parse_args(args)
 
 

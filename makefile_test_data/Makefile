@@ -1,6 +1,6 @@
 
 export ROOTDIR := $(abspath $(CURDIR)/../)
-export DATADIR := $(ROOTDIR)/iter_5
+export DATADIR := $(ROOTDIR)/iter_6
 export PYTHONPATH := "$(ROOTDIR)/src:$(PYTHONPATH:-)"
 export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
 export YASIM_SCRIPTS := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim_scripts
@@ -34,7 +34,7 @@ include $(CURDIR)/final_targets.mk
 include $(CURDIR)/general.mk
 include $(CURDIR)/simulators.mk
 include $(CURDIR)/hisat2.mk
-# include $(CURDIR)/STAR.mk
+include $(CURDIR)/STAR.mk
 include $(CURDIR)/minimap2.mk
 include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk
@@ -63,5 +63,4 @@ nothing:
 
 $(FASTQ_BASENAME)_%_ground_truth.tsv:$(FASTQ_BASENAME)_dwgsim.fq.stats $(SEL_CDNA_FASTA).stats
 	Rscript $(ROOTDIR)/R/generate_ground_truth.R --libfile "$(ROOTDIR)/R/lib.R" --fq_stats $(FASTQ_BASENAME)_dwgsim.fq.stats --fa_stats $(SEL_CDNA_FASTA).stats --output  $@
-
 

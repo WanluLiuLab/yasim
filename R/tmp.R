@@ -11,7 +11,8 @@ g <- ggplot(fig_data_rpkm)+
         aes(x=YASIM_MAPPED_1_ACTUAL_RPKM, y=value, color=key),
         alpha=0.5
     ) +
-    geom_abline(slope = 1, intercept = 0)
+    geom_abline(slope = 1, intercept = 0) +
+    xlim(c(0,1500)) +ylim(c(0,1500))
 ggsave("1_rpkm.png", g, height = 10, width = 15)
 
 
