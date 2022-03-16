@@ -66,6 +66,8 @@
       <excludeFolder url="file://$MODULE_DIR$/.vs" />
       <excludeFolder url="file://$MODULE_DIR$/src/bioutils/datastructure/_deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/llrg_adapter/shell/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans_AS/data" />
+      <excludeFolder url="file://$MODULE_DIR$/iter_6" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

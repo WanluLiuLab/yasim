@@ -18,4 +18,7 @@ STAR --genomeDir CE11_GENOME_STAR_INDEX \
 --outSAMtype BAM SortedByCoordinate \
 --outFileNamePrefix ILLM_GENE
 
-for fn in *_GENE.bam; do samtools index $fn; done
+for fn in *_GENE.bam; do samtools index "${fn}" & done
+wait
+
+spladder build -b ILLM_GENE.bam -o TEST_ILLM/ -a ce11.ncbiRefSeq.gtf --parallel 50 --ignore-mismatche

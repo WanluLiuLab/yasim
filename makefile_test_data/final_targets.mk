@@ -13,16 +13,16 @@ $(DATADIR)/minimap2_pbsim2_P6C4.bam \
 $(DATADIR)/minimap2_pbsim2_P4C2.bam \
 # $(DATADIR)/minimap2_simlord.bam \
 
-# export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
-# $(DATADIR)/STAR_dwgsim.bam \
+export ALL_BAM_NGS_FILENAME := $(DATADIR)/hisat2_dwgsim.bam \
+$(DATADIR)/STAR_dwgsim.bam \
 
 ALL_BAM_TGS: $(ALL_BAM_TGS_FILENAME)
-# ALL_BAM_NGS: $(ALL_BAM_NGS_FILENAME)
+ALL_BAM_NGS: $(ALL_BAM_NGS_FILENAME)
 
 export BAM_FIGS_TGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_TGS_FILENAME))
-# export BAM_FIGS_NGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_NGS_FILENAME))
+export BAM_FIGS_NGS_FIG_FILENAME := $(addsuffix .LEN.png,$(ALL_BAM_NGS_FILENAME))
 export BAM_FIGS_TGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_TGS_FILENAME))
-# export BAM_FIGS_NGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_NGS_FILENAME))
+export BAM_FIGS_NGS_BW_FILENAME := $(addsuffix .bw,$(ALL_BAM_NGS_FILENAME))
 
 
 .PHONY:all DWGSIM PBSIM PBSIM2 BADREAD NGS TGS
