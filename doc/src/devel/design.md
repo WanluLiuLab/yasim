@@ -156,6 +156,20 @@ From pior knowledge, we know that:
 
     where $R$ is the rank of abundance $Y$.
 
+    This is given in a new form in FluxSimulator [^Griebel2012]:
+
+    $$
+    Y_{t} = \max_{t}(Y_{t}) R(Y_{t})^{k}\exp(\frac{R(Y_{t})}{a}\left(\frac{R(Y_{t})}{b}\right)^2)
+    $$
+
+    Where $k$, $a$ and $b$ are parameters with $k \in (‐0.6, ­‐0.9 )$ and $a=b$ and $a \sim 10^{4}$.
+
+    ```r
+    dFluxSim <- function(R_Y, k, Y_max, a, b){
+        return (Y_max * R_Y^k*exp(Y/a*(Y/b)^2))
+    }
+    ```
+
 3. Given the relative abundance of a transcript, its abundance across samples is negative binomial (NB) distributed [^Anders2010] [^Robinson2010].
 
     $$
@@ -186,3 +200,4 @@ Where $E_{c}$ is AS Event type $c$.
 [^Brown2007]: Brown, R. J. C. (2007). The use of Zipf’s law in the screening of analytical data: A step beyond Benford. Analyst, 132(4), 344–349. <https://doi.org/10.1039/B618255K>
 [^Anders2010]: Anders, S., & Huber, W. (2010). Differential expression analysis for sequence count data. Genome biology, 11(10), R106. <https://doi.org/10.1186/gb-2010-11-10-r106>
 [^Robinson2010]: Robinson, M. D., McCarthy, D. J., & Smyth, G. K. (2010). edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics (Oxford, England), 26(1), 139–140. <https://doi.org/10.1093/bioinformatics/btp616>
+[^Griebel2012]: Griebel, T., Zacher, B., Ribeca, P., Raineri, E., Lacroix, V., Guigó, R., & Sammeth, M. (2012). Modelling and simulating generic RNA-Seq experiments with the flux simulator. Nucleic acids research, 40(20), 10073–10083. <https://doi.org/10.1093/nar/gks666>
