@@ -4,9 +4,9 @@ mkdir -p CE11_GENOME_STAR_INDEX/
 STAR --runThreadN 50 --runMode genomeGenerate --genomeDir CE11_GENOME_STAR_INDEX --genomeFastaFiles ce11.fa --sjdbGTFfile ce11.ncbiRefSeq.gtf
 minimap2 -d ce11.fa.mmi ce11.fa -t 50
 
-minimap2 -a -t 50 ce11.fa.mmi ERR3245471.fastq.gz ERR3245470.fastq.gz | \
+minimap2 -x splice -a -t 50 ce11.fa.mmi ERR3245471.fastq.gz ERR3245470.fastq.gz | \
 samtools sort -@ 50 -o NANO_GENE.bam # 85.55% mapping rate
-minimap2 -a -t 50 ce11.fa.mmi SRR8568877_subreads.fastq.gz SRR8568878_subreads.fastq.gz | \
+minimap2 -x splice -a -t 50 ce11.fa.mmi SRR8568877_subreads.fastq.gz SRR8568878_subreads.fastq.gz | \
 samtools sort -@ 50 -o PACB_GENE.bam # 97.27% mapping rate
 
 STAR --genomeDir CE11_GENOME_STAR_INDEX \

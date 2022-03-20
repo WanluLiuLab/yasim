@@ -14,8 +14,8 @@ from commonutils.io.safe_io import get_writer
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gtf", required=True)
-    parser.add_argument("--out", required=True)
+    parser.add_argument("-g", "--gtf", required=True)
+    parser.add_argument("-o", "--out", required=True)
     return parser.parse_args(args)
 
 
@@ -37,16 +37,7 @@ def stat(item: List[int], fig_name: str):
 def main(args: List[str]):
     args = _parse_args(args)
     out_basename = args.out
-    gv = GeneView.from_file(args.gtf)
-    # transcript_numbers = []
-    # """Total number of transcripts"""
-    #
-    # exon_numbers = []
-    # exon_length = []
-    # start_and_end_sites_number = []
-    # gene_with_antisense_transcripts = defaultdict(lambda: [])
-    # gene_with_antisense_transcripts_on_same_chr = defaultdict(lambda: [])
-    # transcript_with_antisense_exons = defaultdict(lambda: [])
+    gv = GeneView.from_file(args.gtf,not_save_index=True)
 
     with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
             get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \
@@ -68,35 +59,35 @@ def main(args: List[str]):
             "TRANSCRIBED_LENGTH"
         )) + "\n")
 
-    for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
+        for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
 
-        gene_writer.write("\t".join((
-            str(gene.gene_id),
-            str(len(gene.transcripts))
-        )) + "\n")
-
-        transcripts = list(gene.transcripts.values())
-        for t_i in range(len(transcripts)):
-            transcript = transcripts[t_i]
-
-            transcript_transcribed_length = 0
-            exons = list(transcript.exons)
-            for e_i in range(len(exons)):
-                exon = exons[e_i]
-                exon_length = exon.end - exon.start
-                transcript_transcribed_length += exon_length
-                exons_writer.write("\t".join((
-                    transcript.transcript_id,
-                    str(e_i),
-                    str(exon_length)
-                )) + "\n")
-            transcripts_writer.write("\t".join((
-                transcript.transcript_id,
-                transcript.gene_id,
-                str(transcript.end - transcript.start),
-                str(transcript_transcribed_length),
-                len(transcript.exons)
+            gene_writer.write("\t".join((
+                str(gene.gene_id),
+                str(len(gene.transcripts))
             )) + "\n")
+
+            transcripts = list(gene.transcripts.values())
+            for t_i in range(len(transcripts)):
+                transcript = transcripts[t_i]
+
+                transcript_transcribed_length = 0
+                exons = list(transcript.exons)
+                for e_i in range(len(exons)):
+                    exon = exons[e_i]
+                    exon_length = exon.end - exon.start
+                    transcript_transcribed_length += exon_length
+                    exons_writer.write("\t".join((
+                        transcript.transcript_id,
+                        str(e_i),
+                        str(exon_length)
+                    )) + "\n")
+                transcripts_writer.write("\t".join((
+                    transcript.transcript_id,
+                    transcript.gene_id,
+                    str(transcript.end - transcript.start),
+                    str(transcript_transcribed_length),
+                    str(len(transcript.exons))
+                )) + "\n")
 
     transcripts = list(gv.transcripts.values())
     with GtfWriter(f"{out_basename}.overlapping_transcript.gtf") as writer:
