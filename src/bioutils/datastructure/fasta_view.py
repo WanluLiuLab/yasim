@@ -149,6 +149,12 @@ class _BaseFastaView:
                 fa_str = f">{query}\n{self.sequence(query)}\n"
                 writer.write(fa_str)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
 
 class _MemoryAccessFastaView(_BaseFastaView):
     """

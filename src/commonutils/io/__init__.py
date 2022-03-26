@@ -15,7 +15,7 @@ import gzip
 import io
 import lzma
 import os
-from typing import IO, AnyStr, Iterator, Iterable, Callable, Optional, Type, List, Union
+from typing import IO, AnyStr, Iterator, Iterable, Optional, Type, List
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
@@ -80,7 +80,7 @@ class ArchiveBaseIO(IO):
     """
 
     def __init__(self,
-                 path_or_fd:PathOrFDType,
+                 path_or_fd: PathOrFDType,
                  *args,
                  **kwargs):
         """
@@ -104,8 +104,6 @@ class ArchiveBaseIO(IO):
             self._fd = path_or_fd
         else:
             raise TypeError(f"Type {type(path_or_fd)} not supported!")
-
-
 
     @property
     def mode(self) -> str:

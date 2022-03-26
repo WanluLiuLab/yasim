@@ -2,12 +2,9 @@
 depth.py -- DGE Datastructure and Utils
 """
 
-import random
-from typing import Dict, Union, Iterable, List
+from typing import Dict
 
-import numpy as np
-from scipy.stats import nbinom, uniform, gengamma
-import numpy.typing as npt
+from scipy.stats import nbinom, uniform
 
 from bioutils.datastructure.gene_view import GeneView
 from commonutils import shell_utils
@@ -28,11 +25,12 @@ def simulate_dge_uniform(
     transcript_ids = list(gv.transcripts.keys())
     depth = {}
 
-    generated_data = list(map(int, uniform.rvs(scale=mu*2, size=len(transcript_ids)) + 1))
+    generated_data = list(map(int, uniform.rvs(scale=mu * 2, size=len(transcript_ids)) + 1))
 
     for i in range(len(transcript_ids)):
         depth[transcript_ids[i]] = generated_data[i]
     return depth
+
 
 def simulate_dge_nb(
         gv: GeneView,
@@ -51,7 +49,7 @@ def simulate_dge_nb(
     return depth
 
 
-def write_dge(dge_data: DepthType, output_tsv:str):
+def write_dge(dge_data: DepthType, output_tsv: str):
     """
     Write DGE information to file
     """

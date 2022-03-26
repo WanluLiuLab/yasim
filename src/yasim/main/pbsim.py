@@ -38,10 +38,10 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 def simulate(
         intermediate_fasta_dir: str,
         output_fastq_prefix: str,
-        exename:str,
-        depth:DepthType,
+        exename: str,
+        depth: DepthType,
         is_ccs: bool,
-        jobs:int
+        jobs: int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     shell_utils.mkdir_p(output_fastq_dir)
@@ -70,7 +70,7 @@ def simulate(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    depth=read_depth(args.depth)
+    depth = read_depth(args.depth)
     simulate(
         intermediate_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,

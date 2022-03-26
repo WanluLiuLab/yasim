@@ -7,7 +7,6 @@ This includes a very basic job pool and some helper classes
 import gc
 import multiprocessing
 import os
-import queue
 import subprocess
 import threading
 import time
@@ -168,7 +167,6 @@ class ParallelJobQueue(BaseParallelJobExecutor):
     TODO: Under Construction
     """
 
-
     _pending_job_queue: List[_JOB_TYPE]
     """
     Job waiting to be executed
@@ -193,10 +191,8 @@ class ParallelJobQueue(BaseParallelJobExecutor):
         self._running_job_queue = []
         self._refresh_interval = refresh_interval
 
-
     def get_iterator(self, _T) -> Iterable[_T]:
         pass
-
 
     def append(self, mp_instance: _JOB_TYPE):
         """
@@ -209,6 +205,7 @@ class ParallelJobQueue(BaseParallelJobExecutor):
 
     def have_appended_all(self):
         self._is_appendable = False
+
 
 class TimeOutKiller(threading.Thread):
     """

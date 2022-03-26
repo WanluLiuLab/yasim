@@ -5,4 +5,3 @@ This is an alternative splicing simulator, with interesting functions like DEG s
 """
 
 __version__ = "0.2.0"
-

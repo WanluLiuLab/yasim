@@ -172,6 +172,10 @@ class BaseFeature(FeatureType):
     def __str__(self):
         return repr(self)
 
+    def from_string(self, **kwargs):
+        """Disabled"""
+        pass
+
 
 class Exon(BaseFeature):
 
@@ -316,6 +320,17 @@ class Transcript(BaseFeature):
             for i in range(len(self.exons)):
                 self.exons[len(self.exons) - i - 1].exon_number = i + 1
 
+    @property
+    def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
+        for exon in self.exons:
+            yield exon.start, exon.end
+
+    @property
+    def splice_sites(self) -> Iterable[Tuple[int, int]]:
+        le = len(self.exons)
+        for i in range(le - 1):
+            yield self.exons[i].end, self.exons[i + 1].start
+
     def __ne__(self, other):
         return not self == other
 
@@ -328,6 +343,20 @@ class Gene(BaseFeature):
         "transcripts"
     )
     transcripts: Dict[str, Transcript]
+
+    def dedup(self, by_splice_site: bool = True):
+        """
+        Remove duplicates in ``transcripts``.
+
+        :param by_splice_site: Detect by splice sites rather than exon boundaries
+        """
+        all_splice_sites: List[List[Tuple[int, int]]] = []
+        for transcript in self.transcripts.values():
+            this_splice_site = list(transcript.splice_sites)
+            if this_splice_site in all_splice_sites:
+                pass  # TODO: Remove
+            else:
+                all_splice_sites.append(this_splice_site)
 
     @property
     def gene_id(self) -> str:

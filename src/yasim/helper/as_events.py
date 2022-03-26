@@ -73,6 +73,3 @@ class ASManipulator:
 
     def simulate_as_events(self):
         pass
-
-
-

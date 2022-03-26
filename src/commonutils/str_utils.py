@@ -9,7 +9,7 @@ import os
 import string
 from enum import Enum
 
-from typing import Iterator, List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 
 
 class AnsiColorEnum(Enum):

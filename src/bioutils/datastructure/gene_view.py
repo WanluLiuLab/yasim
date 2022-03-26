@@ -212,7 +212,7 @@ class _GtfGeneView(BaseGeneView):
     def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator]):
         def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
-            if not record.attribute['gene_id'] in _new_instance.genes.keys():
+            if not gene_id in _new_instance.genes.keys() or _new_instance.genes[gene_id].feature != "gene":
                 _new_instance.genes[gene_id] = Gene.from_feature(record)
 
         def register_transcript(_new_instance: _GtfGeneView, record: GtfRecord):
@@ -221,9 +221,11 @@ class _GtfGeneView(BaseGeneView):
             transcript = Transcript.from_feature(record)
             if gene_id not in _new_instance.genes.keys():
                 register_gene(_new_instance, record)
-            if transcript_id not in _new_instance.genes[gene_id].transcripts.keys():
+            gene = _new_instance.genes[gene_id]
+            if transcript_id not in gene.transcripts.keys() or gene.transcripts[transcript_id].feature != "transcript":
                 _new_instance.genes[gene_id].transcripts[transcript_id] = transcript
-            if transcript_id not in _new_instance.transcripts.keys():
+            if transcript_id not in _new_instance.transcripts.keys() or \
+                    _new_instance.transcripts[transcript_id].feature != "transcript":
                 _new_instance.transcripts[transcript_id] = transcript
 
         def register_exon(_new_instance: _GtfGeneView, record: GtfRecord):
@@ -264,8 +266,9 @@ class GeneView(BaseGeneView):
     """
     GeneView Factory that creates GeneView according to different file types.
     """
+
     @classmethod
-    def from_file(cls, filename: str, file_type:Optional[str]=None, **kwargs) -> GeneView:
+    def from_file(cls, filename: str, file_type: Optional[str] = None, **kwargs) -> GeneView:
         if file_type is None:
             file_type = get_file_type_from_suffix(filename)
         if file_type == "GTF":
@@ -277,6 +280,8 @@ class GeneView(BaseGeneView):
 
     @classmethod
     def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None):
+        if record_type is None:
+            record_type = type(iterator)
         if record_type == GtfRecord or isinstance(iterator, GtfIterator):
             return _GtfGeneView.from_iterator(iterator)
         elif record_type == Gff3Record or isinstance(iterator, Gff3Iterator):

@@ -37,7 +37,7 @@ def stat(item: List[int], fig_name: str):
 def main(args: List[str]):
     args = _parse_args(args)
     out_basename = args.out
-    gv = GeneView.from_file(args.gtf,not_save_index=True)
+    gv = GeneView.from_file(args.gtf, not_save_index=True)
 
     with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
             get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \

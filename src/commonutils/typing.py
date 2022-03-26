@@ -1,7 +1,7 @@
 # import mmap
 from io import TextIOWrapper, StringIO, BufferedIOBase
 from os import PathLike
-from typing import Union, IO, AnyStr
+from typing import Union, IO
 
 PathType = Union[PathLike, str]
 
