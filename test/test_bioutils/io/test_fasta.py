@@ -143,6 +143,6 @@ def test_fai(initialize_module) -> None:
         with get_writer(fasta_filename, newline=newline) as fh:
             fh.write(fasta_seq)
         faidx(fasta_filename)
-        create_fai(fasta_filename, os.path.join(fasta_filename, "1_tetgs.fai"))
-        assert open(fasta_filename).read() == open(os.path.join(fasta_filename, "1_tetgs.fai")).read()
+        create_fai(fasta_filename, fasta_filename + ".tetgs.fai")
+        assert open(fasta_filename+".fai").read() == open(fasta_filename + ".tetgs.fai").read()
         initialize_module.cleanup_intermediate_files()
