@@ -29,16 +29,20 @@ with  open('requirements.txt', 'rt', encoding='utf-8') as reader:
         if not line.startswith('#'):
             install_requires.append(line.strip())
 
-from yasim import __version__
+from yasim import \
+    __version__ as yasim_ver, \
+        __author__ as yasim_auth, \
+            author_email as yasim_auth_email
+                
 
 with  open('Readme.md', 'rt', encoding='utf-8') as reader:
     long_description = reader.read()
 
 setup(
     name=PKG_NAME,
-    version=__version__,
-    author="YU Zhejian",
-    author_email="Zhejian.19@intl.zju.edu.cn",
+    version=yasim_ver,
+    author=yasim_auth,
+    author_email=yasim_auth_email,
     description=f"{PKG_NAME} -- A Simulator for Alternative Splicing and Differentially Expressed Gene",
     long_description=long_description,
     long_description_content_type='text/markdown',

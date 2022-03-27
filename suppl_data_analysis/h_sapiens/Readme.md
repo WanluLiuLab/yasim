@@ -7,19 +7,28 @@
 - [PRJNA534479](https://www.ebi.ac.uk/ena/browser/view/PRJNA534479)
   - RNA-Seq procedure was used for analysis of expression in HEK293T cells. Cells were separately lysed with Trizol reagent (Invotrogen). Total RNA was extracted from cell lysed with Trizol reagent and PureLink RNA Micro Kit (Invitrogen) according to manufacture instruction. RNA quality was checked with BioAnalyser and RNA 6000 Nano Kit (Agilent). Poly(A)+ RNA was purified with Dynabeads® mRNA Purification Kit (Ambion). Illumina library was prepared from poly(A)+RNA with NEBNextNEBNext® Ultra™II RNA Library Prep Kit for Illumina® (NEB) according to manual. Sequencing was performed on HiSeq1500 with 50 bp read length. At least 10 millions of reads were generated for each sample. Overall design: Analysis of HEK293T gene expression levels by RNA-Seq.
   - single
+  - SRR8950022, 984.9 MB
+  - SRR8950023, 1.0 GB
+  - rDNA Clusters Make Contact with Genes that Are Involved in Differentiation and Cancer and Change Contacts after Heat Shock Treatment. Tchurikov NA, Fedoseeva DM, Klushevskaya ES, Slovohotov IY, Chechetkin VR, Kravatsky YV, Kretova OV. Cells 8(11): (2019 Nov) <https://doi.org/10.3390/cells8111393>
 
 ### HiSeq 2000
 
 - [PRJNA526724](https://www.ebi.ac.uk/ena/browser/view/PRJNA526724)
   - To study the transcriptome of human prostate cancer cells, RNA-seq experiments were performed. Overall design: RNA was harvested after 72h of steroid deprivation to study the basal transcriptome of LNCaP and 22rv1 cells, two human AR-positive prostate cancer cell lines,
   - paired
+  - SRR8717004, 520.2 MB, 523.9 MB
+  - SRR8717005, 562.3 MB, 568.2 MB
+  - SRR8717006, 506.7 MB, 511.5 MB
+  - SRR8717007, 524.9 MB, 530.8 MB
+  - SRR8717008, 437.6 MB, 438.7 MB
+  - Reprogramming of Isocitrate Dehydrogenases Expression and Activity by the Androgen Receptor in Prostate Cancer. Gonthier K, Poluri RTK, Weidmann C, Tadros M, Audet-Walsh É. Endocrinology-Nephrology Research Axis, Centre de Recherche du CHU de Québec - Université Laval, Québec, Canada. Mol Cancer Res 17(8): 1699-1709 (2019 Aug) <https://doi.org/10.1158/1541-7786.MCR-19-0020>
 
 ### HiSeq 2500
 
 - [PRJEB21088](https://www.ebi.ac.uk/ena/browser/view/PRJEB21088)
   - RNA-seq was performed of tissue samples from human individuals representing different tissues in order to study the human tissue transcriptome. This submission contains 14 samples used in the paper "A proteogenomics workflow integrating discovery, curation and validation reveals human novel protein coding loci and single amino acid variants”.
   - paired
--[PRJNA609332](https://www.ebi.ac.uk/ena/browser/view/PRJNA609332)
+  -[PRJNA609332](https://www.ebi.ac.uk/ena/browser/view/PRJNA609332)
   - Gene expression was profiled in unperturbed RPE1-hTERT cells by RNA-seq. Overall design: RNA-seq in RPE1-hTERT cells
   - single
 - [PRJEB37650](https://www.ebi.ac.uk/ena/browser/view/PRJEB37650)
