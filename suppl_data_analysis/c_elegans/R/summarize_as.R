@@ -2,7 +2,7 @@ library(tidyverse)
 library(pheatmap)
 library(ComplexUpset)
 
-all_as <- read_tsv("all_as.tsv", show_col_types = FALSE, col_names = c("GENE_ID", "EVENT"))
+all_as <- read_tsv("../all_as.tsv", show_col_types = FALSE, col_names = c("GENE_ID", "EVENT"))
 
 all_as_summary <- all_as %>%
     dplyr::count(GENE_ID, EVENT)

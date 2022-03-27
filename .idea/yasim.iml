@@ -66,10 +66,12 @@
       <excludeFolder url="file://$MODULE_DIR$/.vs" />
       <excludeFolder url="file://$MODULE_DIR$/src/bioutils/datastructure/_deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/llrg_adapter/shell/.vscode" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans_AS/data" />
       <excludeFolder url="file://$MODULE_DIR$/iter_6" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans/R/analyse-over-nanopore_cache" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans/R/analyse-over-nanopore_files" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans/as_data" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/_deprecated" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
