@@ -1,5 +1,19 @@
 # Human Data Samples
 
+## Introduction
+
+Here lists datasets used for analysis of GEP, etc. The datasets are atagorized by its sequencers (aka., instruments) and organized into following form:
+
+- [ENA ACCESSION](about:blank)
+  - Description about this project.
+  - Date last updated of metadata by YASIM.
+  - SINGLE or PAIRED or others.
+  - Dataset being choised (sample name used):
+    - ENA ACCESSION (sample name), SIZE
+  - Reference.
+
+Some sample may have `**MAY NOT BE USABLE -- REQUIRE REVIEW**`. This means whether to use them is not sure.
+
 ## Illumina
 
 ### HiSeq 1500
@@ -35,9 +49,10 @@
 - [PRJNA434238](https://www.ebi.ac.uk/ena/browser/view/PRJNA434238)
   - Understanding changes in gene expression during tumor initiation and progression is critical to understanding how genetic alterations drive malignancy. We used a genetically defined cell culture model to study the progression of normal human mammary epithelial cells (HMECs) to malignancy. Primary HMECs were immortalized through the expression of hTERT, p53DD, cyclin D1, CDK4R24C and c-MYCT58A. This immortalization conferred limitless replicative potential as well as migratory capacity. These pre-malignant cells were subsequently HRASG12V transformed, which converted the immortalized cells to a fully tumorigenic state with significantly increased invasive capacity. We analyzed the cells using RNA-sequencing, and we report dramatic mRNA expression changes during the pre-malignant immortalization of primary cells, and very few mRNA expression changes occurring during oncogenic Ras transformation. RNA signatures in pre-malignant immortalized and Ras-transformed cells are consistent with previously reported epithelial-to-mesenchymal transition (EMT) signatures. Overall design: RNA-sequencing in biological triplicate of three cell types (Primary HMECs, Immortalized HMECs, Transformed HMECs); Illumina HiSeq 2000 125bp PE (1 replicate) and Illumina HiSeq 4000 150bp PE (2 replicates)
   - Updated 2022-03-28
+  - **MAY NOT BE USED -- TUMOUR**
   - data (partial, Primary HMECs rep1)
     - SRR6729601 (Primary HMECs rep1), 3.9 GB, 3.9 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 
 ### HiSeq 2500
 
@@ -50,7 +65,7 @@
     - ERR1994737 (Kidney_V345_s), 905.1 MB, 892.9 MB
     - ERR1994738 (Kidney_V346_s), 576.9 MB, 571.1 MB
     - ERR1994739 (Kidney_V347_s), 917.1 MB, 905.4 MB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 -[PRJNA609332](https://www.ebi.ac.uk/ena/browser/view/PRJNA609332)
   - Gene expression was profiled in unperturbed RPE1-hTERT cells by RNA-seq. Overall design: RNA-seq in RPE1-hTERT cells
   - Updated 2022-03-27
@@ -69,11 +84,15 @@
     - ERR4007678 (Sample 43), 706.7 MB
     - ERR4007679 (Sample 45), 650.2 MB
     - ERR4007680 (Sample 47), 615.3 MB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 <!-- - [PRJNA759230](https://www.ebi.ac.uk/ena/browser/view/PRJNA759230)
   - bluk RNA-seq of human dermal fibroblasts reprogrammed into cardiomyocytes with the addition of siAJSZ Overall design: HDFs overexpressing Mef2c, Gata4, and Tbx5 were treated with siATF7IP, siJUNB, siSP7, and siZNF207
   - Updated 2022-03-27
   - paired -->
+
+### HiSeq 3000
+
+NO DATA!
 
 ### HiSeq 4000
 
@@ -85,13 +104,17 @@
     - SRR12937849 (Kidney Cortex-RNA-seq-Donor1), 27.6 MB, 2.1 GB, 2.7 GB
     - SRR12937850 (Kidney Cortex-RNA-seq-Donor2), 25.5 MB, 1.9 GB, 2.4 GB
     - SRR12937851 (Kidney Cortex-RNA-seq-Donor3), 24.5 MB, 1.9 GB, 2.3 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 - [PRJNA434238](https://www.ebi.ac.uk/ena/browser/view/PRJNA434238)
   - OMITTED -- SEE ABOVE
   - data (partial, Primary HMECs rep2 \& 3)
     - SRR6729602 (Primary HMECs rep2), 4.6 GB, 5.0 GB
     - SRR6729603 (Primary HMECs rep3), 4.1 GB, 4.5 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
+
+### HiSeq X
+
+NO DATA!
 
 ### NovaSeq 6000
 
@@ -118,15 +141,28 @@
   - We compared transcriptomic profiles of gastric carcinomas between patients carrying the ATG16L1 T300A SNP and patients without the SNP. Overall design: We performed bulk RNA-seq of gastric cancer samples in patients who carry the ATG16L1 T300A SNP and patients who do not.
   - Updated 2022-03-27
   - paired
-  - NO PUBLICATIONS -->
+  - NO PUBLICATION -->
 - [PRJNA800817](https://www.ebi.ac.uk/ena/browser/view/PRJNA800817)
   - RNA-sequencing data from flow cytometry-sorted primary HLA-DR+ Lin-(CD19-CD3-CD14-) CD1c+ cDC2s purifed from frozen peripheral blood mononuclear cells from patients with anterior, intermediate, and posterior non-infectious uveitis and healthy controls. Overall design: This cohort was used as a replication cohort for GSE194060 (see also: https://www.biorxiv.org/content/10.1101/2021.11.16.468816v1). Nitrogen-stored PBMCs were thawed and subjected to cDC2 purification by flow cytometry and subjected to RNA-sequencing by NextSeq.
   - Updated 2022-03-28
+  - **May NOT be used -- lack depth**
   - paired
   - data (partial, Healthy blood donor \[SystUviHC33-FACS\])
     - SRR17771824 (Healthy blood donor \[SystUviHC33-FACS\]), 472.3 MB, 528.4 MB
     - SRR17771825 (Healthy blood donor \[SystUviHC33-FACS\]), 251.5 MB, 274.0 MB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
+
+### NextSeq 550
+
+NO DATA!
+
+### NextSeq 1000
+
+NO DATA!
+
+### NextSeq 2000
+
+NO DATA!
 
 ## AB SOLiD
 
@@ -142,7 +178,7 @@
     - SRR094988 (Day0), 3.8 GB
     - SRR094989 (Day2), 3.8 GB
     - SRR094990 (Day4), 3.5 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 
 ### AB SOLiD 4 System
 
@@ -160,7 +196,7 @@
   - paired
   - data (patrial):
     - SRR5357627 (12412N), 5.6 GB, 2.6 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 
 ## BGISEQ
 
@@ -171,13 +207,13 @@
   - Updated 2022-03-27
   - **MAY NOT BE USABLE -- REQUIRE REVIEW**
   - paired but with only 1 file
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 - [PRJNA398501](https://www.ebi.ac.uk/ena/browser/view/PRJNA398501)
   - Purpose:The goal of this study is to analyze the candidate genes motified by Tfcp2l1ΔCP2 to regulate the human embryonic stem cell (ESC) fate through RNA-seq approach. Overall design: HES2 human ESCs expressing PB or PB-Tfcp2l1ΔCP2 were cultured in 10% KSR basal media supplemented with 10 ng/ml FGF2 and 10 ng/ml Activin A for two passages and then were collected by using Trizol. These samples were sent to BGI (China) company to do deep sequencing by using BGISEQ-500.
   - Updated 2022-03-27
   - **MAY NOT BE USABLE -- REQUIRE REVIEW**
   - paired
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 - [PRJNA408236](https://www.ebi.ac.uk/ena/browser/view/PRJNA408236)
   - Neural tube defects (NTDs) are serious congenital malformations. Excessive maternal homocysteine (Hcy) increases the risk of NTDs, while its mechanism remains elusive. In this study, we evaluated the role of histone homocysteinylation in neural tube closure (NTC). A total of 39 histone homocysteinylation sites were identified in samples from human embryonic brain tissue using mass spectrometry. Elevated levels of histone KHcy and H3K79Hcy were detected at increased cellular Hcy levels in human fetal brains. Using ChIP-seq and RNA-seq assays, we demonstrated that increase in H3K79Hcy level downregulated the expression of selected NTC-related genes including Cecr2, Smarca4, and Dnmt3b. In human NTD brain tissues, decrease in expression of Cecr2, Smarca4, and Dnmt3b was also detected along with high levels of Hcy and H3K79Hcy. Our results suggest that higher levels of Hcy contribute to the onset of NTDs through upregulation of histone H3K79Hcy, leading to abnormal expression of selected NTC-related genes. Overall design: NE4C cells mRNA profiles of HTL treatment and normal control were generated by deep sequencing,using BGISEQ-500 .
   - Updated 2022-03-28
@@ -189,7 +225,7 @@
   - F-53B and PFOS treatments skew human cardiac differentiation towards epicardial cells by in part disrupting the WNT signaling pathway Overall design: To dissect the potential developmental cardiac toxicity of F-53B and PFOS, we performed RNA-seq analyses for day 8 and 12 cardiac differentiation samples treated with 60 µM F-53B/PFOS. RNA sequencing were performed with BGISEQ-500 platform
   - Updated 2022-03-27
   - single
-  - **NO IDEA WHERE NORMAL IS**
+  - **MAY NOT BE USABLE -- REQUIRE REVIEW**
   - NO PUBLICATION
 - [PRJNA675917](https://www.ebi.ac.uk/ena/browser/view/PRJNA675917)
   - Human bronchial epithelial cells (16HBE) were selected, and the experimental group was infected with BPDE, while the solvent control group (equal volume dimethyl sulfoxide added) and the blank control group (normal medium added) were set up. After 24 h of treatment, the infected group and the solvent control group were subjected to transcriptome sequencing (RNA-SEQ) using the BGISEQ platform.
@@ -199,7 +235,7 @@
     - SRR13021705 (Control 3), 8.8 GB
     - SRR13021706 (Control 2), 8.8 GB
     - SRR13021707 (Control 1), 8.8 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 
 ### DNBSEQ-G400
 
@@ -213,6 +249,18 @@
     - SRR13895035 (EHE 3), 3.7 GB
   - WWTR1(TAZ)-CAMTA1 gene fusion is sufficient to dysregulate YAP/TAZ signaling and drive epithelioid hemangioendothelioma tumorigenesis. Seavey CN, Pobbati AV, Hallett A, Ma S, Reynolds JP, Kanai R, Lamar JM, Rubin BP. Department of Cancer Biology, Lerner Research Institute, Cleveland Clinic Foundation, Cleveland, Ohio 44195, USA. Genes Dev 35(7-8): 512-527 (2021 Apr) <https://doi.org/10.1101/gad.348220.120>
 
+### MGISEQ-T7
+
+NO DATA!
+
+### MGISEQ-2000
+
+NO DATA!
+
+### BGISEQ-200
+
+NO DATA!
+
 ## Ion Torrent
 
 ### Ion Torrent Proton
@@ -221,22 +269,24 @@
   - The gene expression profiles were analyzed of HuH-7 cells treated with cytotoxic agents, such as acetaminophen, arsenic or copper, along with cells that were treated for potential benefits with either caffeine or exosomes isolated from pooled human sera Overall design: Ribosomal RNA depleted total RNAs for 9 different conditions were used to perfom high throughput sequensing by Ion Torrent Proton instrument
   - Updated 2022-03-28
   - single
+  - **MAY NOT BE USABLE -- REQUIRE REVIEW**
   - data (partial, exonic)
     - SRR3031768 (huh7_Norm_Exo), 2.9 GB
     - SRR3031769 (huh7_AP_Exo), 1.0 GB
     - SRR3031771 (huh7_Cof_Ap), 2.5 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 - [PRJNA753095](https://www.ebi.ac.uk/ena/browser/view/PRJNA753095)
   - CD3+ T cells were enriched using the EasySep human T cell isolation kit (Stem cell technology). T cells from normal controls or patients with CARD9 mutations were co-cultured with monocytes of one normal control in the presence of heat killed candida. After 3 days, T cell were enriched again to remove the monocytes and total RNA was extracted from the T cells for the RNA-sequencing (RNASeq) evaluation. Targeted RNA sequencing library preparation was carried out using the Ion AmpliSeq Transcriptome Human Gene Expression Kit (Life Technologies), which profiles more than 20,000 human genes; each amplicon (~150 bp) represents a unique targeted gene (one transcript per gene). For library preparation, each sample was run in duplicate, and a cDNA library was generated from a minimum of 10 ng of total RNA. The cDNA was barcoded and amplified with Ion AmpliSeq technology, and the amplified cDNA Libraries were evaluated for quality and quantified with Agilent Bioanalyzer high-sensitivity chip. Libraries were then diluted to 100 pM and pooled equally, with 4 individual samples per pool. Pooled libraries were amplified and enriched with the Ion Chef System (Life Technologies). Templated libraries were then sequenced on an Ion Torrent Proton sequencing system (Life Technologies) with Ion PI HiQ kit and chip version 3. We performed gene-level differential expression analysis of targeted RNASeq data using R (v.3.5.3) and the Bioconductor packages DESeq2 (v.1.22.2). Overall design: RNA sequencing was performed using the Ion AmpliSeq Transcriptome Human Gene Expression Kit and Ion Torrent Proton sequencing system (Life Technologies). We analyzed RNA samples extracted from human Candida-stimulated CD3+ T-cells from normal controls and patients with CARD9 mutations.
+  - Updated 2022-03-28
   - single
   - data (partial, normal)
-    - SRR15376049	(normal control 1 \[NGS02014\]), 679.7 MB
+    - SRR15376049 (normal control 1 \[NGS02014\]), 679.7 MB
     - SRR15376050 (normal control 1 \[NGS02015\]), 2.7 GB
-    - SRR15376051	(normal control 2 \[NGS02018\]), 2.5 GB
+    - SRR15376051 (normal control 2 \[NGS02018\]), 2.5 GB
     - SRR15376052 (normal control 2 \[NGS02019\]), 2.3 GB
     - SRR15376053 (normal control 3 \[NGS02022\]), 4.8 GB
-    - SRR15376054	(normal control 4 \[NGS02026\]), 4.4 GB
-  - NO PUBLICATIONS
+    - SRR15376054 (normal control 4 \[NGS02026\]), 4.4 GB
+  - NO PUBLICATION
 
 ## Roche LS454
 
@@ -244,11 +294,12 @@
 
 - [PRJNA184839](https://www.ebi.ac.uk/ena/browser/view/PRJNA184839)
   - Sequencing of whole cell RNA in two human cell types (K562 and HelaS3) on the Roche 454 platform in order to generate long reads.
+  - Updated 2022-03-28
   - single
   - data:
     - SRR644608 (General Sample for Homo sapiens), 1.1 GB
     - SRR644784 (General Sample for Homo sapiens), 1.1 GB
-  - NO PUBLICATIONS
+  - NO PUBLICATION
 
 ## Helicos
 
@@ -258,4 +309,110 @@ NO DATA!
 
 ## Oxford Nanopore
 
+### MinION
+
+- [PRJNA639136](https://www.ebi.ac.uk/ena/browser/view/PRJNA639136)
+  - Human macrophages were treated with different TLR agonists. RNA was extracted and sequenced using the nanopore-based R2C2 method to generate full-length transcriptomes.
+  - Updated 2022-03-28
+  - single
+  - data:
+    - SRR12004855 (Macrophage RNA), 8.0 GB
+    - SRR12004856 (Macrophage RNA), 5.7 GB
+    - SRR12004857 (Macrophage RNA), 6.7 GB
+    - SRR12004858 (Macrophage RNA), 3.2 GB
+    - SRR12004859 (Macrophage RNA), 3.7 GB
+  - NO PUBLICATION
+- [PRJNA703954](https://www.ebi.ac.uk/ena/browser/view/PRJNA703954)
+  - Using a transcriptome-wide profiling approach to map translation initiation start sites in human beta-cells under standard and inflammatory conditions, we identifies non-canonical start sites and translation initiation within lncRNA. Overall design: EndoC-BH1 cells have been treated 24h with proinflammatory cytokines 1000 U/ml IFNγ and 2 ng/ml IL1β for 24 h. RNA was isolated by TRizol and sequenced by nanopore sequencing to etablish the de novo transcritpome. Upon incubation, cells were treated with 2ug/ml harringtonine for 30 minutes and Cycloheximide (100ug/ml) for ribosome footprint purification.
+  - Updated 2022-03-28
+  - single
+  - data (partial, ENDOC-βH1 cells non treated)
+    - SRR13762843 (ENDOC-βH1 cells non treated rep 2 -long RNA seq \[KOE4643\]), 1.5 GB
+    - SRR13762844 (ENDOC-βH1 cells non treated rep 3 -long RNA seq \[KOE4644\]), 1.6 GB
+    - SRR13762846 (ENDOC-βH1 cells non treated rep 1 -long RNA seq \[MON3619\]), 1.6 GB
+  - Long RNA Sequencing and Ribosome Profiling of Inflamed β-Cells Reveal an Extensive Translatome Landscape. Thomaidou S, Slieker RC, van der Slik AR, Boom J, Mulder F, Munoz-Garcia A, 't Hart LM, Koeleman B, Carlotti F, Hoeben RC, Roep BO, Mei H, Zaldumbide A. Department of Cell and Chemical Biology, Leiden University Medical Center, Leiden, the Netherlands. Diabetes 70(10): 2299-2312 (2021 Oct) <https://doi.org/10.2337/db20-1122>
+
+### PromethION
+
+NO DATA!
+
+### GridION
+
+NO DATA!
+
 ## PacBio
+
+### PacBio Sequel
+
+- [PRJNA622498](https://www.ebi.ac.uk/ena/browser/view/PRJNA622498)
+  - Since short reads from Illumina RNA-seq data are challenging to map to repetitive elements , we wanted to confirm the bulk RNA-seq findings using an orthogonal method, namely, using the long read technology of Pacific Biosciences (PacBio) full-length transcriptome sequencing. This dataset provided around 1.1 (WT) and 1.3 (RBM4 KO) million sequence reads of 2.6 kb average length mapping to the human genome. Overall design: Single replicate provided, each, for Wild Type and RBM4 KO (the 1B6 clone as prefixed in the bulk experiment)
+  - Updated 2022-03-28
+  - single
+  - data (partial, WT):
+    - SRR11465198 (Wild Type (PacBio)), 1.0 GB
+  - Posttranscriptional regulation of human endogenous retroviruses by RNA-binding motif protein 4, RBM4. Foroushani AK, Chim B, Wong M, Rastegar A, Smith PT, Wang S, Barbian K, Martens C, Hafner M, Muljo SA. Laboratory of Immune System Biology, National Institute of Allergy and Infectious Diseases, National Institutes of Health, Bethesda, MD 20892. Proc Natl Acad Sci U S A 117(42): 26520-26530 (2020 Oct) <https://doi.org/10.1073/pnas.2005237117>
+
+### PacBio Sequel II
+
+- [PRJNA726583](https://www.ebi.ac.uk/ena/browser/view/PRJNA726583)
+  - De novo transcriptome construction from short-read RNA-seq is a common method for reconstructing mRNA transcripts within a given sample. However, the precision of this process is unclear as it is difficult to obtain a ground-truth measure of transcript expression. With advances in third generation sequencing, full length transcripts of whole transcriptomes can be accurately sequenced to generate a ground-truth transcriptome. We generated long-read PacBio and short-read Illumina RNA-seq data from a human induced pluripotent stem cell-derived retinal pigmented epithelium (iPSC-RPE) cell line. We use the long-read data to identify simple metrics for assessing de novo transcriptome construction and optimizing a short-read based de novo transcriptome construction pipeline. We apply this pipeline to construct transcriptomes for 340 publicly available short-read RNA-seq samples originating from healthy adult and fetal human retina, cornea, and RPE and identify hundreds of novel gene isoforms and examine their significance in the context of ocular development and disease.
+  - Updated 2022-03-28
+  - single
+  - data (partial, RPE_D42):
+    - SRR14372079 (RPE_D42_large), 4.4 GB
+    - SRR14372080 (RPE_D42_small), 4.1 GB
+  - NO PUBLICATION
+
+## GenapSys
+
+NO DATA!
+
+## Special Samples
+
+### Universal Human Reference RNA (UHRR)
+
+- [PRJNA296543](https://www.ebi.ac.uk/ena/browser/view/PRJNA296543)
+
+| sample_accession | run_accession | instrument_model    | library_layout | fastq_bytes           | sample_alias         |
+| ---------------- | ------------- | ------------------- | -------------- | --------------------- | -------------------- |
+| SAMN04103131     | SRR2488739    | Illumina HiSeq 2000 | PAIRED         | 4746151287;4724969028 | BGI-BGI-UHRR-HiSeq-1 |
+| SAMN04103535     | SRR2493706    | Illumina HiSeq 2000 | PAIRED         | 4392859643;4451820418 | BGI-BGI-UHRR-HiSeq-2 |
+| SAMN04110320     | SRR2533492    | Ion Torrent Proton  | SINGLE         | 2311518886            | BGI-BGI-UHRR_ProR_2  |
+| SAMN04110319     | SRR2534126    | Ion Torrent Proton  | SINGLE         | 1480005679            | BGI-BGI-UHRR_ProR_1  |
+| SAMN04121875     | SRR2541149    | Ion Torrent Proton  | SINGLE         | 2857533254            | ProC_1               |
+| SAMN04121876     | SRR2541150    | Ion Torrent Proton  | SINGLE         | 3388140272            | ProC_2               |
+| SAMN04121877     | SRR2541152    | Ion Torrent Proton  | SINGLE         | 1208312014            | ProC_3               |
+| SAMN04121878     | SRR2541166    | Ion Torrent Proton  | SINGLE         | 3158380481            | ProC_4               |
+| SAMN04121879     | SRR2541167    | Ion Torrent Proton  | SINGLE         | 2299063284            | ProC_5               |
+| SAMN04121880     | SRR2541173    | Ion Torrent Proton  | SINGLE         | 3020691182            | ProC_6               |
+| SAMN04121881     | SRR2541175    | Ion Torrent Proton  | SINGLE         | 1986315060            | ProC_7               |
+| SAMN04121882     | SRR2541176    | Ion Torrent Proton  | SINGLE         | 3140720519            | ProC_8               |
+| SAMN04121883     | SRR2541177    | Ion Torrent Proton  | SINGLE         | 1864036665            | ProC_9               |
+
+- [PRJNA716361](https://www.ebi.ac.uk/ena/browser/view/PRJNA716361)
+
+| sample_accession | run_accession | instrument_model | library_layout | fastq_bytes | sample_alias | sample_title |
+| ---------------- | ------------- | ---------------- | -------------- | ----------- | ------------ | ------------ |
+| SAMN18434762     | SRR14038191   | Sequel II        | SINGLE         | 8.66E+09    | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038192   | Sequel II        | SINGLE         | 8.36E+09    | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038193   | Sequel II        | SINGLE         | 8.4E+09     | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038194   | Sequel II        | SINGLE         | 8.12E+09    | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038195   | Sequel II        | SINGLE         | 6.37E+09    | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038196   | Sequel II        | SINGLE         | 9.07E+09    | UHRR         | UHRR         |
+| SAMN18434762     | SRR14038197   | Sequel II        | SINGLE         | 5.6E+09     | UHRR         | UHRR         |
+
+- [PRJNA305438](https://www.ebi.ac.uk/ena/browser/view/PRJNA305438)
+
+| sample_accession | run_accession | instrument_model    | library_layout | fastq_bytes         | sample_alias | sample_title    |
+| ---------------- | ------------- | ------------------- | -------------- | ------------------- | ------------ | --------------- |
+| SAMN04326823     | SRR2982519    | Illumina HiSeq 1500 | PAIRED         | 103473833;103569615 | GSM1968479   | UHRR smartseq A |
+| SAMN04326824     | SRR2982520    | Illumina HiSeq 1500 | PAIRED         | 109652235;110289712 | GSM1968480   | UHRR smartseq B |
+| SAMN04326825     | SRR2982521    | Illumina HiSeq 1500 | PAIRED         | 124911823;126140941 | GSM1968481   | UHRR smartseq C |
+| SAMN04326826     | SRR2982522    | Illumina HiSeq 1500 | PAIRED         | 125529250;124741494 | GSM1968482   | UHRR smartseq D |
+| SAMN04326827     | SRR2982523    | Illumina HiSeq 1500 | PAIRED         | 57595460;56816420   | GSM1968483   | UHRR smartseq E |
+| SAMN04326828     | SRR2982524    | Illumina HiSeq 1500 | PAIRED         | 59558633;58921953   | GSM1968484   | UHRR smartseq F |
+| SAMN04326829     | SRR2982525    | Illumina HiSeq 1500 | PAIRED         | 48376960;48079114   | GSM1968485   | UHRR smartseq G |
+| SAMN04326830     | SRR2982526    | Illumina HiSeq 1500 | PAIRED         | 56904182;56479530   | GSM1968486   | UHRR smartseq H |
+| SAMN04326831     | SRR2982527    | Illumina HiSeq 1500 | PAIRED         | 258688974;257046894 | GSM1968487   | UHRR smartseq I |
+| SAMN04326832     | SRR2982528    | Illumina HiSeq 1500 | PAIRED         | 119495361;119061352 | GSM1968488   | UHRR smartseq J |
+| SAMN04326833     | SRR2982529    | Illumina HiSeq 1500 | SINGLE         | 7.66E+09            | GSM1968489   | UHRR umiseq     |
