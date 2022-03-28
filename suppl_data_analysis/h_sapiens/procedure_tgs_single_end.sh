@@ -17,5 +17,5 @@ samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_NAME}".TRANS.bam
     Rscript R/transform_depth_results.R \
     --libfile R/lib.R \
     --input "${FASTQ_NAME}".TRANS.bam.depth.tsv \
-    --fa_stats "${TRANSCRIPT_FA_STATS}" \
+    --fa_stats "${TRANSCRIPT_REFERENCE}.stats" \
     --output "${FASTQ_NAME}".transcript.depth.tsv

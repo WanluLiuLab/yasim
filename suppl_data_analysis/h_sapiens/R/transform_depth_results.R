@@ -31,4 +31,4 @@ all_data <- fa_stats_data %>%
     dplyr::full_join(depth_data, by="TRANSCRIPT_ID") %>%
     dplyr::mutate(across(where(is.numeric), replace_na, 0))
 
-write_tsv(all_data, "all_data.tsv")
+write_tsv(all_data, argv$output)
