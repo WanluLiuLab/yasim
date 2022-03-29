@@ -7,7 +7,7 @@ import copy
 import uuid
 from typing import List
 
-from bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
+from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript
 
 
@@ -70,7 +70,7 @@ class ASManipulator:
     Transcript that may have intron retention events.
     """
 
-    def __init__(self, gv: GeneViewFactory):
+    def __init__(self, gv: GeneViewType):
         self._gv = gv
 
     def determine_AS_able_transcripts(self):

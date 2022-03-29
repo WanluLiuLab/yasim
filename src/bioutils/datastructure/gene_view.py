@@ -137,20 +137,6 @@ class BaseGeneView(GeneViewType, ABC):
     You may inherit from this class if you wish to add your own file format.
     """
 
-    # @classmethod
-    # @abstractmethod
-    # def _from_own_filetype(cls, filename: str):
-    #     pass
-    #
-    # @classmethod
-    # @abstractmethod
-    # def from_iterator(cls, iterator: Iterator[Feature]):
-    #     pass
-    #
-    # @abstractmethod
-    # def to_file(self, output_filename: str):
-    #     pass
-
     def __init__(self):
         self.genes = {}
         self.transcripts = {}
@@ -340,7 +326,11 @@ class GeneViewFactory:
             raise ValueError(f"Unknown file type {file_type} for {filename}")
 
     @classmethod
-    def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None) -> GeneViewType:
+    def from_iterator(
+            cls,
+            iterator: Iterator[Feature],
+            record_type: Optional[Type] = None
+    ) -> GeneViewType:
         if record_type is None:
             record_type = type(iterator)
         if record_type == GtfRecord or isinstance(iterator, GtfIterator):

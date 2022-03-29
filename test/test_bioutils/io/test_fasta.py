@@ -145,5 +145,5 @@ def test_fai(initialize_module) -> None:
             fh.write(fasta_seq)
         faidx(fasta_filename)
         create_fai_from_fasta(fasta_filename, fasta_filename + ".tetgs.fai")
-        assert open(fasta_filename+".fai").read() == open(fasta_filename + ".tetgs.fai").read()
+        assert open(fasta_filename + ".fai").read() == open(fasta_filename + ".tetgs.fai").read()
         initialize_module.cleanup_intermediate_files()

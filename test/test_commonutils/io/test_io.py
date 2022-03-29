@@ -36,6 +36,7 @@ def assess_binary_archive_io(filename: str):
         assert reader.read(len_contents) == contents
         assert reader._tqdm.total == len(contents)
 
+
 def assess_text_archive_io(filename: str):
     # FIXME: Bugs here
     available_chars = string.printable
@@ -61,7 +62,6 @@ def assess_text_archive_io(filename: str):
             assert reader._tqdm._n == i
 
 
-
 extensions = (
     "txt", "xz", "bz2", "lzma", "gz"
 )
@@ -78,7 +78,6 @@ def test_ext(initialize_module, ext: str):
     assess_text_archive_io(filename)
     assess_binary_archive_io(filename)
     shell_utils.rm_rf(filename)
-
 
 # def test_string_io():
 #     # FIXME
