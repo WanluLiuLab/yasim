@@ -17,7 +17,8 @@ import os
 from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict, Optional, IO
 
-from commonutils.io import determine_file_line_endings
+from bioutils.io.fai import FAI_INDEX_TYPE, create_fai_from_fasta
+from bioutils.typing.fai import FastaIndexEntry
 from commonutils.io.file_system import file_exists
 from commonutils.io.safe_io import get_reader, get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -214,120 +215,6 @@ class _MemoryAccessFastaView(_BaseFastaView):
         return self._all_dict[chromosome][from_pos:to_pos]
 
 
-class FastaIndexEntry:
-    """
-    An entry from ``.fai`` files
-    """
-
-    name: str
-    """
-    Chromosome Name
-    """
-
-    length: int
-    """
-    Chromosome length
-    """
-
-    offset: int
-    """
-    How far to `seek` to find this chromosome
-    """
-
-    line_blen: int
-    """
-    Line length in bytes without newline
-    """
-
-    line_len: int
-    """
-    Line length with newlines
-    """
-
-    @classmethod
-    def from_fai_str(cls, fai_str: str):
-        new_instance = cls()
-        fields = fai_str.rstrip().split("\t")
-        if len(fields) != 5:
-            raise ValueError(f"Illegal record: {fai_str}. Need to have 5 fields.")
-        new_instance.name = fields[0]
-        new_instance.length = int(fields[1])
-        new_instance.offset = int(fields[2])
-        new_instance.line_blen = int(fields[3])
-        new_instance.line_len = int(fields[4])
-        return new_instance
-
-    def __repr__(self):
-        return "\t".join((
-            self.name,
-            str(self.length),
-            str(self.offset),
-            str(self.line_blen),
-            str(self.line_len)
-        ))
-
-    def __str__(self):
-        return repr(self)
-
-
-FAI_INDEX_TYPE = Dict[str, FastaIndexEntry]
-
-
-def create_fai(
-        filename: str,
-        index_filename: str
-) -> FAI_INDEX_TYPE:
-    """
-    Create an FAI index for Fasta
-
-    Do not use this feature on full headers.
-    """
-    return_fai: FAI_INDEX_TYPE = {}
-    name = ""
-    offset = 0
-    line_len = 0
-    line_blen = 0
-    length = 0
-
-    def append():
-        new_fai_index = FastaIndexEntry()
-        new_fai_index.name = name
-        new_fai_index.line_len = line_len
-        new_fai_index.line_blen = line_blen
-        new_fai_index.offset = offset
-        new_fai_index.length = length
-        return_fai[name] = new_fai_index
-
-    with get_tqdm_line_reader(filename, newline=determine_file_line_endings(filename)) as reader:
-        while True:
-            line = reader.readline()
-            if not line:
-                break
-            if line == '':
-                continue
-            if line[0] == '>':  # FASTA header
-                if name != '':
-                    append()
-                    offset = 0
-                    line_len = 0
-                    line_blen = 0
-                    length = 0
-                name = line[1:].strip().split(' ')[0].split('\t')[0]
-                offset = reader.tell()
-            else:
-                if line_len == 0:
-                    line_len = len(line)
-                if line_blen == 0:
-                    line_blen = len(line.rstrip('\r\n'))
-                length += len(line.rstrip('\r\n'))
-        if name != '':
-            append()
-    with get_writer(index_filename) as writer:
-        for fai_record in return_fai.values():
-            writer.write(str(fai_record) + "\n")
-    return return_fai
-
-
 class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
@@ -358,7 +245,7 @@ class _DiskAccessFastaView(_BaseFastaView):
         index_filename = self.filename + ".fai"
         if not file_exists(index_filename) or \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
-            create_fai(self.filename, index_filename)
+            create_fai_from_fasta(self.filename, index_filename)
         self._read_index_from_fai(index_filename)
 
     @chronolog(display_time=True)

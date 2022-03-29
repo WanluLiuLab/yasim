@@ -6,7 +6,8 @@ import os
 import pytest
 
 import conftest
-from bioutils.datastructure.fasta_view import FastaView, create_fai
+from bioutils.datastructure.fasta_view import FastaView
+from bioutils.io.fai import create_fai_from_fasta
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
 from commonutils.stdlib_helper import logger_helper
@@ -143,6 +144,6 @@ def test_fai(initialize_module) -> None:
         with get_writer(fasta_filename, newline=newline) as fh:
             fh.write(fasta_seq)
         faidx(fasta_filename)
-        create_fai(fasta_filename, fasta_filename + ".tetgs.fai")
+        create_fai_from_fasta(fasta_filename, fasta_filename + ".tetgs.fai")
         assert open(fasta_filename+".fai").read() == open(fasta_filename + ".tetgs.fai").read()
         initialize_module.cleanup_intermediate_files()
