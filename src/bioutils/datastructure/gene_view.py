@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import os
 import time
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type
 
 from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon
@@ -21,10 +21,9 @@ GVPKL_VERSION = 0.3
 """Current version of GVPKL standard."""
 
 
-class BaseGeneView:
+class GeneViewType:
     """
-    Base class of all GeneViews.
-    You may inherit from this class if you wish to add your own file format.
+    Abstract class for factory.
     """
 
     genes: Dict[str, Gene]
@@ -37,10 +36,6 @@ class BaseGeneView:
     Stores a mapping of transcript_id -> Transcript proxy object.
     """
 
-    def __init__(self):
-        self.genes = {}
-        self.transcripts = {}
-
     @classmethod
     @abstractmethod
     def _from_own_filetype(cls, filename: str):
@@ -50,6 +45,7 @@ class BaseGeneView:
         pass
 
     @classmethod
+    @abstractmethod
     def from_file(cls,
                   filename: str,
                   not_save_index: bool = False,
@@ -61,6 +57,109 @@ class BaseGeneView:
         * If failed, build and index from file by calling :py:func:`_from_own_filetype` and save it.
             set ``not_save_index`` to ``True`` to prevent this behaviour.
         """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_iterator(cls, iterator: Iterator[Feature]):
+        """
+        Build GeneView from an iterator of Feature.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def _from_gvpkl(cls, index_filename: str):
+        """
+        Read GVPKL index files
+        """
+        pass
+
+    @abstractmethod
+    def to_gvpkl(self, index_filename: str):
+        """
+        Save current GeneView object to GVPKL.
+        """
+        pass
+
+    @abstractmethod
+    def standardize(self):
+        """
+        This function standardizes GeneView into a Gene-Transcript-Exon Three-Tier Structure,
+        with other functions introduced below:
+
+        1. Transcript level
+        1). Remove transcript without exons;
+        2). Sort exons and re-mark exon number.
+        3). If transcript is not built with feature ``transcript``,
+            normalize its starting and ending position to its span length.
+        2. Same things to be done for gene.
+        """
+        pass
+
+    @abstractmethod
+    def get_iterator(self) -> Iterator[Feature]:
+        """
+        Get iterator for Gene-Transcript-Exon Three-Tier Structure.
+        """
+        pass
+
+    @abstractmethod
+    def to_file(self, output_filename: str):
+        """
+        Write GeneView to corresponding file.
+        """
+        pass
+
+    def del_gene(self, gene_id: str):
+        """
+        Remove a gene.
+        """
+        pass
+
+    def del_transcript(self, transcript_id: str):
+        """
+        Remove a transcript.
+        If this is the last transcript of a gene, the gene will be removed as well.
+        """
+        pass
+
+    def __len__(self) -> int:
+        """
+        Get number of records inside.
+        """
+        pass
+
+
+class BaseGeneView(GeneViewType, ABC):
+    """
+    Base class of all GeneViews.
+    You may inherit from this class if you wish to add your own file format.
+    """
+
+    # @classmethod
+    # @abstractmethod
+    # def _from_own_filetype(cls, filename: str):
+    #     pass
+    #
+    # @classmethod
+    # @abstractmethod
+    # def from_iterator(cls, iterator: Iterator[Feature]):
+    #     pass
+    #
+    # @abstractmethod
+    # def to_file(self, output_filename: str):
+    #     pass
+
+    def __init__(self):
+        self.genes = {}
+        self.transcripts = {}
+
+    @classmethod
+    def from_file(cls,
+                  filename: str,
+                  not_save_index: bool = False,
+                  **kwargs):
         index_filename = filename + ".gvpkl.xz"
         if file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
@@ -74,18 +173,7 @@ class BaseGeneView:
         return new_instance
 
     @classmethod
-    @abstractmethod
-    def from_iterator(cls, iterator: Iterator[Feature]):
-        """
-        Build GeneView from an iterator of Feature.
-        """
-        pass
-
-    @classmethod
     def _from_gvpkl(cls, index_filename: str):
-        """
-        Read GVPKL index files
-        """
         new_instance = cls()
         (version, new_instance.genes, new_instance.transcripts) = pickle_helper.load(index_filename)
         if version != GVPKL_VERSION:
@@ -93,24 +181,10 @@ class BaseGeneView:
         return new_instance
 
     def to_gvpkl(self, index_filename: str):
-        """
-        Save current GeneView object to GVPKL.
-        """
         lh.info("Pickling to gvpkl...")
         pickle_helper.dump((GVPKL_VERSION, self.genes, self.transcripts), index_filename)
 
     def standardize(self):
-        """
-        This function standardizes GeneView into a Gene-Transcript-Exon Three-Tier Structure,
-        with other functions introduced below:
-
-        1. Transcript level
-        1). Remove transcript without exons;
-        2). Sort exons and re-mark exon number.
-        3). If transcript is not built with feature ``transcript``,
-            normalize its starting and ending position to its span length.
-        2. Same things to be done for gene.
-        """
         self._standardize_transcripts()
         self._standardize_genes()
 
@@ -157,9 +231,6 @@ class BaseGeneView:
             self.del_gene(gene_id)
 
     def get_iterator(self) -> Iterator[Feature]:
-        """
-        Get iterator for Gene-Transcript-Exon Three-Tier Structure.
-        """
         for gene in self.genes.values():
             if gene.feature == "gene":
                 yield gene.get_data()
@@ -170,19 +241,12 @@ class BaseGeneView:
                     yield exon.get_data()
 
     def del_gene(self, gene_id: str):
-        """
-        Remove a gene.
-        """
         if gene_id in self.genes.keys():
             for transcript_id in self.genes[gene_id].transcripts.keys():
                 self.del_transcript(transcript_id)
             self.genes.pop(gene_id)
 
     def del_transcript(self, transcript_id: str):
-        """
-        Remove a transcript.
-        If this is the last transcript of a gene, the gene will be removed as well.
-        """
         if transcript_id in self.transcripts.keys():
             gene_id = self.transcripts[transcript_id].gene_id
             if gene_id is not None:
@@ -191,28 +255,17 @@ class BaseGeneView:
                 self.genes.pop(gene_id)
             self.transcripts.pop(transcript_id)
 
-    @abstractmethod
-    def to_file(self, output_filename: str):
-        """
-        Write GeneView to corresponding file.
-        """
-        pass
-
     def __len__(self) -> int:
-        """
-        Get number of records inside.
-        """
         return len(list(self.get_iterator()))
 
 
 class _GtfGeneView(BaseGeneView):
 
     @classmethod
-    @abstractmethod
     def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator]):
         def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
             gene_id = record.attribute['gene_id']
-            if not gene_id in _new_instance.genes.keys() or _new_instance.genes[gene_id].feature != "gene":
+            if gene_id not in _new_instance.genes.keys() or _new_instance.genes[gene_id].feature != "gene":
                 _new_instance.genes[gene_id] = Gene.from_feature(record)
 
         def register_transcript(_new_instance: _GtfGeneView, record: GtfRecord):
@@ -258,17 +311,25 @@ class _GtfGeneView(BaseGeneView):
 
 
 class _Gff3GeneView(BaseGeneView):
-    pass
-    # raise NotImplementedError
+    @classmethod
+    def from_iterator(cls, iterator: Union[Iterator[Gff3Record], Gff3Iterator]):
+        raise NotImplementedError
+
+    @classmethod
+    def _from_own_filetype(cls, filename: str):
+        raise NotImplementedError
+
+    def to_file(self, output_filename: str):
+        raise NotImplementedError
 
 
-class GeneView(BaseGeneView):
+class GeneViewFactory:
     """
     GeneView Factory that creates GeneView according to different file types.
     """
 
     @classmethod
-    def from_file(cls, filename: str, file_type: Optional[str] = None, **kwargs) -> GeneView:
+    def from_file(cls, filename: str, file_type: Optional[str] = None, **kwargs) -> GeneViewType:
         if file_type is None:
             file_type = get_file_type_from_suffix(filename)
         if file_type == "GTF":
@@ -279,7 +340,7 @@ class GeneView(BaseGeneView):
             raise ValueError(f"Unknown file type {file_type} for {filename}")
 
     @classmethod
-    def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None):
+    def from_iterator(cls, iterator: Iterator[Feature], record_type: Optional[Type] = None) -> GeneViewType:
         if record_type is None:
             record_type = type(iterator)
         if record_type == GtfRecord or isinstance(iterator, GtfIterator):

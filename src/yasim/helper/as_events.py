@@ -7,7 +7,7 @@ import copy
 import uuid
 from typing import List
 
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript
 
 
@@ -19,15 +19,20 @@ def is_intron_retention_able_transcript(transcript: Transcript) -> bool:
     return len(transcript.exons) >= 2
 
 
-def generate_new_transcript_id() -> str:
-    return str(uuid.uuid4())
+def generate_new_transcript_id(gene_id: str) -> str:
+    return gene_id + str(uuid.uuid4())
 
 
 def generate_new_transcript(transcript: Transcript) -> Transcript:
     new_transcript = copy.deepcopy(transcript)
     new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
-    new_transcript.transcript_id = generate_new_transcript_id()
+    new_transcript.transcript_id = generate_new_transcript_id(transcript.gene_id)
     return new_transcript
+
+
+def register_new_transcript(gv: GeneViewType, transcript: Transcript):
+    gv.genes[transcript.gene_id].transcripts[transcript.transcript_id] = transcript
+    gv.transcripts[transcript.transcript_id] = transcript
 
 
 def perform_exon_skipping(transcript: Transcript) -> Transcript:
@@ -55,7 +60,7 @@ def perform_alternative_5p_splicing(transcript: Transcript) -> Transcript:
 
 
 class ASManipulator:
-    _gv: GeneView
+    _gv: GeneViewType
     """
     Underlying GeneView
     """
@@ -65,7 +70,7 @@ class ASManipulator:
     Transcript that may have intron retention events.
     """
 
-    def __init__(self, gv: GeneView):
+    def __init__(self, gv: GeneViewFactory):
         self._gv = gv
 
     def determine_AS_able_transcripts(self):

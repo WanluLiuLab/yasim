@@ -6,7 +6,7 @@ from typing import List
 
 from matplotlib import pyplot as plt
 
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewFactory
 from bioutils.io.feature import GtfWriter
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -37,7 +37,7 @@ def stat(item: List[int], fig_name: str):
 def main(args: List[str]):
     args = _parse_args(args)
     out_basename = args.out
-    gv = GeneView.from_file(args.gtf, not_save_index=True)
+    gv = GeneViewFactory.from_file(args.gtf, not_save_index=True)
 
     with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
             get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \

@@ -6,7 +6,7 @@ from typing import Dict
 
 from scipy.stats import nbinom, uniform
 
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewType
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer, get_reader
@@ -16,7 +16,7 @@ DepthType = Dict[str, int]
 
 
 def simulate_dge_uniform(
-        gv: GeneView,
+        gv: GeneViewType,
         mu: int
 ) -> DepthType:
     """
@@ -33,7 +33,7 @@ def simulate_dge_uniform(
 
 
 def simulate_dge_nb(
-        gv: GeneView,
+        gv: GeneViewType,
         max_depth: int,
         levels: int = 100
 ) -> DepthType:

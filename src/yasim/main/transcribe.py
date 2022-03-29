@@ -4,7 +4,7 @@ from typing import List
 
 from bioutils.algorithm.sequence import get_gc_percent
 from bioutils.datastructure.fasta_view import FastaView
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewFactory
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -25,7 +25,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 
 def transcribe(
-        gv: GeneView,
+        gv: GeneViewFactory,
         output_fasta: str,
         fv: FastaView
 ):
@@ -64,6 +64,6 @@ def transcribe(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView.from_file(args.gtf)
+    gv = GeneViewFactory.from_file(args.gtf)
     fv = FastaView(args.fasta)
     transcribe(gv, args.out, fv)

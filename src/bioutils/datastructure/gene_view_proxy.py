@@ -6,17 +6,25 @@ from __future__ import annotations
 
 import copy
 import math
+import uuid
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional, Iterable, Tuple
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 
-UNKNOWN_TRANSCRIPT_ID = 'UNKNOWN_TRANSCRIPT_ID'
-UNKNOWN_GENE_ID = 'UNKNOWN_GENE_ID'
+
+def unknown_transcript_id() -> str:
+    """Generate a new unknown transcript ID"""
+    return 'unknown_transcript_id' + str(uuid.uuid4())
 
 
-class BaseFeature(FeatureType):
+def unknown_gene_id() -> str:
+    """Generate a new unknown gene ID"""
+    return 'unknown_gene_id' + str(uuid.uuid4())
+
+
+class BaseFeatureProxy(FeatureType):
     """
     Base class of Feature Proxy.
     """
@@ -145,39 +153,39 @@ class BaseFeature(FeatureType):
         else:
             raise NotImplementedError(f"Not implemented for {type(feature)}!")
 
-    def __eq__(self, other: BaseFeature):
+    def __eq__(self, other: BaseFeatureProxy):
         return self._data == other._data
 
-    def __ne__(self, other: BaseFeature):
+    def __ne__(self, other: BaseFeatureProxy):
         return self._data != other._data
 
-    def overlaps(self, other: BaseFeature) -> bool:
+    def overlaps(self, other: BaseFeatureProxy) -> bool:
         return self._data.overlaps(other._data)
 
-    def __gt__(self, other: BaseFeature):
+    def __gt__(self, other: BaseFeatureProxy):
         return self._data > other._data
 
-    def __ge__(self, other: BaseFeature):
+    def __ge__(self, other: BaseFeatureProxy):
         return self._data >= other._data
 
-    def __lt__(self, other: BaseFeature):
+    def __lt__(self, other: BaseFeatureProxy):
         return self._data < other._data
 
-    def __le__(self, other: BaseFeature):
+    def __le__(self, other: BaseFeatureProxy):
         return self._data <= other._data
 
     def __repr__(self):
-        return "BaseFeature"
+        return "BaseFeatureProxy"
 
     def __str__(self):
         return repr(self)
 
-    def from_string(self, **kwargs):
+    def format_string(self, **kwargs) -> str:
         """Disabled"""
         pass
 
 
-class Exon(BaseFeature):
+class Exon(BaseFeatureProxy):
 
     @property
     def transcript_id(self) -> str:
@@ -205,9 +213,9 @@ class Exon(BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = UNKNOWN_TRANSCRIPT_ID
+            self._data.attribute["transcript_id"] = unknown_transcript_id()
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
+            self._data.attribute["gene_id"] = unknown_gene_id()
         if "exon_number" not in self._data.attribute:
             self._data.attribute["exon_number"] = 0
 
@@ -218,7 +226,7 @@ class Exon(BaseFeature):
         return f"Exon {self.exon_number} of {self.transcript_id}"
 
 
-class Transcript(BaseFeature):
+class Transcript(BaseFeatureProxy):
     __slots__ = (
         "exons",
         "_cdna_sequence"
@@ -248,9 +256,9 @@ class Transcript(BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = UNKNOWN_TRANSCRIPT_ID
+            self._data.attribute["transcript_id"] = unknown_transcript_id()
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
+            self._data.attribute["gene_id"] = unknown_gene_id()
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError
@@ -338,25 +346,11 @@ class Transcript(BaseFeature):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
 
-class Gene(BaseFeature):
+class Gene(BaseFeatureProxy):
     __slots__ = (
         "transcripts"
     )
     transcripts: Dict[str, Transcript]
-
-    def dedup(self, by_splice_site: bool = True):
-        """
-        Remove duplicates in ``transcripts``.
-
-        :param by_splice_site: Detect by splice sites rather than exon boundaries
-        """
-        all_splice_sites: List[List[Tuple[int, int]]] = []
-        for transcript in self.transcripts.values():
-            this_splice_site = list(transcript.splice_sites)
-            if this_splice_site in all_splice_sites:
-                pass  # TODO: Remove
-            else:
-                all_splice_sites.append(this_splice_site)
 
     @property
     def gene_id(self) -> str:
@@ -371,7 +365,7 @@ class Gene(BaseFeature):
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = UNKNOWN_GENE_ID
+            self._data.attribute["gene_id"] = unknown_gene_id()
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError

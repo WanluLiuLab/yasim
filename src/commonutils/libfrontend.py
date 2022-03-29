@@ -83,7 +83,7 @@ def _parse_args(
     return parsed_args
 
 
-def _format_help_info(package_main_name:str) -> str:
+def _format_help_info(package_main_name: str) -> str:
     return f"""
 This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `commonutils.libfrontend`.
 
@@ -100,6 +100,7 @@ If no [SUBCOMMAND] is present, will consider options like:
 
 Use `lscmd` as subcommand with no options to see available subcommands.
 """
+
 
 def _act_on_args(
         parsed_args: _ParsedArgs,
@@ -144,7 +145,7 @@ def setup_frontend(
         package_main_name: str,
         one_line_description: str,
         version: str,
-        help_info: str=None,
+        help_info: str = None,
         subcommand_help: str = "Use 'lscmd' to list all valid subcommands."
 ):
     if os.environ.get('LOG_LEVEL') is None:
