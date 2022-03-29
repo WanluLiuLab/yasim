@@ -1,15 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: setup.py -- Installer
-#
-#  VERSION HISTORY:
-#  2021-09-11 0.1  : Purposed and added by YU Zhejian.
-#
-# ==============================================================================
 import glob
 import os.path
 import sys
@@ -71,6 +59,7 @@ setup(
     package_data={
         '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "llrg_adapter", "**"), recursive=True),
     },
-    install_requires=install_requires
+    install_requires=install_requires,
+    scripts=list(glob.glob(os.path.join(ROOT_DIR, "src", "bin", "*")))
     # FIXME: Errors when adding to sdists.
 )

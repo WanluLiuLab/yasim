@@ -72,6 +72,7 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/c_elegans/as_data" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/_deprecated" />
+      <excludeFolder url="file://$MODULE_DIR$/.kdev4" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
