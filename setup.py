@@ -19,9 +19,9 @@ with  open('requirements.txt', 'rt', encoding='utf-8') as reader:
 
 from yasim import \
     __version__ as yasim_ver, \
-        __author__ as yasim_auth, \
-            author_email as yasim_auth_email
-                
+    __author__ as yasim_auth, \
+    author_email as yasim_auth_email, \
+    description as yasim_description
 
 with  open('Readme.md', 'rt', encoding='utf-8') as reader:
     long_description = reader.read()
@@ -31,7 +31,7 @@ setup(
     version=yasim_ver,
     author=yasim_auth,
     author_email=yasim_auth_email,
-    description=f"{PKG_NAME} -- A Simulator for Alternative Splicing and Differentially Expressed Gene",
+    description=yasim_description,
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/pypa/sampleproject",  # TODO

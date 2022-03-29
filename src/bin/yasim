@@ -1,23 +1,3 @@
-#!/usr/bin/env python3
-"""
-yasim -- yasim main frontend
-
-This file will call main() function in __main__, so see that one instead.
-"""
-import os
-import sys
-from os.path import dirname as opd
-
-sys.path.append(opd(opd(os.path.abspath(__file__))))
-try:
-    from yasim.__main__ import main
-except ImportError:
-    main = None
-    print("Please add the name of the directory of this script to PYTHONPATH environment variable.")
-    print("Current values:")
-    for line in sys.path:
-        print(f"\t{line}")
-    sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+#!/usr/bin/env bash
+set -ue
+python3 -m "$(basename -s '' "${0}")" "${@}"

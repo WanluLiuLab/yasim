@@ -1,5 +1,5 @@
 """
-yasim -- Yet Another SIMulator
+yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene
 
 This is an alternative splicing simulator, with interesting functions like DEG simulation.
 """
@@ -12,3 +12,5 @@ __author__ = ",".join((
 author_email = ",".join((
     "Zhejian.19@intl.zju.edu.cn",
 ))
+
+description = __doc__.splitlines()[1]
