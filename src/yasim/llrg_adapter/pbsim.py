@@ -11,6 +11,7 @@ PBSIM_DIST_DIR = os.path.join(os.path.dirname(__file__), "pbsim_dist")
 Where pbsim stores its models
 """
 
+
 class PbsimAdapter(BaseLLRGAdapter):
     is_ccs: bool
     """

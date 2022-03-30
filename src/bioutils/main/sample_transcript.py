@@ -6,7 +6,7 @@ import argparse
 import random
 from typing import List, Iterable
 
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewFactory
 from bioutils.io.feature import GtfIterator
 from bioutils.typing.feature import GtfRecord
 from commonutils.stdlib_helper.logger_helper import get_logger
@@ -27,7 +27,7 @@ def subset_gtf_by_transcript_id(
         input_record_num += 1
         if gtf_record.attribute.get(field_name, None) in possible_values:
             intermediate_records.append(gtf_record)
-    gv = GeneView.from_iterator(intermediate_records, record_type=GtfRecord)
+    gv = GeneViewFactory.from_iterator(intermediate_records, record_type=GtfRecord)
     gv.standardize()
     final_record_num = len(gv)
     gv.to_file(out_filename)

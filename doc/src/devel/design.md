@@ -87,6 +87,8 @@ This part is waiting for satistical tests.
 
 Firstly, we parse the GTF and get a list of AS-able transcripts. Simulated from pre-fitted distribution of corresponding event type, AS events are then added to these transcripts.
 
+**Number of isoforms (type of transcripts) per gene** and **number of exons per isoform** are two factors that will be taken into consideration.
+
 ## `generate_depth`: Simulate GEP based on a Statistical Model Given by Mining Raw Data and Works of Literature
 
 - INPUT: AS Ground Truth GTF.

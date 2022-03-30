@@ -1,7 +1,7 @@
 import argparse
 from typing import List
 
-from bioutils.datastructure.gene_view import GeneView
+from bioutils.datastructure.gene_view import GeneViewFactory
 from yasim.helper import depth
 
 
@@ -18,7 +18,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    gv = GeneView.from_file(args.gtf)
+    gv = GeneViewFactory.from_file(args.gtf)
     dge_data = depth.simulate_dge_uniform(
         gv=gv,
         mu=args.mu

@@ -3,9 +3,9 @@ import multiprocessing
 import os.path
 from typing import List
 
-from commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
+from commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from yasim.helper.depth import DepthType, read_depth
 from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_single_end
 from yasim.llrg_adapter import badread
@@ -14,6 +14,7 @@ logger = get_logger(__name__)
 
 ALL_POSSIBLE_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016")
 """All possible badread model names"""
+
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -40,8 +41,8 @@ def simulate(
         output_fastq_prefix: str,
         model_name: str,
         exename: str,
-        depth:DepthType,
-        jobs:int
+        depth: DepthType,
+        jobs: int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     simulating_pool = ParallelJobExecutor(
@@ -65,7 +66,7 @@ def simulate(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    depth=read_depth(args.depth)
+    depth = read_depth(args.depth)
     simulate(
         intermediate_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,

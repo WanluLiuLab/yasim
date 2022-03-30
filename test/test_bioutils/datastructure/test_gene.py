@@ -1,14 +1,11 @@
-from coverage.annotate import os
+import os
 
-import test_tetgs
-from bioutils.datastructure.gene_view import GeneView
+import pytest
+
+import conftest
+from bioutils.datastructure.gene_view import GeneViewFactory
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
-from commonutils.stdlib_helper import logger_helper
-
-logger_helper.set_level(8)
-
-test_path = test_tetgs.initialize(__name__)
 
 gene_gtf = """
 chrI	ncbiRefSeq	exon	4221	4358	.	-	.	gene_id "homt-1"; transcript_id "NM_058260.4"; exon_number "1"; exon_id "NM_058260.4.1"; gene_name "homt-1";
@@ -26,17 +23,26 @@ chrI	ncbiRefSeq	transcript	6492885	6493553	0	-	.	gene_id "mdt-18"; transcript_id
 """
 
 
-def test_gene() -> None:
-    global gene_gtf
-    fh = get_writer(os.path.join(test_path, "1.gtf.gz"))
-    fh.write(gene_gtf)
-    fh.close()
-    gv = GeneView.from_file(os.path.join(test_path, "1.gtf.gz"))
+@pytest.fixture(scope="module", autouse=True)
+def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
+    """
+    This function sets up a directory for testing
+    """
+    session_test_info = initialize_session
+    module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
+    with get_writer(os.path.join(module_test_info.path, "1.gtf.gz")) as fh:
+        fh.write(gene_gtf)
+    yield module_test_info
+    module_test_info.teardown()
+
+
+def test_gene(initialize_module) -> None:
+    test_path = initialize_module.path
+    gv = GeneViewFactory.from_file(os.path.join(test_path, "1.gtf.gz"))
     assert list(gv.genes.keys()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
     assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
                                            "NM_001322685.1"]
     assert gv.transcripts['NM_058260.4'].exons[0].start == 4221
-    gv.to_file(os.path.join(test_path, "2.gtf"))
     gv.standardize()
     assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3']
     gv.to_file(os.path.join(test_path, "3.gtf"))

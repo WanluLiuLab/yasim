@@ -1,15 +1,3 @@
-# ==============================================================================
-#  Copyright (C) 2021. tetgs authors
-#
-#  This file is a part of tetgs, which is licensed under MIT,
-#  a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-#  NAME: setup.py -- Installer
-#
-#  VERSION HISTORY:
-#  2021-09-11 0.1  : Purposed and added by YU Zhejian.
-#
-# ==============================================================================
 import glob
 import os.path
 import sys
@@ -29,17 +17,21 @@ with  open('requirements.txt', 'rt', encoding='utf-8') as reader:
         if not line.startswith('#'):
             install_requires.append(line.strip())
 
-from yasim import __version__
+from yasim import \
+    __version__ as yasim_ver, \
+    __author__ as yasim_auth, \
+    author_email as yasim_auth_email, \
+    description as yasim_description
 
 with  open('Readme.md', 'rt', encoding='utf-8') as reader:
     long_description = reader.read()
 
 setup(
     name=PKG_NAME,
-    version=__version__,
-    author="YU Zhejian",
-    author_email="Zhejian.19@intl.zju.edu.cn",
-    description=f"{PKG_NAME} -- A Simulator for Alternative Splicing and Differentially Expressed Gene",
+    version=yasim_ver,
+    author=yasim_auth,
+    author_email=yasim_auth_email,
+    description=yasim_description,
     long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/pypa/sampleproject",  # TODO
@@ -67,6 +59,7 @@ setup(
     package_data={
         '': glob.glob(os.path.join(ROOT_DIR, "src", "yasim", "llrg_adapter", "**"), recursive=True),
     },
-    install_requires=install_requires
+    install_requires=install_requires,
+    scripts=list(glob.glob(os.path.join(ROOT_DIR, "src", "bin", "*")))
     # FIXME: Errors when adding to sdists.
 )

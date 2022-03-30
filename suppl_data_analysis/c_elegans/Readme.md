@@ -1,5 +1,6 @@
 # L4 C. Elegans RNA-seq Analysis
 
+WARNING: This is a prior test project, so code here may not be reproducible.
 
 ## The Data
 
@@ -21,21 +22,9 @@ Using PacBio SMRT Sequel
 
 SRR8568877 SRR8568878
 
-## Align to Transcriptome
-
-The reason why we align to transcriptome instead ofgenome is because using this method we may get coverage from aligned data without transformation.
+## Alignment
 
 Using minimap2 2.17-r941, bwa 0.7.17-r1188, samtools 1.11 (using htslib 1.11-4)
-
-The alignment details can be found at `get_data.sh`.
-
-## Merge Results
-
-The results from NGS and TGS data are merged using R, with following steps:
-
-- Generate a distribution. From literature [^Manz2021], we can see that it is a negative binomial (NB) distribution.
-- Get the parameters of NB using bootstrap.
-
 
 ## References
 

@@ -1,7 +1,7 @@
 import argparse
 import multiprocessing
 import os.path
-from typing import List, Optional
+from typing import List
 
 import commonutils.stdlib_helper.parallel_helper
 from commonutils.importer.tqdm_importer import tqdm
@@ -35,8 +35,8 @@ def simulate(
         intermediate_fasta_dir: str,
         output_fastq_prefix: str,
         exename: str,
-        depth:DepthType,
-        jobs:int
+        depth: DepthType,
+        jobs: int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobExecutor(
@@ -59,11 +59,11 @@ def simulate(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    depth=read_depth(args.depth)
+    depth = read_depth(args.depth)
     simulate(
         intermediate_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,
         exename=args.exename,
-        depth= depth,
+        depth=depth,
         jobs=args.jobs
     )

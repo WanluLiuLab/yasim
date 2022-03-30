@@ -15,7 +15,8 @@ if __name__ == "__main__":
     nanopore_coverage = sorted(nanopore_coverage[np.where(nanopore_coverage > 0)], reverse=True)
     maxnc = max(nanopore_coverage)
     lnc = len(nanopore_coverage)
-    f = opt.curve_fit(d_flux_sim, range(1, lnc+1), nanopore_coverage, bounds=([-0.9, maxnc-0.01, 1/10*lnc, 1/10*lnc], [-0.5, maxnc, 10*lnc, 10*lnc]))
+    f = opt.curve_fit(d_flux_sim, range(1, lnc + 1), nanopore_coverage,
+                      bounds=([-0.9, maxnc - 0.01, 1 / 10 * lnc, 1 / 10 * lnc], [-0.5, maxnc, 10 * lnc, 10 * lnc]))
 
 #     upper=c(-0.5, 10*ldata, 10*ldata),
 #     lower=c(-0.9, 1/10*ldata, 1/10*ldata)

@@ -1,4 +1,3 @@
-import glob
 import os
 from typing import Iterable, Tuple
 
@@ -18,13 +17,13 @@ They are: [depth, transcript_id, filename]
 
 def get_depth_from_intermediate_fasta(
         intermediate_fasta_dir: str,
-        depth:DepthType
+        depth: DepthType
 ) -> DepthInfoType:
     """
     Glob and parse a filename line base_dir/1/transcript_id.fasta.
     """
     for transcript_id, transcript_depth in depth.items():
-        filename = os.path.join(intermediate_fasta_dir, transcript_id+".fa")
+        filename = os.path.join(intermediate_fasta_dir, transcript_id + ".fa")
         yield transcript_depth, transcript_id, filename
 
 

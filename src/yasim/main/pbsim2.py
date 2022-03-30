@@ -42,8 +42,8 @@ def simulate(
         output_fastq_prefix: str,
         hmm_model: str,
         exename: str,
-        depth:DepthType,
-        jobs:int
+        depth: DepthType,
+        jobs: int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobExecutor(
@@ -67,7 +67,7 @@ def simulate(
 
 def main(args: List[str]):
     args = _parse_args(args)
-    depth=read_depth(args.depth)
+    depth = read_depth(args.depth)
     simulate(
         intermediate_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,

@@ -2,20 +2,17 @@
 test_fasta.py -- Unit test of corresponding module.
 """
 import os
-import random
-from typing import List, IO, Tuple
 
 import pytest
 
-import test_tetgs
-from bioutils.datastructure.fasta_view import FastaView, create_fai
+import conftest
+from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
+from bioutils.io.fai import create_fai_from_fasta
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
 from commonutils.stdlib_helper import logger_helper
 
-logger_helper.set_level(8)
-
-test_path = test_tetgs.initialize(__name__)
+lh = logger_helper.get_logger(__name__)
 
 fasta_seq = """>chr1 some att
 NNNNNNNNNNNNNNNATCGTTACGTAC
@@ -41,19 +38,40 @@ AAAAAAAAAACCCCCC
 CTA
 """
 
+
+class TestFastaModuleInfo(conftest.ModuleTestInfo):
+    fasta_filename: str
+    fasta_index_filename: str
+
+    def __init__(self, base_test_dir: str, name: str):
+        super().__init__(base_test_dir, name)
+        self.fasta_filename = os.path.join(self.path, "1.fasta")
+        self.fasta_index_filename = self.path + ".fai"
+
+    def teardown(self):
+        self.cleanup_intermediate_files()
+        super().teardown()
+
+    def cleanup_intermediate_files(self):
+        shell_utils.rm_rf(self.fasta_filename)
+        shell_utils.rm_rf(self.fasta_index_filename)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def initialize_module(initialize_session) -> TestFastaModuleInfo:
+    """
+    This function sets up a directory for testing
+    """
+    session_test_info = initialize_session
+    module_test_info = TestFastaModuleInfo(session_test_info.base_test_dir, __name__)
+    yield module_test_info
+    module_test_info.teardown()
+
+
 VALID_NEWLINE = ("\n", "\r\n")
 
-FASTA_FILENAME = os.path.join(test_path, "1.fasta")
-FASTA_FAI_FILENAME = FASTA_FILENAME + ".fai"
 
-
-def cleanup() -> None:
-    shell_utils.rm_rf(FASTA_FAI_FILENAME)
-    shell_utils.rm_rf(FASTA_FILENAME)
-
-
-def _public_asserts(fa: FastaView) -> None:
-    print(fa.chr_names)
+def _public_asserts(fa: FastaViewType) -> None:
     assert len(fa) == 5
     assert fa.sequence('chr3', 2, 15) == 'TANNTGNATNATG'  # At line end
     assert fa.sequence('chr3', 2, 16) == 'TANNTGNATNATGN'  # Cross the line
@@ -70,7 +88,7 @@ def _public_asserts(fa: FastaView) -> None:
         fa.sequence('chr2', 500, 29)
 
 
-def _fasta_with_full_header_assets(fa: FastaView) -> None:
+def _fasta_with_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1 some att', 0, 1) == 'N'
     assert fa.sequence('chr1 some att', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1 some att', 28, 29) == 'A'  # Next line
@@ -81,7 +99,7 @@ def _fasta_with_full_header_assets(fa: FastaView) -> None:
     _public_asserts(fa)
 
 
-def _fasta_without_full_header_assets(fa: FastaView) -> None:
+def _fasta_without_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1', 0, 1) == 'N'
     assert fa.sequence('chr1', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1', 28, 29) == 'A'  # Next line
@@ -92,138 +110,40 @@ def _fasta_without_full_header_assets(fa: FastaView) -> None:
     _public_asserts(fa)
 
 
-def test_fasta_class_without_fai_in_mem() -> None:
-    global fasta_seq
-    cleanup()
+@pytest.mark.parametrize(
+    argnames="kwargs",
+    argvalues=(
+            {"read_into_memory": True},
+            {"read_into_memory": False}
+    ),
+    ids=(
+            "test_read_into_memory",
+            "test_no_read_into_memory"
+    )
+)
+def test_newline_with_or_without_full_header(initialize_module, kwargs) -> None:
     for newline in VALID_NEWLINE:
-        fh = get_writer(FASTA_FILENAME, newline=newline)
-        fh.write(fasta_seq)
-        fh.close()
-        fa = FastaView(FASTA_FILENAME, read_into_memory=True, full_header=False)
-        _fasta_without_full_header_assets(fa)
-        fa.close()
-        fa = FastaView(FASTA_FILENAME, read_into_memory=True, full_header=True)
-        _fasta_with_full_header_assets(fa)
-        fa.close()
-        cleanup()
+        with get_writer(initialize_module.fasta_filename, newline=newline) as fh:
+            fh.write(fasta_seq)
+        with FastaViewFactory(initialize_module.fasta_filename, full_header=False, **kwargs) as fa:
+            _fasta_without_full_header_assets(fa)
+        if kwargs['read_into_memory']:
+            with FastaViewFactory(initialize_module.fasta_filename, full_header=True, **kwargs) as fa:
+                _fasta_with_full_header_assets(fa)
+        initialize_module.cleanup_intermediate_files()
 
 
-def test_fasta_class_without_fai_without_mem() -> None:
-    global fasta_seq
-    cleanup()
-    for newline in VALID_NEWLINE:
-        fh = get_writer(FASTA_FILENAME, newline=newline)
-        fh.write(fasta_seq)
-        fh.close()
-        fa = FastaView(FASTA_FILENAME, read_into_memory=False)
-        _fasta_without_full_header_assets(fa)
-        fa.close()
-        shell_utils.rm_rf(FASTA_FAI_FILENAME)
-        fa = FastaView(FASTA_FILENAME, read_into_memory=False, full_header=True)
-        with pytest.raises(ValueError):
-            _fasta_with_full_header_assets(fa)
-        fa.close()
-        cleanup()
-
-
-def test_fai() -> None:
+def test_fai(initialize_module) -> None:
     try:
         from pysam import faidx
     except ImportError:
         return
     global fasta_seq
     for newline in VALID_NEWLINE:
-        fh = get_writer(FASTA_FILENAME, newline=newline)
-        fh.write(fasta_seq)
-        fh.close()
-        faidx(FASTA_FILENAME)
-        create_fai(FASTA_FILENAME, os.path.join(test_path, "1_tetgs.fai"))
-        assert open(FASTA_FAI_FILENAME).read() == open(os.path.join(test_path, "1_tetgs.fai")).read()
-        cleanup()
-
-
-def test_fasta_class_with_fai_without_mem() -> None:
-    try:
-        from pysam import faidx
-    except ImportError:
-        return
-    global fasta_seq
-    for newline in VALID_NEWLINE:
-        print(len(newline))
-        fh = get_writer(FASTA_FILENAME, newline=newline)
-        fh.write(fasta_seq)
-        fh.close()
-        faidx(FASTA_FILENAME)
-        fa = FastaView(FASTA_FILENAME, read_into_memory=False)
-        _fasta_without_full_header_assets(fa)
-        fa.close()
-        fa = FastaView(FASTA_FILENAME, read_into_memory=False, full_header=True)
-        with pytest.raises(ValueError):
-            _fasta_with_full_header_assets(fa)
-        fa.close()
-        cleanup()
-
-
-def _fatsa_gen(writer: IO) -> List[Tuple[int, int, int]]:
-    retv = []
-    this_tras = str.maketrans('01234', 'NAGCT')
-
-    for i in range(0, 20):
-        writer.write(f'>chr{i}')
-        chr_len = random.randint(100, 100000)
-        chr_len_b = random.randint(10, 100)
-        in_seq = ''
-        for _ in range(chr_len):
-            in_seq = in_seq + str(random.randint(0, 4))
-        rp = 0
-        while rp < len(in_seq):
-            in_seq = in_seq[:rp] + '\n' + in_seq[rp:]
-            rp += chr_len_b
-        writer.write(in_seq.translate(this_tras) + '\n')
-        # chr_len, start, end
-        start = 10
-        end = 0
-        while start > end:
-            start = random.randint(0, chr_len)
-            end = random.randint(0, chr_len)
-        retv.append((chr_len, start, end))
-    return retv
-
-
-def _dynamic_asserts(retv):
-    try:
-        import pyfaidx
-    except ImportError:
-        return
-    tru = pyfaidx.FastaView(f"{test_path}/2.fasta", one_based_attributes=False)
-    for this in (
-            FastaView(f"{test_path}/2.fasta", read_into_memory=False),
-            FastaView(f"{test_path}/2.fasta", read_into_memory=True)
-    ):
-        i = 0
-        for item in retv:
-            assert tru[f'chr{i}'][item[1]: item[2]].seq == this.sequence(f'chr{i}', item[1], item[2])
-            i += 1
-        this.close()
-    tru.close()
-    shell_utils.rm_rf(f"{test_path}/2.fasta")
-    shell_utils.rm_rf(f"{test_path}/2.fasta.fai")
-
-
-def test_dynamic_asserts() -> None:
-    try:
-        import pyfaidx
-    except ImportError:
-        return
-    for newline in ('\n', '\r\n'):
-        fh = get_writer(f"{test_path}/2.fasta", newline=newline)
-        retv = _fatsa_gen(fh)
-        fh.close()
-        _dynamic_asserts(retv)
-
-
-if __name__ == "__main__":
-    test_fasta_class_without_fai_in_mem()
-    test_fasta_class_without_fai_without_mem()
-    test_fasta_class_with_fai_without_mem()
-    test_dynamic_asserts()
+        fasta_filename = initialize_module.fasta_filename
+        with get_writer(fasta_filename, newline=newline) as fh:
+            fh.write(fasta_seq)
+        faidx(fasta_filename)
+        create_fai_from_fasta(fasta_filename, fasta_filename + ".tetgs.fai")
+        assert open(fasta_filename + ".fai").read() == open(fasta_filename + ".tetgs.fai").read()
+        initialize_module.cleanup_intermediate_files()

@@ -11,13 +11,16 @@ Highlights: This utility can read all format supported by :py:mod:`commonutils.i
 
 .. warning::
     This module uses 0-based ``[)`` indexing!
+
+TODO: Update FAI into a factory design -- support another format that supports full headers
 """
 
 import os
 from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict, Optional, IO
 
-from commonutils.io import determine_file_line_endings
+from bioutils.io.fai import FAI_INDEX_TYPE, create_fai_from_fasta
+from bioutils.typing.fai import FastaIndexEntry
 from commonutils.io.file_system import file_exists
 from commonutils.io.safe_io import get_reader, get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -27,15 +30,15 @@ lh = get_logger(__name__)
 
 __all__ = [
     '_BaseFastaView',
-    'FastaView'
+    'FastaViewFactory'
 ]
 
-QueryTuple = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
+QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
 
-class _BaseFastaView:
+class FastaViewType:
     """
-    Base class of other backends.
+    Abstract class of factories.
     """
     filename: str
     """
@@ -54,11 +57,9 @@ class _BaseFastaView:
     The backend to use.
     """
 
-    @chronolog(display_time=True)
+    @abstractmethod
     def __init__(self, filename: str, full_header: bool = False):
-        self.full_header = full_header
-        self.filename = filename
-        self.backend = ''
+        pass
 
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
@@ -88,13 +89,81 @@ class _BaseFastaView:
         """
         pass
 
+    def __str__(self) -> str:
+        return repr(self)
+
+    @abstractmethod
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         """
         Whether a region is valid. See :py:func:`sequence` for details.
 
         :raises ValueError: Raise this error if region is not valid.
         """
-        if not chromosome in self.chr_names:
+        pass
+
+    @abstractmethod
+    def close(self):
+        """
+        Safely close a Fasta.
+        """
+        pass
+
+    @abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    @abstractmethod
+    def __del__(self):
+        pass
+
+    @abstractmethod
+    def to_file(self, output_filename: str):
+        """
+        Write content of this FASTA view to file
+        """
+        pass
+
+    @abstractmethod
+    def query(self, query: QueryTupleType) -> str:
+        """
+        :py:func:`sequence` with another interface.
+        """
+        pass
+
+    @abstractmethod
+    def subset(self, output_filename: str, querys: List[QueryTupleType]):
+        pass
+
+    @abstractmethod
+    def subset_chr(self, output_filename: str, querys: List[str]):
+        pass
+
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class _BaseFastaView(FastaViewType, ABC):
+    """
+    Base class of other backends.
+    """
+
+    @chronolog(display_time=True)
+    def __init__(self, filename: str, full_header: bool = False):
+        self.full_header = full_header
+        self.filename = filename
+        self.backend = ''
+
+    def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
+        if chromosome not in self.chr_names:
             raise ValueError(f"Chr {chromosome} not found")
         chr_len = self.get_chr_length(chromosome)
         if from_pos < 0 or from_pos > chr_len:
@@ -111,33 +180,22 @@ class _BaseFastaView:
         except AttributeError:
             return "Fasta being constructed"
 
-    __str__ = __repr__
-
     def close(self):
-        """
-        Safely close a Fasta.
-        """
         pass
 
     def __del__(self):
         self.close()
 
     def to_file(self, output_filename: str):
-        """
-        Write content of this FASTA view to file
-        """
         with get_writer(output_filename) as writer:
             for k in self.chr_names:
                 fa_str = f">{k}\n{self.sequence(k)}\n"
                 writer.write(fa_str)
 
-    def query(self, query: QueryTuple) -> str:
-        """
-        :py:func:`sequence` with another interface.
-        """
+    def query(self, query: QueryTupleType) -> str:
         return self.sequence(*query)
 
-    def subset(self, output_filename: str, querys: List[QueryTuple]):
+    def subset(self, output_filename: str, querys: List[QueryTupleType]):
         with get_writer(output_filename) as writer:
             for query in querys:
                 fa_str = f">{query[0]}\n{self.query(query)}\n"
@@ -148,6 +206,12 @@ class _BaseFastaView:
             for query in querys:
                 fa_str = f">{query}\n{self.sequence(query)}\n"
                 writer.write(fa_str)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
 class _MemoryAccessFastaView(_BaseFastaView):
@@ -208,120 +272,6 @@ class _MemoryAccessFastaView(_BaseFastaView):
         return self._all_dict[chromosome][from_pos:to_pos]
 
 
-class FastaIndexEntry:
-    """
-    An entry from ``.fai`` files
-    """
-
-    name: str
-    """
-    Chromosome Name
-    """
-
-    length: int
-    """
-    Chromosome length
-    """
-
-    offset: int
-    """
-    How far to `seek` to find this chromosome
-    """
-
-    line_blen: int
-    """
-    Line length in bytes without newline
-    """
-
-    line_len: int
-    """
-    Line length with newlines
-    """
-
-    @classmethod
-    def from_fai_str(cls, fai_str: str):
-        new_instance = cls()
-        fields = fai_str.rstrip().split("\t")
-        if len(fields) != 5:
-            raise ValueError(f"Illegal record: {fai_str}. Need to have 5 fields.")
-        new_instance.name = fields[0]
-        new_instance.length = int(fields[1])
-        new_instance.offset = int(fields[2])
-        new_instance.line_blen = int(fields[3])
-        new_instance.line_len = int(fields[4])
-        return new_instance
-
-    def __repr__(self):
-        return "\t".join((
-            self.name,
-            str(self.length),
-            str(self.offset),
-            str(self.line_blen),
-            str(self.line_len)
-        ))
-
-    def __str__(self):
-        return repr(self)
-
-
-FAI_INDEX_TYPE = Dict[str, FastaIndexEntry]
-
-
-def create_fai(
-        filename: str,
-        index_filename: str
-) -> FAI_INDEX_TYPE:
-    """
-    Create an FAI index for Fasta
-
-    Do not use this feature on full headers.
-    """
-    return_fai: FAI_INDEX_TYPE = {}
-    name = ""
-    offset = 0
-    line_len = 0
-    line_blen = 0
-    length = 0
-
-    def append():
-        new_fai_index = FastaIndexEntry()
-        new_fai_index.name = name
-        new_fai_index.line_len = line_len
-        new_fai_index.line_blen = line_blen
-        new_fai_index.offset = offset
-        new_fai_index.length = length
-        return_fai[name] = new_fai_index
-
-    with get_tqdm_line_reader(filename, newline=determine_file_line_endings(filename)) as reader:
-        while True:
-            line = reader.readline()
-            if not line:
-                break
-            if line == '':
-                continue
-            if line[0] == '>':  # FASTA header
-                if name != '':
-                    append()
-                    offset = 0
-                    line_len = 0
-                    line_blen = 0
-                    length = 0
-                name = line[1:].strip().split(' ')[0].split('\t')[0]
-                offset = reader.tell()
-            else:
-                if line_len == 0:
-                    line_len = len(line)
-                if line_blen == 0:
-                    line_blen = len(line.rstrip('\r\n'))
-                length += len(line.rstrip('\r\n'))
-        if name != '':
-            append()
-    with get_writer(index_filename) as writer:
-        for fai_record in return_fai.values():
-            writer.write(str(fai_record) + "\n")
-    return return_fai
-
-
 class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
@@ -352,7 +302,7 @@ class _DiskAccessFastaView(_BaseFastaView):
         index_filename = self.filename + ".fai"
         if not file_exists(index_filename) or \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
-            create_fai(self.filename, index_filename)
+            create_fai_from_fasta(self.filename, index_filename)
         self._read_index_from_fai(index_filename)
 
     @chronolog(display_time=True)
@@ -396,7 +346,7 @@ class _DiskAccessFastaView(_BaseFastaView):
             pass
 
 
-class FastaView(_BaseFastaView, ABC):
+class FastaViewFactory:
     """
     The major Fasta handler class, supporting multiple backends.
     """
@@ -404,7 +354,7 @@ class FastaView(_BaseFastaView, ABC):
     def __new__(cls,
                 filename: str,
                 full_header: bool = False,
-                read_into_memory: Optional[bool] = None):
+                read_into_memory: Optional[bool] = None) -> FastaViewType:
         """
         Initialize a _DiskFasta interface using multiple backends.
 

@@ -3,15 +3,18 @@ from importlib import reload
 
 import pytest
 
-from commonutils import sysctl
 from commonutils.importer import tqdm_importer
-
-pytest.mark.skipif(sysctl.is_windows(), "Not tested on Windows")
 
 try:
     import pty
 except ImportError:
-    pytest.mark.skip("pty module not found")
+    pytest.skip("pty module not found", allow_module_level=True)
+    pty = None
+
+try:
+    open("/dev/null", "w").close()
+except FileNotFoundError:
+    pytest.skip("/dev/null not found", allow_module_level=True)
     pty = None
 
 
