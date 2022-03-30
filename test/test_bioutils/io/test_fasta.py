@@ -6,7 +6,7 @@ import os
 import pytest
 
 import conftest
-from bioutils.datastructure.fasta_view import FastaView
+from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
 from bioutils.io.fai import create_fai_from_fasta
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
@@ -71,7 +71,7 @@ def initialize_module(initialize_session) -> TestFastaModuleInfo:
 VALID_NEWLINE = ("\n", "\r\n")
 
 
-def _public_asserts(fa: FastaView) -> None:
+def _public_asserts(fa: FastaViewType) -> None:
     assert len(fa) == 5
     assert fa.sequence('chr3', 2, 15) == 'TANNTGNATNATG'  # At line end
     assert fa.sequence('chr3', 2, 16) == 'TANNTGNATNATGN'  # Cross the line
@@ -88,7 +88,7 @@ def _public_asserts(fa: FastaView) -> None:
         fa.sequence('chr2', 500, 29)
 
 
-def _fasta_with_full_header_assets(fa: FastaView) -> None:
+def _fasta_with_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1 some att', 0, 1) == 'N'
     assert fa.sequence('chr1 some att', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1 some att', 28, 29) == 'A'  # Next line
@@ -99,7 +99,7 @@ def _fasta_with_full_header_assets(fa: FastaView) -> None:
     _public_asserts(fa)
 
 
-def _fasta_without_full_header_assets(fa: FastaView) -> None:
+def _fasta_without_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1', 0, 1) == 'N'
     assert fa.sequence('chr1', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1', 28, 29) == 'A'  # Next line
@@ -125,10 +125,10 @@ def test_newline_with_or_without_full_header(initialize_module, kwargs) -> None:
     for newline in VALID_NEWLINE:
         with get_writer(initialize_module.fasta_filename, newline=newline) as fh:
             fh.write(fasta_seq)
-        with FastaView(initialize_module.fasta_filename, full_header=False, **kwargs) as fa:
+        with FastaViewFactory(initialize_module.fasta_filename, full_header=False, **kwargs) as fa:
             _fasta_without_full_header_assets(fa)
         if kwargs['read_into_memory']:
-            with FastaView(initialize_module.fasta_filename, full_header=True, **kwargs) as fa:
+            with FastaViewFactory(initialize_module.fasta_filename, full_header=True, **kwargs) as fa:
                 _fasta_with_full_header_assets(fa)
         initialize_module.cleanup_intermediate_files()
 

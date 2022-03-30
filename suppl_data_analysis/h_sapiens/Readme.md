@@ -66,7 +66,7 @@ Some sample may have `**MAY NOT BE USABLE -- REQUIRE REVIEW**`. This means wheth
     - ERR1994738 (Kidney_V346_s), 576.9 MB, 571.1 MB
     - ERR1994739 (Kidney_V347_s), 917.1 MB, 905.4 MB
   - NO PUBLICATION
--[PRJNA609332](https://www.ebi.ac.uk/ena/browser/view/PRJNA609332)
+- [PRJNA609332](https://www.ebi.ac.uk/ena/browser/view/PRJNA609332)
   - Gene expression was profiled in unperturbed RPE1-hTERT cells by RNA-seq. Overall design: RNA-seq in RPE1-hTERT cells
   - Updated 2022-03-27
   - single
@@ -85,10 +85,13 @@ Some sample may have `**MAY NOT BE USABLE -- REQUIRE REVIEW**`. This means wheth
     - ERR4007679 (Sample 45), 650.2 MB
     - ERR4007680 (Sample 47), 615.3 MB
   - NO PUBLICATION
-<!-- - [PRJNA759230](https://www.ebi.ac.uk/ena/browser/view/PRJNA759230)
+
+- [PRJNA759230](https://www.ebi.ac.uk/ena/browser/view/PRJNA759230)
   - bluk RNA-seq of human dermal fibroblasts reprogrammed into cardiomyocytes with the addition of siAJSZ Overall design: HDFs overexpressing Mef2c, Gata4, and Tbx5 were treated with siATF7IP, siJUNB, siSP7, and siZNF207
+  - **NOT USED -- TOO SPECIFIC**
   - Updated 2022-03-27
-  - paired -->
+  - paired 
+
 
 ### HiSeq 3000
 
@@ -137,11 +140,12 @@ NO DATA!
   - Updated 2022-03-27
   - paired
   - Purification and Characterization of Progenitor and Mature Human Astrocytes Reveals Transcriptional and Functional Differences with Mouse. Zhang Y, Sloan SA, Clarke LE, Caneda C, Plaza CA, Blumenthal PD, Vogel H, Steinberg GK, Edwards MS, Li G, Duncan JA, Cheshier SH, Shuer LM, Chang EF, Grant GA, Gephart MG, Barres BA. Department of Neurobiology, Stanford University School of Medicine, Stanford, CA 94305, USA. Electronic address: zhangye@stanford.edu. Neuron 89(1): 37-53 (2016 Jan) <https://doi.org/10.1016/j.neuron.2015.11.013>
-<!-- - [PRJNA639273](https://www.ebi.ac.uk/ena/browser/view/PRJNA639273)
+- [PRJNA639273](https://www.ebi.ac.uk/ena/browser/view/PRJNA639273)
   - We compared transcriptomic profiles of gastric carcinomas between patients carrying the ATG16L1 T300A SNP and patients without the SNP. Overall design: We performed bulk RNA-seq of gastric cancer samples in patients who carry the ATG16L1 T300A SNP and patients who do not.
+  - **NOT USED -- TOO SPECIFIC**
   - Updated 2022-03-27
   - paired
-  - NO PUBLICATION -->
+  - NO PUBLICATION
 - [PRJNA800817](https://www.ebi.ac.uk/ena/browser/view/PRJNA800817)
   - RNA-sequencing data from flow cytometry-sorted primary HLA-DR+ Lin-(CD19-CD3-CD14-) CD1c+ cDC2s purifed from frozen peripheral blood mononuclear cells from patients with anterior, intermediate, and posterior non-infectious uveitis and healthy controls. Overall design: This cohort was used as a replication cohort for GSE194060 (see also: https://www.biorxiv.org/content/10.1101/2021.11.16.468816v1). Nitrogen-stored PBMCs were thawed and subjected to cDC2 purification by flow cytometry and subjected to RNA-sequencing by NextSeq.
   - Updated 2022-03-28
@@ -368,6 +372,8 @@ NO DATA!
 NO DATA!
 
 ## Special Samples
+
+Here are some special samples which is used by multiple sequencers.
 
 ### Universal Human Reference RNA (UHRR)
 

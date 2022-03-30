@@ -11,6 +11,8 @@ Highlights: This utility can read all format supported by :py:mod:`commonutils.i
 
 .. warning::
     This module uses 0-based ``[)`` indexing!
+
+TODO: Update FAI into a factory design -- support another format that supports full headers
 """
 
 import os
@@ -28,15 +30,15 @@ lh = get_logger(__name__)
 
 __all__ = [
     '_BaseFastaView',
-    'FastaView'
+    'FastaViewFactory'
 ]
 
-QueryTuple = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
+QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
 
-class _BaseFastaView:
+class FastaViewType:
     """
-    Base class of other backends.
+    Abstract class of factories.
     """
     filename: str
     """
@@ -55,11 +57,9 @@ class _BaseFastaView:
     The backend to use.
     """
 
-    @chronolog(display_time=True)
+    @abstractmethod
     def __init__(self, filename: str, full_header: bool = False):
-        self.full_header = full_header
-        self.filename = filename
-        self.backend = ''
+        pass
 
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
@@ -89,13 +89,81 @@ class _BaseFastaView:
         """
         pass
 
+    def __str__(self) -> str:
+        return repr(self)
+
+    @abstractmethod
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         """
         Whether a region is valid. See :py:func:`sequence` for details.
 
         :raises ValueError: Raise this error if region is not valid.
         """
-        if not chromosome in self.chr_names:
+        pass
+
+    @abstractmethod
+    def close(self):
+        """
+        Safely close a Fasta.
+        """
+        pass
+
+    @abstractmethod
+    def __len__(self) -> int:
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+    @abstractmethod
+    def __del__(self):
+        pass
+
+    @abstractmethod
+    def to_file(self, output_filename: str):
+        """
+        Write content of this FASTA view to file
+        """
+        pass
+
+    @abstractmethod
+    def query(self, query: QueryTupleType) -> str:
+        """
+        :py:func:`sequence` with another interface.
+        """
+        pass
+
+    @abstractmethod
+    def subset(self, output_filename: str, querys: List[QueryTupleType]):
+        pass
+
+    @abstractmethod
+    def subset_chr(self, output_filename: str, querys: List[str]):
+        pass
+
+    @abstractmethod
+    def __enter__(self):
+        pass
+
+    @abstractmethod
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
+class _BaseFastaView(FastaViewType, ABC):
+    """
+    Base class of other backends.
+    """
+
+    @chronolog(display_time=True)
+    def __init__(self, filename: str, full_header: bool = False):
+        self.full_header = full_header
+        self.filename = filename
+        self.backend = ''
+
+    def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
+        if chromosome not in self.chr_names:
             raise ValueError(f"Chr {chromosome} not found")
         chr_len = self.get_chr_length(chromosome)
         if from_pos < 0 or from_pos > chr_len:
@@ -112,33 +180,22 @@ class _BaseFastaView:
         except AttributeError:
             return "Fasta being constructed"
 
-    __str__ = __repr__
-
     def close(self):
-        """
-        Safely close a Fasta.
-        """
         pass
 
     def __del__(self):
         self.close()
 
     def to_file(self, output_filename: str):
-        """
-        Write content of this FASTA view to file
-        """
         with get_writer(output_filename) as writer:
             for k in self.chr_names:
                 fa_str = f">{k}\n{self.sequence(k)}\n"
                 writer.write(fa_str)
 
-    def query(self, query: QueryTuple) -> str:
-        """
-        :py:func:`sequence` with another interface.
-        """
+    def query(self, query: QueryTupleType) -> str:
         return self.sequence(*query)
 
-    def subset(self, output_filename: str, querys: List[QueryTuple]):
+    def subset(self, output_filename: str, querys: List[QueryTupleType]):
         with get_writer(output_filename) as writer:
             for query in querys:
                 fa_str = f">{query[0]}\n{self.query(query)}\n"
@@ -289,7 +346,7 @@ class _DiskAccessFastaView(_BaseFastaView):
             pass
 
 
-class FastaView(_BaseFastaView, ABC):
+class FastaViewFactory:
     """
     The major Fasta handler class, supporting multiple backends.
     """
@@ -297,7 +354,7 @@ class FastaView(_BaseFastaView, ABC):
     def __new__(cls,
                 filename: str,
                 full_header: bool = False,
-                read_into_memory: Optional[bool] = None):
+                read_into_memory: Optional[bool] = None) -> FastaViewType:
         """
         Initialize a _DiskFasta interface using multiple backends.
 

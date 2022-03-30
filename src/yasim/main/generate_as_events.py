@@ -2,7 +2,7 @@ import argparse
 import random
 from typing import List
 
-from bioutils.datastructure.fasta_view import FastaView
+from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
 from bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript
 from commonutils.importer.tqdm_importer import tqdm
@@ -29,7 +29,7 @@ def introduce_intron_retention(transcript: Transcript):
 def sample_exon(
         gv: GeneViewType,
         output_gtf_filename: str,
-        fasta_handler: FastaView
+        fasta_handler: FastaViewType
 ) -> GeneViewType:
     transcript_name_to_del = []
     for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
@@ -51,5 +51,5 @@ def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
     logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
-    fv = FastaView(args.fasta)
+    fv = FastaViewFactory(args.fasta)
     sample_exon(gv=gv, output_gtf_filename=args.out, fasta_handler=fv)
