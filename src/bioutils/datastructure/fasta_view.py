@@ -26,10 +26,10 @@ from commonutils.io.safe_io import get_reader, get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
 from commonutils.stdlib_helper.logger_helper import chronolog, get_logger
 
-lh = get_logger(__name__)
+_lh = get_logger(__name__)
 
 __all__ = [
-    '_BaseFastaView',
+    'FastaViewType',
     'FastaViewFactory'
 ]
 
@@ -56,10 +56,6 @@ class FastaViewType:
     """
     The backend to use.
     """
-
-    @abstractmethod
-    def __init__(self, filename: str, full_header: bool = False):
-        pass
 
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:

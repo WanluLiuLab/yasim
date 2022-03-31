@@ -55,12 +55,12 @@ def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
 
     If the value contains duplicates, will use last key.
 
-    >>> in_dict = {1: 'a', 2: 'b'}
-    >>> dict_exchange_key_val(in_dict)
+    >>> input_dict = {1: 'a', 2: 'b'}
+    >>> dict_exchange_key_val(input_dict)
     {'a': 1, 'b': 2}
 
-    >>> in_dict = {1: 'a', 2: 'a'}
-    >>> dict_exchange_key_val(in_dict)
+    >>> input_dict = {1: 'a', 2: 'a'}
+    >>> dict_exchange_key_val(input_dict)
     {'a': 2}
 
     :param in_dict: Dictionary to be exchanged.
@@ -137,14 +137,14 @@ def to_dict(
 
     Key: string. Value: String, float or int.
 
-    >>> in_str = '\\nCPU:\\t2\\nMEM:\\t5.1\\nPCIE:\\t3rd Gen\\nGRAPHICS:\\t"UHD630\\tRTX2070"\\nUSB: "3.1"\\nOthers:::info'
-    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=True)
+    >>> input_str = '\\nCPU:\\t2\\nMEM:\\t5.1\\nPCIE:\\t3rd Gen\\nGRAPHICS:\\t"UHD630\\tRTX2070"\\nUSB: "3.1"\\nOthers:::info'
+    >>> to_dict(input_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=True)
     {'CPU': 2, 'MEM': 5.1, 'PCIE': '3rd Gen', 'GRAPHICS': 'UHD630\\tRTX2070', 'USB': 3.1, 'Others': 'info'}
-    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=False)
+    >>> to_dict(input_str, field_sep=':', record_sep='\\n', quotation_mark="\\'\\"", resolve_str=False)
     {'CPU': '2', 'MEM': '5.1', 'PCIE': '3rd Gen', 'GRAPHICS': 'UHD630\\tRTX2070', 'USB': '3.1', 'Others': 'info'}
-    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=False)
+    >>> to_dict(input_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=False)
     {'CPU': '2', 'MEM': '5.1', 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
-    >>> to_dict(in_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=True)
+    >>> to_dict(input_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=True)
     {'CPU': 2, 'MEM': 5.1, 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
 
     :param in_str: Input string

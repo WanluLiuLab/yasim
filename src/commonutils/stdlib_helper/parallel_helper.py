@@ -11,7 +11,7 @@ import subprocess
 import threading
 import time
 from abc import abstractmethod
-from typing import Union, List, Iterable, TypeVar, Callable
+from typing import Union, List
 
 from commonutils.importer.tqdm_importer import tqdm
 
@@ -158,53 +158,6 @@ class ParallelJobExecutor(BaseParallelJobExecutor):
             self._n_jobs += 1
         else:
             raise ValueError("Job queue not appendable!")
-
-
-class ParallelJobQueue(BaseParallelJobExecutor):
-    """
-    A FIFO stated job queue.
-
-    TODO: Under Construction
-    """
-
-    _pending_job_queue: List[_JOB_TYPE]
-    """
-    Job waiting to be executed
-    """
-
-    _running_job_queue: List[_JOB_TYPE]
-
-    _T = TypeVar('_T')
-
-    _get_result: Callable[..., _T]
-
-    def __init__(self,
-                 pool_name: str = "Unnamed pool",
-                 pool_size: Union[int, float] = 0,
-                 refresh_interval: float = 0.01,
-                 get_result: Callable[..., _T] = None
-                 ):
-        super().__init__(pool_name=pool_name, pool_size=pool_size)
-        self._get_result = get_result
-        self._pending_job_queue = []
-        self._max_queue_len = 0
-        self._running_job_queue = []
-        self._refresh_interval = refresh_interval
-
-    def get_iterator(self, _T) -> Iterable[_T]:
-        pass
-
-    def append(self, mp_instance: _JOB_TYPE):
-        """
-        Commit a new job to the queue
-        """
-        if self._is_appendable:
-            self._pending_job_queue.append(mp_instance)
-        else:
-            raise ValueError("Job queue not appendable!")
-
-    def have_appended_all(self):
-        self._is_appendable = False
 
 
 class TimeOutKiller(threading.Thread):

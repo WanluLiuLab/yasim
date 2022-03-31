@@ -55,9 +55,9 @@ def gv_dedup(
             ))
     else:
         transcript_ids_to_del = list(get_duplicated_transcript_ids(
-                transcripts=gv.transcripts.values(),
-                by_splice_site=by_splice_site
-            ))
+            transcripts=gv.transcripts.values(),
+            by_splice_site=by_splice_site
+        ))
     lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
     for transcript_id_to_del in transcript_ids_to_del:
         gv.del_transcript(transcript_id_to_del)
