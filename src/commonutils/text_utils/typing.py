@@ -2,14 +2,14 @@ import io
 import threading
 import time
 from abc import ABC, abstractmethod
-from typing import IO, AnyStr, Iterator, Optional, Type, List, Union, TextIO, Callable
+from typing import IO, Iterator, Optional, Type, List, Union, TextIO, Callable
 
 from commonutils.io.safe_io import get_reader
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 from commonutils.typing import PathOrFDType
 
 
-class BaseStream(TextIO, ABC):
+class BaseStreamType(TextIO, ABC):
     """
     Restricted IO stream.
     """
@@ -74,8 +74,53 @@ class BaseStream(TextIO, ABC):
         """This function is disabled, will raise :py:class:`OSError`"""
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
+    @property
+    @abstractmethod
+    def closed(self) -> bool:
+        pass
 
-class ExampleStream(BaseStream):
+    @copy_doc(io.RawIOBase.close)
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+    @copy_doc(io.RawIOBase.read)
+    @abstractmethod
+    def read(self, size: int = -1) -> Optional[str]:
+        pass
+
+    @copy_doc(io.RawIOBase.readable)
+    @abstractmethod
+    def readable(self) -> bool:
+        pass
+
+    @copy_doc(io.RawIOBase.readline)
+    @abstractmethod
+    def readline(self, limit: int = -1) -> Optional[str]:
+        pass
+
+    @copy_doc(io.RawIOBase.readlines)
+    @abstractmethod
+    def readlines(self, hint: int = -1) -> Optional[List[str]]:
+        pass
+
+    @copy_doc(io.RawIOBase.__next__)
+    @abstractmethod
+    def __next__(self) -> str:
+        pass
+
+    @copy_doc(io.RawIOBase.__iter__)
+    @abstractmethod
+    def __iter__(self) -> Iterator[str]:
+        pass
+
+    @copy_doc(io.RawIOBase.__enter__)
+    @abstractmethod
+    def __enter__(self) -> IO[str]:
+        pass
+
+
+class BaseStreamProxy(BaseStreamType):
     _fd: Union[IO, io.IOBase]
     """
     The underlying file descriptor.
@@ -95,7 +140,7 @@ class ExampleStream(BaseStream):
             raise TypeError(f"Type {type(path_or_fd)} not supported!")
 
     def __repr__(self):
-        return f"BaseStream of {self._fd}"
+        return f"BaseStreamProxy of {self._fd}"
 
     @property
     def closed(self) -> bool:
@@ -106,7 +151,7 @@ class ExampleStream(BaseStream):
         return self._fd.close()
 
     @copy_doc(io.RawIOBase.read)
-    def read(self, size: int = -1) -> AnyStr:
+    def read(self, size: int = -1) -> str:
         return self._fd.read(size)
 
     @copy_doc(io.RawIOBase.readable)
@@ -114,27 +159,28 @@ class ExampleStream(BaseStream):
         return self._fd.readable()
 
     @copy_doc(io.RawIOBase.readline)
-    def readline(self, limit: int = -1) -> AnyStr:
+    def readline(self, limit: int = -1) -> str:
         return self._fd.readline(limit)
 
     @copy_doc(io.RawIOBase.readlines)
-    def readlines(self, hint: int = -1) -> List[AnyStr]:
+    def readlines(self, hint: int = -1) -> List[str]:
         return self._fd.readlines(hint)
 
     @copy_doc(io.RawIOBase.__next__)
-    def __next__(self) -> AnyStr:
+    def __next__(self) -> str:
         return self._fd.__next__()
 
     @copy_doc(io.RawIOBase.__iter__)
-    def __iter__(self) -> Iterator[AnyStr]:
+    def __iter__(self) -> Iterator[str]:
         return self._fd.__iter__()
 
     @copy_doc(io.RawIOBase.__enter__)
-    def __enter__(self) -> IO[AnyStr]:
+    def __enter__(self) -> BaseStreamType[str]:
         try:
-            return self._fd.__enter__()
+            self._fd.__enter__()
         except AttributeError:
             pass
+        return self
 
     def __exit__(self,
                  exc_type: Optional[Type[BaseException]],
@@ -151,38 +197,57 @@ class BufferController(threading.Thread):
     is_terminated: bool
     buffer: List[str]
     interval: float
-    read_into_hook: Callable[[], Optional[str]]
+    readline_from_input_hook: Callable[[], Optional[str]]
 
     def __init__(
             self,
-            read_into_hook: Callable[[], Optional[str]],
+            readline_from_input_hook: Callable[[], Optional[str]],
             buffer_size: int = 10,
             interval: float = 0.01
     ):
         super().__init__()
         self.is_terminated = False
-        self.read_into_hook = read_into_hook
+        self.readline_from_input_hook = readline_from_input_hook
         self.buffer_size = buffer_size
         self.interval = interval
 
-    def readline(self, blocked: bool = True) -> Optional[str]:
+    def read(self, n: int) -> Optional[str]:
         if self.is_terminated:
             return None
-        if not blocked:
-            if len(self.buffer) == 0:
-                return None
-            else:
-                return self.buffer.pop(0)
-        else:
-            while not self.is_terminated:
-                if len(self.buffer) != 0:
-                    return self.buffer.pop(0)
-                time.sleep(self.interval)
+        rets = ""
+        while not self.is_terminated and len(rets) < n:
+            if len(self.buffer) != 0:
+                retsb = self.buffer.pop(0)
+                if len(retsb) + len(rets) == n:
+                    return rets + retsb
+                elif len(retsb) + len(rets) > n:
+                    ldiff = len(retsb) - len(rets)
+                    self.buffer.insert(0, retsb[ldiff:])
+                    return rets + retsb[:ldiff]
+            time.sleep(self.interval)
+        return None
+
+    def readline(self, n: int) -> Optional[str]:
+        if self.is_terminated:
+            return None
+        while not self.is_terminated:
+            if len(self.buffer) != 0:
+                rets = self.buffer.pop(0)
+                if len(rets) > n:
+                    self.buffer.insert(0, rets[n:])
+                    return rets[:n]
+            time.sleep(self.interval)
+        return None
 
     def run(self) -> None:
+        """
+        Fill the buffer.
+
+        Will set ``self.is_terminated`` after input stream gets terminated.
+        """
         while not self.is_terminated:
             if len(self.buffer) < self.buffer_size:
-                get_line = self.read_into_hook()
+                get_line = self.readline_from_input_hook()
                 if get_line is None:
                     self.is_terminated = True
                 else:
@@ -190,13 +255,13 @@ class BufferController(threading.Thread):
             time.sleep(self.interval)
 
 
-class BaseLineBufferedStream(BaseStream, ABC):
+class BaseLineBufferedStream(BaseStreamType, ABC):
+    _at_eof: bool
     _input_buffer_controller: BufferController
 
     def _setup_buffer(self):
-        self._input_buffer_controller = BufferController(
-            self._read_into_input_buffer
-        )
+        self._at_eof = False
+        self._input_buffer_controller = BufferController(self._read_into_input_buffer)
 
     def _start_buffer_controller(self):
         self._input_buffer_controller.start()
@@ -210,10 +275,32 @@ class BaseLineBufferedStream(BaseStream, ABC):
         pass
 
     def read(self, n: int = -1) -> Optional[str]:
-        pass
+        # Get some chars from buffer
+        rets = self._input_buffer_controller.read(n)
+        if rets is None:
+            self._stop_buffer_controller(n)
+        else:
+            return rets
 
     def readline(self, n: int = -1) -> Optional[str]:
-        pass
+        # Get one line from buffer
+        rets = self._input_buffer_controller.readline()
+        if rets is None:
+            self._stop_buffer_controller()
+        else:
+            return rets
 
-    def readlines(self, n: int = -1) -> Optional[str]:
-        pass
+    def readlines(self, hint: int = -1) -> List[str]:
+        if self._at_eof:
+            return []
+        elif hint is None or hint <= 0:
+            return [line for line in self]
+
+    def __iter__(self) -> Iterator[str]:
+        return self
+
+    def __next__(self) -> str:
+        rets = self.readline()
+        if rets is None:
+            raise StopIteration
+        return rets

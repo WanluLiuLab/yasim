@@ -2,11 +2,11 @@ import io
 from typing import Type, Iterator, AnyStr, TextIO, Optional, List
 
 from commonutils.io.safe_io import get_reader
-from commonutils.text_utils.typing import BaseStream
+from commonutils.text_utils.typing import BaseStreamType
 from commonutils.typing import FDType, PathOrFDType
 
 
-class Cat(BaseStream):
+class Cat(BaseStreamType):
     _fds: List[FDType]
 
     _closed: bool
