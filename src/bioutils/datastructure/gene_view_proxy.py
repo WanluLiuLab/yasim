@@ -7,8 +7,9 @@ from __future__ import annotations
 import copy
 import math
 import uuid
+import warnings
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional, Iterable, Tuple
+from typing import List, Dict, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
@@ -35,6 +36,9 @@ class BaseFeatureProxy(FeatureType):
     _data: Feature
 
     _was_modified: bool
+
+    def duplicate_cast(self, class_type:Type[BaseFeatureProxy]):
+        return class_type.from_feature(copy.deepcopy(self._data))
 
     def copy_data(self):
         """
@@ -375,6 +379,7 @@ class Gene(BaseFeatureProxy):
         return f"Gene {self.gene_id}"
 
     def generate_exon_superset(self):
+        warnings.warn("Deprecated", DeprecationWarning)
         if self._exon_superset is not None:
             return
         def add_exon(_all_exons: List[Exon], new_exon: Exon):

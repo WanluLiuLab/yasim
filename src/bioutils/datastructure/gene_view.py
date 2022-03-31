@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import copy
 import math
 import os
 import time
 from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type
 
-from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon
+from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon, BaseFeatureProxy
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
 from bioutils.typing.feature import GtfRecord, Feature, Gff3Record
@@ -111,12 +112,14 @@ class GeneViewType:
         """
         pass
 
+    @abstractmethod
     def del_gene(self, gene_id: str):
         """
         Remove a gene.
         """
         pass
 
+    @abstractmethod
     def del_transcript(self, transcript_id: str):
         """
         Remove a transcript.
@@ -124,6 +127,28 @@ class GeneViewType:
         """
         pass
 
+    @abstractmethod
+    def add_gene(self, gene: Gene):
+        """
+        Register a new gene.
+        """
+        pass
+
+    @abstractmethod
+    def add_transcript(self, transcript: Transcript):
+        """
+        Register a new transcript. Will register corresponding gene if not exist.
+        """
+        pass
+
+    @abstractmethod
+    def add_exon(self, exon: Exon):
+        """
+        Register a new exon. Will register corresponding gene or transcript if not exist.
+        """
+        pass
+
+    @abstractmethod
     def __len__(self) -> int:
         """
         Get number of records inside.
@@ -245,6 +270,34 @@ class BaseGeneView(GeneViewType, ABC):
         else:
             raise ValueError(f"Transcript ID {transcript_id} not found!")
 
+    def add_gene(self, gene: Gene):
+        gene_id = gene.gene_id
+        if gene_id not in self.genes.keys() or self.genes[gene_id].feature != "gene":
+            self.genes[gene_id] = gene
+        if gene.feature != "gene":
+            lh.warn(f"Gene {gene_id} is inferred from feature {gene.feature}")
+
+    def add_transcript(self, transcript: Transcript):
+        gene_id = transcript.gene_id
+        transcript_id = transcript.transcript_id
+        if gene_id not in self.genes.keys():
+            self.add_gene(BaseFeatureProxy.duplicate_cast(transcript, Gene))
+        gene = self.genes[gene_id]
+        if transcript_id not in gene.transcripts.keys() or gene.transcripts[transcript_id].feature != "transcript":
+            self.genes[gene_id].transcripts[transcript_id] = transcript
+        if transcript_id not in self.transcripts.keys() or \
+                self.transcripts[transcript_id].feature != "transcript":
+            self.transcripts[transcript_id] = transcript
+        if transcript.feature != "transcript":
+            lh.warn(f"Transcript {transcript_id} is inferred from feature {transcript.feature}")
+
+    def add_exon(self, exon: Exon):
+        transcript_id = exon.transcript_id
+        if transcript_id not in self.transcripts.keys():
+            self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript))
+        self.transcripts[transcript_id].exons.append(exon)
+
+
     def __len__(self) -> int:
         return len(list(self.get_iterator()))
 
@@ -253,39 +306,14 @@ class _GtfGeneView(BaseGeneView):
 
     @classmethod
     def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator]):
-        def register_gene(_new_instance: _GtfGeneView, record: GtfRecord):
-            gene_id = record.attribute['gene_id']
-            if gene_id not in _new_instance.genes.keys() or _new_instance.genes[gene_id].feature != "gene":
-                _new_instance.genes[gene_id] = Gene.from_feature(record)
-
-        def register_transcript(_new_instance: _GtfGeneView, record: GtfRecord):
-            gene_id = record.attribute['gene_id']
-            transcript_id = record.attribute['transcript_id']
-            transcript = Transcript.from_feature(record)
-            if gene_id not in _new_instance.genes.keys():
-                register_gene(_new_instance, record)
-            gene = _new_instance.genes[gene_id]
-            if transcript_id not in gene.transcripts.keys() or gene.transcripts[transcript_id].feature != "transcript":
-                _new_instance.genes[gene_id].transcripts[transcript_id] = transcript
-            if transcript_id not in _new_instance.transcripts.keys() or \
-                    _new_instance.transcripts[transcript_id].feature != "transcript":
-                _new_instance.transcripts[transcript_id] = transcript
-
-        def register_exon(_new_instance: _GtfGeneView, record: GtfRecord):
-            transcript_id = record.attribute['transcript_id']
-            if not record.attribute['transcript_id'] in _new_instance.transcripts.keys():
-                register_transcript(_new_instance, record)
-            _new_instance.transcripts[transcript_id].exons.append(Exon.from_feature(record))
-
         new_instance = cls()
-
         for gtf_record in iterator:
             if gtf_record.feature == "gene":
-                register_gene(new_instance, gtf_record)
+                new_instance.add_gene(Gene.from_feature(gtf_record))
             elif gtf_record.feature == 'transcript':
-                register_transcript(new_instance, gtf_record)
+                new_instance.add_transcript(Transcript.from_feature(gtf_record))
             elif gtf_record.feature == 'exon':
-                register_exon(new_instance, gtf_record)
+                new_instance.add_exon(Exon.from_feature(gtf_record))
         return new_instance
 
     @classmethod
