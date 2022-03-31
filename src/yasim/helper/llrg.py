@@ -114,8 +114,7 @@ def assemble_single_end(
     Assemble single_end reads into one.
     """
     output_fastq_dir = output_fastq_prefix + ".d"
-    with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(
-            output_fastq_prefix + ".fq.stats") as stats_writer:
+    with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "INPUT_DEPTH",

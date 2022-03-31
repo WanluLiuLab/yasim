@@ -87,8 +87,8 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     with get_writer(os.path.join(module_test_info.path, "1.gtf.gz")) as fh:
         fh.write(gene_gtf)
     with get_writer(os.path.join(
-                module_test_info.path,
-                         "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
+            module_test_info.path,
+            "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
     )) as fh:
         fh.write(gene_gtf_with_duplicated_transcripts_in_one_gene)
     yield module_test_info
