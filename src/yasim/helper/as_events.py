@@ -6,6 +6,7 @@ as_events.py -- Generate AS Events
 import copy
 import uuid
 from typing import List
+import random
 
 from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript
@@ -37,7 +38,16 @@ def register_new_transcript(gv: GeneViewType, transcript: Transcript):
 
 def perform_exon_skipping(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
-    # TODO
+    # set the percent of knocked out exons
+    percent = 0.01*(random.randint(1,30))
+    # get the number of exons n to be knocked out by multiplying total exon number of transcript
+    trans_len = len(new_transcript.exons)
+    num_exonKO = trans_len * percent
+    # randomly delete n exons from the transcript
+    exon_keep = trans_len - num_exonKO
+    new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
+    # refresh the exon list
+    new_transcript.sort_exons()
     return new_transcript
 
 
