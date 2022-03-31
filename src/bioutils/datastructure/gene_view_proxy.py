@@ -34,6 +34,8 @@ class BaseFeatureProxy(FeatureType):
 
     _data: Feature
 
+    _was_modified:bool
+
     def copy_data(self):
         """
         Make a copy of data
