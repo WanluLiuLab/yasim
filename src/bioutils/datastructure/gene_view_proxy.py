@@ -37,7 +37,7 @@ class BaseFeatureProxy(FeatureType):
 
     _was_modified: bool
 
-    def duplicate_cast(self, class_type:Type[BaseFeatureProxy]):
+    def duplicate_cast(self, class_type: Type[BaseFeatureProxy]):
         return class_type.from_feature(copy.deepcopy(self._data))
 
     def copy_data(self):
@@ -354,6 +354,7 @@ class Gene(BaseFeatureProxy):
     )
     transcripts: Dict[str, Transcript]
     _exon_superset: Optional[List[Exon]]  # FIXME: To be removed
+
     # TODO: Unit test needed
 
     @property
@@ -382,6 +383,7 @@ class Gene(BaseFeatureProxy):
         warnings.warn("Deprecated", DeprecationWarning)
         if self._exon_superset is not None:
             return
+
         def add_exon(_all_exons: List[Exon], new_exon: Exon):
             for _exon in _all_exons:
                 if new_exon == _exon:

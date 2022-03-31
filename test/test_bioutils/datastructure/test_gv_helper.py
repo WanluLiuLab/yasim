@@ -2,10 +2,9 @@ import os
 
 import pytest
 
+import bioutils.datastructure.gv_helper as gvh
 import conftest
 from bioutils.datastructure.gene_view import GeneViewFactory
-import bioutils.datastructure.gv_helper as gvh
-from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
 
 gene_gtf = """

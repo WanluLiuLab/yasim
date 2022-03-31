@@ -5,10 +5,9 @@ as_events.py -- Generate AS Events
 """
 import copy
 import math
-import uuid
-import warnings
-from typing import List, Tuple, Callable, Union
 import random
+import uuid
+from typing import List, Tuple, Callable, Union
 
 from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript, Gene
@@ -43,7 +42,7 @@ def register_new_transcript(gv: GeneViewType, transcript: Transcript):
 def perform_exon_skipping(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # set the percent of knocked out exons
-    percent = 0.01*(random.randint(1,30))
+    percent = 0.01 * (random.randint(1, 30))
     # get the number of exons n to be knocked out by multiplying total exon number of transcript
     trans_len = len(new_transcript.exons)
     exonKO = math.ceil(trans_len * percent)
@@ -58,13 +57,13 @@ def perform_exon_skipping(transcript: Transcript) -> Transcript:
 def perform_intron_retention(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # randomly pick an exon for retention
-    exon_num = random.randint(0,(len(new_transcript.exons)-2))
+    exon_num = random.randint(0, (len(new_transcript.exons) - 2))
     # get the end coordinate of the neighbour exon
-    end_pos = new_transcript.exons[exon_num+1].end
+    end_pos = new_transcript.exons[exon_num + 1].end
     # merge the coordinates of the two exons as the coordinate of the first exon
     new_transcript.exons[exon_num].end = end_pos
     # delete the neighbour exon
-    del new_transcript.exons[exon_num+1]
+    del new_transcript.exons[exon_num + 1]
     # refresh the exon list
     new_transcript.sort_exons()
     return new_transcript
@@ -107,7 +106,7 @@ class ASManipulator:
 
     def determine_transcript_type(self) -> Callable[[Transcript], Transcript]:
         return random.choices(
-            population = (
+            population=(
                 perform_alternative_3p_splicing,
                 perform_intron_retention,
                 perform_alternative_5p_splicing,
@@ -128,8 +127,7 @@ class ASManipulator:
             k=1
         )[0]
 
-
-    def try_generate_n_isoform_for_a_gene(self, gene:Gene, n:int):
+    def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int):
         if len(gene.transcripts) == n:
             return
         elif len(gene.transcripts) > n:
@@ -143,7 +141,7 @@ class ASManipulator:
             while len(gene.transcripts) < n:
                 number_of_fail = 0
                 new_transcript = self.determine_transcript_type()(random.choice(gtv))
-                this_splice_site=list(new_transcript.splice_sites)
+                this_splice_site = list(new_transcript.splice_sites)
                 if not assert_splice_site_existence(this_splice_site, all_splice_sites):
                     self._gv.add_transcript(new_transcript)
                 else:
@@ -153,11 +151,11 @@ class ASManipulator:
                 elif len(gene.transcripts) == n:
                     return
 
-    def run(self, mu:Union[int, float]):
-        gene_ids_to_del:List[str] = []
+    def run(self, mu: Union[int, float]):
+        gene_ids_to_del: List[str] = []
         for gene in tqdm(iterable=self._gv.genes.values(), desc="Getting exon superset..."):
             n = 0
-            while n <= 0 or n >= mu*2:
+            while n <= 0 or n >= mu * 2:
                 n = int(random.gauss(mu, 1))
             try:
                 self.try_generate_n_isoform_for_a_gene(gene, n)
@@ -165,4 +163,3 @@ class ASManipulator:
                 gene_ids_to_del.append(gene.gene_id)
         for gene_id in gene_ids_to_del:
             self._gv.del_gene(gene_id)
-

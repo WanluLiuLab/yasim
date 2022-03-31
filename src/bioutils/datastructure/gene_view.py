@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import math
 import os
 import time
@@ -296,7 +295,6 @@ class BaseGeneView(GeneViewType, ABC):
         if transcript_id not in self.transcripts.keys():
             self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript))
         self.transcripts[transcript_id].exons.append(exon)
-
 
     def __len__(self) -> int:
         return len(list(self.get_iterator()))

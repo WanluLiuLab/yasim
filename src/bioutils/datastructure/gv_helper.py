@@ -18,6 +18,7 @@ def assert_splice_site_existence(
         all_splice_sites.append(this_splice_site)
         return False
 
+
 def get_duplicated_transcript_ids(
         transcripts: Iterable[Transcript],
         by_splice_site: bool = True
@@ -36,7 +37,6 @@ def get_duplicated_transcript_ids(
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
                 lh.warn(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
-
 
 
 def gv_dedup(
