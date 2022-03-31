@@ -7,6 +7,17 @@ cd "$(readlink -f "$(dirname "${0}")")" || exit 1
 . shlib/libdo.sh
 . shlib/libprivate.sh
 
+if [ -f "${FASTQ_BASE_NAME}".fq ]; then
+    FASTQ_NAME="${FASTQ_BASE_NAME}".fq
+elif [ -f "${FASTQ_BASE_NAME}".fq.gz ]; then
+    FASTQ_NAME="${FASTQ_BASE_NAME}".fq.gz
+elif [ -f "${FASTQ_BASE_NAME}".fastq ]; then
+    FASTQ_NAME="${FASTQ_BASE_NAME}".fastq
+elif [ -f "${FASTQ_BASE_NAME}".fastq.gz ]; then
+    FASTQ_NAME="${FASTQ_BASE_NAME}".fastq.gz
+else
+    errh "No FASTQ found!"
+fi
 
 [ ! -f "${FASTQ_NAME}".GENE.bam ] && minimap2 -t "${THREAD_NUM}" -a -x splice "${GENE_REFERENCE}" "${FASTQ_NAME}" | \
 samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_NAME}".GENE.bam

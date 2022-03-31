@@ -314,11 +314,6 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    @property
-    def exon_start_end(self) -> Iterable[Tuple[str, int, int]]:
-        for exon in self.exons:
-            yield exon.seqname, exon.start, exon.end
-
     def sort_exons(self):
         if len(self.exons) == 0:
             return
@@ -350,9 +345,11 @@ class Transcript(BaseFeatureProxy):
 
 class Gene(BaseFeatureProxy):
     __slots__ = (
-        "transcripts"
+        "transcripts",
+        "_exon_superset"
     )
     transcripts: Dict[str, Transcript]
+    _exon_superset: Optional[Dict[str, List[Exon]]]  # FIXME: To be removed
 
     @property
     def gene_id(self) -> str:
@@ -364,6 +361,7 @@ class Gene(BaseFeatureProxy):
 
     def _setup(self):
         self.transcripts = {}
+        self._exon_superset = None
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
@@ -374,3 +372,18 @@ class Gene(BaseFeatureProxy):
 
     def __repr__(self):
         return f"Gene {self.gene_id}"
+
+    def generate_exon_superset(self):
+        def add_exon(_all_exons: List[Exon], new_exon: Exon):
+            for _exon in _all_exons:
+                if new_exon == _exon:
+                    return
+            _all_exons.append(new_exon)
+
+        all_exons: List[Exon] = []
+        for transcript in self.transcripts.values():
+            for exon in transcript.exons.values():
+                add_exon(all_exons, exon)
+
+    def get_exon_superset(self, gene_id: str):
+        return self._exon_superset[gene_id]
