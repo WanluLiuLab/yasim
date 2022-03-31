@@ -73,8 +73,9 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/_deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/.kdev4" />
+      <excludeFolder url="file://$MODULE_DIR$/venv_py36" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (yasim)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

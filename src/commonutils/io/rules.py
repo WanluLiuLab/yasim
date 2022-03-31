@@ -1,18 +1,24 @@
 import io
 from abc import abstractmethod
-from collections.abc import Callable
-from typing import IO, Union, List
+from typing import IO, Union, List, Callable, Any
 
 from commonutils.typing import PathType
 
 _IOType = Union[IO, io.IOBase]
-_RuleType = Callable[[PathType, ...], bool]
-_OpenerType = Callable[[PathType, ...], Union[IO, io.IOBase]]
 
+# This goes wrong in Python 3.7
+try:
+    _RuleType = Callable[[PathType, ...], bool]
+except TypeError:
+    _RuleType = Callable[..., bool]
+try:
+    _OpenerType = Callable[[PathType, ...], Union[IO, io.IOBase]]
+except TypeError:
+    _OpenerType = Callable[..., Union[IO, io.IOBase]]
 
 class FileRuleType:
     _rule: _RuleType
-    _opener: Callable[[PathType, ...], Union[IO, io.IOBase]]
+    _opener: _OpenerType
     rule_name: str
 
     @abstractmethod
