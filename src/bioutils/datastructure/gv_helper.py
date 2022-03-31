@@ -8,29 +8,33 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 lh = get_logger(__name__)
 
 
+def assert_splice_site_existence(
+        this_splice_site: List[Tuple[int, int]],
+        all_splice_sites: List[List[Tuple[int, int]]]
+) -> bool:
+    if this_splice_site in all_splice_sites:
+        return True
+    else:
+        all_splice_sites.append(this_splice_site)
+        return False
+
 def get_duplicated_transcript_ids(
         transcripts: Iterable[Transcript],
         by_splice_site: bool = True
 ) -> Iterable[str]:
     all_splice_sites: List[List[Tuple[int, int]]] = []
 
-    def assert_existence() -> bool:
-        if this_splice_site in all_splice_sites:
-            lh.warn(f"Will remove {transcript.transcript_id}")
-            return True
-        else:
-            all_splice_sites.append(this_splice_site)
-        return False
-
     if by_splice_site:
         for transcript in transcripts:
             this_splice_site = list(transcript.splice_sites)
-            if assert_existence():
+            if assert_splice_site_existence(this_splice_site, all_splice_sites):
+                lh.warn(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
     else:
         for transcript in transcripts:
             this_splice_site = list(transcript.exon_boundaries)
-            if assert_existence():
+            if assert_splice_site_existence(this_splice_site, all_splice_sites):
+                lh.warn(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
 
 

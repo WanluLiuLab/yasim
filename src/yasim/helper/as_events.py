@@ -6,11 +6,13 @@ as_events.py -- Generate AS Events
 import copy
 import math
 import uuid
-from typing import List
+import warnings
+from typing import List, Tuple, Callable, Union
 import random
 
 from bioutils.datastructure.gene_view import GeneViewType
-from bioutils.datastructure.gene_view_proxy import Transcript
+from bioutils.datastructure.gene_view_proxy import Transcript, Gene
+from bioutils.datastructure.gv_helper import assert_splice_site_existence
 from commonutils.importer.tqdm_importer import tqdm
 
 
@@ -103,9 +105,64 @@ class ASManipulator:
     def __init__(self, gv: GeneViewType):
         self._gv = gv
 
-    def generate_exon_superset(self):
-        for gene in tqdm(iterable=self._gv.genes.values(), desc="Getting exon superset..."):
-            gene.generate_exon_superset()
+    def determine_transcript_type(self) -> Callable[[Transcript], Transcript]:
+        return random.choices(
+            population = (
+                perform_alternative_3p_splicing,
+                perform_intron_retention,
+                perform_alternative_5p_splicing,
+                perform_exon_skipping,
+                lambda transcript: perform_alternative_3p_splicing(perform_alternative_5p_splicing(transcript)),
+                lambda transcript: perform_alternative_3p_splicing(perform_exon_skipping(transcript)),
+                lambda transcript: perform_alternative_3p_splicing(perform_intron_retention(transcript))
+            ),
+            weights=(
+                832,
+                717,
+                568,
+                333,
+                173,
+                118,
+                111
+            ),
+            k=1
+        )[0]
 
-    def run(self):
-        pass
+
+    def try_generate_n_isoform_for_a_gene(self, gene:Gene, n:int):
+        if len(gene.transcripts) == n:
+            return
+        elif len(gene.transcripts) > n:
+            gek = list(gene.transcripts.keys())
+            while len(gene.transcripts) > n:
+                gene.transcripts.pop(gek.pop())
+            return
+        elif len(gene.transcripts) < n:
+            all_splice_sites: List[List[Tuple[int, int]]] = []
+            gtv = list(gene.transcripts.values())
+            while len(gene.transcripts) < n:
+                number_of_fail = 0
+                new_transcript = self.determine_transcript_type()(random.choice(gtv))
+                this_splice_site=list(new_transcript.splice_sites)
+                if not assert_splice_site_existence(this_splice_site, all_splice_sites):
+                    self._gv.add_transcript(new_transcript)
+                else:
+                    number_of_fail += 1
+                if number_of_fail > 2 * n:
+                    raise ValueError("Generation FAILED!")
+                elif len(gene.transcripts) == n:
+                    return
+
+    def run(self, mu:Union[int, float]):
+        gene_ids_to_del:List[str] = []
+        for gene in tqdm(iterable=self._gv.genes.values(), desc="Getting exon superset..."):
+            n = 0
+            while n <= 0 or n >= mu*2:
+                n = int(random.gauss(mu, 1))
+            try:
+                self.try_generate_n_isoform_for_a_gene(gene, n)
+            except ValueError:
+                gene_ids_to_del.append(gene.gene_id)
+        for gene_id in gene_ids_to_del:
+            self._gv.del_gene(gene_id)
+
