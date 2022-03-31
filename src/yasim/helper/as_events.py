@@ -11,6 +11,7 @@ import random
 
 from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript
+from commonutils.importer.tqdm_importer import tqdm
 
 
 def is_exon_skipping_able_transcript(transcript: Transcript) -> bool:
@@ -99,16 +100,12 @@ class ASManipulator:
     Underlying GeneView
     """
 
-    intron_retentionable_transcript: List[Transcript]
-    """
-    Transcript that may have intron retention events.
-    """
-
     def __init__(self, gv: GeneViewType):
         self._gv = gv
 
-    def determine_AS_able_transcripts(self):
-        pass
+    def generate_exon_superset(self):
+        for gene in tqdm(iterable=self._gv.genes.values(), desc="Getting exon superset..."):
+            gene.generate_exon_superset()
 
-    def simulate_as_events(self):
+    def run(self):
         pass
