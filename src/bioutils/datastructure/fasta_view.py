@@ -58,10 +58,6 @@ class FastaViewType:
     """
 
     @abstractmethod
-    def __init__(self, filename: str, full_header: bool = False):
-        pass
-
-    @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         """
         Get sequence from FASTA with 0-based [) indexes

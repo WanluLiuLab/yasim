@@ -1,7 +1,7 @@
 import io
 import threading
 import time
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from typing import IO, AnyStr, Iterator, Optional, Type, List, Union, TextIO, Callable
 
 from commonutils.io.safe_io import get_reader
@@ -209,7 +209,6 @@ class BaseLineBufferedStream(BaseStream, ABC):
     def _read_into_input_buffer(self) -> Optional[str]:
         pass
 
-
     def read(self, n: int = -1) -> Optional[str]:
         pass
 
@@ -218,5 +217,3 @@ class BaseLineBufferedStream(BaseStream, ABC):
 
     def readlines(self, n: int = -1) -> Optional[str]:
         pass
-
-

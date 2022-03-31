@@ -1,29 +1,24 @@
 import io
-from types import TracebackType
-from typing import Type, Iterator, AnyStr, TextIO, Optional, List, Union, Iterable
+from typing import Type, Iterator, AnyStr, TextIO, Optional, List
 
 from commonutils.io.safe_io import get_reader
 from commonutils.text_utils.typing import BaseStream
 from commonutils.typing import FDType, PathOrFDType
 
 
-
 class Cat(BaseStream):
+    _fds: List[FDType]
 
-    _fds:List[FDType]
-
-    _closed:bool
+    _closed: bool
 
     @property
     def closed(self) -> bool:
         return self._closed
 
-    def __init__(self, *pathnames_or_fds:PathOrFDType):
-        self._closed=False
+    def __init__(self, *pathnames_or_fds: PathOrFDType):
+        self._closed = False
         for pathname_or_fd in pathnames_or_fds:
-            self._fds.append(get_reader(pathname_or_fd)) # FIXME: Refactor
-
-
+            self._fds.append(get_reader(pathname_or_fd))  # FIXME: Refactor
 
     def __exit__(self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException],
                  exc_tb: Optional[BaseException]):
@@ -59,8 +54,6 @@ class Cat(BaseStream):
 
     def __iter__(self) -> Iterator[AnyStr]:
         pass
-
-
 
     def __repr__(self):
         pass

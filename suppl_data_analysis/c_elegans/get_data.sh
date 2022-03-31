@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ue
-cat << EOF | while read line; do [ ! -f "$(basename "${line}")" ] && axel -n 20 "${line}"; done
+cat << EOF | while read -r line; do [ ! -f "$(basename "${line}")" ] && axel -n 20 "${line}"; done
 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR512/004/SRR5123644/SRR5123644_1.fastq.gz
 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR512/004/SRR5123644/SRR5123644_2.fastq.gz
 ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR512/008/SRR5123648/SRR5123648_1.fastq.gz
