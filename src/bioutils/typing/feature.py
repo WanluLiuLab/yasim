@@ -335,7 +335,7 @@ class GtfRecord(Feature):
     def from_string(cls, in_str: str):
         global lh
         in_str = in_str.rstrip('\n\r')
-        lh.debug(f'Adding {in_str}')
+        lh.trace(f'Adding {in_str}')
         line_split = in_str.split('\t')
 
         required_fields = line_split[0:-1]

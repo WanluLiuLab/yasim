@@ -15,7 +15,7 @@ import gzip
 import io
 import lzma
 import os
-from typing import IO, AnyStr, Iterator, Iterable, Optional, Type, List
+from typing import IO, AnyStr, Iterator, Iterable, Optional, Type, List, Union
 
 from commonutils.stdlib_helper.docstring_helper import copy_doc
 
@@ -74,7 +74,7 @@ class ArchiveBaseIO(IO):
     with iteration and context management (aka., ``__enter__`` or ``with`` statement) support.
     """
 
-    _fd: IO
+    _fd: Union[IO, io.IOBase]
     """
     The underlying file descriptor.
     """
@@ -235,64 +235,73 @@ class SequentialReader(ArchiveBaseIO):
         raise OSError("Illegal operation on Sequential Read-Only IO")
 
 
-def get_reader(filename: str, is_binary: bool = False, **kwargs) -> IO:
+def get_reader(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IO:
     """
     Get a reader for multiple format.
     
     This function is for newbies or others who does not wish to have full control over what they opened.
     The IO wrapper given by this function may satisfy 95% of the needs.
 
-    :param filename: Filename to be opened.
+    :param path_or_fd: Filename to be opened or IO that was opened..
     :param is_binary: Whether to read as binary.
     :param kwargs: Other arguments passed to underlying opener.
 
     .. warning::
         Do NOT specify ``mode`` keyword arguments!
     """
-    if is_binary:
-        mode = "rb"
+    if isinstance(path_or_fd, str):
+        if is_binary:
+            mode = "rb"
+        else:
+            mode = "rt"
+        return ArchiveBaseIO(path_or_fd, mode=mode, **kwargs)
     else:
-        mode = "rt"
-    return ArchiveBaseIO(filename, mode=mode, **kwargs)
+        return ArchiveBaseIO(path_or_fd)
 
 
-def get_writer(filename: str, is_binary: bool = False, **kwargs) -> IO:
+def get_writer(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IO:
     """
     Get a writer for multiple format.
     
     This function is for newbies or others who does not wish to have full control over what they opened.
     The IO wrapper given by this function may satisfy 95% of the needs.
     
-    :param filename: Filename to be opened.
+    :param path_or_fd: Filename to be opened or IO that was opened..
     :param is_binary: Whether to read as binary.
     :param kwargs: Other arguments passed to underlying opener.
     
     :: warning..
         Do NOT specify ``mode`` keyword arguments!
     """
-    if is_binary:
-        mode = "wb"
+    if isinstance(path_or_fd, str):
+        if is_binary:
+            mode = "wb"
+        else:
+            mode = "wt"
+        return ArchiveBaseIO(path_or_fd, mode=mode, **kwargs)
     else:
-        mode = "wt"
-    return ArchiveBaseIO(filename, mode=mode, **kwargs)
+        return ArchiveBaseIO(path_or_fd)
 
 
-def get_appender(filename: str, is_binary: bool = False, **kwargs) -> IO:
+def get_appender(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IO:
     """
     Get an appender for multiple format.
     
     This function is for newbies or others who does not wish to have full control over what they opened.
     The IO wrapper given by this function may satisfy 95% of the needs.
     
-    :param filename: Filename to be opened.
+    :param path_or_fd: Filename to be opened or IO that was opened.
     :param is_binary: Whether to read as binary.
     :param kwargs: Other arguments passed to underlying opener.
     
     :: warning..
         Do NOT specify ``mode`` keyword arguments!
     """
-    if is_binary:
-        mode = "ab"
+    if isinstance(path_or_fd, str):
+        if is_binary:
+            mode = "ab"
+        else:
+            mode = "at"
+        return ArchiveBaseIO(path_or_fd, mode=mode, **kwargs)
     else:
-        mode = "at"
-    return ArchiveBaseIO(filename, mode=mode, **kwargs)
+        return ArchiveBaseIO(path_or_fd)

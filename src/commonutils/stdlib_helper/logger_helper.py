@@ -97,7 +97,7 @@ if "_global_level" not in locals() and not "_global_level" in globals():
 
 def chronolog(display_time: bool = False, log_error: bool = False):
     """
-    The logging decorator, will inject a logger variable named lh to the code.
+    The logging decorator, will inject a logger variable named _lh to the code.
     From <https://stackoverflow.com/questions/17862185/how-to-inject-variable-into-scope-with-a-decorator>
 
     .. note::

@@ -231,15 +231,19 @@ class BaseGeneView(GeneViewType, ABC):
             for transcript_id in self.genes[gene_id].transcripts.keys():
                 self.del_transcript(transcript_id)
             self.genes.pop(gene_id)
+        else:
+            raise ValueError(f"Gene ID {gene_id} not found!")
 
     def del_transcript(self, transcript_id: str):
         if transcript_id in self.transcripts.keys():
             gene_id = self.transcripts[transcript_id].gene_id
-            if gene_id is not None:
-                self.genes[gene_id].transcripts.pop(transcript_id)
+            self.genes[gene_id].transcripts.pop(transcript_id)
             if len(self.genes[gene_id].transcripts) == 0:
+                lh.info(f"Automatically remove empty gene {gene_id}")
                 self.genes.pop(gene_id)
             self.transcripts.pop(transcript_id)
+        else:
+            raise ValueError(f"Transcript ID {transcript_id} not found!")
 
     def __len__(self) -> int:
         return len(list(self.get_iterator()))
