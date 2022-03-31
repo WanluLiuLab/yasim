@@ -23,8 +23,8 @@ Usage: ${0} --FASTQ_NAME:FASTQ_NAME --GENE_REFERENCE:GENE_REFERENCE --TRANSCRIPT
             stringtie --version
             builtin exit 0
             ;;
-        --FASTQ_NAME\:*)
-            FASTQ_NAME=${opt:13}
+        --FASTQ_BASE_NAME\:*)
+            FASTQ_BASE_NAME=${opt:18}
             ;;
         --GENE_REFERENCE\:*)
             GENE_REFERENCE=${opt:17}

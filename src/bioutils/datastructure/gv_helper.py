@@ -34,6 +34,7 @@ def get_duplicated_transcript_ids(
                 yield transcript.transcript_id
 
 
+
 def gv_dedup(
         gv: GeneViewType,
         by_splice_site: bool = True,
