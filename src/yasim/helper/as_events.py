@@ -9,11 +9,14 @@ import random
 import uuid
 from typing import List, Tuple, Callable, Union
 
-from bioutils.datastructure.gene_view import GeneViewType
+from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
 from bioutils.datastructure.gene_view_proxy import Transcript, Gene
 from bioutils.datastructure.gv_helper import assert_splice_site_existence
 from commonutils.importer.tqdm_importer import tqdm
 
+from commonutils.stdlib_helper.logger_helper import get_logger
+
+lh = get_logger(__name__)
 
 def is_exon_skipping_able_transcript(transcript: Transcript) -> bool:
     return len(transcript.exons) >= 2
@@ -153,7 +156,7 @@ class ASManipulator:
 
     def run(self, mu: Union[int, float]):
         gene_ids_to_del: List[str] = []
-        for gene in tqdm(iterable=self._gv.genes.values(), desc="Getting exon superset..."):
+        for gene in tqdm(iterable=self._gv.genes.values(), desc="Generating isoforms..."):
             n = 0
             while n <= 0 or n >= mu * 2:
                 n = int(random.gauss(mu, 1))
@@ -161,5 +164,14 @@ class ASManipulator:
                 self.try_generate_n_isoform_for_a_gene(gene, n)
             except ValueError:
                 gene_ids_to_del.append(gene.gene_id)
+        lh.info(f"Will remove {len(gene_ids_to_del)} genes")
         for gene_id in gene_ids_to_del:
             self._gv.del_gene(gene_id)
+        lh.info(f"Will remove genes FIN")
+
+if __name__ == '__main__':
+    gv = GeneViewFactory.from_file("C:\\Users\\admin\\Downloads\\gtf\\hg38.ncbiRefSeq.gtf")
+    asm = ASManipulator(gv)
+    asm.run(10)
+    asm._gv.to_file("AAAAAA.gtf")
+

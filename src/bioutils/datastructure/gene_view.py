@@ -252,9 +252,8 @@ class BaseGeneView(GeneViewType, ABC):
 
     def del_gene(self, gene_id: str):
         if gene_id in self.genes.keys():
-            for transcript_id in self.genes[gene_id].transcripts.keys():
+            for transcript_id in list(self.genes[gene_id].transcripts.keys()):
                 self.del_transcript(transcript_id)
-            self.genes.pop(gene_id)
         else:
             raise ValueError(f"Gene ID {gene_id} not found!")
 
