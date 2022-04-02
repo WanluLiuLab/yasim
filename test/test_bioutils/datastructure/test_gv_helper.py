@@ -144,11 +144,11 @@ def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initia
 
 
 def test_exon_superset(initialize_module) -> None:
-    # TODO: to be refactored
     file_name = os.path.join(
         initialize_module.path,
         "gene_gtf_for_exon_supersets.gtf"
     )
+    gvh.enable_exon_superset()
     gv = GeneViewFactory.from_file(file_name)
     gv.standardize()
     STRG_3 = gv.genes["STRG.3"]

@@ -1,6 +1,6 @@
 import io
 from abc import abstractmethod
-from typing import IO, Union, List, Callable, Any
+from typing import IO, Union, List, Callable
 
 from commonutils.typing import PathType
 
@@ -15,6 +15,7 @@ try:
     _OpenerType = Callable[[PathType, ...], Union[IO, io.IOBase]]
 except TypeError:
     _OpenerType = Callable[..., Union[IO, io.IOBase]]
+
 
 class FileRuleType:
     _rule: _RuleType

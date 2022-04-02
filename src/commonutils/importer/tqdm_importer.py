@@ -20,13 +20,7 @@ IMPORTED_TQDM_TYPE = ""
 
 if sys.stderr.isatty() and _external_tqdm is not None:
     IMPORTED_TQDM_TYPE = "official"
+    tqdm = _external_tqdm.tqdm
 else:
     IMPORTED_TQDM_TYPE = "silent"
-
-
-def tqdm(*args, **kwargs):
-    global IMPORTED_TQDM_TYPE
-    if IMPORTED_TQDM_TYPE == "official":
-        return _external_tqdm.tqdm(*args, **kwargs)
-    else:
-        return _silent_tqdm(*args, **kwargs)
+    tqdm = _silent_tqdm

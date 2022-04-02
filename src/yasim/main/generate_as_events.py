@@ -4,7 +4,6 @@ from typing import List
 
 from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
 from bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
-from bioutils.datastructure.gene_view_proxy import Transcript
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 
@@ -20,10 +19,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('-o', '--out', required=True, help="Output GTF", nargs='?',
                         type=str, action='store')
     return parser.parse_args(args)
-
-
-def introduce_intron_retention(transcript: Transcript):
-    pass
 
 
 def sample_exon(

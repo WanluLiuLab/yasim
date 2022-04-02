@@ -119,7 +119,7 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def del_transcript(self, transcript_id: str):
+    def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
         """
         Remove a transcript.
         If this is the last transcript of a gene, the gene will be removed as well.
@@ -257,12 +257,12 @@ class BaseGeneView(GeneViewType, ABC):
         else:
             raise ValueError(f"Gene ID {gene_id} not found!")
 
-    def del_transcript(self, transcript_id: str):
+    def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
         if transcript_id in self.transcripts.keys():
             gene_id = self.transcripts[transcript_id].gene_id
             self.genes[gene_id].transcripts.pop(transcript_id)
-            if len(self.genes[gene_id].transcripts) == 0:
-                lh.info(f"Automatically remove empty gene {gene_id}")
+            if len(self.genes[gene_id].transcripts) == 0 and auto_remove_empty_gene:
+                lh.debug(f"Automatically remove empty gene {gene_id}")
                 self.genes.pop(gene_id)
             self.transcripts.pop(transcript_id)
         else:

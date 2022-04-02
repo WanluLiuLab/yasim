@@ -1,48 +1,40 @@
 """
 as_events.py -- Generate AS Events
-
-
 """
-import copy
 import math
 import random
-import uuid
-from typing import List, Tuple, Callable, Union
+from typing import List, Tuple, Callable, Union, Iterable
 
 from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
 from bioutils.datastructure.gene_view_proxy import Transcript, Gene
-from bioutils.datastructure.gv_helper import assert_splice_site_existence
+from bioutils.datastructure.gv_helper import assert_splice_site_existence, generate_new_transcript
 from commonutils.importer.tqdm_importer import tqdm
-
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
-def is_exon_skipping_able_transcript(transcript: Transcript) -> bool:
-    return len(transcript.exons) >= 2
 
+def perform_exon_skipping(
+        transcript: Transcript,
+        exon_number_to_ko: Iterable[int]
+) -> Transcript:
+    new_transcript = generate_new_transcript(transcript)
+    sorted(exon_number_to_ko)
 
-def is_intron_retention_able_transcript(transcript: Transcript) -> bool:
-    return len(transcript.exons) >= 2
-
-
-def generate_new_transcript_id(gene_id: str) -> str:
-    return gene_id + str(uuid.uuid4())
-
-
-def generate_new_transcript(transcript: Transcript) -> Transcript:
-    new_transcript = copy.deepcopy(transcript)
-    new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
-    new_transcript.transcript_id = generate_new_transcript_id(transcript.gene_id)
+    # set the percent of knocked out exons
+    percent = 0.01 * (random.randint(1, 30))
+    # get the number of exons n to be knocked out by multiplying total exon number of transcript
+    trans_len = len(new_transcript.exons)
+    exonKO = math.ceil(trans_len * percent)
+    # randomly delete n exons from the transcript
+    exon_keep = trans_len - exonKO
+    new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
+    # refresh the exon list
+    new_transcript.sort_exons()
     return new_transcript
 
 
-def register_new_transcript(gv: GeneViewType, transcript: Transcript):
-    gv.genes[transcript.gene_id].transcripts[transcript.transcript_id] = transcript
-    gv.transcripts[transcript.transcript_id] = transcript
-
-
-def perform_exon_skipping(transcript: Transcript) -> Transcript:
+def simulate_exon_skipping(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # set the percent of knocked out exons
     percent = 0.01 * (random.randint(1, 30))
@@ -107,7 +99,7 @@ class ASManipulator:
     def __init__(self, gv: GeneViewType):
         self._gv = gv
 
-    def determine_transcript_type(self) -> Callable[[Transcript], Transcript]:
+    def perform_alternative_splicing(self) -> Callable[[Transcript], Transcript]:
         return random.choices(
             population=(
                 perform_alternative_3p_splicing,
@@ -131,7 +123,15 @@ class ASManipulator:
         )[0]
 
     def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int):
-        if len(gene.transcripts) == n:
+        transcript_ids_to_del = []
+        for transcript in gene.transcripts.values():
+            if transcript.transcribed_length < 250:
+                transcript_ids_to_del.append(transcript.transcript_id)
+        for transcript_id in transcript_ids_to_del:
+            self._gv.del_transcript(transcript_id, auto_remove_empty_gene=False)
+        if len(gene.transcripts) == 0:
+            raise ValueError("Generation FAILED!")
+        elif len(gene.transcripts) == n:
             return
         elif len(gene.transcripts) > n:
             gek = list(gene.transcripts.keys())
@@ -140,12 +140,12 @@ class ASManipulator:
             return
         elif len(gene.transcripts) < n:
             all_splice_sites: List[List[Tuple[int, int]]] = []
-            gtv = list(gene.transcripts.values())
             while len(gene.transcripts) < n:
                 number_of_fail = 0
-                new_transcript = self.determine_transcript_type()(random.choice(gtv))
+                new_transcript = self.perform_alternative_splicing()(random.choice(list(gene.transcripts.values())))
                 this_splice_site = list(new_transcript.splice_sites)
-                if not assert_splice_site_existence(this_splice_site, all_splice_sites):
+                if new_transcript.transcribed_length >= 250 and not assert_splice_site_existence(this_splice_site,
+                                                                                                 all_splice_sites):
                     self._gv.add_transcript(new_transcript)
                 else:
                     number_of_fail += 1
@@ -159,7 +159,7 @@ class ASManipulator:
         for gene in tqdm(iterable=self._gv.genes.values(), desc="Generating isoforms..."):
             n = 0
             while n <= 0 or n >= mu * 2:
-                n = int(random.gauss(mu, 1))
+                n = int(random.gauss(mu, mu / 2))
             try:
                 self.try_generate_n_isoform_for_a_gene(gene, n)
             except ValueError:
@@ -168,10 +168,15 @@ class ASManipulator:
         for gene_id in gene_ids_to_del:
             self._gv.del_gene(gene_id)
         lh.info(f"Will remove genes FIN")
+        self._gv.standardize()
+
+    def to_file(self, filename: str):
+        self._gv.to_file(filename)
+
 
 if __name__ == '__main__':
-    gv = GeneViewFactory.from_file("C:\\Users\\admin\\Downloads\\gtf\\hg38.ncbiRefSeq.gtf")
-    asm = ASManipulator(gv)
-    asm.run(10)
-    asm._gv.to_file("AAAAAA.gtf")
-
+    for i in range(1, 11, 2):
+        gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_3/ce11.ncbiRefSeq.gtf")
+        asm = ASManipulator(gv)
+        asm.run(i)
+        asm.to_file(f"{i}.gtf")

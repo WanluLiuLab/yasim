@@ -7,12 +7,12 @@ from __future__ import annotations
 import copy
 import math
 import uuid
-import warnings
 from abc import abstractmethod
 from typing import List, Dict, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
+from commonutils.dynamic.hook_helper import hookable_decorator
 
 
 def unknown_transcript_id() -> str:
@@ -25,13 +25,11 @@ def unknown_gene_id() -> str:
     return 'unknown_gene_id' + str(uuid.uuid4())
 
 
+@hookable_decorator
 class BaseFeatureProxy(FeatureType):
     """
     Base class of Feature Proxy.
     """
-    __slots__ = (
-        "_data"
-    )
 
     _data: Feature
 
@@ -233,10 +231,6 @@ class Exon(BaseFeatureProxy):
 
 
 class Transcript(BaseFeatureProxy):
-    __slots__ = (
-        "exons",
-        "_cdna_sequence"
-    )
     exons: List[Exon]
     _cdna_sequence: Optional[str]
 
@@ -348,12 +342,7 @@ class Transcript(BaseFeatureProxy):
 
 
 class Gene(BaseFeatureProxy):
-    __slots__ = (
-        "transcripts",
-        "_exon_superset"
-    )
     transcripts: Dict[str, Transcript]
-    _exon_superset: Optional[List[Exon]]  # FIXME: To be removed
 
     # TODO: Unit test needed
 
@@ -367,7 +356,6 @@ class Gene(BaseFeatureProxy):
 
     def _setup(self):
         self.transcripts = {}
-        self._exon_superset = None
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
@@ -378,22 +366,3 @@ class Gene(BaseFeatureProxy):
 
     def __repr__(self):
         return f"Gene {self.gene_id}"
-
-    def generate_exon_superset(self):
-        warnings.warn("Deprecated", DeprecationWarning)
-        if self._exon_superset is not None:
-            return
-
-        def add_exon(_all_exons: List[Exon], new_exon: Exon):
-            for _exon in _all_exons:
-                if new_exon == _exon:
-                    return
-            _all_exons.append(new_exon)
-
-        self._exon_superset: List[Exon] = []
-        for transcript in self.transcripts.values():
-            for exon in transcript.exons:
-                add_exon(self._exon_superset, exon)
-
-    def get_exon_superset(self):
-        return self._exon_superset
