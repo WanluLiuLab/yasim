@@ -14,27 +14,27 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 lh = get_logger(__name__)
 
 
-def perform_exon_skipping(
-        transcript: Transcript,
-        exon_number_to_ko: Iterable[int]
-) -> Transcript:
-    new_transcript = generate_new_transcript(transcript)
-    sorted(exon_number_to_ko)
+# def perform_exon_skipping(
+#         transcript: Transcript,
+#         exon_number_to_ko: Iterable[int]
+# ) -> Transcript:
+#     new_transcript = generate_new_transcript(transcript)
+#     sorted(exon_number_to_ko)
+#
+#     # set the percent of knocked out exons
+#     percent = 0.01 * (random.randint(1, 30))
+#     # get the number of exons n to be knocked out by multiplying total exon number of transcript
+#     trans_len = len(new_transcript.exons)
+#     exonKO = math.ceil(trans_len * percent)
+#     # randomly delete n exons from the transcript
+#     exon_keep = trans_len - exonKO
+#     new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
+#     # refresh the exon list
+#     new_transcript.sort_exons()
+#     return new_transcript
 
-    # set the percent of knocked out exons
-    percent = 0.01 * (random.randint(1, 30))
-    # get the number of exons n to be knocked out by multiplying total exon number of transcript
-    trans_len = len(new_transcript.exons)
-    exonKO = math.ceil(trans_len * percent)
-    # randomly delete n exons from the transcript
-    exon_keep = trans_len - exonKO
-    new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
-    # refresh the exon list
-    new_transcript.sort_exons()
-    return new_transcript
 
-
-def simulate_exon_skipping(transcript: Transcript) -> Transcript:
+def perform_exon_skipping(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # set the percent of knocked out exons
     percent = 0.01 * (random.randint(1, 30))
@@ -175,7 +175,7 @@ class ASManipulator:
 
 
 if __name__ == '__main__':
-    for i in range(1, 11, 2):
+    for i in [3]:
         gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_3/ce11.ncbiRefSeq.gtf")
         asm = ASManipulator(gv)
         asm.run(i)

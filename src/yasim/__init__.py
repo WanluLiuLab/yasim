@@ -4,7 +4,7 @@ yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expre
 This is an alternative splicing simulator, with interesting functions like DEG simulation.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __author__ = ",".join((
     "YU Zhejian"
 ))
