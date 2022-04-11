@@ -8,10 +8,11 @@ import copy
 import math
 import uuid
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional, Iterable, Tuple
+from typing import List, Dict, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
+from commonutils.dynamic.hook_helper import hookable_decorator
 
 
 def unknown_transcript_id() -> str:
@@ -24,15 +25,18 @@ def unknown_gene_id() -> str:
     return 'unknown_gene_id' + str(uuid.uuid4())
 
 
+@hookable_decorator
 class BaseFeatureProxy(FeatureType):
     """
     Base class of Feature Proxy.
     """
-    __slots__ = (
-        "_data"
-    )
 
     _data: Feature
+
+    _was_modified: bool
+
+    def duplicate_cast(self, class_type: Type[BaseFeatureProxy]):
+        return class_type.from_feature(copy.deepcopy(self._data))
 
     def copy_data(self):
         """
@@ -227,10 +231,6 @@ class Exon(BaseFeatureProxy):
 
 
 class Transcript(BaseFeatureProxy):
-    __slots__ = (
-        "exons",
-        "_cdna_sequence"
-    )
     exons: List[Exon]
     _cdna_sequence: Optional[str]
 
@@ -312,11 +312,6 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    @property
-    def exon_start_end(self) -> Iterable[Tuple[str, int, int]]:
-        for exon in self.exons:
-            yield exon.seqname, exon.start, exon.end
-
     def sort_exons(self):
         if len(self.exons) == 0:
             return
@@ -347,10 +342,9 @@ class Transcript(BaseFeatureProxy):
 
 
 class Gene(BaseFeatureProxy):
-    __slots__ = (
-        "transcripts"
-    )
     transcripts: Dict[str, Transcript]
+
+    # TODO: Unit test needed
 
     @property
     def gene_id(self) -> str:

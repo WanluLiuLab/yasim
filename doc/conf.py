@@ -49,11 +49,9 @@ def copy_doc_files(from_path: str, to_path: str):
     """
     Copy items to project root
     """
-    NAME_NEED_TO_COPY = glob.glob(from_path)
-    ROOT_TARGET = to_path
-    os.makedirs(ROOT_TARGET, exist_ok=True)
-    for name in NAME_NEED_TO_COPY:
-        shutil.copy(name, ROOT_TARGET + os.sep)
+    os.makedirs(to_path, exist_ok=True)
+    for name in glob.glob(from_path):
+        shutil.copy(name, to_path + os.sep)
 
 
 copy_doc_files(os.path.join(ROOT_DIR, '*.md'), os.path.join(THIS_DIR, "_root"))

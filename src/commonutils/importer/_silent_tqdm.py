@@ -3,12 +3,14 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 """
 
 import sys
-from typing import Optional, Iterable, Sized
+from typing import Optional, Iterable, Sized, TypeVar, Iterator
 
 __all__ = ("tqdm",)
 
+_VarType = TypeVar('_VarType')
 
-class tqdm:
+
+class tqdm(Iterable[_VarType]):
     """
     A silent tqdm that does not pollute stderr.
 
@@ -58,7 +60,7 @@ class tqdm:
     _quarters: float
 
     def __init__(self,
-                 iterable: Optional[Iterable] = None,
+                 iterable: Optional[Iterable[_VarType]] = None,
                  desc: Optional[str] = None,
                  total: Optional[int] = None,
                  **kwargs):
@@ -80,7 +82,7 @@ class tqdm:
             self.total = None
         self.iterable = iterable
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[_VarType]:
         for item in self.iterable:
             yield item
             self.update(1)

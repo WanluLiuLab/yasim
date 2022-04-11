@@ -36,7 +36,10 @@ $(FASTQ_BASENAME)_pbsim2_%.fq: $(SEL_CDNA_FASTA) $(DEPTH_TSV)
 BADREAD_FQ: \
 $(FASTQ_BASENAME)_badread_nanopore2018.fq \
 $(FASTQ_BASENAME)_badread_nanopore2020.fq \
-$(FASTQ_BASENAME)_badread_pacbio2016.fq
+$(FASTQ_BASENAME)_badread_pacbio2016.fq \
+$(FASTQ_BASENAME)_badread_verybad.fq \
+$(FASTQ_BASENAME)_badread_verynice.fq \
+
 
 $(FASTQ_BASENAME)_badread_%.fq: $(SEL_CDNA_FASTA) $(DEPTH_TSV)
 	$(YASIM) badread -F "$<".d -o $(basename $@) -m $(lastword $(subst _,\ ,$(basename $@))) -d $(DEPTH_TSV)

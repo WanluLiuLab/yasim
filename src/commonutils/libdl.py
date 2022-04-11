@@ -1,6 +1,7 @@
 import ftplib
 import hashlib
 import logging
+import math
 import os
 import re
 import warnings
@@ -29,7 +30,10 @@ def ftp_get_download(
     filename = rm.group(2)
     logger_handler.info(f"Retrieving {url} -> {dest_filename}: HEADER")
     ftpclient = ftplib.FTP(hostname, username, password)
-    file_size = ftpclient.size(filename)
+    try:
+        file_size = ftpclient.size(filename)
+    except ftplib.error_perm:
+        file_size = math.inf
     logger_handler.info(f"Retrieving {url} -> {dest_filename}: HEADER FIN")
     with open(dest_filename, 'wb') as writer:
         with tqdm.tqdm(total=file_size, unit='B', unit_scale=True, unit_divisor=1024) as pbar:

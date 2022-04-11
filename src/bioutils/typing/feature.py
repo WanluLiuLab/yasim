@@ -39,20 +39,8 @@ Valid GTF Quoting Options. They are:
 
 class FeatureType(object):
     """
-    Abstract type of a general GTF/GFF/BED Record.
+    Abstract type of general GTF/GFF/BED Record.
     """
-
-    __slots__ = (
-        'seqname',
-        'source',
-        'feature',
-        'start',
-        'end',
-        'score',
-        'strand',
-        'frame',
-        'attribute',
-    )
 
     seqname: str
     """
@@ -139,6 +127,18 @@ class Feature(FeatureType):
     """
     A general GTF/GFF/BED Record.
     """
+
+    __slots__ = (
+        'seqname',
+        'source',
+        'feature',
+        'start',
+        'end',
+        'score',
+        'strand',
+        'frame',
+        'attribute',
+    )
 
     def __init__(self,
                  seqname: str,
@@ -335,7 +335,7 @@ class GtfRecord(Feature):
     def from_string(cls, in_str: str):
         global lh
         in_str = in_str.rstrip('\n\r')
-        lh.debug(f'Adding {in_str}')
+        lh.trace(f'Adding {in_str}')
         line_split = in_str.split('\t')
 
         required_fields = line_split[0:-1]

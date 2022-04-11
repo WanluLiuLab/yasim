@@ -58,9 +58,9 @@ def test_wc_c(initialize_module):
         assert shell_utils.wc_c('/dev/null') == 0
         assert shell_utils.wc_c('/dev/zero') == 0
         assert shell_utils.wc_c('/dev/stdin') == 0
-    PROFILE = '~/.profile'
-    if file_exists(PROFILE):
-        assert shell_utils.wc_c(PROFILE) == os.path.getsize(PROFILE)
+    dot_profile = '~/.profile'
+    if file_exists(dot_profile):
+        assert shell_utils.wc_c(dot_profile) == os.path.getsize(dot_profile)
     shell_utils.rm_rf(aa)
 
 

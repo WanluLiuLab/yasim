@@ -1,5 +1,6 @@
 import json
 import sys
+from typing import List
 
 import requests
 
@@ -19,14 +20,12 @@ def dl_accession(acc: str):
         raise ValueError(f"Illegal accession {acc}") from e
     lh.info(f"Getting EBI REST API for {acc} FIN")
     for item in json_content:
-        accession_url = "ftp://" + item['fastq_ftp']
-        accession_md5 = item['fastq_md5']
-        download_file(accession_url, md5=accession_md5)
+        for accession_url, accession_md5 in zip(item['fastq_ftp'].split(';'), item['fastq_md5'].split(";")):
+            download_file(accession_url, md5=accession_md5)
 
 
-def main():
-    dl_accession(sys.argv[1])
 
+def main(args:List[str]):
+    for name in args:
+        dl_accession(name)
 
-if __name__ == "__main__":
-    main()

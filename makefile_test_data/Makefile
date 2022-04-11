@@ -6,6 +6,7 @@ export YASIM := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim
 export YASIM_SCRIPTS := PYTHONPATH="$(ROOTDIR)/src:$(PYTHONPATH:-)" python -m yasim_scripts
 export REFERENCE_FASTA := $(DATADIR)/ce11.fa
 export REFERENCE_GTF := $(DATADIR)/ce11.ncbiRefSeq.gtf
+export REFERENCE_SORTED_GTF := $(DATADIR)/ce11.ncbiRefSeq_sorted.gtf
 export REFERENCE_CDNA := $(DATADIR)/ce11.reference_transcripts.fa
 export THREADS := 40
 export SEL_GTF := $(DATADIR)/ce11_sel.gtf
@@ -38,7 +39,8 @@ include $(CURDIR)/STAR.mk
 include $(CURDIR)/minimap2.mk
 include $(CURDIR)/salmon.mk
 include $(CURDIR)/featureCounts.mk
-# include $(CURDIR)/htseq.mk
+include $(CURDIR)/htseq.mk
+include $(CURDIR)/cpptetgs.mk
 include $(CURDIR)/stringtie.mk
 
 $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
@@ -59,7 +61,8 @@ $(REFERENCE_CDNA): $(REFERENCE_FASTA) $(REFERENCE_GTF)
 nothing:
 	$(message Nothing made)
 
-
+$(REFERENCE_SORTED_GTF):$(REFERENCE_GTF)
+	bedtools sort -i $< > $@
 
 $(FASTQ_BASENAME)_%_ground_truth.tsv:$(FASTQ_BASENAME)_dwgsim.fq.stats $(SEL_CDNA_FASTA).stats
 	Rscript $(ROOTDIR)/R/generate_ground_truth.R --libfile "$(ROOTDIR)/R/lib.R" --fq_stats $(FASTQ_BASENAME)_dwgsim.fq.stats --fa_stats $(SEL_CDNA_FASTA).stats --output  $@

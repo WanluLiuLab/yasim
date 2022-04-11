@@ -21,10 +21,13 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     module_test_info.teardown()
 
 
+CONTENT_SIZE = 1024
+
+
 def assess_binary_archive_io(filename: str):
     available_chars = string.printable
 
-    contents = bytes("".join((random.choice(available_chars) for _ in range(1024 * 1024))), encoding="UTF-8")
+    contents = bytes("".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))), encoding="UTF-8")
     len_contents = len(contents)
 
     shell_utils.rm_rf(filename)
@@ -35,13 +38,14 @@ def assess_binary_archive_io(filename: str):
     with get_tqdm_reader(filename, is_binary=True) as reader:
         assert reader.read(len_contents) == contents
         assert reader._tqdm.total == len(contents)
+    assert filename.endswith("txt") == (os.path.getsize(filename) == len_contents)
 
 
 def assess_text_archive_io(filename: str):
     # FIXME: Bugs here
     available_chars = string.printable
 
-    contents = "".join((random.choice(available_chars) for _ in range(1024 * 1024))).replace('\r', '')
+    contents = "".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))).replace('\r', '')
     len_contents = len(contents)
 
     contents_list = contents.split('\n')
@@ -82,5 +86,5 @@ def test_ext(initialize_module, ext: str):
 # def test_string_io():
 #     # FIXME
 #     sio = io.StringIO(contents)
-#     bare_archive_io = ArchiveBaseIO(sio)
+#     bare_archive_io = RuleBasedIOProxy(sio)
 #     assert bare_archive_io.read(len_contents) == contents

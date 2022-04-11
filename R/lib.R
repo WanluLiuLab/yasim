@@ -89,14 +89,14 @@ yasim_unmapped_stats_col_types <- cols(
     SUCCESS_ALN=col_number(),
     FAILED_ALN=col_number()
 )
-# htseq_quant_tsv_col_types <- cols(
-#     Name = col_character(),
-#     NumReads = col_double()
-# )
-# htseq_quant_tsv_col_names <- c(
-#     "Name",
-#     "NumReads"
-# )
+htseq_count_tsv_col_types <- cols(
+    Name = col_character(),
+    NumReads = col_double()
+)
+htseq_count_tsv_col_names <- c(
+    "Name",
+    "NumReads"
+)
 ss_tsv_col_types <- cols(
     LEN = col_number(),
     GC = col_number(),
@@ -183,19 +183,19 @@ get_cpptetgs_data <- function(cpptetgs_tsv, n) {
     return(cpptetgs_data)
 }
 
-get_stringtie_data <- function(stringtie_quant_tsv, n) { # , stringtie_e_option=NULL
 
-    # if (stringtie_e_option) {
-    #     get_id <- "transcript_id"
-    # } else {
-    get_id <- "reference_id"
-    # }
-    stringtie_quant_data <- read_tsv(stringtie_quant_tsv, quote = "\'", col_types = stringtie_quant_tsv_col_types) %>%
+
+get_htseq_count_data <- function(htseq_count_tsv, n) {
+    htseq_count_data <- read_tsv(
+        htseq_count_tsv,
+        quote = "\'",
+        col_types = htseq_count_tsv_col_types,
+        col_names = htseq_count_tsv_col_names
+    ) %>%
         dplyr::transmute(
-            TRANSCRIPT_ID = .[[get_id]],
-            !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_TPM", n)) := TPM,
-            !!rlang::sym(sprintf("STRINGTIE_%d_ACTUAL_RPKM", n)) := FPKM
+            TRANSCRIPT_ID = Name,
+            !!rlang::sym(sprintf("HTSEQ_COUNT_%d_ACTUAL_N_OF_READS", n)) := NumReads
         )
-    message(sprintf("Reading %s... DONE", stringtie_quant_tsv))
-    return(stringtie_quant_data)
+    message(sprintf("Reading %s... DONE", htseq_count_tsv))
+    return(htseq_count_data)
 }
