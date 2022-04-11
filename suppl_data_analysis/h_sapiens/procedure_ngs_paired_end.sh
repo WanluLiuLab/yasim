@@ -29,6 +29,8 @@ fi
 
 if [ -d "${GENE_REFERENCE}_STAR_idx" ]; then
     GENE_REFERENCE="${GENE_REFERENCE}_STAR_idx"
+else
+    errh "STAR index not found at ${GENE_REFERENCE}_STAR_idx"
 fi
 
 if [ ${IS_GZ} -eq 0 ]; then
