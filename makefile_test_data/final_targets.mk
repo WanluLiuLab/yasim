@@ -2,6 +2,8 @@
 
 export ALL_BAM_TGS_FILENAME := $(DATADIR)/minimap2_pbsim2_R94.bam \
 $(DATADIR)/minimap2_badread_pacbio2016.bam \
+$(DATADIR)/minimap2_badread_verybad.bam \
+$(DATADIR)/minimap2_badread_verynice.bam \
 $(DATADIR)/minimap2_pbsim2_R103.bam \
 $(DATADIR)/minimap2_badread_nanopore2020.bam \
 $(DATADIR)/minimap2_pbsim2_P5C3.bam \

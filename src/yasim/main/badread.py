@@ -12,7 +12,7 @@ from yasim.llrg_adapter import badread
 
 logger = get_logger(__name__)
 
-ALL_POSSIBLE_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016")
+ALL_POSSIBLE_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
 """All possible badread model names"""
 
 
