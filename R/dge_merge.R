@@ -1,7 +1,6 @@
 file_description <- "dge_compare.R -- Merge TSVs Produced by Transcript-Level Quantifiers for Downstream DGE Analysis"
 
 #' This file is used to merge TSVs produced by Transcript-Level Quantifiers for Downstream DGE Analysis.
-#' The
 
 library(argparser)
 
@@ -54,7 +53,9 @@ sum_simulated_n_of_reads <- c()
 #' @param step_name: Name of the step. Can be name of Simulators (Ground Truth, in this case) or Quantifiers.
 #' @param n: The replication number.
 mutate_tables_for_rpkm <- function(all_table, step_name, n) {
-    all_table <- all_table %>% dplyr::filter(LEN != 0) # Filter transcripts added by accident.
+    all_table <- all_table %>%
+        mutate(across(where(is.numeric), replace_na, 0)) %>%
+        dplyr::filter(LEN != 0) # Filter transcripts added by accident.
     sum_n_of_reads <- sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]])
     all_table <- all_table %>%
         dplyr::mutate(
@@ -63,6 +64,8 @@ mutate_tables_for_rpkm <- function(all_table, step_name, n) {
             !!sprintf("%s_%d_ACTUAL_RPK", step_name, n) :=
                 .[[!!sprintf("%s_%d_ACTUAL_N_OF_READS", step_name, n)]] / LEN * 1e3,
         )
+
+    rm(sum_n_of_reads)
         #' sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", .GlobalEnv$n)]])
     # print(names(all_table))
     sum_rpk <- sum(
@@ -120,7 +123,7 @@ if (!is.na(argv$featureCounts_tsv)) {
             featureCounts_data,
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
-        all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
+
         all_table <- mutate_tables_for_rpkm(all_table, "FEATURECOUNTS", n)
         n <- n + 1
     }
@@ -135,7 +138,7 @@ if (!is.na(argv$salmon_quant_sf)) {
             salmon_quant_sf_data,
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
-        all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
+
         all_table <- mutate_tables_for_rpkm(all_table, "SALMON", n)
         n <- n + 1
     }
@@ -150,7 +153,7 @@ if (!is.na(argv$htseq_count_tsv)) {
             htseq_count_tsv_data,
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
-        all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
+
         all_table <- mutate_tables_for_rpkm(all_table, "HTSEQ_COUNT", n)
         n <- n + 1
     }
@@ -165,7 +168,7 @@ if (!is.na(argv$cpptetgs_tsv)) {
             cpptetgs_tsv_data,
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
-        all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
+
         all_table <- mutate_tables_for_rpkm(all_table, "CPPTETGS", n)
         n <- n + 1
     }
