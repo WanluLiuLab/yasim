@@ -22,9 +22,3 @@ $(DATADIR)/stringtie_quant_%.tsv:$(DATADIR)/stringtie_%.gtf
 
 $(DATADIR)/stringtie_minimap2_%.gtf: $(DATADIR)/minimap2_%.bam $(REFERENCE_GTF)
 	stringtie -L -G "$(REFERENCE_GTF)" -o $@ -p $(THREADS) $<
-
-$(DATADIR)/yasim_to_stringtie_quant_e_%.png: $(DATADIR)/stringtie_quant_e_%.tsv $(DEPTH_TSV)
-	 Rscript $(ROOTDIR)/R/test_stringtie.R --libfile "$(ROOTDIR)/R/lib.R" -e --stringtie_quant_tsv $< --yasim_tsv "$(DEPTH_TSV)" --output $(basename $@)
-
-$(DATADIR)/yasim_to_stringtie_quant_%.png: $(DATADIR)/stringtie_quant_%.tsv $(DEPTH_TSV)
-	 Rscript $(ROOTDIR)/R/test_stringtie.R --libfile "$(ROOTDIR)/R/lib.R"  --stringtie_quant_tsv $< --yasim_tsv "$(DEPTH_TSV)" --output $(basename $@)

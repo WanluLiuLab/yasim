@@ -3,9 +3,6 @@ $(DATADIR)/featureCounts_quant_STAR_%.tsv:$(DATADIR)/STAR_%.bam $(REFERENCE_GTF)
 $(DATADIR)/featureCounts_quant_hisat2_%.tsv:$(DATADIR)/hisat2_%.bam $(REFERENCE_GTF)
 	featureCounts -t transcript -g transcript_id -p -a "$(REFERENCE_GTF)" -T $(THREADS) -o $@ $<
 
-$(DATADIR)/yasim_to_featureCounts_quant_%.png: $(DATADIR)/featureCounts_quant_%.tsv $(DEPTH_TSV)
-	 Rscript $(ROOTDIR)/R/test_featureCounts.R --libfile "$(ROOTDIR)/R/lib.R"  --featureCounts_tsv $< --yasim_tsv "$(DEPTH_TSV)" --output $(basename $@)
-
 .PHONY: FEATURECOUNTS_QUANT_ALL
 FEATURECOUNTS_QUANT_ALL:$(subst .bam,.tsv,$(subst $(DATADIR)/,$(DATADIR)/featureCounts_quant_,$(wildcard $(DATADIR)/*.bam)))
 

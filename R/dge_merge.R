@@ -16,12 +16,12 @@ p <- add_argument(
     help = ".sf file produced by salmon quant."
 )
 p <- add_argument(
-    p, "--stringtie_quant_tsv", default = c(), nargs = Inf,
-    help = ".tsv file produced by parse_stringtie_into_tsv.py"
-)
-p <- add_argument(
     p, "--cpptetgs_tsv", default = c(), nargs = Inf,
     help = "*.tsv produced by CPPTETGS"
+)
+p <- add_argument(
+    p, "--htseq_count_tsv", default = c(), nargs = Inf,
+    help = "*.tsv produced by htseq-count"
 )
 p <- add_argument(
     p, "--fq_stats", default = c(), nargs = Inf,
@@ -140,18 +140,18 @@ if (!is.na(argv$salmon_quant_sf)) {
         n <- n + 1
     }
 }
-if (!is.na(argv$stringtie_quant_tsv)) {
+if (!is.na(argv$htseq_count_tsv)) {
     n <- 1
-    for (stringtie_quant_tsv in argv$stringtie_quant_tsv) {
-        stringtie_quant_tsv_data <- get_stringtie_data(stringtie_quant_tsv, n)
+    for (htseq_count_tsv in argv$htseq_count_tsv) {
+        htseq_count_tsv_data <- get_htseq_count_data(htseq_count_tsv, n)
 
         all_table <- dplyr::full_join(
             all_table,
-            stringtie_quant_tsv_data,
+            htseq_count_tsv_data,
             by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID")
         )
         all_table <- mutate(all_table, across(where(is.numeric), replace_na, 0))
-        # No mutate, done in reader.
+        all_table <- mutate_tables_for_rpkm(all_table, "HTSEQ_COUNT", n)
         n <- n + 1
     }
 }
