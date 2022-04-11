@@ -71,7 +71,13 @@ spreaded_corr_matrix <- tidyr::spread(corr_matrix, "s1", "cor") %>%
     dplyr::select(sort(soft_names)) %>%
     as.matrix()
 row.names(spreaded_corr_matrix) <- sort(soft_names)
-pheatmap(spreaded_corr_matrix, cluster_rows = FALSE, cluster_cols = FALSE)
+pheatmap(
+    spreaded_corr_matrix,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    fontsize = 20,
+    display_numbers = TRUE
+)
 
 
 make_bias_plot <- function(df, a1, a2, gt) {
