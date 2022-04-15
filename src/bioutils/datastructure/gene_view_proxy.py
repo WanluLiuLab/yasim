@@ -316,10 +316,21 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    def sort_exons(self, exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY):
+    def sort_exons(
+            self,
+            exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            remove_exon_duplicates: bool = True
+    ):
         if len(self.exons) == 0:
             return
         self.exons = sorted(self.exons)
+        if remove_exon_duplicates and len(self.exons) >= 2:
+            exon_id = 1
+            while exon_id < len(self.exons):
+                if self.exons[exon_id] == self.exons[exon_id -1]:
+                    self.exons.pop(exon_id)
+                else:
+                    exon_id += 1
         if exon_number_policy == "stranded":
             if self.strand == '+':
                 for i in range(len(self.exons)):
