@@ -5,7 +5,6 @@ from typing import List, Tuple, Iterable
 
 from bioutils.algorithm.sequence import get_gc_percent
 from bioutils.datastructure.fasta_view import FastaViewType
-
 from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gene_view_proxy import Transcript, Gene, Exon
 from commonutils import shell_utils

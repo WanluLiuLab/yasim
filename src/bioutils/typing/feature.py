@@ -21,7 +21,7 @@ GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
 GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
 """The top-level virtual parent for GFF record that does not have a parent"""
 
-VAILD_GTF_QUOTE_OPTONS = (
+VALID_GTF_QUOTE_OPTIONS = (
     "none",
     "blank",
     "string",
@@ -35,6 +35,8 @@ Valid GTF Quoting Options. They are:
 * "string": Quote if the field have type string. Will not quote for numeric types.
 * "all": Quote all fields.
 """
+
+DEFAULT_GTF_QUOTE_OPTIONS = "all"
 
 
 class FeatureType(object):
@@ -356,10 +358,10 @@ class GtfRecord(Feature):
 
     def format_string(
             self,
-            quote: str = "all"
+            quote: str = DEFAULT_GTF_QUOTE_OPTIONS
     ):
-        if quote not in VAILD_GTF_QUOTE_OPTONS:
-            raise ValueError(f"Invalid quoting option {quote}, should be one in {VAILD_GTF_QUOTE_OPTONS}.")
+        if quote not in VALID_GTF_QUOTE_OPTIONS:
+            raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
         attribute_full_str = ""
         for k, v in self.attribute.items():
             attr_str = repr(v).replace("'", '')

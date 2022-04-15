@@ -1,5 +1,4 @@
 import json
-import sys
 from typing import List
 
 import requests
@@ -24,8 +23,6 @@ def dl_accession(acc: str):
             download_file(accession_url, md5=accession_md5)
 
 
-
-def main(args:List[str]):
+def main(args: List[str]):
     for name in args:
         dl_accession(name)
-
