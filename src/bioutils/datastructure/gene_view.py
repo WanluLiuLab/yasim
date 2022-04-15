@@ -6,7 +6,8 @@ import time
 from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type
 
-from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon, BaseFeatureProxy
+from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
+    DEFAULT_SORT_EXON_EXON_STRAND_POLICY
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
 from bioutils.typing.feature import GtfRecord, Feature, Gff3Record
@@ -83,7 +84,11 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def standardize(self):
+    def standardize(
+            self,
+            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            *args, **kwargs
+    ):
         """
         This function standardizes GeneView into a Gene-Transcript-Exon Three-Tier Structure,
         with other functions introduced below:
@@ -194,18 +199,22 @@ class BaseGeneView(GeneViewType, ABC):
         lh.info("Pickling to gvpkl...")
         pickle_helper.dump((GVPKL_VERSION, self.genes, self.transcripts), index_filename)
 
-    def standardize(self):
-        self._standardize_transcripts()
+    def standardize(
+            self,
+            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            *args, **kwargs
+    ):
+        self._standardize_transcripts(sort_exon_exon_number_policy)
         self._standardize_genes()
 
-    def _standardize_transcripts(self):
+    def _standardize_transcripts(self, sort_exon_exon_number_policy:str):
         transcript_id_to_del = []
         """Transcript to be deleted for reason like no exons."""
         for transcript in tqdm(iterable=self.transcripts.values(), desc="Standardizing transcripts"):
             if len(transcript.exons) == 0:
                 transcript_id_to_del.append(transcript.transcript_id)
                 continue
-            transcript.sort_exons()
+            transcript.sort_exons(exon_number_policy=sort_exon_exon_number_policy)
 
             if transcript.feature != "transcript":
                 transcript.copy_data()
