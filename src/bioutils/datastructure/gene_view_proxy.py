@@ -24,8 +24,10 @@ def unknown_gene_id() -> str:
     """Generate a new unknown gene ID"""
     return 'unknown_gene_id' + str(uuid.uuid4())
 
+
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
+
 
 @hookable_decorator
 class BaseFeatureProxy(FeatureType):
@@ -314,7 +316,7 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    def sort_exons(self, exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY):
+    def sort_exons(self, exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY):
         if len(self.exons) == 0:
             return
         self.exons = sorted(self.exons)

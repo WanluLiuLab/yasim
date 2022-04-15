@@ -86,7 +86,7 @@ class GeneViewType:
     @abstractmethod
     def standardize(
             self,
-            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
             *args, **kwargs
     ):
         """
@@ -201,13 +201,13 @@ class BaseGeneView(GeneViewType, ABC):
 
     def standardize(
             self,
-            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
             *args, **kwargs
     ):
         self._standardize_transcripts(sort_exon_exon_number_policy)
         self._standardize_genes()
 
-    def _standardize_transcripts(self, sort_exon_exon_number_policy:str):
+    def _standardize_transcripts(self, sort_exon_exon_number_policy: str):
         transcript_id_to_del = []
         """Transcript to be deleted for reason like no exons."""
         for transcript in tqdm(iterable=self.transcripts.values(), desc="Standardizing transcripts"):
