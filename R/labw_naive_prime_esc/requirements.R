@@ -1,0 +1,8 @@
+library(gridExtra)
+library(grid)
+library(tidyverse)
+library(argparser)
+library(svglite)
+library(DESeq2)
+library(BiocParallel)
+library(pheatmap)

@@ -312,17 +312,21 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    def sort_exons(self):
+    def sort_exons(self, exon_number_policy:str="unstranded"):
         if len(self.exons) == 0:
             return
         self.exons = sorted(self.exons)
-        if self.strand == '-':
-            for i in range(len(self.exons)):
-                self.exons[i].exon_number = i + 1
+        if exon_number_policy == "stranded":
+            if self.strand == '+':
+                for i in range(len(self.exons)):
+                    self.exons[i].exon_number = i + 1
+            elif self.strand == '-':
+                for i in range(len(self.exons)):
+                    self.exons[len(self.exons) - i - 1].exon_number = i + 1
         else:
             for i in range(len(self.exons)):
-                self.exons[len(self.exons) - i - 1].exon_number = i + 1
-
+                self.exons[i].exon_number = i + 1
+        
     @property
     def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
         for exon in self.exons:

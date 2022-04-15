@@ -116,7 +116,11 @@ if (!is.na(argv$unmapped_stats)) {
     n <- 1
     for (unmapped_stats in argv$unmapped_stats) {
         unmapped_stats_data <- get_unmapped_stats_data(unmapped_stats, n)
-        all_table <- dplyr::full_join(all_table, unmapped_stats_data, by = c("TRANSCRIPT_ID" = "TRANSCRIPT_ID"))
+        all_table <- dplyr::full_join(
+            all_table,
+            unmapped_stats_data,
+            by = "TRANSCRIPT_ID"
+        )
         all_table <- replace(all_table, is.na(all_table), 0)
         sum_actual_n_of_reads <- c(
             sum_actual_n_of_reads,

@@ -30,7 +30,7 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     """
     session_test_info = initialize_session
     module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
-    with get_writer(os.path.join(module_test_info.path, "1.gtf.gz")) as fh:
+    with get_writer(os.path.join(module_test_info.path, "1.gtf")) as fh:
         fh.write(gene_gtf)
     yield module_test_info
     module_test_info.teardown()
@@ -38,7 +38,7 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
 
 def test_gene(initialize_module) -> None:
     test_path = initialize_module.path
-    gv = GeneViewFactory.from_file(os.path.join(test_path, "1.gtf.gz"))
+    gv = GeneViewFactory.from_file(os.path.join(test_path, "1.gtf"))
     assert list(gv.genes.keys()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
     assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
                                            "NM_001322685.1"]
