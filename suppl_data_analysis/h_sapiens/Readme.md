@@ -2,13 +2,13 @@
 
 ## Introduction
 
-Here lists datasets used for analysis of GEP, etc. The datasets are atagorized by its sequencers (aka., instruments) and organized into following form:
+Here lists datasets used for analysis of GEP, etc. The datasets are categorized by its sequencers (aka., instruments) and organized into following form:
 
 - [ENA ACCESSION](about:blank)
   - Description about this project.
   - Date last updated of metadata by YASIM.
   - SINGLE or PAIRED or others.
-  - Dataset being choised (sample name used):
+  - Dataset being chosen (sample name used):
     - ENA ACCESSION (sample name), SIZE
   - Reference.
 
