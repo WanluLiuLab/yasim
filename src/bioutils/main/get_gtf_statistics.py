@@ -59,19 +59,19 @@ def main(args: List[str]):
             "TRANSCRIBED_LENGTH"
         )) + "\n")
 
-        for gene in tqdm(desc="Iterating over genes...", iterable=gv.genes.values()):
+        for gene in tqdm(desc="Iterating over genes...", iterable=gv.iter_genes()):
 
             gene_writer.write("\t".join((
                 str(gene.gene_id),
-                str(len(gene.transcripts))
+                str(gene.number_of_transcripts)
             )) + "\n")
 
-            transcripts = list(gene.transcripts.values())
+            transcripts = list(gene.iter_transcripts())
             for t_i in range(len(transcripts)):
                 transcript = transcripts[t_i]
 
                 transcript_transcribed_length = 0
-                exons = list(transcript.exons)
+                exons = list(transcript.iter_exons())
                 for e_i in range(len(exons)):
                     exon = exons[e_i]
                     exon_length = exon.end - exon.start
@@ -86,10 +86,10 @@ def main(args: List[str]):
                     transcript.gene_id,
                     str(transcript.end - transcript.start),
                     str(transcript_transcribed_length),
-                    str(len(transcript.exons))
+                    str(transcript.number_of_exons)
                 )) + "\n")
 
-    transcripts = list(gv.transcripts.values())
+    transcripts = list(gv.iter_transcripts())
     with GtfWriter(f"{out_basename}.overlapping_transcript.gtf") as writer:
         for t_i in tqdm(desc="Iterating over transcripts...", iterable=range(len(transcripts))):
             transcript = transcripts[t_i]

@@ -30,10 +30,21 @@ VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
 
 
-class GVPError(ValueError): pass
-class ExonInATranscriptOnDifferentChromosomeError(GVPError): pass
-class DuplicatedExonError(GVPError): pass
-class ExonInATranscriptOnDifferentStrandError(GVPError): pass
+class GVPError(ValueError):
+    pass
+
+
+class ExonInATranscriptOnDifferentChromosomeError(GVPError):
+    pass
+
+
+class DuplicatedExonError(GVPError):
+    pass
+
+
+class ExonInATranscriptOnDifferentStrandError(GVPError):
+    pass
+
 
 @hookable_decorator
 class BaseFeatureProxy(FeatureType):
@@ -241,11 +252,8 @@ class Exon(BaseFeatureProxy):
 
 
 class Transcript(BaseFeatureProxy):
-    exons: List[Exon]
+    _exons: List[Exon]
     _cdna_sequence: Optional[str]
-
-    
-
 
     @property
     def transcript_id(self) -> str:
@@ -265,7 +273,18 @@ class Transcript(BaseFeatureProxy):
 
     def _setup(self):
         self._cdna_sequence = None
-        self.exons = []
+        self._exons = []
+
+    def iter_exons(self) -> Iterable[Exon]:
+        """Get Exon Iterator"""
+        return iter(self._exons)
+
+    def get_nth_exon(self, exon_id: int) -> Exon:
+        return self._exons[exon_id]
+
+    @property
+    def number_of_exons(self) -> int:
+        return len(self._exons)
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
@@ -290,7 +309,7 @@ class Transcript(BaseFeatureProxy):
         """
         exon_s_min = math.inf
         exon_e_max = - math.inf
-        for exon in self.exons:
+        for exon in self._exons:
             exon_s_min = min(exon_s_min, exon.start)
             exon_e_max = max(exon_e_max, exon.end)
         return exon_e_max - exon_s_min + 1
@@ -301,7 +320,7 @@ class Transcript(BaseFeatureProxy):
         Length after transcribed to cDNA
         """
         reti = 0
-        for exon in self.exons:
+        for exon in self._exons:
             reti += exon.end - exon.start + 1
         return reti
 
@@ -310,17 +329,17 @@ class Transcript(BaseFeatureProxy):
             return self._cdna_sequence
         self._cdna_sequence = ""
         if self.strand == '-':
-            for exon in sorted(self.exons)[::-1]:
+            for exon in sorted(self._exons)[::-1]:
                 # print(self.seqname, exon.start - 1, exon.end, exon.exon_number)
                 self._cdna_sequence += reverse_complement(sequence_func(self.seqname, exon.start - 1, exon.end))
             # print()
         else:
-            for exon in self.exons:
+            for exon in self._exons:
                 self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
         return self._cdna_sequence
 
     def __eq__(self, other: Transcript):
-        for exon_s, exon_o in zip(self.exons, other.exons):
+        for exon_s, exon_o in zip(self._exons, other._exons):
             if not exon_s == exon_o:
                 return False
         return True
@@ -330,59 +349,59 @@ class Transcript(BaseFeatureProxy):
             exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
             remove_exon_duplicates: bool = True
     ):
-        if len(self.exons) == 0:
+        if len(self._exons) == 0:
             return
-        self.exons = sorted(self.exons)
-        if remove_exon_duplicates and len(self.exons) >= 2:
+        self._exons = sorted(self._exons)
+        if remove_exon_duplicates and len(self._exons) >= 2:
             exon_id = 1
-            while exon_id < len(self.exons):
-                if self.exons[exon_id] == self.exons[exon_id -1]:
-                    self.exons.pop(exon_id)
+            while exon_id < len(self._exons):
+                if self._exons[exon_id] == self._exons[exon_id - 1]:
+                    self._exons.pop(exon_id)
                 else:
                     exon_id += 1
         if exon_number_policy == "stranded":
             if self.strand == '+':
-                for i in range(len(self.exons)):
-                    self.exons[i].exon_number = i + 1
+                for i in range(len(self._exons)):
+                    self._exons[i].exon_number = i + 1
             elif self.strand == '-':
-                for i in range(len(self.exons)):
-                    self.exons[len(self.exons) - i - 1].exon_number = i + 1
+                for i in range(len(self._exons)):
+                    self._exons[len(self._exons) - i - 1].exon_number = i + 1
         elif exon_number_policy == "unstranded":
-            for i in range(len(self.exons)):
-                self.exons[i].exon_number = i + 1
+            for i in range(len(self._exons)):
+                self._exons[i].exon_number = i + 1
 
     def fast_add_exon(
             self,
             exon: Exon
     ):
-        self.add_exon(exon, False,False, False)
+        self.add_exon(exon, False, False, False)
 
     def add_exon(
             self,
-            exon:Exon,
-            check_duplicate:bool=True,
-            check_same_chrome:bool=True,
-            check_same_strand:bool=True
+            exon: Exon,
+            check_duplicate: bool = True,
+            check_same_chrome: bool = True,
+            check_same_strand: bool = True
     ):
-        new_pos = bisect.bisect_left(self.exons, exon)
-        if check_duplicate and new_pos < len(self.exons) and self.exons[new_pos] == self.exons[new_pos + 1]:
+        new_pos = bisect.bisect_left(self._exons, exon)
+        if check_duplicate and new_pos < len(self._exons) and self._exons[new_pos] == self._exons[new_pos + 1]:
             raise DuplicatedExonError
         if check_same_chrome and exon.seqname != self.seqname:
             raise ExonInATranscriptOnDifferentChromosomeError
         if check_same_strand and exon.strand != self.strand and exon.strand != "." and self.strand != ".":
             raise ExonInATranscriptOnDifferentStrandError
-        self.exons.insert(new_pos, exon)
+        self._exons.insert(new_pos, exon)
 
     @property
     def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
-        for exon in self.exons:
+        for exon in self._exons:
             yield exon.start, exon.end
 
     @property
     def splice_sites(self) -> Iterable[Tuple[int, int]]:
-        le = len(self.exons)
+        le = len(self._exons)
         for i in range(le - 1):
-            yield self.exons[i].end, self.exons[i + 1].start
+            yield self._exons[i].end, self._exons[i + 1].start
 
     def __ne__(self, other):
         return not self == other
@@ -392,7 +411,7 @@ class Transcript(BaseFeatureProxy):
 
 
 class Gene(BaseFeatureProxy):
-    transcripts: Dict[str, Transcript]
+    _transcripts: Dict[str, Transcript]
 
     # TODO: Unit test needed
 
@@ -404,8 +423,27 @@ class Gene(BaseFeatureProxy):
     def gene_id(self, value: str):
         self._data.attribute["gene_id"] = value
 
+    @property
+    def number_of_transcripts(self) -> int:
+        return len(self._transcripts)
+
+    def get_transcript(self, transcript_id:str) -> Transcript:
+        return self._transcripts[transcript_id]
+
+    def iter_transcripts(self) -> Iterable[Transcript]:
+        return iter(self._transcripts.values())
+
+    def iter_transcript_ids(self) -> Iterable[str]:
+        return iter(self._transcripts.keys())
+
+    def del_transcript(self, transcript_id:str):
+        self._transcripts.pop(transcript_id)
+
+    def add_transcript(self, transcript:Transcript):
+        self._transcripts[transcript.transcript_id] = transcript # TODO
+
     def _setup(self):
-        self.transcripts = {}
+        self._transcripts = {}
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
