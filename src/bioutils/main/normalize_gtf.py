@@ -35,9 +35,13 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         default=DEFAULT_GTF_QUOTE_OPTIONS
     )
     parser.add_argument(
-        "--sort_exon_exon_number_policy", required=False,
-        help="How you would rank exon_number? On Reference: unstranded. Sorted by bedtools: stranded",
-        nargs='?', type=str, action='store', choices=VALID_SORT_EXON_EXON_STRAND_POLICY,
+        "--sort_exon_exon_number_policy",
+        required=False,
+        help="How you would rank exon_number? On Reference: unstranded. Sorted by bedtools: stranded. Need --three_tier",
+        nargs='?',
+        type=str,
+        action='store',
+        choices=VALID_SORT_EXON_EXON_STRAND_POLICY,
         default=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     )
     parser.add_argument("--out", required=True, help="Output GTF", nargs='?', type=str, action='store')
