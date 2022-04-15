@@ -15,7 +15,7 @@ from commonutils.io.safe_io import get_writer
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gtf", required=True)
-    parser.add_argument("-o", "--out", required=True)
+    parser.add_argument("-o", "--out", help="Output prefix", required=True)
     return parser.parse_args(args)
 
 

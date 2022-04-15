@@ -284,7 +284,10 @@ class BaseGeneView(GeneViewType, ABC):
         if gene.feature != "gene":
             lh.warn(f"Gene {gene_id} is inferred from feature {gene.feature}")
 
-    def add_transcript(self, transcript: Transcript):
+    def add_transcript(
+            self,
+            transcript: Transcript
+    ):
         gene_id = transcript.gene_id
         transcript_id = transcript.transcript_id
         if gene_id not in self.genes.keys():

@@ -4,6 +4,7 @@ gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Dat
 
 from __future__ import annotations
 
+import bisect
 import copy
 import math
 import uuid
@@ -28,6 +29,11 @@ def unknown_gene_id() -> str:
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
 
+
+class GVPError(ValueError): pass
+class ExonInATranscriptOnDifferentChromosomeError(GVPError): pass
+class DuplicatedExonError(GVPError): pass
+class ExonInATranscriptOnDifferentStrandError(GVPError): pass
 
 @hookable_decorator
 class BaseFeatureProxy(FeatureType):
@@ -238,6 +244,9 @@ class Transcript(BaseFeatureProxy):
     exons: List[Exon]
     _cdna_sequence: Optional[str]
 
+    
+
+
     @property
     def transcript_id(self) -> str:
         return self._data.attribute["transcript_id"]
@@ -341,6 +350,28 @@ class Transcript(BaseFeatureProxy):
         elif exon_number_policy == "unstranded":
             for i in range(len(self.exons)):
                 self.exons[i].exon_number = i + 1
+
+    def fast_add_exon(
+            self,
+            exon: Exon
+    ):
+        self.add_exon(exon, False,False, False)
+
+    def add_exon(
+            self,
+            exon:Exon,
+            check_duplicate:bool=True,
+            check_same_chrome:bool=True,
+            check_same_strand:bool=True
+    ):
+        new_pos = bisect.bisect_left(self.exons, exon)
+        if check_duplicate and new_pos < len(self.exons) and self.exons[new_pos] == self.exons[new_pos + 1]:
+            raise DuplicatedExonError
+        if check_same_chrome and exon.seqname != self.seqname:
+            raise ExonInATranscriptOnDifferentChromosomeError
+        if check_same_strand and exon.strand != self.strand and exon.strand != "." and self.strand != ".":
+            raise ExonInATranscriptOnDifferentStrandError
+        self.exons.insert(new_pos, exon)
 
     @property
     def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
