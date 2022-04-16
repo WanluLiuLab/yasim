@@ -39,11 +39,11 @@ def perform_exon_skipping(transcript: Transcript) -> Transcript:
     # set the percent of knocked out exons
     percent = 0.01 * (random.randint(1, 30))
     # get the number of exons n to be knocked out by multiplying total exon number of transcript
-    trans_len = len(new_transcript.exons)
+    trans_len = new_transcript.number_of_exons
     exonKO = math.ceil(trans_len * percent)
     # randomly delete n exons from the transcript
     exon_keep = trans_len - exonKO
-    new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
+    new_transcript._exons = random.sample(new_transcript._exons, exon_keep)
     # refresh the exon list
     new_transcript.sort_exons()
     return new_transcript
@@ -52,13 +52,13 @@ def perform_exon_skipping(transcript: Transcript) -> Transcript:
 def perform_intron_retention(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # randomly pick an exon for retention
-    exon_num = random.randint(0, (len(new_transcript.exons) - 2))
+    exon_num = random.randint(0, (new_transcript.number_of_exons - 2))
     # get the end coordinate of the neighbour exon
-    end_pos = new_transcript.exons[exon_num + 1].end
+    end_pos = new_transcript._exons[exon_num + 1].end
     # merge the coordinates of the two exons as the coordinate of the first exon
-    new_transcript.exons[exon_num].end = end_pos
+    new_transcript._exons[exon_num].end = end_pos
     # delete the neighbour exon
-    del new_transcript.exons[exon_num + 1]
+    del new_transcript._exons[exon_num + 1]
     # refresh the exon list
     new_transcript.sort_exons()
     return new_transcript
@@ -67,26 +67,26 @@ def perform_intron_retention(transcript: Transcript) -> Transcript:
 def perform_alternative_3p_splicing(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # randomly pick an exon for splicing
-    exon_num = random.randint(0, (len(new_transcript.exons) - 1))
+    exon_num = random.randint(0, (new_transcript.number_of_exons - 1))
     # randomly generate the percent to shorten
-    exon_len = new_transcript.exons[exon_num].end - new_transcript.exons[exon_num].start
+    exon_len = new_transcript._exons[exon_num].end - new_transcript._exons[exon_num].start
     splice_perc = 0.01 * (random.randint(1, 30))
     splice_len = math.ceil(exon_len * splice_perc)
     # change the end coordinate of the exon
-    new_transcript.exons[exon_num].end -= splice_len
+    new_transcript._exons[exon_num].end -= splice_len
     return new_transcript
 
 
 def perform_alternative_5p_splicing(transcript: Transcript) -> Transcript:
     new_transcript = generate_new_transcript(transcript)
     # randomly pick an exon for splicing
-    exon_num = random.randint(0, (len(new_transcript.exons) - 1))
+    exon_num = random.randint(0, (new_transcript.number_of_exons - 1))
     # randomly generate the percent to shorten
-    exon_len = new_transcript.exons[exon_num].end - new_transcript.exons[exon_num].start
+    exon_len = new_transcript._exons[exon_num].end - new_transcript._exons[exon_num].start
     splice_perc = 0.01 * (random.randint(1, 30))
     splice_len = math.ceil(exon_len * splice_perc)
     # change the start coordinate of the exon
-    new_transcript.exons[exon_num].start -= splice_len
+    new_transcript._exons[exon_num].start -= splice_len
     return new_transcript
 
 
@@ -124,25 +124,25 @@ class ASManipulator:
 
     def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int):
         transcript_ids_to_del = []
-        for transcript in gene.transcripts.values():
+        for transcript in gene.iter_transcripts():
             if transcript.transcribed_length < 250:
                 transcript_ids_to_del.append(transcript.transcript_id)
         for transcript_id in transcript_ids_to_del:
             self._gv.del_transcript(transcript_id, auto_remove_empty_gene=False)
-        if len(gene.transcripts) == 0:
+        if gene.number_of_transcripts == 0:
             raise ValueError("Generation FAILED!")
-        elif len(gene.transcripts) == n:
+        elif gene.number_of_transcripts == n:
             return
-        elif len(gene.transcripts) > n:
-            gek = list(gene.transcripts.keys())
-            while len(gene.transcripts) > n:
-                gene.transcripts.pop(gek.pop())
+        elif gene.number_of_transcripts > n:
+            gek = list(gene.iter_transcript_ids())
+            while gene.number_of_transcripts > n:
+                gene.del_transcript(gek.pop())
             return
-        elif len(gene.transcripts) < n:
+        elif gene.number_of_transcripts < n:
             all_splice_sites: List[List[Tuple[int, int]]] = []
-            while len(gene.transcripts) < n:
+            while gene.number_of_transcripts < n:
                 number_of_fail = 0
-                new_transcript = self.perform_alternative_splicing()(random.choice(list(gene.transcripts.values())))
+                new_transcript = self.perform_alternative_splicing()(random.choice(list(gene.iter_transcripts())))
                 this_splice_site = list(new_transcript.splice_sites)
                 if new_transcript.transcribed_length >= 250 and not assert_splice_site_existence(this_splice_site,
                                                                                                  all_splice_sites):
@@ -151,12 +151,12 @@ class ASManipulator:
                     number_of_fail += 1
                 if number_of_fail > 2 * n:
                     raise ValueError("Generation FAILED!")
-                elif len(gene.transcripts) == n:
+                elif gene.number_of_transcripts == n:
                     return
 
     def run(self, mu: Union[int, float]):
         gene_ids_to_del: List[str] = []
-        for gene in tqdm(iterable=self._gv.genes.values(), desc="Generating isoforms..."):
+        for gene in tqdm(iterable=self._gv.iter_genes(), desc="Generating isoforms..."):
             n = 0
             while n <= 0 or n >= mu * 2:
                 n = int(random.gauss(mu, mu / 2))

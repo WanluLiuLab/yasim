@@ -6,6 +6,7 @@ import conftest
 from bioutils.datastructure.gene_view import GeneViewFactory
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
+from commonutils.stdlib_helper import logger_helper
 
 gene_gtf = """
 chrI	ncbiRefSeq	exon	4221	4358	.	-	.	gene_id "homt-1"; transcript_id "NM_058260.4"; exon_number "1"; exon_id "NM_058260.4.1"; gene_name "homt-1";
@@ -29,6 +30,7 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     """
     This function sets up a directory for testing
     """
+    logger_helper.set_level(logger_helper.DEBUG)
     session_test_info = initialize_session
     module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
     with get_writer(os.path.join(module_test_info.path, "1.gtf")) as fh:
@@ -40,12 +42,12 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
 def test_gene(initialize_module) -> None:
     test_path = initialize_module.path
     gv = GeneViewFactory.from_file(os.path.join(test_path, "1.gtf"))
-    assert list(gv.genes.keys()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
-    assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
+    assert list(gv.iter_gene_ids()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
+    assert list(gv.iter_transcript_ids()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
                                            "NM_001322685.1"]
-    assert gv.transcripts['NM_058260.4'].exons[0].start == 4221
+    assert gv.get_transcript('NM_058260.4').get_nth_exon(0).start == 4221
     gv.standardize()
-    assert list(gv.transcripts.keys()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3']
+    assert list(gv.iter_transcript_ids()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3']
     gv.to_file(os.path.join(test_path, "3.gtf"))
     os.system(f"gedit {test_path}/*.gtf")
     shell_utils.rm_rf(test_path)

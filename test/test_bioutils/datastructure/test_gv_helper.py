@@ -130,7 +130,7 @@ def test_gene_gtf_with_duplicated_transcripts_in_one_gene(initialize_module):
     )
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=True, assume_no_cross_gene_duplication=True)
-    assert len(gv.transcripts) == 2
+    assert gv.number_of_transcripts == 2
 
 
 def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initialize_module):
@@ -140,7 +140,7 @@ def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initia
     )
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=False, assume_no_cross_gene_duplication=True)
-    assert len(gv.transcripts) == 3
+    assert gv.number_of_transcripts == 3
 
 
 def test_exon_superset(initialize_module) -> None:
@@ -151,6 +151,6 @@ def test_exon_superset(initialize_module) -> None:
     gvh.enable_exon_superset()
     gv = GeneViewFactory.from_file(file_name)
     gv.standardize()
-    STRG_3 = gv.genes["STRG.3"]
+    STRG_3 = gv.get_gene("STRG.3")
     STRG_3.generate_exon_superset()
     assert len(STRG_3.get_exon_superset()) == 11

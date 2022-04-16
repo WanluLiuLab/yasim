@@ -27,16 +27,14 @@ def sample_exon(
         fasta_handler: FastaViewType
 ) -> GeneViewType:
     transcript_name_to_del = []
-    for k, v in tqdm(iterable=gv.transcripts.items(), desc="Sampling Exons..."):
-        indices = random.sample(range(len(v.exons)), int(len(v.exons) * 0.75))
-        v.exons = [v.exons[i] for i in sorted(indices)]
-        if len(v.cdna_sequence(sequence_func=fasta_handler.sequence)) >= 250:
-            pass
-        else:
-            transcript_name_to_del.append(k)
+    for v in tqdm(iterable=gv.iter_transcripts(), desc="Sampling Exons..."):
+        indices = random.sample(range(v.number_of_exons), int(len(v.number_of_exons) * 0.75))
+        v._exons = [v._exons[i] for i in sorted(indices)]
+        if len(v.cdna_sequence(sequence_func=fasta_handler.sequence)) < 250:
+            transcript_name_to_del.append(v.transcript_id)
     for transcript_name in tqdm(iterable=transcript_name_to_del, desc="Deleting unwanted transcripts"):
         gv.del_transcript(transcript_name)
-    logger.info(f"Remaining {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
+    logger.info(f"Remaining {gv.number_of_genes} genes with {gv.number_of_transcripts} transcript")
     gv.standardize()
     gv.to_file(output_gtf_filename)
     return gv
@@ -45,6 +43,6 @@ def sample_exon(
 def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
-    logger.info(f"Loaded {len(gv.genes)} genes with {len(gv.transcripts)} transcript")
+    logger.info(f"Loaded {gv.number_of_genes} genes with {gv.number_of_transcripts} transcript")
     fv = FastaViewFactory(args.fasta)
     sample_exon(gv=gv, output_gtf_filename=args.out, fasta_handler=fv)

@@ -22,7 +22,7 @@ def simulate_dge_uniform(
     """
     Simulate DGE using a uniform distribution.
     """
-    transcript_ids = list(gv.transcripts.keys())
+    transcript_ids = list(gv.iter_transcript_ids())
     depth = {}
 
     generated_data = list(map(int, uniform.rvs(scale=mu * 2, size=len(transcript_ids)) + 1))
@@ -40,7 +40,7 @@ def simulate_dge_nb(
     """
     Simulate DGE using a negative binomial distribution.
     """
-    transcript_ids = gv.transcripts.keys()
+    transcript_ids = gv.iter_transcript_ids()
     depth = {}
 
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
