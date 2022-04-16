@@ -77,7 +77,7 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def get_transcript(self, transcript_id:str) -> Transcript:
+    def get_transcript(self, transcript_id: str) -> Transcript:
         pass
 
     @property
@@ -94,15 +94,13 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def get_gene(self, gene_id:str) -> Gene:
+    def get_gene(self, gene_id: str) -> Gene:
         pass
 
     @property
     @abstractmethod
     def number_of_genes(self) -> int:
         pass
-
-
 
     @abstractmethod
     def to_gvpkl(self, index_filename: str):
@@ -195,7 +193,7 @@ class BaseGeneView(GeneViewType, ABC):
     """
 
     def __init__(self):
-        self.genes = {}
+        self._genes = {}
         self._transcripts = {}
 
     @classmethod
@@ -220,14 +218,14 @@ class BaseGeneView(GeneViewType, ABC):
         new_instance = cls()
         if GVPKL_VERSION.endswith("unstable"):
             raise ValueError("Version mismatch")
-        (version, new_instance.genes, new_instance._transcripts) = pickle_helper.load(index_filename)
+        (version, new_instance._genes, new_instance._transcripts) = pickle_helper.load(index_filename)
         if version != GVPKL_VERSION:
             raise ValueError("Version mismatch")
         return new_instance
 
     def to_gvpkl(self, index_filename: str):
         lh.info("Pickling to gvpkl...")
-        pickle_helper.dump((GVPKL_VERSION, self.genes, self._transcripts), index_filename)
+        pickle_helper.dump((GVPKL_VERSION, self._genes, self._transcripts), index_filename)
 
     def iter_transcripts(self):
         return iter(self._transcripts.values())
@@ -235,7 +233,7 @@ class BaseGeneView(GeneViewType, ABC):
     def iter_transcript_ids(self):
         return iter(self._transcripts.keys())
 
-    def get_transcript(self, transcript_id:str) -> Transcript:
+    def get_transcript(self, transcript_id: str) -> Transcript:
         return self._transcripts[transcript_id]
 
     @property
@@ -248,32 +246,44 @@ class BaseGeneView(GeneViewType, ABC):
     def iter_gene_ids(self):
         return iter(self._genes.keys())
 
-    def get_gene(self, gene_id:str) -> Gene:
+    def get_gene(self, gene_id: str) -> Gene:
         return self._genes[gene_id]
 
     @property
     def number_of_genes(self) -> int:
         return len(self._genes)
 
-
     def standardize(
             self,
             sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+            remove_transcript_without_exons: bool= True,
+            rescale_inferred_transcript_from_exon_boundaries: bool = True,
             *args, **kwargs
     ):
-        self._standardize_transcripts(sort_exon_exon_number_policy)
+        self._standardize_transcripts(
+            sort_exon_exon_number_policy,
+            remove_transcript_without_exons,
+            rescale_inferred_transcript_from_exon_boundaries
+        )
         self._standardize_genes()
 
-    def _standardize_transcripts(self, sort_exon_exon_number_policy: str):
+    def _standardize_transcripts(
+            self,
+            sort_exon_exon_number_policy: str,
+            remove_transcript_without_exons:bool,
+            rescale_inferred_transcript_from_exon_boundaries:bool
+    ):
         transcript_id_to_del = []
         """Transcript to be deleted for reason like no exons."""
         for transcript in tqdm(iterable=self.iter_transcripts(), desc="Standardizing transcripts"):
-            if transcript.number_of_exons == 0:
+            if remove_transcript_without_exons and transcript.number_of_exons == 0:
                 transcript_id_to_del.append(transcript.transcript_id)
                 continue
             transcript.sort_exons(exon_number_policy=sort_exon_exon_number_policy)
 
-            if transcript.feature != "transcript":
+            if rescale_inferred_transcript_from_exon_boundaries and \
+                    transcript.feature != "transcript" and \
+                    transcript.number_of_exons > 0:
                 transcript.copy_data()
                 exon_s_min = math.inf
                 exon_e_max = - math.inf
@@ -289,7 +299,7 @@ class BaseGeneView(GeneViewType, ABC):
     def _standardize_genes(self):
         gene_id_to_del = []
         """Genes to be deleted for reason like no transcripts"""
-        for gene in tqdm(iterable=self.genes.values(), desc="Standardizing genes"):
+        for gene in tqdm(iterable=self.iter_genes(), desc="Standardizing genes"):
             if gene.number_of_transcripts == 0:
                 gene_id_to_del.append(gene.gene_id)
                 continue
@@ -307,7 +317,7 @@ class BaseGeneView(GeneViewType, ABC):
             self.del_gene(gene_id)
 
     def get_iterator(self) -> Iterator[Feature]:
-        for gene in self.genes.values():
+        for gene in self.iter_genes():
             if gene.feature == "gene":
                 yield gene.get_data()
             for transcript in gene.iter_transcripts():
@@ -317,8 +327,8 @@ class BaseGeneView(GeneViewType, ABC):
                     yield exon.get_data()
 
     def del_gene(self, gene_id: str):
-        if gene_id in self.genes.keys():
-            for transcript_id in list(self.genes[gene_id].iter_transcript_ids()):
+        if gene_id in self.iter_gene_ids():
+            for transcript_id in list(self.get_gene(gene_id).iter_transcript_ids()):
                 self.del_transcript(transcript_id)
         else:
             raise ValueError(f"Gene ID {gene_id} not found!")
@@ -326,27 +336,32 @@ class BaseGeneView(GeneViewType, ABC):
     def _del_transcript(self, transcript_id: str):
         self._transcripts.pop(transcript_id)
 
+    def _del_gene(self, gene_id: str):
+        self._genes.pop(gene_id)
+
     def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
         if transcript_id in self.iter_transcript_ids():
             gene_id = self.get_transcript(transcript_id).gene_id
-            self.genes[gene_id].del_transcript(transcript_id)
-            if self.genes[gene_id].number_of_transcripts == 0 and auto_remove_empty_gene:
+            self.get_gene(gene_id).del_transcript(transcript_id)
+            if self.get_gene(gene_id).number_of_transcripts == 0 and auto_remove_empty_gene:
                 lh.debug(f"Automatically remove empty gene {gene_id}")
-                self.genes.pop(gene_id)
+                self._del_gene(gene_id)
             self._del_transcript(transcript_id)
         else:
             raise ValueError(f"Transcript ID {transcript_id} not found!")
 
     def add_gene(self, gene: Gene):
         gene_id = gene.gene_id
-        if gene_id not in self.genes.keys() or self.genes[gene_id].feature != "gene":
-            self.genes[gene_id] = gene
+        if gene_id not in self.iter_gene_ids() or self.get_gene(gene_id).feature != "gene":
+            self._add_gene(gene)
         if gene.feature != "gene":
             lh.warn(f"Gene {gene_id} is inferred from feature {gene.feature}")
 
+    def _add_gene(self, gene: Gene):
+        self._genes[gene.gene_id] = gene
+
     def _add_transcript(self, transcript: Transcript):
         self._transcripts[transcript.transcript_id] = transcript
-
 
     def add_transcript(
             self,
@@ -354,11 +369,12 @@ class BaseGeneView(GeneViewType, ABC):
     ):
         gene_id = transcript.gene_id
         transcript_id = transcript.transcript_id
-        if gene_id not in self.genes.keys():
+        if gene_id not in self.iter_gene_ids():
             self.add_gene(BaseFeatureProxy.duplicate_cast(transcript, Gene))
-        gene = self.genes[gene_id]
-        if transcript_id not in gene.iter_transcript_ids() or gene.get_transcript(transcript_id).feature != "transcript":
-            gene.add_transcript(transcript)
+        gene = self.get_gene(gene_id)
+        if transcript_id not in gene.iter_transcript_ids() or gene.get_transcript(
+                transcript_id).feature != "transcript":
+            gene.fast_add_transcript(transcript)
         if transcript_id not in self.iter_transcript_ids() or \
                 self.get_transcript(transcript_id).feature != "transcript":
             self._add_transcript(transcript)
@@ -370,6 +386,11 @@ class BaseGeneView(GeneViewType, ABC):
         if transcript_id not in self.iter_transcript_ids():
             self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript))
         self.get_transcript(transcript_id).fast_add_exon(exon)
+
+
+
+
+
 
     def __len__(self) -> int:
         return len(list(self.get_iterator()))
