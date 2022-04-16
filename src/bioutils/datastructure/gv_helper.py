@@ -67,7 +67,7 @@ def gv_dedup(
             ))
     else:
         transcript_ids_to_del = list(get_duplicated_transcript_ids(
-            transcripts=gene.iter_transcripts(),
+            transcripts=gv.iter_transcripts(),
             by_splice_site=by_splice_site
         ))
     lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
@@ -76,15 +76,6 @@ def gv_dedup(
     lh.info("Removing transcript duplicate(s) in gv FIN")
 
 
-def generate_new_transcript_id(gene_id: str) -> str:
-    return gene_id + str(uuid.uuid4())
-
-
-def generate_new_transcript(transcript: Transcript) -> Transcript:
-    new_transcript = copy.deepcopy(transcript)
-    new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
-    new_transcript.transcript_id = generate_new_transcript_id(transcript.gene_id)
-    return new_transcript
 
 
 def enable_exon_superset():

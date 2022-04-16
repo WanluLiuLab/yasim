@@ -4,19 +4,16 @@ gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Dat
 
 from __future__ import annotations
 
-import bisect
 import copy
 import math
 import uuid
 from abc import abstractmethod
-from typing import List, Dict, Callable, Optional, Iterable, Tuple, Type, Any
+from typing import List, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
+from bioutils.datastructure._gv_errors import _all as _gve_all, DuplicatedTranscriptError
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 from commonutils.dynamic.hook_helper import hookable_decorator
-
-from bioutils.datastructure._gv_errors import __all__ as _gve_all
-from bioutils.datastructure._gv_errors import *
 
 __all__ = [
     'VALID_SORT_EXON_EXON_STRAND_POLICY',
@@ -148,7 +145,6 @@ class BaseFeatureProxy(FeatureType):
         """
         pass
 
-
     @classmethod
     def from_feature(cls, feature: Feature):
         new_instance = cls()
@@ -261,7 +257,7 @@ class Transcript(BaseFeatureProxy):
 
     def iter_exons(self) -> Iterable[Exon]:
         """Get Exon Iterator"""
-        return iter(self._exons)
+        return self._exons
 
     def get_nth_exon(self, exon_id: int) -> Exon:
         return self._exons[exon_id]
@@ -328,54 +324,6 @@ class Transcript(BaseFeatureProxy):
                 return False
         return True
 
-    def sort_exons(
-            self,
-            exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
-            remove_exon_duplicates: bool = True
-    ):
-        if len(self._exons) == 0:
-            return
-        self._exons = sorted(self._exons)
-        if remove_exon_duplicates and len(self._exons) >= 2:
-            exon_id = 1
-            while exon_id < len(self._exons):
-                if self._exons[exon_id] == self._exons[exon_id - 1]:
-                    self._exons.pop(exon_id)
-                else:
-                    exon_id += 1
-        if exon_number_policy == "stranded":
-            if self.strand == '+':
-                for i in range(len(self._exons)):
-                    self._exons[i].exon_number = i + 1
-            elif self.strand == '-':
-                for i in range(len(self._exons)):
-                    self._exons[len(self._exons) - i - 1].exon_number = i + 1
-        elif exon_number_policy == "unstranded":
-            for i in range(len(self._exons)):
-                self._exons[i].exon_number = i + 1
-
-    def fast_add_exon(
-            self,
-            exon: Exon
-    ):
-        self.add_exon(exon, False, False, False)
-
-    def add_exon(
-            self,
-            exon: Exon,
-            check_duplicate: bool = True,
-            check_same_chrome: bool = True,
-            check_same_strand: bool = True
-    ):
-        new_pos = bisect.bisect_left(self._exons, exon)
-        if check_duplicate and new_pos < len(self._exons) and exon == self._exons[new_pos]:
-            raise DuplicatedExonError
-        if check_same_chrome and exon.seqname != self.seqname:
-            raise ExonInATranscriptOnDifferentChromosomeError
-        if check_same_strand and exon.strand != self.strand and exon.strand != "." and self.strand != ".":
-            raise ExonInATranscriptOnDifferentStrandError
-        self._exons.insert(new_pos, exon)
-
     @property
     def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
         for exon in self._exons:
@@ -397,7 +345,21 @@ class Transcript(BaseFeatureProxy):
 class Gene(BaseFeatureProxy):
     _transcript_ids: List[str]
     _transcripts: List[Transcript]
-    _splice_sites: List[Tuple[str, str, int, int]]
+
+    def check_transcript_duplication(self) -> Optional[Tuple[str, str]]:
+        for i in range(self.number_of_transcripts):
+            for j in range(i, self.number_of_transcripts):
+                if self._transcripts[i] == self._transcripts[j]:
+                    return self._transcripts[i].transcript_id, self._transcripts[j].transcript_id
+        return None
+
+    def check_whether_one_transcript_duplicates_with_others(self, transcript_id: str) -> Optional[str]:
+        transcript = self.get_transcript(transcript_id)
+        for other_transcript in self.iter_transcripts():
+            if other_transcript == transcript and \
+                    not other_transcript.transcript_id != transcript .transcript_id:
+                return other_transcript.transcript_id
+        return None
 
     @property
     def gene_id(self) -> str:
@@ -415,49 +377,10 @@ class Gene(BaseFeatureProxy):
         return self._transcripts[self._transcript_ids.index(transcript_id)]
 
     def iter_transcripts(self) -> Iterable[Transcript]:
-        return iter(self._transcripts)
+        return self._transcripts
 
     def iter_transcript_ids(self) -> Iterable[str]:
-        return iter(self._transcript_ids)
-
-    def del_transcript(self, transcript_id: str):
-        index = self._transcript_ids.index(transcript_id)
-        self._transcript_ids.pop(index)
-        self._transcripts.pop(index)
-
-    def replace_transcript(
-            self,
-            transcript:Transcript,
-            **kwargs
-    ):
-        self.del_transcript(transcript.transcript_id)
-        self.add_transcript(transcript, **kwargs)
-
-    def fast_add_transcript(
-            self,
-            transcript: Transcript,
-    ):
-        self.add_transcript(transcript, False, False, False)
-
-    def add_transcript(
-            self,
-            transcript: Transcript,
-            check_duplicate: bool = True,
-            check_same_chrome: bool = True,
-            check_same_strand: bool = True
-    ):
-        if transcript.transcript_id in self._transcript_ids:
-            raise DuplicatedTranscriptIDError
-        new_pos = bisect.bisect_left(self._transcripts, transcript)
-        if check_duplicate and new_pos < len(self._transcripts) and transcript ==  self._transcripts[new_pos]:
-            raise DuplicatedTranscriptError
-        if check_same_chrome and transcript.seqname != self.seqname:
-            raise TranscriptInAGeneOnDifferentChromosomeError
-        if check_same_strand and transcript.strand != self.strand and transcript.strand != "." and self.strand != ".":
-            raise TranscriptInAGeneOnDifferentStrandError
-        self._transcript_ids.insert(new_pos, transcript.transcript_id)
-        self._transcripts.insert(new_pos, transcript)
-
+        return self._transcript_ids
 
     def _setup(self):
         self._transcripts = []

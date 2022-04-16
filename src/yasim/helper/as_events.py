@@ -1,94 +1,22 @@
 """
 as_events.py -- Generate AS Events
 """
+
+from __future__ import annotations
 import math
 import random
 from typing import List, Tuple, Callable, Union, Iterable
 
 from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
 from bioutils.datastructure.gene_view_proxy import Transcript, Gene
-from bioutils.datastructure.gv_helper import assert_splice_site_existence, generate_new_transcript
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
 
-# def perform_exon_skipping(
-#         transcript: Transcript,
-#         exon_number_to_ko: Iterable[int]
-# ) -> Transcript:
-#     new_transcript = generate_new_transcript(transcript)
-#     sorted(exon_number_to_ko)
-#
-#     # set the percent of knocked out exons
-#     percent = 0.01 * (random.randint(1, 30))
-#     # get the number of exons n to be knocked out by multiplying total exon number of transcript
-#     trans_len = len(new_transcript.exons)
-#     exonKO = math.ceil(trans_len * percent)
-#     # randomly delete n exons from the transcript
-#     exon_keep = trans_len - exonKO
-#     new_transcript.exons = random.sample(new_transcript.exons, exon_keep)
-#     # refresh the exon list
-#     new_transcript.sort_exons()
-#     return new_transcript
-
-
-def perform_exon_skipping(transcript: Transcript) -> Transcript:
-    new_transcript = generate_new_transcript(transcript)
-    # set the percent of knocked out exons
-    percent = 0.01 * (random.randint(1, 30))
-    # get the number of exons n to be knocked out by multiplying total exon number of transcript
-    trans_len = new_transcript.number_of_exons
-    exonKO = math.ceil(trans_len * percent)
-    # randomly delete n exons from the transcript
-    exon_keep = trans_len - exonKO
-    new_transcript._exons = random.sample(new_transcript._exons, exon_keep)
-    # refresh the exon list
-    new_transcript.sort_exons()
-    return new_transcript
-
-
-def perform_intron_retention(transcript: Transcript) -> Transcript:
-    new_transcript = generate_new_transcript(transcript)
-    # randomly pick an exon for retention
-    exon_num = random.randint(0, (new_transcript.number_of_exons - 2))
-    # get the end coordinate of the neighbour exon
-    end_pos = new_transcript._exons[exon_num + 1].end
-    # merge the coordinates of the two exons as the coordinate of the first exon
-    new_transcript._exons[exon_num].end = end_pos
-    # delete the neighbour exon
-    del new_transcript._exons[exon_num + 1]
-    # refresh the exon list
-    new_transcript.sort_exons()
-    return new_transcript
-
-
-def perform_alternative_3p_splicing(transcript: Transcript) -> Transcript:
-    new_transcript = generate_new_transcript(transcript)
-    # randomly pick an exon for splicing
-    exon_num = random.randint(0, (new_transcript.number_of_exons - 1))
-    # randomly generate the percent to shorten
-    exon_len = new_transcript._exons[exon_num].end - new_transcript._exons[exon_num].start
-    splice_perc = 0.01 * (random.randint(1, 30))
-    splice_len = math.ceil(exon_len * splice_perc)
-    # change the end coordinate of the exon
-    new_transcript._exons[exon_num].end -= splice_len
-    return new_transcript
-
-
-def perform_alternative_5p_splicing(transcript: Transcript) -> Transcript:
-    new_transcript = generate_new_transcript(transcript)
-    # randomly pick an exon for splicing
-    exon_num = random.randint(0, (new_transcript.number_of_exons - 1))
-    # randomly generate the percent to shorten
-    exon_len = new_transcript._exons[exon_num].end - new_transcript._exons[exon_num].start
-    splice_perc = 0.01 * (random.randint(1, 30))
-    splice_len = math.ceil(exon_len * splice_perc)
-    # change the start coordinate of the exon
-    new_transcript._exons[exon_num].start -= splice_len
-    return new_transcript
-
+class ImpossibleToGenerateASEventError(ValueError):
+    pass
 
 class ASManipulator:
     _gv: GeneViewType
@@ -99,16 +27,117 @@ class ASManipulator:
     def __init__(self, gv: GeneViewType):
         self._gv = gv
 
-    def perform_alternative_splicing(self) -> Callable[[Transcript], Transcript]:
-        return random.choices(
+    def core_perform_exon_skipping(self,transcript_id:str) -> str:
+        number_of_exons = self._gv.get_transcript(transcript_id).number_of_exons
+        # set the percent of knocked out exons
+        percent = 0.01 * (random.randint(1, 30))
+        # get the number of exons n to be knocked out by multiplying total exon number of transcript
+        new_transcript_id = self._gv.duplicate_transcript(transcript_id)
+        es_ids = random.sample(range(0, number_of_exons), math.ceil(number_of_exons * percent))
+        lh.debug(f"{new_transcript_id}: ES {es_ids}")
+        for exon_id in es_ids:
+            self._gv.del_exon(new_transcript_id, exon_id)
+        return new_transcript_id
+
+
+    def general_perform_wrapper(self, gene:Gene, core_func:Callable[[str], str]):
+        transcript_ids = list(gene.iter_transcript_ids())
+        transcript_id = random.choice(transcript_ids)
+        for _ in range(10):
+            try:
+                new_transcript_id = core_func(transcript_id)
+            except IndexError:
+                # print(core_func.__name__, "IndexError")
+                continue
+            if gene.check_whether_one_transcript_duplicates_with_others(new_transcript_id) is not None:
+                self._gv.del_transcript(new_transcript_id)
+                print(core_func.__name__, "Duplicated")
+            elif gene.get_transcript(new_transcript_id).transcribed_length < 250:
+                self._gv.del_transcript(new_transcript_id)
+                print(core_func.__name__, "Too short")
+            else:
+                return
+        raise ImpossibleToGenerateASEventError
+
+
+    def perform_exon_skipping(self, gene: Gene):
+        self.general_perform_wrapper(gene, self.core_perform_exon_skipping)
+
+    def core_perform_intron_retention(self,transcript_id:str) -> str:
+        number_of_exons = self._gv.get_transcript(transcript_id).number_of_exons
+        start_exon_id = random.choice(range(0, number_of_exons - 2))
+        stop_exon_id = random.choice(range(start_exon_id, number_of_exons - 1))
+        new_transcript_id = self._gv.duplicate_transcript(transcript_id)
+        lh.debug(f"{new_transcript_id}: IR {start_exon_id}-{stop_exon_id}")
+        new_transcript = self._gv.get_transcript(new_transcript_id)
+        new_transcript.get_nth_exon(start_exon_id).end = new_transcript.get_nth_exon(stop_exon_id).end
+        for exon_id_to_del in range(start_exon_id + 1, stop_exon_id):
+            gv.del_exon(new_transcript_id, exon_id_to_del)
+        self._gv.transcript_sort_exons(new_transcript_id)
+        return new_transcript_id
+
+    def perform_intron_retention(self,gene:Gene):
+        self.general_perform_wrapper(gene, self.core_perform_intron_retention)
+
+    def core_perform_alternative_3p_splicing(self,transcript_id:str) -> str:
+        transcript = self._gv.get_transcript(transcript_id)
+        # randomly pick an exon for splicing
+        exon_id = random.randint(0, (transcript.number_of_exons - 1))
+        # randomly generate the percent to shorten
+        exon_len = transcript.get_nth_exon(exon_id).end - transcript.get_nth_exon(exon_id).start
+        if exon_id + 1 != transcript.number_of_exons:
+            intron_len = transcript.get_nth_exon(exon_id + 1).start - transcript.get_nth_exon(exon_id).end
+        else:
+            intron_len = math.inf
+        splice_perc = 0.01 * (random.randint(20, 90))
+        delta = math.ceil(min(exon_len, intron_len) * splice_perc)
+
+        new_transcript_id = self._gv.duplicate_transcript(transcript_id)
+        new_transcript = self._gv.get_transcript(new_transcript_id)
+        new_transcript.get_nth_exon(exon_id).end += delta
+        self._gv.transcript_sort_exons(new_transcript_id)
+        return new_transcript_id
+
+
+    def perform_alternative_3p_splicing(self,gene:Gene):
+        self.general_perform_wrapper(gene, self.core_perform_alternative_3p_splicing)
+
+    def core_perform_alternative_5p_splicing(self,transcript_id:str) -> str:
+        transcript = self._gv.get_transcript(transcript_id)
+        # randomly pick an exon for splicing
+        exon_id = random.randint(0, (transcript.number_of_exons - 1))
+        # randomly generate the percent to shorten
+        exon_len = transcript.get_nth_exon(exon_id).end - transcript.get_nth_exon(exon_id).start
+        if exon_id != 0:
+            intron_len = transcript.get_nth_exon(exon_id - 1).end - transcript.get_nth_exon(exon_id).start
+        else:
+            intron_len = math.inf
+        splice_perc = 0.01 * (random.randint(20, 90))
+        delta = math.ceil(min(exon_len, intron_len) * splice_perc)
+
+        new_transcript_id = self._gv.duplicate_transcript(transcript_id)
+        new_transcript = self._gv.get_transcript(new_transcript_id)
+        new_transcript.get_nth_exon(exon_id).start += delta
+        self._gv.transcript_sort_exons(new_transcript_id)
+        return new_transcript_id
+
+
+    def perform_alternative_5p_splicing(self,gene:Gene):
+        self.general_perform_wrapper(gene, self.core_perform_alternative_5p_splicing)
+
+
+
+
+    def perform_alternative_splicing(self, gene:Gene) -> None:
+        func = random.choices(
             population=(
-                perform_alternative_3p_splicing,
-                perform_intron_retention,
-                perform_alternative_5p_splicing,
-                perform_exon_skipping,
-                lambda transcript: perform_alternative_3p_splicing(perform_alternative_5p_splicing(transcript)),
-                lambda transcript: perform_alternative_3p_splicing(perform_exon_skipping(transcript)),
-                lambda transcript: perform_alternative_3p_splicing(perform_intron_retention(transcript))
+                self.perform_alternative_3p_splicing,
+                self.perform_intron_retention,
+                self.perform_alternative_5p_splicing,
+                self.perform_exon_skipping,
+                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_alternative_5p_splicing(x), lambda x: self.perform_alternative_3p_splicing(x)]),
+                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_exon_skipping(x), lambda x: self.perform_alternative_3p_splicing(x)]),
+                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_intron_retention(x), lambda x: self.perform_alternative_3p_splicing(x)])
             ),
             weights=(
                 832,
@@ -121,6 +150,8 @@ class ASManipulator:
             ),
             k=1
         )[0]
+        func(gene)
+
 
     def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int):
         transcript_ids_to_del = []
@@ -130,40 +161,39 @@ class ASManipulator:
         for transcript_id in transcript_ids_to_del:
             self._gv.del_transcript(transcript_id, auto_remove_empty_gene=False)
         if gene.number_of_transcripts == 0:
-            raise ValueError("Generation FAILED!")
+            raise ImpossibleToGenerateASEventError("Gene cannot transcribed to length >= 250")
         elif gene.number_of_transcripts == n:
             return
         elif gene.number_of_transcripts > n:
             gek = list(gene.iter_transcript_ids())
             while gene.number_of_transcripts > n:
-                gene.del_transcript(gek.pop())
+                self._gv.del_transcript(gek.pop())
             return
         elif gene.number_of_transcripts < n:
-            all_splice_sites: List[List[Tuple[int, int]]] = []
+            number_of_fail = 0
             while gene.number_of_transcripts < n:
-                number_of_fail = 0
-                new_transcript = self.perform_alternative_splicing()(random.choice(list(gene.iter_transcripts())))
-                this_splice_site = list(new_transcript.splice_sites)
-                if new_transcript.transcribed_length >= 250 and not assert_splice_site_existence(this_splice_site,
-                                                                                                 all_splice_sites):
-                    self._gv.add_transcript(new_transcript)
-                else:
+                try:
+                    self.perform_alternative_splicing(gene)
+                except ImpossibleToGenerateASEventError:
                     number_of_fail += 1
                 if number_of_fail > 2 * n:
-                    raise ValueError("Generation FAILED!")
+                    raise ImpossibleToGenerateASEventError("Generation FAILED!")
                 elif gene.number_of_transcripts == n:
                     return
 
     def run(self, mu: Union[int, float]):
         gene_ids_to_del: List[str] = []
-        for gene in tqdm(iterable=self._gv.iter_genes(), desc="Generating isoforms..."):
-            n = 0
-            while n <= 0 or n >= mu * 2:
-                n = int(random.gauss(mu, mu / 2))
+        for gene in tqdm(
+            iterable=list(self._gv.iter_genes()),
+            desc="Generating isoforms...",
+            total=self._gv.number_of_genes
+        ):
+            n = max(0, min(int(random.gauss(mu, mu / 2)), mu*2))
             try:
                 self.try_generate_n_isoform_for_a_gene(gene, n)
-            except ValueError:
+            except ImpossibleToGenerateASEventError:
                 gene_ids_to_del.append(gene.gene_id)
+
         lh.info(f"Will remove {len(gene_ids_to_del)} genes")
         for gene_id in gene_ids_to_del:
             self._gv.del_gene(gene_id)
@@ -175,8 +205,8 @@ class ASManipulator:
 
 
 if __name__ == '__main__':
-    for i in [3]:
-        gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_3/ce11.ncbiRefSeq.gtf")
+    for i in [8]:
+        gv = GeneViewFactory.from_file("/home/yuzj/Desktop/BioRef/chr1.ncbiRefSeq_h10000.gtf")
         asm = ASManipulator(gv)
         asm.run(i)
         asm.to_file(f"{i}.gtf")
