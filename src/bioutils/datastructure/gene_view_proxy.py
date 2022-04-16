@@ -11,7 +11,7 @@ from abc import abstractmethod
 from typing import List, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
-from bioutils.datastructure._gv_errors import _all as _gve_all, DuplicatedTranscriptError
+from bioutils.datastructure._gv_errors import _all as _gve_all
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 from commonutils.dynamic.hook_helper import hookable_decorator
 
@@ -357,7 +357,7 @@ class Gene(BaseFeatureProxy):
         transcript = self.get_transcript(transcript_id)
         for other_transcript in self.iter_transcripts():
             if other_transcript == transcript and \
-                    not other_transcript.transcript_id != transcript .transcript_id:
+                    other_transcript.transcript_id != transcript.transcript_id:
                 return other_transcript.transcript_id
         return None
 

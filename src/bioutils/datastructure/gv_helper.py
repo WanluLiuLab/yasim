@@ -1,6 +1,4 @@
-import copy
 import os
-import uuid
 from typing import List, Tuple, Iterable
 
 from bioutils.algorithm.sequence import get_gc_percent
@@ -74,8 +72,6 @@ def gv_dedup(
     for transcript_id_to_del in transcript_ids_to_del:
         gv.del_transcript(transcript_id_to_del)
     lh.info("Removing transcript duplicate(s) in gv FIN")
-
-
 
 
 def enable_exon_superset():

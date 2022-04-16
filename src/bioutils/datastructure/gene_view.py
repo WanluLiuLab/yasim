@@ -42,7 +42,7 @@ class GeneViewType:
 
     @classmethod
     @abstractmethod
-    def _from_own_filetype(cls, filename: str):
+    def _from_own_filetype(cls, filename: str, fast: bool):
         """
         Generate index de novo.
         """
@@ -53,6 +53,7 @@ class GeneViewType:
     def from_file(cls,
                   filename: str,
                   not_save_index: bool = False,
+                  fast: bool = True,
                   **kwargs):
         """
         Load GeneView from file. This function does follow things:
@@ -65,7 +66,7 @@ class GeneViewType:
 
     @classmethod
     @abstractmethod
-    def from_iterator(cls, iterator: Iterator[Feature]):
+    def from_iterator(cls, iterator: Iterator[Feature], fast: bool = True):
         """
         Build GeneView from an iterator of Feature.
         """
@@ -141,14 +142,13 @@ class GeneViewType:
     @abstractmethod
     def transcript_sort_exons(
             self,
-            transcript_id:str,
-            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
+            transcript_id: str,
+            sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     ):
         """
         Re-index and sort exons of a transcript
         """
         pass
-
 
     @abstractmethod
     def to_file(self, output_filename: str):
@@ -165,9 +165,8 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def del_exon(self, transcript_id:str, exon_number:int):
+    def del_exon(self, transcript_id: str, exon_number: int):
         pass
-
 
     @abstractmethod
     def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
@@ -185,7 +184,7 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def duplicate_transcript(self, transcript_id:str) -> str:
+    def duplicate_transcript(self, transcript_id: str) -> str:
         """
         Duplicate an existing transcript.
 
@@ -193,16 +192,15 @@ class GeneViewType:
         """
         pass
 
-
     @abstractmethod
-    def add_transcript(self, transcript: Transcript):
+    def add_transcript(self, transcript: Transcript, fast: bool = False):
         """
         Register a new transcript. Will register corresponding gene if not exist.
         """
         pass
 
     @abstractmethod
-    def add_exon(self, exon: Exon):
+    def add_exon(self, exon: Exon, fast: bool = False):
         """
         Register a new exon. Will register corresponding gene or transcript if not exist.
         """
@@ -230,6 +228,7 @@ class BaseGeneView(GeneViewType, ABC):
     def from_file(cls,
                   filename: str,
                   not_save_index: bool = False,
+                  fast: bool = True,
                   **kwargs):
         index_filename = filename + ".gvpkl.xz"
         if file_exists(index_filename) and \
@@ -238,7 +237,7 @@ class BaseGeneView(GeneViewType, ABC):
                 return cls._from_gvpkl(index_filename)
             except Exception:
                 lh.error("Gene index broken or too old, will rebuild one.")
-        new_instance = cls._from_own_filetype(filename)
+        new_instance = cls._from_own_filetype(filename, fast=fast)
         if not not_save_index:
             new_instance.to_gvpkl(index_filename)
         return new_instance
@@ -287,15 +286,13 @@ class BaseGeneView(GeneViewType, ABC):
 
     def transcript_sort_exons(
             self,
-            transcript_id:str,
-            sort_exon_exon_number_policy:str=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
+            transcript_id: str,
+            sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     ):
         TranscriptMutator.sort_exons(
             self.get_transcript(transcript_id),
             exon_number_policy=sort_exon_exon_number_policy
         )
-
-
 
     def standardize(
             self,
@@ -382,13 +379,13 @@ class BaseGeneView(GeneViewType, ABC):
         new_transcript = copy.deepcopy(transcript)
         new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
         new_transcript.transcript_id = transcript.gene_id + str(uuid.uuid4())
-        self.add_transcript(new_transcript)
+        for exon in new_transcript.iter_exons():
+            exon.transcript_id = new_transcript.transcript_id
+        self.add_transcript(new_transcript, fast=True)
         return new_transcript.transcript_id
 
-
-    def del_exon(self, transcript_id:str, exon_number:int):
+    def del_exon(self, transcript_id: str, exon_number: int):
         TranscriptMutator.del_exon(self.get_transcript(transcript_id), exon_number)
-
 
     def _del_transcript(self, transcript_id: str):
         self._transcripts.pop(transcript_id)
@@ -422,7 +419,8 @@ class BaseGeneView(GeneViewType, ABC):
 
     def add_transcript(
             self,
-            transcript: Transcript
+            transcript: Transcript,
+            fast: bool = False
     ):
         gene_id = transcript.gene_id
         transcript_id = transcript.transcript_id
@@ -431,18 +429,24 @@ class BaseGeneView(GeneViewType, ABC):
         gene = self.get_gene(gene_id)
         if transcript_id not in gene.iter_transcript_ids() or gene.get_transcript(
                 transcript_id).feature != "transcript":
-            GeneMutator.fast_add_transcript(gene, transcript)
+            if fast:
+                GeneMutator.fast_add_transcript(gene, transcript)
+            else:
+                GeneMutator.add_transcript(gene, transcript)
         if transcript_id not in self.iter_transcript_ids() or \
                 self.get_transcript(transcript_id).feature != "transcript":
             self._add_transcript(transcript)
         if transcript.feature != "transcript":
             lh.warn(f"Transcript {transcript_id} is inferred from feature {transcript.feature}")
 
-    def add_exon(self, exon: Exon):
+    def add_exon(self, exon: Exon, fast: bool = False):
         transcript_id = exon.transcript_id
         if transcript_id not in self.iter_transcript_ids():
-            self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript))
-        TranscriptMutator.fast_add_exon(self.get_transcript(transcript_id), exon)
+            self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript), fast=fast)
+        if fast:
+            TranscriptMutator.fast_add_exon(self.get_transcript(transcript_id), exon)
+        else:
+            TranscriptMutator.add_exon(self.get_transcript(transcript_id), exon)
 
     def __len__(self) -> int:
         return len(list(self.get_iterator()))
@@ -451,20 +455,20 @@ class BaseGeneView(GeneViewType, ABC):
 class _GtfGeneView(BaseGeneView):
 
     @classmethod
-    def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator]):
+    def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator], fast: bool = True):
         new_instance = cls()
         for gtf_record in iterator:
             if gtf_record.feature == "gene":
                 new_instance.add_gene(Gene.from_feature(gtf_record))
             elif gtf_record.feature == 'transcript':
-                new_instance.add_transcript(Transcript.from_feature(gtf_record))
+                new_instance.add_transcript(Transcript.from_feature(gtf_record), fast=fast)
             elif gtf_record.feature == 'exon':
-                new_instance.add_exon(Exon.from_feature(gtf_record))
+                new_instance.add_exon(Exon.from_feature(gtf_record), fast=fast)
         return new_instance
 
     @classmethod
-    def _from_own_filetype(cls, filename: str):
-        return cls.from_iterator(GtfIterator(filename))
+    def _from_own_filetype(cls, filename: str, fast: bool):
+        return cls.from_iterator(GtfIterator(filename), fast=fast)
 
     def to_file(self, output_filename: str):
         GtfWriter.write_iterator(
@@ -475,16 +479,7 @@ class _GtfGeneView(BaseGeneView):
 
 
 class _Gff3GeneView(BaseGeneView):
-    @classmethod
-    def from_iterator(cls, iterator: Union[Iterator[Gff3Record], Gff3Iterator]):
-        raise NotImplementedError
-
-    @classmethod
-    def _from_own_filetype(cls, filename: str):
-        raise NotImplementedError
-
-    def to_file(self, output_filename: str):
-        raise NotImplementedError
+    pass
 
 
 class GeneViewFactory:
@@ -507,13 +502,14 @@ class GeneViewFactory:
     def from_iterator(
             cls,
             iterator: Iterator[Feature],
-            record_type: Optional[Type] = None
+            record_type: Optional[Type] = None,
+            fast: bool = True
     ) -> GeneViewType:
         if record_type is None:
             record_type = type(iterator)
         if record_type == GtfRecord or isinstance(iterator, GtfIterator):
-            return _GtfGeneView.from_iterator(iterator)
+            return _GtfGeneView.from_iterator(iterator, fast=fast)
         elif record_type == Gff3Record or isinstance(iterator, Gff3Iterator):
-            return _Gff3GeneView.from_iterator(iterator)
+            return _Gff3GeneView.from_iterator(iterator, fast=fast)
         else:
             raise ValueError(f"Unknown iterator type {type(iterator)}")
