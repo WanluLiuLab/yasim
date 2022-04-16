@@ -244,7 +244,7 @@ class Transcript(BaseFeatureProxy):
     exons: List[Exon]
     _cdna_sequence: Optional[str]
 
-    
+
 
 
     @property

@@ -53,6 +53,7 @@ Some sample may have `**MAY NOT BE USABLE -- REQUIRE REVIEW**`. This means wheth
   - Short poly(A) tails are a conserved feature of highly expressed genes. Lima SA, Chipman LB, Nicholson AL, Chen YH, Yee BA, Yeo GW, Coller J, Pasquinelli AE. Division of Biology, University of California, San Diego, La Jolla, California, USA. Nat Struct Mol Biol 24(12): 1057-1063 (2017 Dec) <https://doi.org/10.1038/nsmb.3499>
 - [PRJNA715371](https://www.ebi.ac.uk/ena/browser/view/PRJNA715371)
   - Bulk RNA seq of FACS isolated C. elegans neurons, with pan-neuronal reference, and sorted viable cell reference samples. Collected for comparison to single cell sequencing data Overall design: Cell type specific C. elegans neuronal samples were obtained via FACS for comparison to each other, and to pan-neuronal and all cell references. Sample names describe the cell type targeted (ASG, AVE, AWA, etc…), Rab3 indicates samples targeted with a Pan-Neuronal Marker for direct comparison to each individual cell type. Ref samples were obtained by dissociating and FACS isolation using only stains to sepatate living and dead cells and thus represents an "all cell" reference.
+  - ** TOO SPECIFIC AND TOO SMALL **
   - Updated 2022-04-14.
   - paired
   - data (ASGr):
@@ -79,6 +80,7 @@ NO DATA!
 
 - [PRJNA684142](https://www.ebi.ac.uk/ena/browser/view/PRJNA684142)
   - prp-40 regulates alternative splicing. In particular, microexons are highly dependent on prp-40 for inclusion.
+  - **TOO BIG**
   - Updated 2022-04-14.
   - paired
   - data (WT):
@@ -126,8 +128,9 @@ Fletcher M, Tillman EJ, Butty VL, Levine SS, Kim DH. Department of Biology, Mass
 
 ### NextSeq 550
 
-- [PRJNA497368](https://www.ebi.ac.uk/ena/browser/view/PRJNA497368)
+<!-- - [PRJNA497368](https://www.ebi.ac.uk/ena/browser/view/PRJNA497368)
   - Small interfering RNAs (siRNAs) and their partner Argonaute proteins regulate the expression of target RNAs. When sperm and egg meet upon fertilization, a diverse set of proteins and RNA, including siRNA-Argonaute complexes, is passed on to the developing progeny. Thus, these two players are important to initiate specific gene expression programs in the next generation. The nematode Caenorhabditis elegans expresses several classes of siRNAs. 26G-RNAs are a particular class of siRNAs that are divided into two subpopulations: one expressed in the spermatogenic gonad and another expressed in oocytes and embryos. In this work, we describe the dynamics whereby oogenic 26G-RNAs setup gene silencing in the next generation. We also show several ways that spermatogenic 26G-RNAs and their partner Argonautes, ALG-3 and ALG-4, use to regulate their targets. Finally, we show that ALG-3 and ALG-4 are fine-tuning their own expression, a rare role of Argonaute proteins. Altogether, we provide new insights into how siRNAs and Argonautes are regulating gene expression.
+  - 
   - Updated 2022-04-14.
   - single
   - data (WT)
@@ -135,7 +138,7 @@ Fletcher M, Tillman EJ, Butty VL, Levine SS, Kim DH. Department of Biology, Mass
     - SRR8081025 (Wild-type rep1), 450.4 MB
     - SRR8081026 (Wild-type rep4), 486.2 MB
     - SRR8081027 (Wild-type rep3), 564.4 MB
-  - Genome sequence of the nematode C. elegans: a platform for investigating biology. C. elegans Sequencing Consortium. Science 282(5396): 2012-2018 (1998 Dec) <https://doi.org/10.1126/science.282.5396.2012>
+  - Genome sequence of the nematode C. elegans: a platform for investigating biology. C. elegans Sequencing Consortium. Science 282(5396): 2012-2018 (1998 Dec) <https://doi.org/10.1126/science.282.5396.2012> -->
 
 ### NextSeq 1000
 
