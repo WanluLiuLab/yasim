@@ -6,14 +6,14 @@ import os
 import time
 import uuid
 from abc import abstractmethod, ABC
-from typing import Optional, Dict, Iterator, Union, Type
+from typing import Optional, Dict, Iterator, Union, Type, Iterable
 
 from bioutils.datastructure._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
 from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
     DEFAULT_SORT_EXON_EXON_STRAND_POLICY
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
-from bioutils.typing.feature import GtfRecord, Feature, Gff3Record
+from bioutils.typing.feature import GtfRecord, FeatureType, Gff3Record
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.file_system import file_exists
 from commonutils.stdlib_helper import pickle_helper
@@ -21,7 +21,7 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
-GVPKL_VERSION = "0.4-unstable"
+GVPKL_VERSION = "0.4"
 """Current version of GVPKL standard."""
 
 
@@ -66,9 +66,9 @@ class GeneViewType:
 
     @classmethod
     @abstractmethod
-    def from_iterator(cls, iterator: Iterator[Feature], fast: bool = True):
+    def from_iterable(cls, iterable: Iterable[FeatureType], fast: bool = True):
         """
-        Build GeneView from an iterator of Feature.
+        Build GeneView from an iterable of FeatureType.
         """
         pass
 
@@ -133,7 +133,7 @@ class GeneViewType:
         pass
 
     @abstractmethod
-    def get_iterator(self) -> Iterator[Feature]:
+    def get_iterator(self) -> Iterator[FeatureType]:
         """
         Get iterator for Gene-Transcript-Exon Three-Tier Structure.
         """
@@ -230,7 +230,7 @@ class BaseGeneView(GeneViewType, ABC):
                   not_save_index: bool = False,
                   fast: bool = True,
                   **kwargs):
-        index_filename = filename + ".gvpkl.xz"
+        index_filename = f"{filename}.{GVPKL_VERSION}.gvpkl.xz"
         if file_exists(index_filename) and \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) > 0:
             try:
@@ -357,7 +357,7 @@ class BaseGeneView(GeneViewType, ABC):
         for gene_id in gene_id_to_del:
             self.del_gene(gene_id)
 
-    def get_iterator(self) -> Iterator[Feature]:
+    def get_iterator(self) -> Iterator[FeatureType]:
         for gene in self.iter_genes():
             if gene.feature == "gene":
                 yield gene.get_data()
@@ -455,9 +455,9 @@ class BaseGeneView(GeneViewType, ABC):
 class _GtfGeneView(BaseGeneView):
 
     @classmethod
-    def from_iterator(cls, iterator: Union[Iterator[GtfRecord], GtfIterator], fast: bool = True):
+    def from_iterable(cls, iterable: Union[Iterable[GtfRecord], GtfIterator], fast: bool = True):
         new_instance = cls()
-        for gtf_record in iterator:
+        for gtf_record in iterable:
             if gtf_record.feature == "gene":
                 new_instance.add_gene(Gene.from_feature(gtf_record))
             elif gtf_record.feature == 'transcript':
@@ -468,7 +468,7 @@ class _GtfGeneView(BaseGeneView):
 
     @classmethod
     def _from_own_filetype(cls, filename: str, fast: bool):
-        return cls.from_iterator(GtfIterator(filename), fast=fast)
+        return cls.from_iterable(GtfIterator(filename), fast=fast)
 
     def to_file(self, output_filename: str):
         GtfWriter.write_iterator(
@@ -499,17 +499,17 @@ class GeneViewFactory:
             raise ValueError(f"Unknown file type {file_type} for {filename}")
 
     @classmethod
-    def from_iterator(
+    def from_iterable(
             cls,
-            iterator: Iterator[Feature],
+            iterable: Iterable[FeatureType],
             record_type: Optional[Type] = None,
             fast: bool = True
     ) -> GeneViewType:
         if record_type is None:
-            record_type = type(iterator)
-        if record_type == GtfRecord or isinstance(iterator, GtfIterator):
-            return _GtfGeneView.from_iterator(iterator, fast=fast)
-        elif record_type == Gff3Record or isinstance(iterator, Gff3Iterator):
-            return _Gff3GeneView.from_iterator(iterator, fast=fast)
+            record_type = type(iterable)
+        if record_type == GtfRecord or isinstance(iterable, GtfIterator):
+            return _GtfGeneView.from_iterable(iterable, fast=fast)
+        elif record_type == Gff3Record or isinstance(iterable, Gff3Iterator):
+            return _Gff3GeneView.from_iterable(iterable, fast=fast)
         else:
-            raise ValueError(f"Unknown iterator type {type(iterator)}")
+            raise ValueError(f"Unknown iterable type {type(iterable)}")

@@ -272,8 +272,6 @@ class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
     Slow but memory-efficient.
-
-    # FIXME: Error handling one-line FASTA
     """
 
     _fd: IO
@@ -301,13 +299,13 @@ class _DiskAccessFastaView(_BaseFastaView):
             create_fai_from_fasta(self.filename, index_filename)
         self._read_index_from_fai(index_filename)
 
-    @chronolog(display_time=True)
     def _read_index_from_fai(self, index_filename: str):
         self._fai = {}
         for line in get_tqdm_line_reader(index_filename):
             index_entry = FastaIndexEntry.from_fai_str(line)
             self._fai[index_entry.name] = index_entry
 
+    @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
         chr_fai = self._fai[chromosome]
@@ -358,7 +356,6 @@ class FastaViewFactory:
         :param full_header: Whether to read full headers.
         :param read_into_memory: Whether to read into memory.
         """
-        # return _MemoryAccessFastaView(filename, full_header)
         if read_into_memory:
             return _MemoryAccessFastaView(filename, full_header)
         else:

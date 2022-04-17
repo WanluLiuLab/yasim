@@ -41,10 +41,14 @@ class ASManipulator:
             self._gv.del_exon(new_transcript_id, exon_id)
         return new_transcript_id
 
-    def general_perform_wrapper(self, gene: Gene, core_func: Callable[[str], str]):
+    def general_perform_wrapper(
+            self, gene: Gene,
+            core_func: Callable[[str], str],
+            max_try: int = 100
+    ):
         transcript_ids = list(gene.iter_transcript_ids())
         transcript_id = random.choice(transcript_ids)
-        for _ in range(10):
+        for _ in range(max_try):
             try:
                 new_transcript_id = core_func(transcript_id)
             except IndexError:
@@ -70,7 +74,7 @@ class ASManipulator:
     def core_perform_intron_retention(self, transcript_id: str) -> str:
         number_of_exons = self._gv.get_transcript(transcript_id).number_of_exons
         start_exon_id = random.choice(range(0, number_of_exons - 2))
-        stop_exon_id = random.choice(range(start_exon_id, number_of_exons - 1))
+        stop_exon_id = start_exon_id + 1
         new_transcript_id = self._gv.duplicate_transcript(transcript_id)
         lh.debug(f"{new_transcript_id}: IR {start_exon_id}-{stop_exon_id}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
@@ -136,12 +140,24 @@ class ASManipulator:
                 self.perform_intron_retention,
                 self.perform_alternative_5p_splicing,
                 self.perform_exon_skipping,
-                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_alternative_5p_splicing(x),
-                                                     lambda x: self.perform_alternative_3p_splicing(x)]),
-                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_exon_skipping(x),
-                                                     lambda x: self.perform_alternative_3p_splicing(x)]),
-                lambda gene: map(lambda f: f(gene), [lambda x: self.perform_intron_retention(x),
-                                                     lambda x: self.perform_alternative_3p_splicing(x)])
+                lambda _gene: map(
+                    lambda f: f(_gene), [
+                        lambda x: self.perform_alternative_5p_splicing(x),
+                        lambda x: self.perform_alternative_3p_splicing(x)
+                    ]
+                ),
+                lambda _gene: map(
+                    lambda f: f(_gene), [
+                        lambda x: self.perform_exon_skipping(x),
+                        lambda x: self.perform_alternative_3p_splicing(x)
+                    ]
+                ),
+                lambda _gene: map(
+                    lambda f: f(_gene), [
+                        lambda x: self.perform_intron_retention(x),
+                        lambda x: self.perform_alternative_3p_splicing(x)
+                    ]
+                )
             ),
             weights=(
                 832,
@@ -204,15 +220,16 @@ class ASManipulator:
         self._gv.standardize()
 
     def to_file(self, filename: str):
-        with open(filename + ".transcript.num", "w") as tn:
+        with open(filename + ".n_of_transcript_in_a_gene.tsv", "w") as tn:
+            tn.write('gene' + '\t' + 'number_of_transcripts' + "\n")
             for gene in self._gv.iter_genes():
-                tn.write(str(gene.number_of_transcripts) + "\n")
+                tn.write(str(gene) + '\t' + str(gene.number_of_transcripts) + "\n")
         self._gv.to_file(filename)
 
 
 if __name__ == '__main__':
-    for i in [8]:
-        gv = GeneViewFactory.from_file("/home/yuzj/Desktop/BioRef/chr1.ncbiRefSeq.gtf")
+    for i in range(1, 10, 2):
+        gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_4/ce11.ncbiRefSeq.gtf")
         asm = ASManipulator(gv)
         asm.run(i)
         asm.to_file(f"{i}.gtf")
