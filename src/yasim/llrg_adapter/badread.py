@@ -25,7 +25,7 @@ class BadreadAdapter(BaseLLRGAdapter):
         self.model_name = model_name
 
     def assemble_cmd(self) -> List[str]:
-        if not self.model_name in ("verybad", "verynice"):
+        if self.model_name not in ("verybad", "verynice"):
             cmd = [
                 self.exename, "simulate",
                 "--reference", self.input_fasta,

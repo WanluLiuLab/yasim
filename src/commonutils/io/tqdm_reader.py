@@ -24,8 +24,8 @@ class _BaseTqdmReader(SequentialReader):
     _tqdm: Type[tqdm]
 
     @copy_doc(RuleBasedIOProxy.__enter__)
-    def __enter__(self):
-        self._tqdm.__enter__()
+    def __enter__(self, *args, **kwargs):
+        self._tqdm.__enter__(*args, **kwargs)
         return self
 
     @copy_doc(RuleBasedIOProxy.__exit__)

@@ -18,9 +18,8 @@ which is only snake-case wrappers for those contents inside :py:mod:`logging` st
 
 import logging
 import os
-
-from typing import Union
 from logging import DEBUG, WARNING, ERROR, FATAL
+from typing import Union
 
 __all__ = (
     'TRACE',
@@ -37,6 +36,7 @@ _SB = os.environ.get('SPHINX_BUILD')
 
 # The following contents adds a new log level called trace.
 TRACE = 8
+
 
 def trace(self, msg, *args, **kwargs):
     """

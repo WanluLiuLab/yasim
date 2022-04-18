@@ -99,7 +99,10 @@ class tqdm(Iterable[_VarType]):
             percent = round(self._n / self.total, 2)
             if percent > self._quarters:
                 total_len = 100
+                pbar_fill = '=' * int(self._quarters * total_len)
+                pbar_blank = ' ' * int((1 - self._quarters) * total_len)
                 print(
-                    f"{self.desc}: {int(percent * 100)}% [{'=' * int(self._quarters * total_len)}|{' ' * int((1 - self._quarters) * total_len)}]",
-                    file=sys.stderr)
+                    f"{self.desc}: {int(percent * 100)}% [{pbar_fill}|{pbar_blank}]",
+                    file=sys.stderr
+                )
                 self._quarters += 0.25

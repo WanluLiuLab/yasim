@@ -26,18 +26,24 @@ See :py:class:`bioutils.typing.feature.GtfRecord` for this feature.
 * Parse a GTF/GFF3 file into a three-tier Exon-Transcript-GeneView structure.
 See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
 """
-
+from abc import ABC
 from collections import defaultdict
-from typing import Dict, Iterable, Iterator, Union, Optional, List, TextIO
+from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable
 
-from bioutils.typing.feature import Feature, GFF3_TOPLEVEL_NAME, Gff3Record, GtfRecord
+from bioutils.typing.feature import FeatureType, GFF3_TOPLEVEL_NAME, Gff3Record, GtfRecord
 from bioutils.typing.misc import BaseIterator
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
 from commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
-class GtfIterator(BaseIterator):
+class FeatureIterator(BaseIterator, Iterable[FeatureType], ABC):
+    filetype: str = "FeatureType"
+    record_type = FeatureType
+    pass
+
+
+class GtfIterator(FeatureIterator, Iterable[GtfRecord]):
     filetype: str = "GTF"
     record_type = GtfRecord
 
@@ -48,7 +54,7 @@ class GtfIterator(BaseIterator):
             yield GtfRecord.from_string(line)
 
 
-class Gff3Iterator(BaseIterator):
+class Gff3Iterator(FeatureIterator, Iterable[Gff3Record]):
     filetype: str = "GFF3"
     record_type = Gff3Record
 
@@ -66,7 +72,7 @@ class _FeatureWriter:
 
     @staticmethod
     def write_iterator(
-            iterable: Union[GtfIterator, GtfIterator, Iterator[Feature]],
+            iterable: Union[GtfIterator, GtfIterator, Iterable[FeatureType]],
             output_filename: str,
             prefix_annotations: Optional[List[str]] = None
     ):
@@ -81,7 +87,7 @@ class _FeatureWriter:
         self.output_filename = output_filename
         self.fd = get_writer(self.output_filename)
 
-    def write_feature(self, feature: Feature, **kwargs):
+    def write_feature(self, feature: FeatureType, **kwargs):
         self.fd.write(feature.format_string(**kwargs) + "\n")
 
     def write_comment(self, comment: str):
@@ -103,7 +109,7 @@ class _FeatureWriter:
             return -1
 
     def __repr__(self) -> str:
-        return f"Feature writer of {self.output_filename} at {self.tell()}"
+        return f"FeatureType writer of {self.output_filename} at {self.tell()}"
 
     __str__ = __repr__
 
@@ -149,13 +155,13 @@ class Gff3Tree:
             raise ValueError(f"Cannot reach for {GFF3_TOPLEVEL_NAME} -- It is toplevel virtual ID")
         return self._flat_record[gff3_id]
 
-    def get_child_ids(self, gff3_id: str) -> Iterable[str]:
+    def get_child_ids(self, gff3_id: str) -> Iterator[str]:
         return self._id_tree[gff3_id]
 
-    def get_all_ids(self) -> Iterable[str]:
+    def get_all_ids(self) -> Iterator[str]:
         return self._flat_record.keys()
 
-    def get_toplevel_ids(self) -> Iterable[str]:
+    def get_toplevel_ids(self) -> Iterator[str]:
         return self.get_child_ids(GFF3_TOPLEVEL_NAME)
 
     def __len__(self) -> int:

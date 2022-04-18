@@ -4,7 +4,7 @@ get_transcript.py -- Filter GTF records by a specific attributes
 
 import argparse
 import random
-from typing import List, Iterable
+from typing import List, Iterator
 
 from bioutils.datastructure.gene_view import GeneViewFactory
 from bioutils.io.feature import GtfIterator
@@ -15,7 +15,7 @@ lh = get_logger(__name__)
 
 
 def subset_gtf_by_transcript_id(
-        possible_values: Iterable[str],
+        possible_values: Iterator[str],
         field_name: str,
         gtf_filename: str,
         out_filename: str
