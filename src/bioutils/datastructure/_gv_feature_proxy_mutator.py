@@ -1,7 +1,7 @@
 import bisect
 
 from bioutils.datastructure._gv_errors import *
-from bioutils.datastructure.gene_view_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, Transcript, Exon, Gene
+from bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, Transcript, Exon, Gene
 
 
 class TranscriptMutator:

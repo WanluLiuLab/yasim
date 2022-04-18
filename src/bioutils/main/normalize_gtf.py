@@ -6,7 +6,7 @@ import argparse
 from typing import List
 
 from bioutils.datastructure.gene_view import GeneViewFactory
-from bioutils.datastructure.gene_view_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
+from bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
     VALID_SORT_EXON_EXON_STRAND_POLICY
 from bioutils.io.feature import GtfIterator, GtfWriter
 from bioutils.typing.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS

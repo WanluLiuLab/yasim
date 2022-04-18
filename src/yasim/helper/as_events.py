@@ -2,6 +2,8 @@
 as_events.py -- Generate AS Events
 """
 
+# FIXME: May exceed chromosome bound!
+
 from __future__ import annotations
 
 import math
@@ -9,7 +11,7 @@ import random
 from typing import List, Callable, Union
 
 from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
-from bioutils.datastructure.gene_view_proxy import Gene
+from bioutils.datastructure.gv_feature_proxy import Gene
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 

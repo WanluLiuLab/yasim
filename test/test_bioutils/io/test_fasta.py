@@ -6,7 +6,7 @@ import os
 import pytest
 
 import conftest
-from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
+from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, ChromosomeNotFoundError
 from bioutils.io.fai import create_fai_from_fasta
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
@@ -80,11 +80,11 @@ def _public_asserts(fa: FastaViewType) -> None:
     assert fa.sequence('chr2') == fa.sequence('chr2', 0, -1)
     assert fa.sequence('chr4') == 'AAAAAAAAAACCCCCC'
     assert fa.sequence('chr6') == 'CTA'
-    with pytest.raises(ValueError):
+    with pytest.raises(SeekTooFarError):
         fa.sequence('chr2', 5, 1222)
-    with pytest.raises(ValueError):
+    with pytest.raises(SeekTooFarError):
         fa.sequence('chr2', -5, 29)
-    with pytest.raises(ValueError):
+    with pytest.raises(SeekTooFarError):
         fa.sequence('chr2', 500, 29)
 
 
@@ -93,7 +93,7 @@ def _fasta_with_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1 some att', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1 some att', 28, 29) == 'A'  # Next line
     assert fa.sequence('chr1 some att', 5, 29) == 'NNNNNNNNNNATCGTTACGTACCA'
-    with pytest.raises(ValueError):
+    with pytest.raises(ChromosomeNotFoundError):
         fa.sequence('chr1', 5, 29)
     assert fa.sequence('chr1 some att', 5, 63) == 'NNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTT'
     _public_asserts(fa)
@@ -104,7 +104,7 @@ def _fasta_without_full_header_assets(fa: FastaViewType) -> None:
     assert fa.sequence('chr1', 26, 29) == 'CCA'  # Cross the line
     assert fa.sequence('chr1', 28, 29) == 'A'  # Next line
     assert fa.sequence('chr1', 5, 29) == 'NNNNNNNNNNATCGTTACGTACCA'
-    with pytest.raises(ValueError):
+    with pytest.raises(ChromosomeNotFoundError):
         fa.sequence('chr1 some att', 5, 29)
     assert fa.sequence('chr1', 5, 63) == 'NNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTT'
     _public_asserts(fa)

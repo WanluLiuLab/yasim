@@ -35,6 +35,21 @@ __all__ = [
 
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
+class FastaViewError(ValueError):
+    pass
+
+class FastaViewInvalidRegionError(FastaViewError):
+    pass
+
+class SeekTooFarError(FastaViewInvalidRegionError):
+    def __init__(self, chromosome:str, pos:int, chr_len:int):
+        super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
+
+class ChromosomeNotFoundError(FastaViewInvalidRegionError):
+    def __init__(self, chromosome:str):
+        super().__init__(f"Requested chromosome {chromosome} not found")
+
+
 
 class FastaViewType:
     """
@@ -93,7 +108,8 @@ class FastaViewType:
         """
         Whether a region is valid. See :py:func:`sequence` for details.
 
-        :raises ValueError: Raise this error if region is not valid.
+        :raises SeekTooFarError: Raise this error if region is not valid.
+        :raises ChromosomeNotFoundError: Raise this error if region is not valid.
         """
         pass
 
@@ -160,12 +176,12 @@ class _BaseFastaView(FastaViewType, ABC):
 
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         if chromosome not in self.chr_names:
-            raise ValueError(f"Chr {chromosome} not found")
+            raise ChromosomeNotFoundError(chromosome)
         chr_len = self.get_chr_length(chromosome)
         if from_pos < 0 or from_pos > chr_len:
-            raise ValueError(f"Seek {from_pos} too far")
+            raise SeekTooFarError(chromosome, from_pos, chr_len)
         if to_pos != -1 and to_pos < 0 or to_pos > chr_len:
-            raise ValueError(f"Seek {to_pos} too far")
+            raise SeekTooFarError(chromosome, to_pos, chr_len)
 
     def __len__(self) -> int:
         return len(self.chr_names)

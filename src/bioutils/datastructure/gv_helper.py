@@ -4,7 +4,7 @@ from typing import List, Tuple, Iterable
 from bioutils.algorithm.sequence import get_gc_percent
 from bioutils.datastructure.fasta_view import FastaViewType
 from bioutils.datastructure.gene_view import GeneViewType
-from bioutils.datastructure.gene_view_proxy import Transcript, Gene, Exon
+from bioutils.datastructure.gv_feature_proxy import Transcript, Gene, Exon
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -117,7 +117,7 @@ def transcribe(
             "LEN",
             "GC"
         )) + "\n")
-        for transcript_name, transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
+        for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
             transcript_name = transcript_value.transcript_id
             fa_str = f">{transcript_name}\n{cdna_seq}\n"

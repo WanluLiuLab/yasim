@@ -12,6 +12,7 @@ from typing import List, Callable, Optional, Iterable, Tuple, Type
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.datastructure._gv_errors import _all as _gve_all
+from bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
 from bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 from commonutils.dynamic.hook_helper import hookable_decorator
 
@@ -308,14 +309,17 @@ class Transcript(BaseFeatureProxy):
         if self._cdna_sequence is not None:
             return self._cdna_sequence
         self._cdna_sequence = ""
-        if self.strand == '-':
-            for exon in sorted(self._exons)[::-1]:
-                self._cdna_sequence += reverse_complement(
-                    sequence_func(self.seqname, exon.start - 1, exon.end)
-                )
-        else:
-            for exon in self._exons:
-                self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
+        try:
+            if self.strand == '-':
+                for exon in sorted(self._exons)[::-1]:
+                    self._cdna_sequence += reverse_complement(
+                        sequence_func(self.seqname, exon.start - 1, exon.end)
+                    )
+            else:
+                for exon in self._exons:
+                    self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
+        except FastaViewInvalidRegionError:  # FIXME: add ?
+            pass
         return self._cdna_sequence
 
     def __eq__(self, other: Transcript):

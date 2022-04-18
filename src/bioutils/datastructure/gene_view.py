@@ -9,7 +9,7 @@ from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type, Iterable
 
 from bioutils.datastructure._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
-from bioutils.datastructure.gene_view_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
+from bioutils.datastructure.gv_feature_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
     DEFAULT_SORT_EXON_EXON_STRAND_POLICY
 from bioutils.io import get_file_type_from_suffix
 from bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
