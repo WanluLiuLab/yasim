@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
+eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
+conda activate yasim_c_elegans_as_depth_analysis
 set -ueo pipefail
 
-cd "$(readlink -f "$(dirname "${0}")")" || exit 1
-. shlib/libstr.sh
-. shlib/libisopt.sh
-. shlib/libdo.sh
-. shlib/libprivate.sh
+SHDIR="$(readlink -f "$(dirname "${0}")")"
+. "${SHDIR}"/shlib/libstr.sh
+. "${SHDIR}"/shlib/libisopt.sh
+. "${SHDIR}"/shlib/libdo.sh
+. "${SHDIR}"/shlib/libprivate.sh
 
 if [ -f "${FASTQ_BASE_NAME}_1.fq" ] && [ -f "${FASTQ_BASE_NAME}_2.fq" ]; then
     FASTQ_NAME_1="${FASTQ_BASE_NAME}_1.fq"
@@ -28,38 +30,37 @@ else
 fi
 
 if [ -d "${GENE_REFERENCE}_STAR_idx" ]; then
-    GENE_REFERENCE="${GENE_REFERENCE}_STAR_idx"
+    STAR_REFERENCE="${GENE_REFERENCE}_STAR_idx"
 else
     errh "STAR index not found at ${GENE_REFERENCE}_STAR_idx"
 fi
 
-if [ ${IS_GZ} -eq 0 ]; then
-    [ ! -f "${FASTQ_BASE_NAME}".GENE.bam ] && STAR --runThreadN "${THREAD_NUM}" --genomeDir "${GENE_REFERENCE}" \
-    --readFilesIn "${FASTQ_NAME_1}" "${FASTQ_NAME_2}" --outFilterMismatchNmax 2 --outSAMmultNmax 1 --outFileNamePrefix "${FASTQ_BASE_NAME}" | \
-    samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".GENE.bam
+if [ -d "${TRANSCRIPT_REFERENCE}_bwa_idx" ]; then
+    BWA_REFERENCE="${TRANSCRIPT_REFERENCE}_bwa_idx"
 else
-    [ ! -f "${FASTQ_BASE_NAME}".GENE.bam ] && STAR --runThreadN "${THREAD_NUM}" --genomeDir "${GENE_REFERENCE}" --readFilesCommand zcat \
-    --readFilesIn "${FASTQ_NAME_1}" "${FASTQ_NAME_2}" --outFilterMismatchNmax 2 --outSAMmultNmax 1 --outFileNamePrefix "${FASTQ_BASE_NAME}" | \
-    samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".GENE.bam
+    errh "BWA index not found at ${TRANSCRIPT_REFERENCE}_bwa_idx"
 fi
 
-[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam ] && bwa mem -t 12 "${GENE_REFERENCE}" "${FASTQ_NAME_1}" "${FASTQ_NAME_2}" | \
+if [ ! -f "${FASTQ_BASE_NAME}".GENE.bam ];then
+    if [ ${IS_GZ} -eq 0 ]; then
+        readFilesCommand="cat"
+    else
+        readFilesCommand="zcat"
+    fi
+    STAR --runThreadN "${THREAD_NUM}" \
+    --genomeDir "${STAR_REFERENCE}" \
+    --readFilesCommand "${readFilesCommand}" \
+    --readFilesIn "${FASTQ_NAME_1}" "${FASTQ_NAME_2}" \
+    --outSAMtype BAM Unsorted \
+    --outSAMattributes All \
+    --outFileNamePrefix "${FASTQ_BASE_NAME}_STAR/"
+    samtools sort "${FASTQ_BASE_NAME}_STAR/Aligned.out.bam" -@ "${THREAD_NUM}"  -o "${FASTQ_BASE_NAME}".GENE.bam
+    rm -rf "${FASTQ_BASE_NAME}_STAR/"
+fi
+
+
+[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam ] && bwa mem -t "${THREAD_NUM}" "${BWA_REFERENCE}/bwa" "${FASTQ_NAME_1}" "${FASTQ_NAME_2}" | \
 samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".TRANS.bam
 
-[ ! -f "${FASTQ_BASE_NAME}".GENE.bam.bai ] && samtools index "${FASTQ_BASE_NAME}".GENE.bam
-[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam.bai ] && samtools index "${FASTQ_BASE_NAME}".TRANS.bam
-[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam.depth.tsv ] && samtools depth "${FASTQ_BASE_NAME}".TRANS.bam > "${FASTQ_BASE_NAME}".TRANS.bam.depth.tsv
-
-[ ! -f "${FASTQ_BASE_NAME}".transcript.depth.tsv ] &&  \
-    Rscript R/transform_depth_results.R \
-    --libfile R/lib.R \
-    --input "${FASTQ_BASE_NAME}".TRANS.bam.depth.tsv \
-    --fa_stats "${TRANSCRIPT_REFERENCE}.stats" \
-    --output "${FASTQ_BASE_NAME}".transcript.depth.tsv
-[ ! -f "${FASTQ_BASE_NAME}".stringtie_unguided.gtf ] && \
-stringtie "${FASTQ_BASE_NAME}".GENE.bam -o "${FASTQ_BASE_NAME}".stringtie_unguided.gtf
-
-[ ! -f "${FASTQ_BASE_NAME}".stringtie_guided.gtf ] && \
-stringtie "${FASTQ_BASE_NAME}".GENE.bam \
--G "${GENE_GTF}" \
--o "${FASTQ_BASE_NAME}".stringtie_guided.gtf
+. "${SHDIR}"/shlib/libpost_alignment_analysis.sh
+. "${SHDIR}"/shlib/libspladder_analysis_ngs.sh
