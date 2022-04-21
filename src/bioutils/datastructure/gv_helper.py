@@ -119,6 +119,10 @@ def transcribe(
         )) + "\n")
         for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
+            if len(cdna_seq) == 0:
+                continue
+
+
             transcript_name = transcript_value.transcript_id
             fa_str = f">{transcript_name}\n{cdna_seq}\n"
             fasta_writer.write(fa_str)

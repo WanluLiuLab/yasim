@@ -378,7 +378,7 @@ class BaseGeneView(GeneViewType, ABC):
         transcript = self.get_transcript(transcript_id)
         new_transcript = copy.deepcopy(transcript)
         new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
-        new_transcript.transcript_id = transcript.gene_id + str(uuid.uuid4())
+        new_transcript.transcript_id = transcript.gene_id + "-" + str(uuid.uuid4())
         for exon in new_transcript.iter_exons():
             exon.transcript_id = new_transcript.transcript_id
         self.add_transcript(new_transcript, fast=True)

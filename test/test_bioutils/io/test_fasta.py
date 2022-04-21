@@ -6,7 +6,8 @@ import os
 import pytest
 
 import conftest
-from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, ChromosomeNotFoundError
+from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, ChromosomeNotFoundError, \
+    FromGreaterThanToError
 from bioutils.io.fai import create_fai_from_fasta
 from commonutils import shell_utils
 from commonutils.io.safe_io import get_writer
@@ -86,6 +87,8 @@ def _public_asserts(fa: FastaViewType) -> None:
         fa.sequence('chr2', -5, 29)
     with pytest.raises(SeekTooFarError):
         fa.sequence('chr2', 500, 29)
+    with pytest.raises(FromGreaterThanToError):
+        fa.sequence('chr2', 12, 5)
 
 
 def _fasta_with_full_header_assets(fa: FastaViewType) -> None:

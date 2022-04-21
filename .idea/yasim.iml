@@ -74,6 +74,8 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/_deprecated" />
       <excludeFolder url="file://$MODULE_DIR$/.kdev4" />
       <excludeFolder url="file://$MODULE_DIR$/venv_py36" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/AAAAA.d" />
+      <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/BBBB.d" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (yasim_py37)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

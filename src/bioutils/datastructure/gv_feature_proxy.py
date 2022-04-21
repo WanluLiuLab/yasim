@@ -8,7 +8,7 @@ import copy
 import math
 import uuid
 from abc import abstractmethod
-from typing import List, Callable, Optional, Iterable, Tuple, Type
+from typing import List, Callable, Optional, Iterable, Tuple, Type, Union
 
 from bioutils.algorithm.sequence import reverse_complement
 from bioutils.datastructure._gv_errors import _all as _gve_all
@@ -22,9 +22,11 @@ __all__ = [
     'Exon', 'Transcript', 'Gene'
 ]
 
+from commonutils.stdlib_helper.logger_helper import get_logger
+
 __all__.extend(_gve_all)
 
-
+lh = get_logger(__name__)
 def unknown_transcript_id() -> str:
     """Generate a new unknown transcript ID"""
     return 'unknown_transcript_id' + str(uuid.uuid4())
@@ -190,6 +192,18 @@ class BaseFeatureProxy(FeatureType):
         """Disabled"""
         return repr(self)
 
+    @property
+    def naive_length(self):
+        """
+        The length on GTF
+        """
+        return self.end - self.start + 1
+
+    @property
+    @abstractmethod
+    def transcribed_length(self):
+        pass
+
 
 class Exon(BaseFeatureProxy):
 
@@ -231,6 +245,10 @@ class Exon(BaseFeatureProxy):
     def __repr__(self):
         return f"Exon {self.exon_number} of {self.transcript_id}"
 
+
+    @property
+    def transcribed_length(self):
+        return self.naive_length
 
 class Transcript(BaseFeatureProxy):
     _exons: List[Exon]
@@ -276,12 +294,15 @@ class Transcript(BaseFeatureProxy):
     def _setup_gff3(self) -> None:
         raise NotImplementedError
 
-    @property
-    def naive_length(self) -> int:
-        """
-        The length on GTF
-        """
-        return self.end - self.start + 1
+    def get_intron_length(self, intron_index:int) -> Union[int, float]:
+        if intron_index == -1 or intron_index == self.number_of_exons:
+            return math.inf
+        _len =  self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
+        # if _len < 0:
+        #     raise ValueError(
+        #         f"{self._exons[intron_index + 1]._data}\n{self._exons[intron_index]._data}"
+        #     )
+        return _len
 
     @property
     def span_length(self) -> int:
@@ -300,27 +321,41 @@ class Transcript(BaseFeatureProxy):
         """
         Length after transcribed to cDNA
         """
-        reti = 0
-        for exon in self._exons:
-            reti += exon.end - exon.start + 1
-        return reti
+        return sum(map(lambda exon: exon.transcribed_length, self.iter_exons()))
 
     def cdna_sequence(self, sequence_func: Callable[[str, int, int], str]) -> str:
-        if self._cdna_sequence is not None:
-            return self._cdna_sequence
-        self._cdna_sequence = ""
-        try:
-            if self.strand == '-':
-                for exon in sorted(self._exons)[::-1]:
-                    self._cdna_sequence += reverse_complement(
-                        sequence_func(self.seqname, exon.start - 1, exon.end)
+
+        def get_exon_seq(_exon:Exon) -> str:
+            try:
+                _seq = sequence_func(self.seqname, _exon.start - 1, _exon.end)
+                if len(_seq) != _exon.transcribed_length:
+                    lh.warn(
+                        f"{self.transcript_id}: Different exon length at {_exon}: " +
+                        f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})" +
+                        f"({_exon.get_data()})"
                     )
-            else:
-                for exon in self._exons:
-                    self._cdna_sequence += sequence_func(self.seqname, exon.start - 1, exon.end)
-        except FastaViewInvalidRegionError:  # FIXME: add ?
-            pass
-        return self._cdna_sequence
+            except FastaViewInvalidRegionError:  # FIXME: add ?
+                lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon {_exon}")
+                _seq = ""
+            return _seq
+
+        rets = ""
+        if self.strand == '-':
+            for exon in self._exons[::-1]:
+                rets += reverse_complement(
+                    get_exon_seq(exon)
+                )
+        else:
+            for exon in self._exons:
+                rets += get_exon_seq(exon)
+        if len(rets) == 0:
+            lh.warn(f"Transcript {self.transcript_id} failed!")
+        elif len(rets) != self.transcribed_length:
+            lh.warn(
+                f"Transcript {self.transcript_id} " +
+                f"cdna_len({len(rets)}) != transcribed_len ({self.transcribed_length})."
+            )
+        return rets
 
     def __eq__(self, other: Transcript):
         for exon_s, exon_o in zip(self._exons, other._exons):

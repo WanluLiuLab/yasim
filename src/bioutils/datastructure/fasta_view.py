@@ -49,6 +49,9 @@ class ChromosomeNotFoundError(FastaViewInvalidRegionError):
     def __init__(self, chromosome:str):
         super().__init__(f"Requested chromosome {chromosome} not found")
 
+class FromGreaterThanToError(FastaViewInvalidRegionError):
+    def __init__(self, from_pos:int, to_pos:int):
+        super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
 
 
 class FastaViewType:
@@ -182,6 +185,8 @@ class _BaseFastaView(FastaViewType, ABC):
             raise SeekTooFarError(chromosome, from_pos, chr_len)
         if to_pos != -1 and to_pos < 0 or to_pos > chr_len:
             raise SeekTooFarError(chromosome, to_pos, chr_len)
+        if to_pos != -1 and from_pos > to_pos:
+            raise FromGreaterThanToError(from_pos, to_pos)
 
     def __len__(self) -> int:
         return len(self.chr_names)
