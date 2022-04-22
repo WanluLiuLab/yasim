@@ -18,11 +18,15 @@ which is only snake-case wrappers for those contents inside :py:mod:`logging` st
 
 import logging
 import os
-
+from logging import DEBUG, WARNING, ERROR, FATAL
 from typing import Union
 
 __all__ = (
     'TRACE',
+    'DEBUG',
+    'WARNING',
+    'ERROR',
+    'FATAL',
     'chronolog',
     'set_level',
     'get_logger'

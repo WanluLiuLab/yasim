@@ -6,7 +6,7 @@ import argparse
 from typing import List
 
 from bioutils.datastructure.gene_view import GeneViewFactory
-from bioutils.datastructure.gene_view_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
+from bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
     VALID_SORT_EXON_EXON_STRAND_POLICY
 from bioutils.io.feature import GtfIterator, GtfWriter
 from bioutils.typing.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
@@ -44,7 +44,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         choices=VALID_SORT_EXON_EXON_STRAND_POLICY,
         default=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     )
-    parser.add_argument("--out", required=True, help="Output GTF", nargs='?', type=str, action='store')
+    parser.add_argument("-o", "--out", required=True, help="Output GTF", nargs='?', type=str, action='store')
     return parser.parse_args(args)
 
 

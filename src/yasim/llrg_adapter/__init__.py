@@ -2,7 +2,7 @@ import os
 import subprocess
 import threading
 from abc import abstractmethod
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Optional, Union, List, Callable
 
 from commonutils import shell_utils
 from commonutils.stdlib_helper.logger_helper import get_logger
@@ -63,6 +63,11 @@ class BaseLLRGAdapter(threading.Thread):
     Can be name, relative or absolute path to LLRG Shell Adapters or LLRG itself.
     """
 
+    _before_cmd_hooks: List[Callable[[], None]]
+    _after_cmd_hooks: List[Callable[[], None]]
+    _on_success_hooks: List[Callable[[], None]]
+    _on_failure_hooks: List[Callable[[], None]]
+
     def __init__(self,
                  input_fasta: str,
                  output_fastq_prefix: str,
@@ -77,6 +82,10 @@ class BaseLLRGAdapter(threading.Thread):
         self.kwargs = dict(kwargs)
         self.exename = exename
         self.lh = get_logger(__name__)
+        self._before_cmd_hooks = []
+        self._after_cmd_hooks = []
+        self._on_failure_hooks = []
+        self._on_success_hooks = []
 
     @abstractmethod
     def assemble_cmd(self) -> List[str]:
@@ -93,6 +102,11 @@ class BaseLLRGAdapter(threading.Thread):
         """
         pass
 
+    @staticmethod
+    def _execute_hooks(_hooks: List[Callable[[], None]]):
+        for hook in _hooks:
+            hook()
+
     def run_simulator_as_process(self, simulator_name: str, stdout_filename: Optional[str] = None) -> int:
         """
         Use a subprocess to run LLRG.
@@ -107,6 +121,7 @@ class BaseLLRGAdapter(threading.Thread):
         cmd = self.assemble_cmd()
         log_filename = self.output_fastq_prefix + ".log"
         log_handler = open(log_filename, "w")
+        BaseLLRGAdapter._execute_hooks(self._before_cmd_hooks)
         self.lh.debug(f"Subprocess {' '.join(cmd)} START")
         if stdout_filename is None:
             stdout = log_handler
@@ -119,10 +134,13 @@ class BaseLLRGAdapter(threading.Thread):
             stderr=log_handler
         )
         retv = p.wait()
+        BaseLLRGAdapter._execute_hooks(self._after_cmd_hooks)
         if retv == 0:
+            BaseLLRGAdapter._execute_hooks(self._on_success_hooks)
             self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
             shell_utils.rm_rf(log_filename)
             self.move_file_after_finish()
         else:
+            BaseLLRGAdapter._execute_hooks(self._on_failure_hooks)
             self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
         return retv

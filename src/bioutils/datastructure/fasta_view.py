@@ -36,6 +36,29 @@ __all__ = [
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
 
+class FastaViewError(ValueError):
+    pass
+
+
+class FastaViewInvalidRegionError(FastaViewError):
+    pass
+
+
+class SeekTooFarError(FastaViewInvalidRegionError):
+    def __init__(self, chromosome: str, pos: int, chr_len: int):
+        super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
+
+
+class ChromosomeNotFoundError(FastaViewInvalidRegionError):
+    def __init__(self, chromosome: str):
+        super().__init__(f"Requested chromosome {chromosome} not found")
+
+
+class FromGreaterThanToError(FastaViewInvalidRegionError):
+    def __init__(self, from_pos: int, to_pos: int):
+        super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
+
+
 class FastaViewType:
     """
     Abstract class of factories.
@@ -93,7 +116,8 @@ class FastaViewType:
         """
         Whether a region is valid. See :py:func:`sequence` for details.
 
-        :raises ValueError: Raise this error if region is not valid.
+        :raises SeekTooFarError: Raise this error if region is not valid.
+        :raises ChromosomeNotFoundError: Raise this error if region is not valid.
         """
         pass
 
@@ -160,12 +184,14 @@ class _BaseFastaView(FastaViewType, ABC):
 
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         if chromosome not in self.chr_names:
-            raise ValueError(f"Chr {chromosome} not found")
+            raise ChromosomeNotFoundError(chromosome)
         chr_len = self.get_chr_length(chromosome)
         if from_pos < 0 or from_pos > chr_len:
-            raise ValueError(f"Seek {from_pos} too far")
+            raise SeekTooFarError(chromosome, from_pos, chr_len)
         if to_pos != -1 and to_pos < 0 or to_pos > chr_len:
-            raise ValueError(f"Seek {to_pos} too far")
+            raise SeekTooFarError(chromosome, to_pos, chr_len)
+        if to_pos != -1 and from_pos > to_pos:
+            raise FromGreaterThanToError(from_pos, to_pos)
 
     def __len__(self) -> int:
         return len(self.chr_names)
@@ -272,8 +298,6 @@ class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
     Slow but memory-efficient.
-
-    # FIXME: Error handling one-line FASTA
     """
 
     _fd: IO
@@ -301,13 +325,13 @@ class _DiskAccessFastaView(_BaseFastaView):
             create_fai_from_fasta(self.filename, index_filename)
         self._read_index_from_fai(index_filename)
 
-    @chronolog(display_time=True)
     def _read_index_from_fai(self, index_filename: str):
         self._fai = {}
         for line in get_tqdm_line_reader(index_filename):
             index_entry = FastaIndexEntry.from_fai_str(line)
             self._fai[index_entry.name] = index_entry
 
+    @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
         chr_fai = self._fai[chromosome]
@@ -358,7 +382,6 @@ class FastaViewFactory:
         :param full_header: Whether to read full headers.
         :param read_into_memory: Whether to read into memory.
         """
-        # return _MemoryAccessFastaView(filename, full_header)
         if read_into_memory:
             return _MemoryAccessFastaView(filename, full_header)
         else:

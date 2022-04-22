@@ -2,7 +2,6 @@ import os
 
 import pytest
 
-import commonutils
 import conftest
 from commonutils import shell_utils, sysctl
 from commonutils.io.file_system import file_exists, get_abspath
@@ -21,8 +20,8 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
 
 
 def test_mkdir_p_and_rm_f(initialize_module):
-    if commonutils.sysctl.is_user_admin() == 0:
-        if not commonutils.sysctl.is_windows():
+    if sysctl.is_user_admin() == 0:
+        if not sysctl.is_windows():
             with pytest.raises(PermissionError):
                 shell_utils.mkdir_p('/root/__')
             with pytest.raises(PermissionError):
@@ -32,7 +31,7 @@ def test_mkdir_p_and_rm_f(initialize_module):
                 shell_utils.mkdir_p('C:\\Windows\\__')
             with pytest.raises(PermissionError):
                 shell_utils.touch('C:\\Windows\\__')
-    if not commonutils.sysctl.is_windows():
+    if not sysctl.is_windows():
         assert file_exists('/dev/null', allow_special_paths=True)
         assert not file_exists('/dev/null', allow_special_paths=False)
     aa = os.path.join(initialize_module.path, "aa")
@@ -50,7 +49,7 @@ def test_mkdir_p_and_rm_f(initialize_module):
 
 def test_wc_c(initialize_module):
     if sysctl.is_windows():
-        pass
+        return
     aa = os.path.join(initialize_module.path, "aa")
     shell_utils.touch(aa)
     assert shell_utils.wc_c(aa) == 0
@@ -69,11 +68,17 @@ def test_readlink_f(initialize_module):
     test_path = initialize_module.path
     if not is_windows():
         shell_utils.rm_rf(test_path)
-        shell_utils.touch(f'{test_path}/aa')
-        os.symlink(f'{test_path}/aa', f'{test_path}/ab')
-        assert shell_utils.readlink_f(f'{test_path}/ab') == get_abspath(
-            f'{test_path}/aa')
+        shell_utils.touch(os.path.join(test_path, 'aa'))
+        os.symlink(os.path.join(test_path, 'aa'), os.path.join(test_path, 'ab'))
+        os.symlink(os.path.join(test_path, 'ab'), os.path.join(test_path, 'ac'))
+        assert shell_utils.readlink_f(os.path.join(test_path, 'ab')) == get_abspath(
+            os.path.join(test_path, 'aa'))
         assert shell_utils.readlink_f(
-            get_abspath(f'{test_path}/ab')) == get_abspath(
-            f'{test_path}/aa')
+            get_abspath(os.path.join(test_path, 'ab'))) == get_abspath(
+            os.path.join(test_path, 'aa'))
+        assert shell_utils.readlink_f(os.path.join(test_path, 'ac')) == get_abspath(
+            os.path.join(test_path, 'aa'))
+        assert shell_utils.readlink_f(
+            get_abspath(os.path.join(test_path, 'ac'))) == get_abspath(
+            os.path.join(test_path, 'aa'))
         shell_utils.rm_rf(test_path)

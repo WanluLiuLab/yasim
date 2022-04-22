@@ -39,6 +39,15 @@ Valid GTF Quoting Options. They are:
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
 
 
+class FeatureParserError(ValueError):
+    pass
+
+
+class RegionError(FeatureParserError):
+    def __init__(self, *args):
+        super(RegionError, self).__init__(*args)
+
+
 class FeatureType(object):
     """
     Abstract type of general GTF/GFF/BED Record.
@@ -47,11 +56,6 @@ class FeatureType(object):
     seqname: str
     """
     Chromosome or Contig name.
-    """
-
-    _sequence: Optional[str]
-    """
-    The cached sequence.
     """
 
     source: str
@@ -71,7 +75,8 @@ class FeatureType(object):
 
     end: int
     """
-    Inclusive 1-based end position."""
+    Inclusive 1-based end position.
+    """
 
     score: Union[int, float]
     """
@@ -142,23 +147,30 @@ class Feature(FeatureType):
         'attribute',
     )
 
-    def __init__(self,
-                 seqname: str,
-                 source: str,
-                 feature: str,
-                 start: int,
-                 end: int,
-                 score: Union[int, float],
-                 strand: str,
-                 frame: str,
-                 attribute: Optional[GTFAttributeType] = None
-                 ):
+    def __init__(
+            self,
+            seqname: str,
+            source: str,
+            feature: str,
+            start: int,
+            end: int,
+            score: Union[int, float],
+            strand: str,
+            frame: str,
+            attribute: Optional[GTFAttributeType] = None
+    ):
         """
         The filenames are named after Ensembl specifications.
 
         .. warning::
             Ensembl uses different way to represent 5'UTR.
         """
+        if start < 1:
+            raise RegionError(f"Start ({start}) cannot less than 1")
+        if end < 1:
+            raise RegionError(f"End ({end}) cannot less than 1")
+        if end < start:
+            raise RegionError(f"End ({end}) cannot less than Start ({start})")
         self.seqname = seqname
         self.source = source
         self.feature = feature
@@ -174,8 +186,8 @@ class Feature(FeatureType):
     def __eq__(self, other: Feature):
         return self.start == other.start and \
                self.end == other.end and \
-               self.seqname == other.seqname \
-               and self.strand == other.strand
+               self.seqname == other.seqname and \
+               self.strand == other.strand
 
     def __ne__(self, other: Feature):
         return not self == other
@@ -238,16 +250,17 @@ class Gff3Record(Feature):
     https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
     """
 
-    def __init__(self,
-                 seqname: str,
-                 source: str,
-                 feature: str,
-                 start: int,
-                 end: int,
-                 score: float,
-                 strand: str,
-                 frame: str,
-                 attribute: GTFAttributeType):
+    def __init__(
+            self,
+            seqname: str,
+            source: str,
+            feature: str,
+            start: int,
+            end: int,
+            score: float,
+            strand: str,
+            frame: str,
+            attribute: GTFAttributeType):
         super(Gff3Record, self).__init__(
             seqname=seqname,
             source=source,
@@ -279,15 +292,17 @@ class Gff3Record(Feature):
         # Score should be an integer
         if required_fields[5] == ".":
             required_fields[5] = "0"
-        return Gff3Record(seqname=required_fields[0],
-                          source=required_fields[1],
-                          feature=required_fields[2],
-                          start=int(required_fields[3]),
-                          end=int(required_fields[4]),
-                          score=int(float(required_fields[5])),
-                          strand=(required_fields[6]),
-                          frame=(required_fields[7]),
-                          attribute=attributes)
+        return Gff3Record(
+            seqname=required_fields[0],
+            source=required_fields[1],
+            feature=required_fields[2],
+            start=int(required_fields[3]),
+            end=int(required_fields[4]),
+            score=int(float(required_fields[5])),
+            strand=(required_fields[6]),
+            frame=(required_fields[7]),
+            attribute=attributes
+        )
 
     def format_string(self):
         attribute_str = ""
@@ -346,15 +361,17 @@ class GtfRecord(Feature):
         # Score should be an integer
         if required_fields[5] == ".":
             required_fields[5] = "0"
-        return GtfRecord(seqname=required_fields[0],
-                         source=required_fields[1],
-                         feature=required_fields[2],
-                         start=int(required_fields[3]),
-                         end=int(required_fields[4]),
-                         score=int(float(required_fields[5])),
-                         strand=(required_fields[6]),
-                         frame=(required_fields[7]),
-                         attribute=attributes)
+        return GtfRecord(
+            seqname=required_fields[0],
+            source=required_fields[1],
+            feature=required_fields[2],
+            start=int(required_fields[3]),
+            end=int(required_fields[4]),
+            score=int(float(required_fields[5])),
+            strand=(required_fields[6]),
+            frame=(required_fields[7]),
+            attribute=attributes
+        )
 
     def format_string(
             self,

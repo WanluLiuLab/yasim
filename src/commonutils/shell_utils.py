@@ -25,9 +25,6 @@ def readlink_f(path: str) -> str:
 
     :param path: Input relative path
     :return: What you get from readlink -f
-
-    FIXME: Errors in this function!
-    FIXME: Sometimes you need to use os.readlink()
     """
     path = path.rstrip(os.sep)
     if path == '':

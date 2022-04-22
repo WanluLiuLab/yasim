@@ -1,12 +1,10 @@
-import copy
 import os
-import uuid
 from typing import List, Tuple, Iterable
 
 from bioutils.algorithm.sequence import get_gc_percent
 from bioutils.datastructure.fasta_view import FastaViewType
 from bioutils.datastructure.gene_view import GeneViewType
-from bioutils.datastructure.gene_view_proxy import Transcript, Gene, Exon
+from bioutils.datastructure.gv_feature_proxy import Transcript, Gene, Exon
 from commonutils import shell_utils
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.io.safe_io import get_writer
@@ -60,31 +58,20 @@ def gv_dedup(
     lh.info("Finding transcript duplicates in gv...")
     if assume_no_cross_gene_duplication:
         transcript_ids_to_del = []
-        for gene in tqdm(iterable=gv.genes.values()):
+        for gene in tqdm(iterable=gv.iter_genes()):
             transcript_ids_to_del.extend(get_duplicated_transcript_ids(
-                transcripts=gene.transcripts.values(),
+                transcripts=gene.iter_transcripts(),
                 by_splice_site=by_splice_site
             ))
     else:
         transcript_ids_to_del = list(get_duplicated_transcript_ids(
-            transcripts=gv.transcripts.values(),
+            transcripts=gv.iter_transcripts(),
             by_splice_site=by_splice_site
         ))
     lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
     for transcript_id_to_del in transcript_ids_to_del:
         gv.del_transcript(transcript_id_to_del)
     lh.info("Removing transcript duplicate(s) in gv FIN")
-
-
-def generate_new_transcript_id(gene_id: str) -> str:
-    return gene_id + str(uuid.uuid4())
-
-
-def generate_new_transcript(transcript: Transcript) -> Transcript:
-    new_transcript = copy.deepcopy(transcript)
-    new_transcript.attribute['reference_transcript_id'] = new_transcript.transcript_id
-    new_transcript.transcript_id = generate_new_transcript_id(transcript.gene_id)
-    return new_transcript
 
 
 def enable_exon_superset():
@@ -100,8 +87,8 @@ def enable_exon_superset():
         if self._exon_superset is not None:
             return
         self._exon_superset: List[Exon] = []
-        for transcript in self.transcripts.values():
-            for exon in transcript.exons:
+        for transcript in self.iter_transcripts():
+            for exon in transcript.iter_exons():
                 add_exon(self._exon_superset, exon)
 
     def get_exon_superset(self: Gene):
@@ -130,8 +117,12 @@ def transcribe(
             "LEN",
             "GC"
         )) + "\n")
-        for transcript_name, transcript_value in tqdm(iterable=gv.transcripts.items(), desc="Transcribing GTF..."):
+        for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
+            if len(cdna_seq) == 0:
+                continue
+
+            transcript_name = transcript_value.transcript_id
             fa_str = f">{transcript_name}\n{cdna_seq}\n"
             fasta_writer.write(fa_str)
             stats_writer.write("\t".join((

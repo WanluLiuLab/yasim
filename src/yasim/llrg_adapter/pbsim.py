@@ -33,6 +33,7 @@ class PbsimAdapter(BaseLLRGAdapter):
         else:
             self.exename = exename
         self.is_ccs = is_ccs
+        self._after_cmd_hooks.append(self.hook_del_maf_after_finish)
 
     def assemble_cmd(self) -> List[str]:
         if self.is_ccs:
@@ -55,6 +56,11 @@ class PbsimAdapter(BaseLLRGAdapter):
             ]
         return cmd
 
+    def hook_del_maf_after_finish(self):
+        for filename in glob.glob(self.tmp_prefix + "_*.fastq"):
+            shell_utils.rm_rf(os.path.splitext(filename)[0] + ".maf")
+            shell_utils.rm_rf(os.path.splitext(filename)[0] + ".ref")
+
     def move_file_after_finish(self):
         counter = 0
         with get_writer(self.output_fastq_prefix + ".fq") as writer:
@@ -72,8 +78,6 @@ class PbsimAdapter(BaseLLRGAdapter):
                         writer.write(line)
                         counter += 1
                 shell_utils.rm_rf(filename)
-                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".maf")
-                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".ref")
 
     def run(self) -> None:
         self.run_simulator_as_process("pbsim")
