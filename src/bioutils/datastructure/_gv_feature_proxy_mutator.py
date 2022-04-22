@@ -1,4 +1,5 @@
 import bisect
+import math
 
 from bioutils.datastructure._gv_errors import *
 from bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, Transcript, Exon, Gene
@@ -60,6 +61,24 @@ class TranscriptMutator:
         if check_same_strand and exon.strand != transcript.strand and exon.strand != "." and transcript.strand != ".":
             raise ExonInATranscriptOnDifferentStrandError
         transcript._exons.insert(new_pos, exon)
+
+    @staticmethod
+    def rescale_inferred_transcript_from_exon_boundaries(
+            transcript: Transcript,
+    ):
+        exon_s_min = math.inf
+        exon_e_max = - math.inf
+        for exon in transcript.iter_exons():
+            exon_s_min = min(exon_s_min, exon.start)
+            exon_e_max = max(exon_e_max, exon.end)
+
+        if transcript.feature != "transcript" or \
+                transcript.start > exon_s_min or \
+                transcript.end < exon_e_max:
+            transcript.copy_data()
+            transcript.start = exon_s_min
+            transcript.end = exon_e_max
+            transcript.feature = "transcript"
 
 
 class GeneMutator:

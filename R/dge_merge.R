@@ -77,7 +77,7 @@ mutate_tables_for_rpkm <- function(all_table, step_name, n) {
         )
 
     rm(sum_n_of_reads)
-            #' sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", .GlobalEnv$n)]])
+                #' sum(all_table[[sprintf("%s_%d_ACTUAL_N_OF_READS", "YASIM", .GlobalEnv$n)]])
     # print(names(all_table))
     sum_rpk <- sum(
         replace_na(all_table[[sprintf("%s_%d_ACTUAL_RPK", step_name, n)]], 0)

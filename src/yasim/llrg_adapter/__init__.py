@@ -68,8 +68,6 @@ class BaseLLRGAdapter(threading.Thread):
     _on_success_hooks: List[Callable[[], None]]
     _on_failure_hooks: List[Callable[[], None]]
 
-
-
     def __init__(self,
                  input_fasta: str,
                  output_fastq_prefix: str,
@@ -105,10 +103,9 @@ class BaseLLRGAdapter(threading.Thread):
         pass
 
     @staticmethod
-    def _execute_hooks(_hooks:List[Callable[[], None]]):
+    def _execute_hooks(_hooks: List[Callable[[], None]]):
         for hook in _hooks:
             hook()
-
 
     def run_simulator_as_process(self, simulator_name: str, stdout_filename: Optional[str] = None) -> int:
         """

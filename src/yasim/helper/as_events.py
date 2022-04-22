@@ -142,7 +142,7 @@ class ASManipulator:
                 (self.core_perform_alternative_3p_splicing,),
                 (self.core_perform_intron_retention,),
                 (self.core_perform_alternative_5p_splicing,),
-                (self.core_perform_exon_skipping, ),
+                (self.core_perform_exon_skipping,),
                 (
                     lambda x: self.core_perform_alternative_5p_splicing(x),
                     lambda x: self.core_perform_alternative_3p_splicing(x)

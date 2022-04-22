@@ -27,6 +27,8 @@ from commonutils.stdlib_helper.logger_helper import get_logger
 __all__.extend(_gve_all)
 
 lh = get_logger(__name__)
+
+
 def unknown_transcript_id() -> str:
     """Generate a new unknown transcript ID"""
     return 'unknown_transcript_id' + str(uuid.uuid4())
@@ -245,10 +247,10 @@ class Exon(BaseFeatureProxy):
     def __repr__(self):
         return f"Exon {self.exon_number} of {self.transcript_id}"
 
-
     @property
     def transcribed_length(self):
         return self.naive_length
+
 
 class Transcript(BaseFeatureProxy):
     _exons: List[Exon]
@@ -294,10 +296,10 @@ class Transcript(BaseFeatureProxy):
     def _setup_gff3(self) -> None:
         raise NotImplementedError
 
-    def get_intron_length(self, intron_index:int) -> Union[int, float]:
+    def get_intron_length(self, intron_index: int) -> Union[int, float]:
         if intron_index == -1 or intron_index == self.number_of_exons:
             return math.inf
-        _len =  self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
+        _len = self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
         # if _len < 0:
         #     raise ValueError(
         #         f"{self._exons[intron_index + 1]._data}\n{self._exons[intron_index]._data}"
@@ -325,7 +327,7 @@ class Transcript(BaseFeatureProxy):
 
     def cdna_sequence(self, sequence_func: Callable[[str, int, int], str]) -> str:
 
-        def get_exon_seq(_exon:Exon) -> str:
+        def get_exon_seq(_exon: Exon) -> str:
             try:
                 _seq = sequence_func(self.seqname, _exon.start - 1, _exon.end)
                 if len(_seq) != _exon.transcribed_length:

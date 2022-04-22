@@ -10,10 +10,10 @@ all_as_summary <- all_as %>%
 events <- unique(all_as_summary$EVENT)
 
 all_as_summary_wide <- tidyr::spread(
-    all_as_summary, key=EVENT, value=n, fill=0
+    all_as_summary, key = EVENT, value = n, fill = 0
 ) %>%
-    dplyr::rowwise()%>%
-    dplyr::mutate(sum=sum(c_across(cols = events)))
+    dplyr::rowwise() %>%
+    dplyr::mutate(sum = sum(c_across(cols = events)))
 
 upset(data = all_as_summary_wide, intersect = events)
 

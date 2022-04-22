@@ -122,7 +122,6 @@ def transcribe(
             if len(cdna_seq) == 0:
                 continue
 
-
             transcript_name = transcript_value.transcript_id
             fa_str = f">{transcript_name}\n{cdna_seq}\n"
             fasta_writer.write(fa_str)

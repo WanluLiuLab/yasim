@@ -7,9 +7,9 @@ load_package("tidyverse")
 
 
 depth_data_col_type <- cols(
-    TRANSCRIPT_ID=col_character(),
-    BASE=col_number(),
-    DEPTH=col_number()
+    TRANSCRIPT_ID = col_character(),
+    BASE = col_number(),
+    DEPTH = col_number()
 )
 
 depth_data_col_name <- c(

@@ -35,22 +35,27 @@ __all__ = [
 
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
+
 class FastaViewError(ValueError):
     pass
+
 
 class FastaViewInvalidRegionError(FastaViewError):
     pass
 
+
 class SeekTooFarError(FastaViewInvalidRegionError):
-    def __init__(self, chromosome:str, pos:int, chr_len:int):
+    def __init__(self, chromosome: str, pos: int, chr_len: int):
         super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
 
+
 class ChromosomeNotFoundError(FastaViewInvalidRegionError):
-    def __init__(self, chromosome:str):
+    def __init__(self, chromosome: str):
         super().__init__(f"Requested chromosome {chromosome} not found")
 
+
 class FromGreaterThanToError(FastaViewInvalidRegionError):
-    def __init__(self, from_pos:int, to_pos:int):
+    def __init__(self, from_pos: int, to_pos: int):
         super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
 
 

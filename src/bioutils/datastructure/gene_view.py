@@ -320,20 +320,13 @@ class BaseGeneView(GeneViewType, ABC):
             if remove_transcript_without_exons and transcript.number_of_exons == 0:
                 transcript_id_to_del.append(transcript.transcript_id)
                 continue
-            self.transcript_sort_exons(transcript.transcript_id)
+            self.transcript_sort_exons(
+                transcript.transcript_id,
+                sort_exon_exon_number_policy
+            )
 
-            if rescale_inferred_transcript_from_exon_boundaries and \
-                    transcript.feature != "transcript" and \
-                    transcript.number_of_exons > 0:
-                transcript.copy_data()
-                exon_s_min = math.inf
-                exon_e_max = - math.inf
-                for exon in transcript.iter_exons():
-                    exon_s_min = min(exon_s_min, exon.start)
-                    exon_e_max = max(exon_e_max, exon.end)
-                transcript.start = exon_s_min
-                transcript.end = exon_e_max
-                transcript.feature = "transcript"
+            if rescale_inferred_transcript_from_exon_boundaries:
+                TranscriptMutator.rescale_inferred_transcript_from_exon_boundaries(transcript)
         for transcript_id in transcript_id_to_del:
             self.del_transcript(transcript_id)
 
@@ -344,6 +337,7 @@ class BaseGeneView(GeneViewType, ABC):
             if gene.number_of_transcripts == 0:
                 gene_id_to_del.append(gene.gene_id)
                 continue
+            # FIXME: This may induce bugs.
             if gene.feature != "gene":
                 gene.copy_data()
                 transcript_s_min = math.inf
