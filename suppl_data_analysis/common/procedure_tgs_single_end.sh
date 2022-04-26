@@ -27,4 +27,7 @@ samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".GENE.bam
 [ ! -f "${FASTQ_BASE_NAME}".TRANS.bam ] && minimap2 -t "${THREAD_NUM}" -a "${TRANSCRIPT_REFERENCE}" "${FASTQ_NAME}" | \
 samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".TRANS.bam
 
+# shellcheck disable=SC2034
+STRINGTIE_OPTS="-L"
+
 . "${SHDIR}"/shlib/libpost_alignment_analysis.sh
