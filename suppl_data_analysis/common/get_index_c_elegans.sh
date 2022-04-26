@@ -24,5 +24,5 @@ BWA_REFERENCE="${TRANSCRIPT_REFERENCE}_bwa_idx"
 
 if [ ! -d "${BWA_REFERENCE}" ]; then
     mkdir -p "${BWA_REFERENCE}"
-    bwa index -p "${BWA_REFERENCE}/bwa" "${GENE_REFERENCE}" || rm -drf "${BWA_REFERENCE}"
+    bwa index -p "${BWA_REFERENCE}/bwa" "${TRANSCRIPT_REFERENCE}" || rm -drf "${BWA_REFERENCE}"
 fi

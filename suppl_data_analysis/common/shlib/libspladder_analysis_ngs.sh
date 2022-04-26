@@ -6,4 +6,4 @@ spladder build \
 -a "${GENE_GTF}" \
 --parallel "${THREAD_NUM}"
 
-true # FIXME: Why have to add this?
+true

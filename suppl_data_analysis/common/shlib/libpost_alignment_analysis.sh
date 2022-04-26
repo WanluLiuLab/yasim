@@ -10,15 +10,20 @@
     --fa_stats "${TRANSCRIPT_REFERENCE}.stats" \
     --output "${FASTQ_BASE_NAME}".transcript.depth.tsv
 
-[ ! -f "${FASTQ_BASE_NAME}".stringtie_unguided.gtf ] && \
-stringtie "${FASTQ_BASE_NAME}".GENE.bam \
--p "${THREAD_NUM}" \
--o "${FASTQ_BASE_NAME}".stringtie_unguided.gtf
+
+# These code have bugs. You should have SATR aligned with XZ tag.
+# That is, add `--outSAMstrandField intronMotif` when aligning with STAR.
+#[ ! -f "${FASTQ_BASE_NAME}".stringtie_unguided.gtf ] && \
+#stringtie "${FASTQ_BASE_NAME}".GENE.bam \
+#-p "${THREAD_NUM}" \
+#${STRINGTIE_OPTS:-} \
+#-o "${FASTQ_BASE_NAME}".stringtie_unguided.gtf
 
 [ ! -f "${FASTQ_BASE_NAME}".stringtie_guided.gtf ] && \
 stringtie "${FASTQ_BASE_NAME}".GENE.bam \
 -p "${THREAD_NUM}" \
 -G "${GENE_GTF}" \
+${STRINGTIE_OPTS:-} \
 -o "${FASTQ_BASE_NAME}".stringtie_guided.gtf
 
 true
