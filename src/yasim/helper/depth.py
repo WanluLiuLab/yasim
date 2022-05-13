@@ -35,6 +35,10 @@ def simulate_dge_uniform(
     return depth
 
 
+nb_generator = nbinom(n=2, p=0.016291702363523883)
+nb_generator_mean = nb_generator.mean()
+
+
 def simulate_dge_nb(
         gv: GeneViewType,
         mu: int
@@ -46,8 +50,7 @@ def simulate_dge_nb(
     depth = {}
 
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
-        d = 1
-        # TODO: Ruihong d = int(nbinom.rvs(1, mu))
+        d = int(nb_generator.rvs() / nb_generator_mean * mu)
         depth[transcript_id] = d
     return depth
 
