@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import lognorm
-import matplotlib.pyplot as plt
 
 data = pd.read_csv("fitted_n_isoforms.csv")
 
@@ -8,7 +8,7 @@ count = data["count"].to_numpy()
 
 count_extracted = []
 for n in range(1, len(count) + 1):
-    count_extracted.extend([n] * int(count[n-1]))
+    count_extracted.extend([n] * int(count[n - 1]))
 
 f, loc, scale = lognorm.fit(data=count_extracted, method="MM")
 
@@ -25,4 +25,3 @@ ax.hist(count_extracted, bins=25, density=True, histtype='stepfilled', alpha=0.2
 plt.yscale('log')
 plt.show()
 print((f, loc, scale))
-

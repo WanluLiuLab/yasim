@@ -7,29 +7,29 @@ as_events.py -- Generate AS Events
 from __future__ import annotations
 
 import random
-from typing import List, Callable, Union, Iterable
+from typing import List, Callable, Iterable
 
 from scipy.stats import lognorm
 
-from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
+from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gv_feature_proxy import Gene
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
 
 organism_dict = {
-    "ce":(1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
+    "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
 }
 """
 (s, loc, scale) of a log-normal distribution.
 """
 
 organism_weights = {
-    "ce":(
-                11714,
-                5886,
-                8222,
-                4371
-            )
+    "ce": (
+        11714,
+        5886,
+        8222,
+        4371
+    )
 }
 
 lh = get_logger(__name__)
@@ -146,7 +146,7 @@ class ASManipulator:
         new_transcript.get_nth_exon(exon_id).start += delta
         return new_transcript_id
 
-    def perform_alternative_splicing(self, gene: Gene, organism:str) -> None:
+    def perform_alternative_splicing(self, gene: Gene, organism: str) -> None:
         core_funcs: Iterable[Callable[[str], str]] = random.choices(
             population=(
                 (self.core_perform_alternative_3p_splicing,),
@@ -159,7 +159,7 @@ class ASManipulator:
         )[0]
         self.generate_multiple_as_events(core_funcs, gene)
 
-    def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int, organism:str):
+    def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int, organism: str):
         transcript_ids_to_del = []
         for transcript in gene.iter_transcripts():
             if transcript.transcribed_length < 250:
@@ -187,7 +187,7 @@ class ASManipulator:
                 elif gene.number_of_transcripts == n:
                     return
 
-    def run(self, organism:str):
+    def run(self, organism: str):
         if not organism in organism_dict.keys():
             raise ValueError(f"no organism {organism} available! Available: {organism_dict.keys()}")
         fit_tuple = organism_dict[organism]
@@ -197,7 +197,7 @@ class ASManipulator:
                 desc="Generating isoforms...",
                 total=self._gv.number_of_genes
         ):
-            n= 0
+            n = 0
             while n < 1 or n > 25:
                 n = int(lognorm.rvs(fit_tuple[0], loc=fit_tuple[1], scale=fit_tuple[2], size=1))
             try:

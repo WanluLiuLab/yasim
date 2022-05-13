@@ -1,19 +1,20 @@
 """
 Fit negative binomial distribution by YUAN Ruihong
 """
-from typing import Optional
 import argparse
 import sys
 from random import random, randint
+from typing import Optional
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
 import numpy as np
 import pandas as pd
 import scipy.stats
+from matplotlib.ticker import PercentFormatter
 from tqdm import tqdm
 
 EPS = 0.01
+
 
 # Fit under the assumption that maximum likelihood function
 # is convex (increase, then decrease)
@@ -27,9 +28,9 @@ def nbinom_mle(data, n_epochs: int):
     best_p: float = 0.0
     diff: float = 0.0
 
-    learning_rates = np.linspace(1/EPS, 1, n_epochs)
-    cache = set() # avoid oscillation
-    first_part = np.sum(np.log(data + 1)) # for n=2
+    learning_rates = np.linspace(1 / EPS, 1, n_epochs)
+    cache = set()  # avoid oscillation
+    first_part = np.sum(np.log(data + 1))  # for n=2
     progress_bar = tqdm(learning_rates)
     for r in progress_bar:
         a = n * N
@@ -49,8 +50,8 @@ def nbinom_mle(data, n_epochs: int):
                 break
 
         if n in cache:
-            k = int(np.sign(diff)) # enforce move by 1
-            if (n + k) in cache: # oscillation
+            k = int(np.sign(diff))  # enforce move by 1
+            if (n + k) in cache:  # oscillation
                 progress_bar.update(len(learning_rates))
                 progress_bar.close()
                 print("Broke out of oscillation")
@@ -65,11 +66,11 @@ def nbinom_mle(data, n_epochs: int):
         if k > 0:
             for j in range(n, n + k):
                 for i in range(0, N):
-                    first_part += np.log(data[i]/j + 1)
-        else: # k < 0
+                    first_part += np.log(data[i] / j + 1)
+        else:  # k < 0
             for j in range(n + k, n):
                 for i in range(0, N):
-                    first_part -= np.log(data[i]/j + 1)
+                    first_part -= np.log(data[i] / j + 1)
         cache.add(n)
         n += k
 
@@ -116,7 +117,7 @@ def _main() -> None:
     else:
         depth_df = pd.read_table(args.depth, header=args.header or "infer")
         if args.columnNo < 0:
-            args.columnNo = depth_df.shape[1] - 1 # last column
+            args.columnNo = depth_df.shape[1] - 1  # last column
         depth_df = depth_df[depth_df.iloc[:, args.columnNo] != 0]
         data = np.array(depth_df.iloc[:, args.columnNo])
     if args.dataDisplayCutoff is None:
@@ -129,13 +130,14 @@ def _main() -> None:
             raise ValueError("unrecognized transformation")
 
     mll, n, p = nbinom_mle(data, args.numEpochs)
-    print(f"Fitted to nbinom(n={n}, p={p}) with LL={mll}, AICc={mll2aic(mll, 2, len(data))}, BIC={mll2bic(mll, 2, len(data))}")
+    print(
+        f"Fitted to nbinom(n={n}, p={p}) with LL={mll}, AICc={mll2aic(mll, 2, len(data))}, BIC={mll2bic(mll, 2, len(data))}")
 
     fitted = scipy.stats.nbinom(n, p)
     print(f"MEAN={fitted.mean()}")
     conf_a, conf_b = fitted.interval(0.95)
     n_outlier = len(data[data < conf_a]) + len(data[data > conf_b])
-    print(f"Number of outliers (at p<0.05): {n_outlier}/{len(data)}" + "({:.2%})".format(n_outlier/len(data)))
+    print(f"Number of outliers (at p<0.05): {n_outlier}/{len(data)}" + "({:.2%})".format(n_outlier / len(data)))
     n_bins = min(args.dataDisplayCutoff, 40)
     fig, axes = plt.subplots(1, 2)
     rounded_step = int(args.dataDisplayCutoff / n_bins)
