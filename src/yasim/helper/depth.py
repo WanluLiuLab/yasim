@@ -21,6 +21,9 @@ def simulate_dge_uniform(
 ) -> DepthType:
     """
     Simulate DGE using a uniform distribution.
+
+    :param gv: Input GeneViewType. Read only.
+    :param mu: Mean of sequencing depth
     """
     transcript_ids = list(gv.iter_transcript_ids())
     depth = {}
@@ -34,8 +37,7 @@ def simulate_dge_uniform(
 
 def simulate_dge_nb(
         gv: GeneViewType,
-        max_depth: int,
-        levels: int = 100
+        mu: int
 ) -> DepthType:
     """
     Simulate DGE using a negative binomial distribution.
@@ -44,7 +46,8 @@ def simulate_dge_nb(
     depth = {}
 
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
-        d = int(nbinom.rvs(1, max_depth)) * levels // max_depth * int(max_depth / levels) + 1
+        d = 1
+        # TODO: Ruihong d = int(nbinom.rvs(1, mu))
         depth[transcript_id] = d
     return depth
 
