@@ -22,8 +22,8 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 
 def get_overlapping_transcripts_from_different_gene(
-        out_basename:str,
-        gv:GeneViewType
+        out_basename: str,
+        gv: GeneViewType
 ):
     transcripts = list(gv.iter_transcripts())
     with GtfWriter(f"{out_basename}.overlapping_transcript.gtf") as writer:
@@ -95,7 +95,5 @@ def main(args: List[str]):
                     str(transcript.number_of_exons)
                 )) + "\n")
 
-
     if args.get_overlapping_transcripts_from_different_gene:
         get_overlapping_transcripts_from_different_gene(out_basename, gv)
-

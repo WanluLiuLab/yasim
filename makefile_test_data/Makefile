@@ -47,7 +47,7 @@ $(SEL_GTF):$(REFERENCE_FASTA) $(REFERENCE_GTF)
 	$(YASIM) generate_as_events -f "$(REFERENCE_FASTA)" -g "$(REFERENCE_GTF)" -o $@
 
 $(DEPTH_TSV): $(SEL_GTF)
-	$(YASIM) generate_depth -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 100
+	$(YASIM) generate_depth -g "$(SEL_GTF)" -o "$(DEPTH_TSV)" -d 50
 
 $(SEL_CDNA_FASTA): $(SEL_GTF) $(DEPTH_TSV) $(REFERENCE_FASTA)
 	$(YASIM) transcribe -f "$(REFERENCE_FASTA)" -g "$(SEL_GTF)" -o $(SEL_CDNA_FASTA)

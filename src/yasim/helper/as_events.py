@@ -7,12 +7,30 @@ as_events.py -- Generate AS Events
 from __future__ import annotations
 
 import random
-from typing import List, Callable, Union, Iterable
+from typing import List, Callable, Iterable
 
-from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
+from scipy.stats import lognorm
+
+from bioutils.datastructure.gene_view import GeneViewType
 from bioutils.datastructure.gv_feature_proxy import Gene
 from commonutils.importer.tqdm_importer import tqdm
 from commonutils.stdlib_helper.logger_helper import get_logger
+
+organism_dict = {
+    "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
+}
+"""
+(s, loc, scale) of a log-normal distribution.
+"""
+
+organism_weights = {
+    "ce": (
+        11714,
+        5886,
+        8222,
+        4371
+    )
+}
 
 lh = get_logger(__name__)
 
@@ -72,14 +90,6 @@ class ASManipulator:
                 gene=gene,
                 max_try=max_try
             )
-        # map(
-        #     lambda _core_func: self.generate_one_as_event(
-        #         core_func=_core_func,
-        #         gene=gene,
-        #         max_try=max_try
-        #     ),
-        #     core_funcs
-        # )
 
     def core_perform_exon_skipping(self, transcript_id: str) -> str:
         number_of_exons = self._gv.get_transcript(transcript_id).number_of_exons
@@ -103,7 +113,7 @@ class ASManipulator:
         lh.debug(f"{new_transcript_id}: IR {start_exon_id}-{stop_exon_id}, total={number_of_exons}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
         new_transcript.get_nth_exon(start_exon_id).end = new_transcript.get_nth_exon(stop_exon_id).end
-        gv.del_exon(new_transcript_id, stop_exon_id)
+        self._gv.del_exon(new_transcript_id, stop_exon_id)
         return new_transcript_id
 
     def core_perform_alternative_3p_splicing(self, transcript_id: str) -> str:
@@ -136,42 +146,20 @@ class ASManipulator:
         new_transcript.get_nth_exon(exon_id).start += delta
         return new_transcript_id
 
-    def perform_alternative_splicing(self, gene: Gene) -> None:
+    def perform_alternative_splicing(self, gene: Gene, organism: str) -> None:
         core_funcs: Iterable[Callable[[str], str]] = random.choices(
             population=(
                 (self.core_perform_alternative_3p_splicing,),
-                (self.core_perform_intron_retention,),
                 (self.core_perform_alternative_5p_splicing,),
                 (self.core_perform_exon_skipping,),
-                (
-                    lambda x: self.core_perform_alternative_5p_splicing(x),
-                    lambda x: self.core_perform_alternative_3p_splicing(x)
-                )
-                ,
-                (
-                    lambda x: self.core_perform_exon_skipping(x),
-                    lambda x: self.core_perform_alternative_3p_splicing(x)
-
-                ),
-                (
-                    lambda x: self.core_perform_intron_retention(x),
-                    lambda x: self.core_perform_alternative_3p_splicing(x)
-                )
+                (self.core_perform_intron_retention,),
             ),
-            weights=(
-                832,
-                717,
-                568,
-                333,
-                173,
-                118,
-                111
-            ),
+            weights=organism_weights[organism],
             k=1
         )[0]
         self.generate_multiple_as_events(core_funcs, gene)
 
-    def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int):
+    def try_generate_n_isoform_for_a_gene(self, gene: Gene, n: int, organism: str):
         transcript_ids_to_del = []
         for transcript in gene.iter_transcripts():
             if transcript.transcribed_length < 250:
@@ -191,7 +179,7 @@ class ASManipulator:
             number_of_fail = 0
             while True:
                 try:
-                    self.perform_alternative_splicing(gene)
+                    self.perform_alternative_splicing(gene, organism)
                 except ImpossibleToGenerateASEventError:
                     number_of_fail += 1
                 if number_of_fail > 2 * n:
@@ -199,16 +187,21 @@ class ASManipulator:
                 elif gene.number_of_transcripts == n:
                     return
 
-    def run(self, mu: Union[int, float]):
+    def run(self, organism: str):
+        if not organism in organism_dict.keys():
+            raise ValueError(f"no organism {organism} available! Available: {organism_dict.keys()}")
+        fit_tuple = organism_dict[organism]
         gene_ids_to_del: List[str] = []
         for gene in tqdm(
                 iterable=list(self._gv.iter_genes()),
                 desc="Generating isoforms...",
                 total=self._gv.number_of_genes
         ):
-            n = max(0, min(int(random.gauss(mu, mu / 2)), mu * 2))
+            n = 0
+            while n < 1 or n > 25:
+                n = int(lognorm.rvs(fit_tuple[0], loc=fit_tuple[1], scale=fit_tuple[2], size=1))
             try:
-                self.try_generate_n_isoform_for_a_gene(gene, n)
+                self.try_generate_n_isoform_for_a_gene(gene, n, organism)
             except ImpossibleToGenerateASEventError:
                 gene_ids_to_del.append(gene.gene_id)
 
@@ -219,16 +212,4 @@ class ASManipulator:
         self._gv.standardize()
 
     def to_file(self, filename: str):
-        # with open(filename + ".n_of_transcript_in_a_gene.tsv", "w") as tn:
-        #     tn.write('gene' + '\t' + 'number_of_transcripts' + "\n")
-        #     for gene in self._gv.iter_genes():
-        #         tn.write(str(gene) + '\t' + str(gene.number_of_transcripts) + "\n")
         self._gv.to_file(filename)
-
-
-if __name__ == '__main__':
-    for i in range(1, 10, 2):
-        gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_4/ce11.ncbiRefSeq.gtf")
-        asm = ASManipulator(gv)
-        asm.run(i)
-        asm.to_file(f"{i}.gtf.xz")
