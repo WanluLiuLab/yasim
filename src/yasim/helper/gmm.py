@@ -6,6 +6,7 @@ from typing import Optional, Union, Iterable, Tuple
 import numpy as np
 from numpy.random import choice
 from numpy.typing import ArrayLike
+from scipy.integrate import quad
 from scipy.stats import norm
 
 
@@ -132,6 +133,19 @@ class GaussianMixture1D:
         self._mu += b
         self._sigma *= a
         return self
+
+    def positive_mean(self):
+        models = []
+        for j in range(self._n_components):
+            models.append(norm(self._mu[j], self._sigma[j]))
+
+        def f(x):
+            result = 0.0
+            for j in range(self._n_components):
+                result += self._weights[j] * models[j].pdf(x)
+            return result * x
+
+        return quad(f, 0, np.inf)[0]
 
     def mean(self) -> float:
         return np.average(self._mu, weights=self._weights)

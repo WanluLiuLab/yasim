@@ -74,7 +74,7 @@ def simulate_dge_gmm(
     """
     transcript_ids = gv.iter_transcript_ids()
     depth = {}
-    gmm_model.lintrans(mu / gmm_model.mean())
+    gmm_model.lintrans(mu / gmm_model.positive_mean())
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
         d = 0
         while not d > 0:
