@@ -6,12 +6,15 @@ import sys
 from random import random, randint
 from typing import Optional
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats
 from matplotlib.ticker import PercentFormatter
 from tqdm import tqdm
+
+matplotlib.use('qtagg')
 
 EPS = 0.01
 
