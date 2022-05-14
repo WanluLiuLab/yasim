@@ -426,3 +426,4 @@ SiLiCO_Scratch/
 .Rhistory
 *.kdev4
 *.tiff
+/makefile_test_data/.RData
