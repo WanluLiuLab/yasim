@@ -71,7 +71,7 @@ all_gep_data_zipf_depth_long <- all_gep_data_zipf_depth %>%
     tidyr::gather(key = "RunAccession", value = "Depth", -RANK)
 
 g <- ggplot(all_gep_data_zipf_depth_long) +
-    geom_point(aes(y = Depth, x = RANK, color = RunAccession), size=0.2) +
+    geom_point(aes(y = Depth, x = RANK, color = RunAccession), size = 0.2) +
     scale_x_continuous(name = "log(Rank)", trans = "log") +
     scale_y_continuous(name = "log(NormalizedDepth)", trans = "log") +
     theme_bw() +

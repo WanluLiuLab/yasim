@@ -6,15 +6,12 @@ import sys
 from random import random, randint
 from typing import Optional
 
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats
-from matplotlib.ticker import PercentFormatter
 from tqdm import tqdm
 
-matplotlib.use('qtagg')
+from yasim.helper.plot_utils import plot
 
 EPS = 0.01
 
@@ -136,21 +133,12 @@ def _main() -> None:
     print(
         f"Fitted to nbinom(n={n}, p={p}) with LL={mll}, AICc={mll2aic(mll, 2, len(data))}, BIC={mll2bic(mll, 2, len(data))}")
 
-    fitted = scipy.stats.nbinom(n, p)
-    print(f"MEAN={fitted.mean()}")
-    conf_a, conf_b = fitted.interval(0.95)
+    model = scipy.stats.nbinom(n, p)
+    print(f"MEAN={model.mean()}")
+    conf_a, conf_b = model.interval(0.95)
     n_outlier = len(data[data < conf_a]) + len(data[data > conf_b])
     print(f"Number of outliers (at p<0.05): {n_outlier}/{len(data)}" + "({:.2%})".format(n_outlier / len(data)))
-    n_bins = min(args.dataDisplayCutoff, 40)
-    fig, axes = plt.subplots(1, 2)
-    rounded_step = int(args.dataDisplayCutoff / n_bins)
-    xticks = np.arange(0, rounded_step * n_bins, rounded_step)
-    axes[0].yaxis.set_major_formatter(PercentFormatter(xmax=1))
-    axes[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
-    axes[0].hist(data[data < args.dataDisplayCutoff], bins=n_bins, density=True)
-    axes[1].vlines(xticks, 0, fitted.pmf(xticks))
-    plt.show()
-    plt.savefig("gep_fit_nb.png")
+    plot(data, model)
 
 
 # n, p = 5, 0.5

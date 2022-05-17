@@ -7,15 +7,12 @@ import sys
 from random import random
 
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.stats import norm
 from sklearn.preprocessing import scale
 
 from yasim.helper.gmm import GaussianMixture1D
-
-matplotlib.use('qtagg')
+from yasim.helper.plot_utils import plot
 
 
 def _main():
@@ -35,8 +32,8 @@ def _main():
         p = random()
         model1 = norm(mu1, sigma1)
         model2 = norm(mu2, sigma2)
-        data = np.append(model1.rvs(size=int(p * 200)), model2.rvs(size=int((1-p) * 200)))
-        print(f"Ground truth is {p}*N({mu1}, {sigma1}) + {1-p}*N({mu2}, {sigma2})")
+        data = np.append(model1.rvs(size=int(p * 200)), model2.rvs(size=int((1 - p) * 200)))
+        print(f"Ground truth is {p}*N({mu1}, {sigma1}) + {1 - p}*N({mu2}, {sigma2})")
     else:
         df = pd.read_table(args.data, header=args.header or 'infer')
         df = df[df.iloc[:, args.columnIndex] != 0]  # filter zeros
@@ -51,17 +48,9 @@ def _main():
     model = GaussianMixture1D(n_components=args.numComponents,
                               n_iter=args.numIters).fit(data)
     print(f"Fitted to Gaussian mixture model ({args.numComponents} components)")
-    print(str(model))
 
-    fig, axes = plt.subplots(1, 1)
+    plot(data, model)
 
-    x_max = np.max(data)
-    n_bins = min(40, int(x_max))
-    xticks = np.linspace(np.min(data), x_max, 100)
-    axes.hist(data, bins=n_bins, density=True)
-    axes.plot(xticks, model.pdf(xticks), color="red")
-    # plt.yscale('log')
-    plt.show()
 
 if __name__ == '__main__':
     sys.exit(_main())

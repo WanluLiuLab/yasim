@@ -29,13 +29,13 @@ for (i in all_run_accessions) {
 }
 
 all_gep_data_reformatted <- tibble(
-    x= 1:n_bins
+    x = 1:n_bins
 )
 
 for (i in all_run_accessions) {
     adding_col <- NULL
-    for (n in 1:n_bins){
-        adding_col[n] <- length(which(all_gep_data[[i]]==n))
+    for (n in 1:n_bins) {
+        adding_col[n] <- length(which(all_gep_data[[i]] == n))
     }
     all_gep_data_reformatted <- all_gep_data_reformatted %>%
         dplyr::mutate(!!i := adding_col)
@@ -45,15 +45,15 @@ all_gep_data_reformatted_long <- all_gep_data_reformatted %>%
     tidyr::gather(key = "Read", value = "GeneNumber", -x)
 
 g <- ggplot(all_gep_data_reformatted_long) +
-    geom_line(aes(x = x, y=GeneNumber, color = Read), stat="identity") +
+    geom_line(aes(x = x, y = GeneNumber, color = Read), stat = "identity") +
     scale_x_discrete(name = "N. Isoforms") +
-    scale_y_continuous(name = "log(N. Genes)", trans="log") +
+    scale_y_continuous(name = "log(N. Genes)", trans = "log") +
     theme_bw() +
     ggtitle("Number of isoforms in a gene accross all samples")
 ggsave("gep_n_isoforms.svg", g, width = 8, height = 5)
 
 all_gep_data_reformatted_mean <- all_gep_data_reformatted %>%
-    dplyr::mutate(count=as.integer(rowMeans(all_gep_data_reformatted)))
+    dplyr::mutate(count = as.integer(rowMeans(all_gep_data_reformatted)))
 
 fit_common <- function(data) {
     fnbiom <- fitdistrplus::fitdist(as.integer(data$count), "nbinom", method = "mme")
@@ -87,7 +87,7 @@ fit_common <- function(data) {
             exp_theo = sort(rexp(
                 len_data,
                 rate = fexp$estimate[1]
-            ))# ,
+            )) # ,
             # weibull_theo = sort(rweibull(
             #     len_data,
             #     scale = fweibull$estimate[1],
@@ -106,6 +106,7 @@ fit_common <- function(data) {
         )
     )
 }
+
 plot_density <- function(retl) {
     data <- retl$data
     g <- ggplot(data) +
@@ -117,13 +118,14 @@ plot_density <- function(retl) {
         geom_density(aes(x = exp_theo), color = "yellow") +
         scale_x_continuous(
             limits = c(1E-3, exp(n_bins)),
-            trans="log"
+            trans = "log"
         ) +
         scale_y_continuous(
             limits = c(0, 0.3)
         ) +
         theme_bw()
 }
+
 plot_qq <- function(retl) {
     data <- retl$data
     ggplot(data, aes(sample = count)) +
@@ -135,9 +137,10 @@ plot_qq <- function(retl) {
         scale_y_continuous(limits = c(0, n_bins + 1)) +
         theme_bw()
 }
+
 gs_all <- fit_common(all_gep_data_reformatted_mean)
 g1 <- plot_density(gs_all)
-ggsave("fitted_n_isoforms.svg",g1, width=8, height=5)
+ggsave("fitted_n_isoforms.svg", g1, width = 8, height = 5)
 write_csv(all_gep_data_reformatted_mean, "fitted_n_isoforms.csv")
 
 #' Get number of records
