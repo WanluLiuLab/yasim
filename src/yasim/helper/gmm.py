@@ -1,9 +1,10 @@
 """Gaussian Mixture Model bu YUAN Ruihong"""
-
+import multiprocessing
 from random import choices
 from typing import Optional, Union, Iterable, Tuple
 
 import numpy as np
+from joblib import Parallel, delayed
 from numpy.typing import ArrayLike
 from scipy.integrate import quad
 from scipy.stats import norm
@@ -150,9 +151,15 @@ class GaussianMixture1D:
         return np.average(self._mu, weights=self._weights)
 
     def rvs(self, size: int = 1) -> ArrayLike:
-        k = choices(list(range(self._n_components)), weights=self._weights)
-        model = norm(self._mu[k], self._sigma[k])
-        return model.rvs(size=size)
+        indices = list(range(self._n_components))
+
+        def _rvs():
+            k = choices(indices, weights=self._weights)
+            model = norm(self._mu[k], self._sigma[k])
+            return model.rvs()
+
+        result = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(_rvs)() for _ in range(size)))
+        return result
 
     def export(self) -> Iterable[Tuple[float, float, float]]:
         for j in range(self._n_components):

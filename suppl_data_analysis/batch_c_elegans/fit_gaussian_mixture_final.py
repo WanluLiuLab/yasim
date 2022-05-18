@@ -9,7 +9,6 @@ from random import random
 import numpy as np
 import pandas as pd
 from scipy.stats import norm
-from sklearn.preprocessing import scale
 
 from yasim.helper.gmm import GaussianMixture1D
 from yasim.helper.plot_utils import plot
@@ -40,10 +39,13 @@ def _main():
         data = np.asarray(df.iloc[:, args.columnIndex])
 
     for transform_method in args.transform:
-        if transform_method == 'scale':
-            scale(data, copy=False)
-        elif transform_method == 'log':
+        if transform_method == 'log':
             data = np.log(data + 1)
+    #
+    # scaler = StandardScaler().fit(data)
+    # if 'scale' in args.transform:
+    #     data = scaler.transform(data)
+    #
 
     model = GaussianMixture1D(n_components=args.numComponents,
                               n_iter=args.numIters).fit(data)

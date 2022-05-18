@@ -1,8 +1,10 @@
 """
 depth.py -- DGE Datastructure and Utils
 """
+import math
 from typing import Dict
 
+import numpy as np
 from scipy.stats import nbinom, uniform
 
 from bioutils.datastructure.gene_view import GeneViewType
@@ -35,10 +37,6 @@ def simulate_dge_uniform(
     return depth
 
 
-nb_generator = nbinom(n=2, p=0.016291702363523883)
-nb_generator_mean = nb_generator.mean()
-
-
 def simulate_dge_nb(
         gv: GeneViewType,
         mu: int
@@ -46,6 +44,10 @@ def simulate_dge_nb(
     """
     Simulate DGE using a negative binomial distribution.
     """
+
+    nb_generator = nbinom(n=2, p=0.016291702363523883)
+    nb_generator_mean = nb_generator.mean()
+
     transcript_ids = gv.iter_transcript_ids()
     depth = {}
 
@@ -57,14 +59,6 @@ def simulate_dge_nb(
     return depth
 
 
-gmm_model = GaussianMixture1D.import_model(
-    (
-        (0.7533708725243431, 13.50517241736218, 15.935138269740976),
-        (0.24662912747565696, 448.39584422522495, 997.3253918151006)
-    )
-)
-
-
 def simulate_dge_gmm(
         gv: GeneViewType,
         mu: int
@@ -72,14 +66,22 @@ def simulate_dge_gmm(
     """
     Simulate DGE using Gaussian mixture model.
     """
+    gmm_model = GaussianMixture1D.import_model(
+        [
+            (0.2757332390925274, 1.115903346554058, 0.28730736063701984),
+            (0.7242667609074726, 3.588018272411806, 1.5658127268321427)
+        ]
+    )
     transcript_ids = gv.iter_transcript_ids()
+    n_transcript_ids = gv.number_of_transcripts
     depth = {}
-    gmm_model.lintrans(mu / gmm_model.positive_mean())
+    gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
+    data = np.exp(gmm_model.rvs(size=2 * n_transcript_ids) - 1)
+    data = data[data > 0][:n_transcript_ids]
+    i = 0
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
-        d = 0
-        while not d > 0:
-            d = int(gmm_model.rvs())
-        depth[transcript_id] = d
+        depth[transcript_id] = int(data[i])
+        i += 1
     return depth
 
 
