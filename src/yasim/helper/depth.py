@@ -77,10 +77,12 @@ def simulate_dge_gmm(
     depth = {}
     gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
     data = np.exp(gmm_model.rvs(size=2 * n_transcript_ids) - 1)
-    data = data[data > 0][:n_transcript_ids]
+    data = data[13 * mu >= data]
+    data = list(map(int, data[data >= 0][:n_transcript_ids]))
     i = 0
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
-        depth[transcript_id] = int(data[i])
+        if data[i] != 0:
+            depth[transcript_id] = int(data[i])
         i += 1
     return depth
 
