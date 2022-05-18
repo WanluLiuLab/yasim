@@ -1,10 +1,10 @@
 """Gaussian Mixture Model bu YUAN Ruihong"""
-
+import multiprocessing
 from random import choices
 from typing import Optional, Union, Iterable, Tuple
 
 import numpy as np
-from numpy.random import choice
+from joblib import Parallel, delayed
 from numpy.typing import ArrayLike
 from scipy.integrate import quad
 from scipy.stats import norm
@@ -29,7 +29,7 @@ class GaussianMixture1D:
         self._n_components = n_components
         self._n_iter = n_iter
         self._precision = precision
-        self._weights = init_weights or np.repeat(1/n_components, n_components)
+        self._weights = init_weights or np.repeat(1 / n_components, n_components)
         self._mu = init_mus or np.zeros(n_components)
         self._sigma = init_sigmas or np.ones(n_components)
 
@@ -37,7 +37,7 @@ class GaussianMixture1D:
         N = len(data)
 
         # Use k-means to cluster points
-        centers = choice(data, size=self._n_components)
+        centers = np.random.choice(data, size=self._n_components)
         categories = np.repeat(0, N)
         bags = [[]] * self._n_components
         for _ in range(self._n_iter):
@@ -91,7 +91,7 @@ class GaussianMixture1D:
 
             for j in range(self._n_components):
                 for i in range(N):
-                    gamma[j, i] *= (data[i] - self._mu[j])**2
+                    gamma[j, i] *= (data[i] - self._mu[j]) ** 2
 
             self._sigma = np.sqrt(np.sum(gamma, axis=1) / denom)
             self._weights = denom / N
@@ -134,7 +134,7 @@ class GaussianMixture1D:
         self._sigma *= a
         return self
 
-    def positive_mean(self):
+    def positive_mean(self, start: float = 0):
         models = []
         for j in range(self._n_components):
             models.append(norm(self._mu[j], self._sigma[j]))
@@ -145,15 +145,21 @@ class GaussianMixture1D:
                 result += self._weights[j] * models[j].pdf(x)
             return result * x
 
-        return quad(f, 0, np.inf)[0]
+        return quad(f, start, np.inf)[0]
 
     def mean(self) -> float:
         return np.average(self._mu, weights=self._weights)
 
     def rvs(self, size: int = 1) -> ArrayLike:
-        k = choices(list(range(self._n_components)), weights=self._weights)
-        model = norm(self._mu[k], self._sigma[k])
-        return model.rvs(size=size)
+        indices = list(range(self._n_components))
+
+        def _rvs():
+            k = choices(indices, weights=self._weights)
+            model = norm(self._mu[k], self._sigma[k])
+            return model.rvs()
+
+        result = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(_rvs)() for _ in range(size)))
+        return result
 
     def export(self) -> Iterable[Tuple[float, float, float]]:
         for j in range(self._n_components):
