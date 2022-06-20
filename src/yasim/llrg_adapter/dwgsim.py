@@ -16,7 +16,13 @@ class DwgsimAdapter(BaseLLRGAdapter):
                  depth: Union[int, float],
                  exename: Optional[str] = None,
                  **kwargs):
-        super().__init__(input_fasta, output_fastq_prefix, depth, exename, **kwargs)
+        super().__init__(
+            input_fasta=input_fasta,
+            output_fastq_prefix=output_fastq_prefix,
+            depth=depth,
+            exename=exename,
+            **kwargs
+        )
         if self.exename is None:
             self.exename = "dwgsim"
         else:
