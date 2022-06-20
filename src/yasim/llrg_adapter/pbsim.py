@@ -27,7 +27,13 @@ class PbsimAdapter(BaseLLRGAdapter):
             is_ccs: bool = False,
             **kwargs
     ):
-        super().__init__(input_fasta, output_fastq_prefix, depth, exename, **kwargs)
+        super().__init__(
+            input_fasta=input_fasta,
+            output_fastq_prefix=output_fastq_prefix,
+            depth=depth,
+            exename=exename,
+            **kwargs
+        )
         if self.exename is None:
             self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "pbsim.sh")
         else:

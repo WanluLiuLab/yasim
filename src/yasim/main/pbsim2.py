@@ -62,7 +62,11 @@ def simulate(
         simulating_pool.append(sim_thread)
     simulating_pool.start()
     simulating_pool.join()
-    assemble_single_end(depth, output_fastq_prefix, simulator_name=f"pbsim2_{hmm_model}")
+    assemble_single_end(
+        depth=depth,
+        output_fastq_prefix=output_fastq_prefix,
+        simulator_name=f"pbsim2_{hmm_model}"
+    )
 
 
 def main(args: List[str]):

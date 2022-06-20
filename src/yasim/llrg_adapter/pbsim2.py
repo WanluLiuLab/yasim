@@ -52,7 +52,13 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             hmm_model: str,
             exename: Optional[str] = None,
             **kwargs):
-        super().__init__(input_fasta, output_fastq_prefix, depth, **kwargs)
+        super().__init__(
+            input_fasta=input_fasta,
+            output_fastq_prefix=output_fastq_prefix,
+            depth=depth,
+            exename=exename,
+            **kwargs
+        )
         self.hmm_model = hmm_model
         if self.exename is None:
             self.exename = "pbsim2"
