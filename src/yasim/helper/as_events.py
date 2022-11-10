@@ -7,6 +7,7 @@ as_events.py -- Generate AS Events
 from __future__ import annotations
 
 import random
+import sys
 from typing import List, Callable, Union, Iterable
 
 from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
@@ -228,7 +229,7 @@ class ASManipulator:
 
 if __name__ == '__main__':
     for i in range(1, 10, 2):
-        gv = GeneViewFactory.from_file("/media/yuzj/BUP/iter_4/ce11.ncbiRefSeq.gtf")
+        gv = GeneViewFactory.from_file(sys.argv[1])
         asm = ASManipulator(gv)
         asm.run(i)
         asm.to_file(f"{i}.gtf.xz")
