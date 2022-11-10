@@ -4,8 +4,8 @@ import threading
 from abc import abstractmethod
 from typing import Dict, Any, Optional, Union, List, Callable
 
-from commonutils import shell_utils
-from commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 LLRG_SHELL_ADAPTER_PATH = os.path.join(os.path.dirname(__file__), "shell")
 

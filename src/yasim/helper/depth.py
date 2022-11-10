@@ -4,12 +4,11 @@ depth.py -- DGE Datastructure and Utils
 
 from typing import Dict
 
+from labw_utils.bioutils.datastructure.gene_view import GeneViewType
+from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from scipy.stats import nbinom, uniform
-
-from bioutils.datastructure.gene_view import GeneViewType
-from commonutils import shell_utils
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.io.safe_io import get_writer, get_reader
 
 DepthType = Dict[str, int]
 """DGE type, is transcript_id -> coverage"""

@@ -2,10 +2,11 @@ import argparse
 import random
 from typing import List
 
-from bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
-from bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
+from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
+from labw_utils.bioutils.datastructure.gv_feature_proxy import Transcript
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 logger = get_logger(__name__)
 
@@ -28,8 +29,10 @@ def sample_exon(
 ) -> GeneViewType:
     transcript_name_to_del = []
     for v in tqdm(iterable=gv.iter_transcripts(), desc="Sampling Exons..."):
-        indices = random.sample(range(v.number_of_exons), int(len(v.number_of_exons) * 0.75))
-        v._exons = [v._exons[i] for i in sorted(indices)]
+        v: Transcript
+        indices = random.sample(range(v.number_of_exons), int(v.number_of_exons * 0.75))
+        v_exons = list(v.iter_exons())
+        v._exons = [v_exons[i] for i in sorted(indices)]
         if len(v.cdna_sequence(sequence_func=fasta_handler.sequence)) < 250:
             transcript_name_to_del.append(v.transcript_id)
     for transcript_name in tqdm(iterable=transcript_name_to_del, desc="Deleting unwanted transcripts"):

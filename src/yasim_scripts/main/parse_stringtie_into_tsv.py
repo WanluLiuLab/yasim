@@ -3,9 +3,9 @@
 import argparse
 from typing import List
 
-from bioutils.io.feature import GtfIterator
-from bioutils.typing.feature import GtfRecord
-from commonutils.io.safe_io import get_writer
+from labw_utils.bioutils.parser.feature import GtfIterator
+from labw_utils.bioutils.record.feature import GtfRecord
+from labw_utils.commonutils.io.safe_io import get_writer
 
 POSSIBLE_KEYS = (
     "gene_id",

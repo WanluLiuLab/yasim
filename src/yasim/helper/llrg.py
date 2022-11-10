@@ -1,10 +1,12 @@
 import os
 from typing import Iterable, Tuple
 
-from bioutils.io.fastq import FastqWriter, FastqIterator
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.io import file_system
-from commonutils.io.safe_io import get_writer
+from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
+from labw_utils.bioutils.record.fastq import FastqRecord
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.io.safe_io import get_writer
+
 from yasim.helper.depth import DepthType
 
 DepthInfoType = Iterable[Tuple[int, str, str]]
@@ -39,8 +41,12 @@ def remark_fastq_single_end(
     """
     num_of_reads = 0
     for fastq_record in FastqIterator(input_filename, show_tqdm=False):
-        fastq_record.seq_id = f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}"
-        writer.write(fastq_record)
+        new_record = FastqRecord(
+            seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}",
+            sequence=fastq_record.sequence,
+            quality=fastq_record.quality
+        )
+        writer.write(new_record)
         num_of_reads += 1
     return num_of_reads
 

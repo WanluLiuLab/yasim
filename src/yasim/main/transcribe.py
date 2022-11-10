@@ -1,6 +1,6 @@
 from typing import List
 
-from bioutils.main.transcribe import main as bc_main
+from labw_utils.bioutils.main.transcribe import main as bc_main
 
 
 def main(args: List[str]):

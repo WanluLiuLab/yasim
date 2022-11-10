@@ -1,3 +1,0 @@
-"""
-commonutils -- Common sysadmin utilities.
-"""

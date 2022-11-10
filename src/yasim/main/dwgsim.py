@@ -3,9 +3,10 @@ import multiprocessing
 import os.path
 from typing import List
 
-import commonutils.stdlib_helper.parallel_helper
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.stdlib_helper import parallel_helper
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
 from yasim.helper.depth import DepthType, read_depth
 from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_pair_end
 from yasim.llrg_adapter import dwgsim
@@ -39,7 +40,7 @@ def simulate(
         jobs: int
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
-    simulating_pool = commonutils.stdlib_helper.parallel_helper.ParallelJobExecutor(
+    simulating_pool = parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs",
         pool_size=jobs
     )

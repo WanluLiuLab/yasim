@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-set -ue
-python3 -m "$(basename -s '' "${0}")" "${@}"

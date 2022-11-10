@@ -10,10 +10,10 @@ import random
 import sys
 from typing import List, Callable, Union, Iterable
 
-from bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
-from bioutils.datastructure.gv_feature_proxy import Gene
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
+from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
@@ -104,7 +104,7 @@ class ASManipulator:
         lh.debug(f"{new_transcript_id}: IR {start_exon_id}-{stop_exon_id}, total={number_of_exons}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
         new_transcript.get_nth_exon(start_exon_id).end = new_transcript.get_nth_exon(stop_exon_id).end
-        gv.del_exon(new_transcript_id, stop_exon_id)
+        self._gv.del_exon(new_transcript_id, stop_exon_id)
         return new_transcript_id
 
     def core_perform_alternative_3p_splicing(self, transcript_id: str) -> str:
@@ -229,7 +229,6 @@ class ASManipulator:
 
 if __name__ == '__main__':
     for i in range(1, 10, 2):
-        gv = GeneViewFactory.from_file(sys.argv[1])
-        asm = ASManipulator(gv)
+        asm = ASManipulator(GeneViewFactory.from_file(sys.argv[1]))
         asm.run(i)
         asm.to_file(f"{i}.gtf.xz")
