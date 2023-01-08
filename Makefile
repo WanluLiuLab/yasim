@@ -1,15 +1,28 @@
+.PHONY: dist
+dist:
+	python -m build
 
-export PROJECT_NAME := proc_profiler
+.PHONY: doc
+doc:
+	$(MAKE) -C doc
 
-include .maint/makefiles/common_environment.mk
-include .maint/makefiles/general_pub.mk
-include .maint/makefiles/python_test.mk
-include .maint/makefiles/python_pub.mk
-include .maint/makefiles/doc_adapter.mk
+.PHONY: html
+html:
+	$(MAKE) -C doc html
 
-clean:
-	$(RM) .pytest_cache
+.PHONY: pdf
+pdf:
+	$(MAKE) -C doc pdf
 
-distclean: clean
-	$(RM) activate.sh renv.lock .Rprofile renv venv
+.PHONY: cleandoc
+cleandoc:
+	$(MAKE) -C doc clean
+	$(MAKE) doc
 
+.PHONY: serve-doc
+serve-doc:
+	python -m http.server -d doc/_build/html
+
+.PHONY: pytype
+pytype:
+	 pytype --config=pytype.cfg src/labw_utils
