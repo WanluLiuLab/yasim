@@ -77,7 +77,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/AAAAA.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/BBBB.d" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (yasim_py37)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">

@@ -5,4 +5,4 @@ numpy~=1.21
 pandas~=1.3
 scipy~=1.7
 # labw_utils package in internal Git repo
-http://10.109.92.4:3000/yuzj/labw_utils/archive/0.1.0.zip
+# http://10.109.92.4:3000/yuzj/labw_utils/archive/0.1.0.zip

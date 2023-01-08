@@ -1,1 +1,3 @@
 include requirements.txt Readme.md
+include src/yasim/llrg_adapter/pbsim2_dist/*
+include src/yasim/llrg_adapter/pbsim_dist/*
