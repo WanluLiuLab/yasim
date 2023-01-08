@@ -185,11 +185,3 @@ exec pbsim "${@}"
 ## NEWS
 
 - 2022-11-09: The `yasim.commonutils` and `yasim.bioutils` package would be separated into a new package (still under internal development) and `yasim` of later versions would depend on it.
-
-## Steps
-
-### Generating Differentially Expressed Genes and Alternative Splicing
-
-
-
-### Call Low-Level Simulators (aka. Sequence Generators)

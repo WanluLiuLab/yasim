@@ -71,7 +71,7 @@ extensions = [
     'sphinx_copybutton',
     'sphinxcontrib.bibtex'
 ]
-myst_enable_extensions = ["deflist"]
+myst_enable_extensions = ["deflist", "dollarmath"]
 bibtex_bibfiles = ['refs.bib']
 exclude_patterns = [
     '_build',

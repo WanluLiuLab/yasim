@@ -4,5 +4,6 @@
 :maxdepth: 2
 
 devel/index
+reviews/index
 license/index
 ```
