@@ -22,7 +22,7 @@ def get_depth_from_intermediate_fasta(
         depth: DepthType
 ) -> DepthInfoType:
     """
-    Glob and parse a filename line base_dir/1/transcript_id.fasta.
+    Glob and parse a filename line ``base_dir/1/transcript_id.fasta``.
     """
     for transcript_id, transcript_depth in depth.items():
         filename = os.path.join(intermediate_fasta_dir, transcript_id + ".fa")

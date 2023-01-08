@@ -25,7 +25,7 @@ class BadreadAdapter(BaseLLRGAdapter):
             **kwargs
         )
         if self.exename is None:
-            self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "badread.sh")
+            self.exename = "badread"
         else:
             self.exename = self.exename
         self.model_name = model_name

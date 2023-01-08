@@ -36,7 +36,7 @@ class PbsimAdapter(BaseLLRGAdapter):
             **kwargs
         )
         if self.exename is None:
-            self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "pbsim.sh")
+            self.exename = "pbsim"
         else:
             self.exename = exename
         self.is_ccs = is_ccs
