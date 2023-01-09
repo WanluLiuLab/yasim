@@ -10,8 +10,7 @@ This contains documentation for Users and Developers.
 _root/Readme
 _root/Copying
 apidoc_index
-src/index
-_root/TODO
+license/index
 ```
 
 - {ref}`genindex`

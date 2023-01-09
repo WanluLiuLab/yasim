@@ -2,9 +2,10 @@ import glob
 import shutil
 from typing import List, Union, Optional
 
-from commonutils import shell_utils
-from commonutils.io import file_system
-from commonutils.shell_utils import gz_decompress
+from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.shell_utils import gz_decompress
+
 from yasim.llrg_adapter import BaseLLRGAdapter
 
 

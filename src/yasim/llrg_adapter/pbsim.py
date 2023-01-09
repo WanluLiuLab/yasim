@@ -2,8 +2,9 @@ import glob
 import os
 from typing import List, Optional
 
-from commonutils import shell_utils
-from commonutils.io.safe_io import get_reader, get_writer
+from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.io.safe_io import get_reader, get_writer
+
 from yasim.llrg_adapter import BaseLLRGAdapter, LLRG_SHELL_ADAPTER_PATH
 
 PBSIM_DIST_DIR = os.path.join(os.path.dirname(__file__), "pbsim_dist")
@@ -35,7 +36,7 @@ class PbsimAdapter(BaseLLRGAdapter):
             **kwargs
         )
         if self.exename is None:
-            self.exename = os.path.join(LLRG_SHELL_ADAPTER_PATH, "pbsim.sh")
+            self.exename = "pbsim"
         else:
             self.exename = exename
         self.is_ccs = is_ccs

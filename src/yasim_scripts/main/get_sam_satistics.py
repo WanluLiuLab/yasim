@@ -5,10 +5,9 @@ from statistics import mean
 from typing import List, Any
 
 import pysam
-
-from bioutils.algorithm.sequence import get_gc_percent
-from commonutils.importer.tqdm_importer import tqdm
-from commonutils.io.safe_io import get_writer
+from labw_utils.bioutils.algorithm.sequence import get_gc_percent
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.io.safe_io import get_writer
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:

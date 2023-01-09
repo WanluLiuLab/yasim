@@ -32,8 +32,6 @@ all: pdf html
 .PHONY: apidoc
 apidoc:
 	rm -rf $(CURDIR)/_apidoc
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/bioutils
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/commonutils
 	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim
 
 html:

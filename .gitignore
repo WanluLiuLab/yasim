@@ -250,9 +250,7 @@ celerybeat.pid
 .venv
 .virtualenv/
 .pypy_virtualenv/
-env/
 venv/
-ENV/
 env.bak/
 venv.bak/
 

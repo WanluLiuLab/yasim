@@ -7,7 +7,5 @@ Here are documentations for developers who wish to use infrastructure provided b
 :glob:
 :maxdepth: 2
 
-_apidoc/bioutils
-_apidoc/commonutils
 _apidoc/yasim
 ```

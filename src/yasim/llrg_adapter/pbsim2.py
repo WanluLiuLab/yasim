@@ -2,8 +2,9 @@ import glob
 import os
 from typing import List, Optional
 
-from commonutils import shell_utils
-from commonutils.io.safe_io import get_writer, get_reader
+from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.io.safe_io import get_writer, get_reader
+
 from yasim.llrg_adapter import BaseLLRGAdapter
 
 PBSIM2_DIST = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
