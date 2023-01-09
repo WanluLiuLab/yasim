@@ -10,7 +10,6 @@ description = "yasim -- Yet Another SIMulator for Alternative Splicing and Diffe
 authors = [
     { name = "YU Zhejian", email = "Zhejian.19@intl.zju.edu.cn" },
     { name = "SU Yaqi", email = "Yaqi.19@intl.zju.edu.cn" },
-    { name = "YUAN Ruihong", email = "Ruihong.19@intl.zju.edu.cn" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

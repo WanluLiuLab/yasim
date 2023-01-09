@@ -4,7 +4,7 @@
 
 ---
 
-YASIM is a read simulator for Next- and Third-Generation Sequencing with Alternative Splicing and realistic Gene Expression Profile. Here we wouls provide detailed guidance on usage of YASIM.
+YASIM is a read simulator for Next- and Third-Generation bulk RNA Sequencing with Alternative Splicing and realistic Gene Expression Profile. It can be used to benchmark various of tools that claimed to be able to detect or quantify isoforms. Here we wouls provide detailed guidance on usage of YASIM.
 
 This documentation is a small instruction for users of YASIM. For those who's interested in internals of YASIM, please refer to Development Essentials.
 
@@ -100,11 +100,13 @@ Optional arguments:
 
 - `-h`, `--help` show this help message and exit
 
+```{warning}
+The generated coverage is **NOT** number of reads generated! It cannot be used as ground truth to assess quantification software! The number of reads ground truth will be provided by LLRG UIs introduced below.
+```
+
 ### Transcribe GTF to FASTA: `transcribe`
 
-This step would transcribe the input genome GTF and genome FASTA into transcriptome FASTA.
-
-The transcriptome FASTA generated at this step respects strand information on GTF.
+This step would transcribe the input genome GTF and genome FASTA into stranded transcriptome FASTA.
 
 This step is designed to be general-purposed. It can be applied on any matching GTF and FASTA.
 
@@ -121,6 +123,10 @@ Required arguments:
 - `-f [FASTA]`, `--fasta [FASTA]` Reference genome, in FASTA format
 - `-g [GTF]`, `--gtf [GTF]` GTF to be transcribed
 - `-o [OUT]`, `--out [OUT]` Output FASTA. Except from `[OUT]`, this step would also generate `[OUT].d`, which is a directory of FASTAs with only one transcript inside.
+
+```{note}
+Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while YASIM transcribed cDNA includes all transcripts inside provided GTF.
+```
 
 ### Simulate: Use Badread for Example
 

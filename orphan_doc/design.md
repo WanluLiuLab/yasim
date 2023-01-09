@@ -91,10 +91,6 @@ From literature of MicroArray [^Furusawa2003] [^Ueda2004] [^Lu2005] [^Brown2007]
 
 The reason why we use "coverage" instead of more formal parameters like RPKM or TPM is that most LLRGs (introduced below) are designed for DNA-Seq simulation and accept coverage only (a minority also accepts a number of reads).
 
-```{warning}
-The generated coverage is **NOT** number of reads generated! It cannot be used as ground truth to assess quantification software! The number of reads ground truth will be provided by LLRG UIs introduced below.
-```
-
 ## `transcribe`: Transcribe GTF into AS cDNA
 
 - INPUT: AS Ground Truth GTF
@@ -103,10 +99,6 @@ The generated coverage is **NOT** number of reads generated! It cannot be used a
 This step is a general-purposed transcriber that can be used to convert any GTF that contains some transcript into a FASTA of all cDNA and a directory with all cDNAs in separate FASTA.
 
 The seqname of FASTA records is `transcript_id` of AS Ground Truth GTF.
-
-```{note}
-Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while `yasim` transcribed cDNA includes all transcripts and exons inside GTF.
-```
 
 ## Use LLRGs to Generate Raw Reads for Next- or Third-Generation Sequencing
 
