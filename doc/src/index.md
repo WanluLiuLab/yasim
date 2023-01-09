@@ -1,9 +1,11 @@
+# Development Essentials
+
 ```{toctree}
 :caption: 'Contents:'
 :glob:
 :maxdepth: 2
 
-devel/index
+design
 reviews/index
 license/index
 ```

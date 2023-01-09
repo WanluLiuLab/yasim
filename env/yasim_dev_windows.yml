@@ -18,7 +18,7 @@ dependencies:
   - tk
   - numpy=1.23
   - pandas=1.5
-  - pysam=0.19.1
+  # - pysam=0.19.1
 
   # Recommended libraries
   - seaborn=0.11 # A high-level plotting library over matplotlib.
@@ -26,12 +26,12 @@ dependencies:
   - tomli
 
   # Development Utilities
-  - bash
-  - make
-  - coreutils
-  - findutils
+  - m2-bash
+  - m2-make
+  - m2-coreutils
+  - m2-findutils
   - git
-  - grep
+  - m2-grep
 
   # Sphinx documentation
   - sphinx=5.3
@@ -50,5 +50,4 @@ dependencies:
   - wheel
   - build
   - twine
-  - pip:
-    - pytype
+

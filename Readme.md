@@ -1,6 +1,12 @@
 # `yasim` -- Yet Another SIMulator
 
-Read simulator for Next- and Third-Generation Sequencing with Alternative Splicing and Differently Expressed Genes.
+**Markdown compatibility guide** This file is written in [Myst-flavored Markdown](https://myst-parser.readthedocs.io/), and may show errors on the default landing page of PYPI or Git Hostings. You can correctly preview it on generated Sphinx documentation or [Visual Studio Code](https://code.visualstudio.com) with [ExecutableBookProject.myst-highlight](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight) plugin.
+
+---
+
+YASIM is a read simulator for Next- and Third-Generation Sequencing with Alternative Splicing and realistic Gene Expression Profile. Here we wouls provide detailed guidance on usage of YASIM.
+
+This documentation is a small instruction for users of YASIM. For those who's interested in internals of YASIM, please refer to Development Essentials.
 
 ## Installation
 
@@ -12,24 +18,38 @@ You need Python interpreter (CPython implementation) >= 3.7 and latest [`pip`](h
 pip install yasim==1.0.0
 ```
 
-You are recommended to use this application inside a virtual environment.
+You are recommended to use this application inside a virtual environment like [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io) or [`poetry`](https://python-poetry.org).
 
 ### Build from Source
 
-You need Python interpreter (CPython implementation) >= 3.7 and latest [`setuptools`](https://setuptools.pypa.io/) to build this software. You are recommended to build the software in a virtual environment provided by [`virtualenv`](https://virtualenv.pypa.io), etc.
+You need Python interpreter (CPython implementation) >= 3.7, latest PYPA [`build`](https://pypa-build.readthedocs.io) and latest [`setuptools`](https://setuptools.pypa.io/) to build this software. You are recommended to build the software in a virtual environment provided by [`virtualenv`](https://virtualenv.pypa.io), etc.
 
 Build the simulator using:
 
 ```shell
-python3 setup.py sdist
+python3 -m build
 pip install dist/yasim-1.0.0.tar.gz
 ```
 
-If you wish to contribute in development of the package, see Conda environment at `env/yasim_dev.yml` for tools that builds documentation.
+## YASIM Quickstart
 
-## `yasim` Quickstart
+### Third-Party Files
 
-List all available subcommands: `python3 -m yasim lscmd`. You would see some output like:
+This program relies on **matched** reference **genomic** GTF and FASTA as input. You may get them from authentic arthorities. Following is a table where you can download Reference GTF and FASTA:
+
+| Name    | Genome FASTA                                                 | Genome GTF                                                   | cDNA FASTA                                                   |
+| ------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| UCSC    | [hg38.p13](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz) | [ncbiRefSeq](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz) | NA                                                           |
+| Ensembl | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz) |
+| NCBI    | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz) | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.gtf.gz) | NA                                                           |
+
+```{warning}
+This simulator does not support fancy genomic features like decoy sequences, HLA sequences, EBV sequences, pathes or alternative loci. You are free to use references with those features but generated data may not be biologically meaningful.
+```
+
+### List All Available Subcommands
+
+Coexistance of different functionality in YASIM works through subcommands. Through `python3 -m yasim lscmd`, you would see some output like:
 
 ```text
 2023-01-09 03:28:38,268 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 1.0.0
@@ -44,45 +64,143 @@ pbsim2
 transcribe
 ```
 
+Inside the output, you would find 3 lines of log and 7 subcommands sorted in alphabetical order. We would introduce all subcommands in logical order below.
+
 ### Generate Alternative Splicing Events: `generate_as_events`
 
-usage: `python3 -m yasim generate_as_events [-h] -f [FASTA] -g [GTF] -o [OUT]`
+This step would generate alternative splicing events. It would take reference GTF (as those downloaded from UCSC, etc.) as input and generate GTF with AS events as output.
 
-optional arguments:
+The generated GTF should be seen as ground truth for benchmarking AS detectors. If you wish to benchmark quantifiers only, this step can be safely omitted.
 
-- `-h`, `--help` show this help message and exit
+Synopsis: `python3 -m yasim generate_as_events [-h] -f [FASTA] -g [GTF] -o [OUT]`
+
+Required arguments:
+
 - `-f [FASTA]`, `--fasta [FASTA]` Reference genome, in FASTA format
 - `-g [GTF]`, `--gtf [GTF]` Reference genome, in GTF format
 - `-o [OUT]`, `--out [OUT]` Output GTF
 
-### Generate Sequencing Depth of Gene: `generate_depth`
-
-usage: `python3 -m yasim generate_depth [-h] -f [FASTA] -g [GTF] -o [OUT]`
-
-Arguments:
+Optional arguments:
 
 - `-h`, `--help` show this help message and exit
+
+### Generate Sequencing Depth of Gene: `generate_depth`
+
+This step would generate Gene Expression Profile (GEP) over one GTF. The input can be reference GTF or GTF from previous step.
+
+Synopsis: `python3 -m yasim generate_depth [-h] -f [FASTA] -g [GTF] -o [OUT]`
+
+Required arguments:
+
 - `-g [GTF]`, `--gtf [GTF]` Reference genome, in GTF format
 - `-o [OUT]`, `--out [OUT]` Output TSV
 - `-d [MU]`, `--mu [MU]` Average depth
 
+Optional arguments:
+
+- `-h`, `--help` show this help message and exit
+
 ### Transcribe GTF to FASTA: `transcribe`
 
+This step would transcribe the input genome GTF and genome FASTA into transcriptome FASTA.
+
+The transcriptome FASTA generated at this step respects strand information on GTF.
+
+This step is designed to be general-purposed. It can be applied on any matching GTF and FASTA.
+
+This step should generate similiar output with `bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]`
+
+Synposis: `python3 -m yasim transcribe -f [FASTA] -g [GTF] -o [OUT]`
+
+Optional arguments:
+
 - `-h`, `--help` show this help message and exit
+
+Required arguments:
+
 - `-f [FASTA]`, `--fasta [FASTA]` Reference genome, in FASTA format
 - `-g [GTF]`, `--gtf [GTF]` GTF to be transcribed
-- `-o [OUT]`, `--out [OUT]` Output FASTA
+- `-o [OUT]`, `--out [OUT]` Output FASTA. Except from `[OUT]`, this step would also generate `[OUT].d`, which is a directory of FASTAs with only one transcript inside.
 
-### Simulate: Use `badread` for Example
+### Simulate: Use Badread for Example
 
-- `-h`, `--help` show this help message and exit
+This step would add machine noise and abundance information to the transcribed FASTA.
+
+The machine noises are add by something called Low-Level Read Generators (LLRGs). They are independent third-party programs that experts in simulating sequencer noises but does not provide pre-transcriptional modification of abundance simulation functionalities. You should have them installed in advance.
+
+Currently supported LLRGs are [Badread](https://github.com/rrwick/Badread), [PBSIM](https://github.com/pfaucon/PBSIM-PacBio-Simulator), [PBSIM2](https://github.com/yukiteruono/pbsim2) and [DWGSIM](https://github.com/nh13/DWGSIM).
+
+Synopsis: `python3 -m yasim badread -F [FASTAS] -g [GTF] -o [OUT] -d [DEPTH] -e [EXENAME] -j [JOBS]`
+
+Required arguments:
+
 - `-F [FASTAS]`, `--fastas [FASTAS]` Directory of transcribed DGE FASTAs from `transcribe` step
 - `-g [GTF]`, `--gtf [GTF]` GTF to be transcribed
 - `-o [OUT]`, `--out [OUT]` Output transcript prefix
 - `-d [DEPTH]`, `--depth [DEPTH]` Depth generated by `generate_depth` step
 - `-m [MODEL_NAME]`, `--model_name [MODEL_NAME]`. Used model. Should be one of  -m `nanopore2018`,`nanopore2020`,`pacbio2016`,`verybad`,`verynice`
+
+Optional arguments:
+
+- `-h`, `--help` show this help message and exit
 - `-e [EXENAME]`, `--exename [EXENAME]` Executable name or absolute path.
 - `-j [JOBS]`, `--jobs [JOBS]` Number of threads used.
+
+```{warning}
+The official build of PBSIM and PBSIM2 shares a common executable anme (`pbsim`) but with different argument layout. For convenience, I renamed executable of PBSIM2 to `pbsim2`. If you do not use this in your computer, please use the `-e` option.
+```
+
+````{hint}
+You may use wrapper scripts for LLRGs that requires complex prerequisites.
+
+Following is a wrapper for Badread. This script would:
+
+1. Search for `badread` executable. If succeed, would execute that executable.
+2. Search for `badread` Conda environment. If succeed, would activate that environment and use `badread` executable inside.
+3. Setup `badread` Conda environment and use `badread` executable inside.
+
+```shell
+#!/usr/bin/env bash
+set -e
+if which badread &>> /dev/null; then
+    exec badread "${@}"
+fi
+if ! which conda &>> /dev/null; then
+    echo "conda not found!" >&2
+    exit 127
+fi
+
+if ! conda env list | grep ^badread &>> /dev/null; then
+    conda create -y -n badread -c bioconda badread=0.2.0 python-edlib
+fi
+
+eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
+conda activate badread
+exec badread "${@}"
+```
+
+Similiar script for PBSIM:
+
+```shell
+#!/usr/bin/env bash
+set -e
+if which pbsim &>> /dev/null; then
+    exec pbsim "${@}"
+fi
+if ! which conda &>> /dev/null; then
+    echo "conda not found!" >&2
+    exit 127
+fi
+
+if ! conda env list | grep ^pbsim &>> /dev/null; then
+    conda create -y -n pbsim -c bioconda pbsim=1.0.3
+fi
+
+eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
+conda activate pbsim
+exec pbsim "${@}"
+```
+````
 
 ### Put them Together
 
@@ -100,87 +218,6 @@ python3 -m yasim pbsim2 \
     --exename PATH_TO_PBSIM2 \
     -j 40
 ```
-
-## Hints
-
-To simulate using simulators like `pbsim`, `pbsim2`, etc., you are recommended to provide the **ABSOLUTE PATH** to the executable using `-e` argument.
-
-````{hint}
-You may use wrapper scripts for LLRGs that requires a large environment to run.
-
-Provided wrapper scripts:
-
-Following is a wrapper for `badread`. This script would:
-
-1. Search for `badread` executable. If succeed, would execute that executable.
-2. Search for `badread` Conda environment. If succeed, would activate that environment and use `badread` executable inside.
-3. Setup `badread` Conda environment and use `badread` executable inside.
-
-```shell
-#!/usr/bin/env bash
-set -e
-if which badread &>> /dev/null; then
-    exec badread "${@}"
-fi
-if ! which conda &>> /dev/null; then
-    echo "conda not found!"
-    exit 127
-fi
-
-if ! conda env list | grep ^badread &>> /dev/null; then
-    conda create -y -n badread -c bioconda badread==0.2.0 python-edlib
-fi
-
-eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate badread
-exec badread "${@}"
-```
-
-Similiar script for `pbsim`:
-
-```shell
-#!/usr/bin/env bash
-set -e
-if which pbsim &>> /dev/null; then
-    exec pbsim "${@}"
-fi
-if ! which conda &>> /dev/null; then
-    echo "conda not found!"
-    exit 127
-fi
-
-if ! conda env list | grep ^pbsim &>> /dev/null; then
-    conda create -y -n pbsim -c bioconda pbsim==1.0.3
-fi
-
-eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate pbsim
-exec pbsim "${@}"
-```
-
-Similiar script for `pbsim2`. Mind that in official distribution, the executable name of `pbsim` and `pbsim2` is the same. So this wrapper would search for an executable named `pbsim2`.
-
-```shell
-#!/usr/bin/env bash
-set -e
-if which pbsim2 &>> /dev/null; then
-    exec pbsim2 "${@}"
-fi
-if ! which conda &>> /dev/null; then
-    echo "conda not found!"
-    exit 127
-fi
-
-if ! conda env list | grep ^pbsim2 &>> /dev/null; then
-    conda create -y -n pbsim2 -c bioconda pbsim2==2.0.1
-fi
-
-eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
-conda activate pbsim2
-exec pbsim "${@}"
-```
-
-````
 
 ## NEWS
 

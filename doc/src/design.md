@@ -62,17 +62,7 @@ Ground Truth GEP TSV
 : A TSV that stores ground truth of GEP in **nReads**.
 
 refGTF
-: Reference GTF can be downloaded at UCSC, NCBI, Ensembl or WormBase (for _C. Elegans_). Following is a table where you can download refGTF:
-
-| Name    | Genome FASTA                                                 | Genome GTF                                                   | cDNA FASTA                                                   |
-| ------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| UCSC    | [hg38.p13](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz) | [ncbiRefSeq](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz) | NA                                                           |
-| Ensembl | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz) |
-| NCBI    | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz) | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.gtf.gz) | NA                                                           |
-
-```{hint}
-For Your Information: This simulator does not support reference files that contains fancy genomic features like decoy sequences, HLA sequences, EBV sequences, pathes or alternative loci. You are free to use references with those features but generated data may not be biologically meaningful.
-```
+: Reference GTF can be downloaded at UCSC, NCBI, Ensembl or WormBase (for _C. Elegans_).
 
 AS Ground Truth GTF
 : GTF with AS events, which is generated from refGTF by YASIM.
@@ -96,10 +86,6 @@ Firstly, we parse the GTF and get a list of AS-able transcripts. Simulated from 
 
 - INPUT: AS Ground Truth GTF.
 - OUTPUT: A `TranscriptID -  Coverage` TSV.
-
-```{caution}
-This part is waiting for satistical tests.
-```
 
 From literature of MicroArray [^Furusawa2003] [^Ueda2004] [^Lu2005] [^Brown2007], we can infer that the distribution of GEP of general organisms obeys Zipf's Law [^Zipf1949] and can be fitted into a Log-Normal Distribution. This opinion was challenged by [^Nowrousian2013].
 
@@ -196,6 +182,10 @@ E_{c, t, s} \sim SomeKnownDistribution(some\_mean = \mu, some\_se = \sigma)
 $$
 
 Where $E_{c}$ is AS Event type $c$.
+
+## Software Engineering
+
+YASIM heavily depends on a bioinformatics library `labw_utils`, which is an collection of all code snippets used accross several projects.
 
 [^Furusawa2003]: Furusawa, C., & Kaneko, K. (2003). Zipf's law in gene expression. Physical review letters, 90(8), 088102. <https://doi.org/10.1103/PhysRevLett.90.088102>
 [^Ueda2004]: Ueda, H. R., Hayashi, S., Matsuyama, S., Yomo, T., Hashimoto, S., Kay, S. A., Hogenesch, J. B., & Iino, M. (2004). Universality and flexibility in gene expression from bacteria to human. Proceedings of the National Academy of Sciences of the United States of America, 101(11), 3765–3769. <https://doi.org/10.1073/pnas.0306244101>
