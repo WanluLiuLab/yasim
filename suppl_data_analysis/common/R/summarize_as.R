@@ -33,7 +33,7 @@ all_as_summary_wide_upset[events] <- all_as_summary_wide[events] != 0
 
 p <- upset(data = all_as_summary_wide_upset, intersect = events)
 ggsave(
-    paste0(filename, ".upset.png"),
+    paste0(filename, ".upset.pdf"),
     p,
     width = 16,
     height = 10
@@ -51,9 +51,9 @@ all_as_summary_wide_pheatmap_matrix <- all_as_summary_wide_pheatmap %>%
 
 rownames(all_as_summary_wide_pheatmap_matrix) <- gene_id
 
-png(
-    paste0(filename, ".top50_heatmap.png"),
-    width = 10, height = 10, unit = "in", res = 75
+pdf(
+    paste0(filename, ".top50_heatmap.pdf"),
+    width = 10, height = 10
 )
 pheatmap(
     head(all_as_summary_wide_pheatmap_matrix, 50),

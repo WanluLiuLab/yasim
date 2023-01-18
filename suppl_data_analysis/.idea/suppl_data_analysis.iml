@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/.idea/inspectionProfiles" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/ZeppelinRemoteNotebooks" />
+      <excludeFolder url="file://$MODULE_DIR$/_deprecated/c_elegans/R/analyse-over-nanopore_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/_deprecated/c_elegans/R/analyse-over-nanopore_files" />
+      <excludeFolder url="file://$MODULE_DIR$/_deprecated/c_elegans/as_data" />
+      <excludeFolder url="file://$MODULE_DIR$/ce11.fa_STAR_idx" />
+      <excludeFolder url="file://$MODULE_DIR$/ce11.trans.fa_bwa_idx" />
+    </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

@@ -1,3 +1,5 @@
-datasets/
+datasets
 .RData
 .idea/
+ce11*
+wget-log
