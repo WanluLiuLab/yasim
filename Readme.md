@@ -4,9 +4,9 @@
 
 ---
 
-YASIM is a read simulator for Next- and Third-Generation bulk RNA Sequencing with Alternative Splicing and realistic Gene Expression Profile. It can be used to benchmark various of tools that claimed to be able to detect or quantify isoforms. Here we wouls provide detailed guidance on usage of YASIM.
+YASIM is a read simulator for Next- and Third-Generation bulk RNA Sequencing with Alternative Splicing and realistic Gene Expression Profile. It can be used to benchmark various of tools that claimed to be able to detect or quantify isoforms. Here we would provide detailed guidance on usage of YASIM.
 
-This documentation is a small instruction for users of YASIM. For those who's interested in internals of YASIM, please refer to Development Essentials.
+This documentation is a small instruction for users of YASIM.
 
 ## Installation
 
@@ -35,13 +35,13 @@ pip install dist/yasim-1.0.0.tar.gz
 
 ### Third-Party Files
 
-This program relies on **matched** reference **genomic** GTF and FASTA as input. You may get them from authentic arthorities. Following is a table where you can download Reference GTF and FASTA:
+This program relies on **matched** reference **genomic** GTF and FASTA as input. You may get them from authentic authorities. Following is a table where you can download Reference GTF and FASTA:
 
-| Name    | Genome FASTA                                                 | Genome GTF                                                   | cDNA FASTA                                                   |
-| ------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| UCSC    | [hg38.p13](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz) | [ncbiRefSeq](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz) | NA                                                           |
-| Ensembl | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz) | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz) |
-| NCBI    | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz) | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.gtf.gz) | NA                                                           |
+| Name    | Genome FASTA                                                                                                                                                                  | Genome GTF                                                                                                                                                                    | cDNA FASTA                                                                                                      |
+|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| UCSC    | [hg38.p13](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz)                                                                                                | [ncbiRefSeq](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz)                                                                            | NA                                                                                                              |
+| Ensembl | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz)                                                    | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz)                                                                          | [GRCh38.105](http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz) |
+| NCBI    | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz) | [GRCh38.p14](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/vertebrate_mammalian/Homo_sapiens/reference/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.gtf.gz) | NA                                                                                                              |
 
 ```{warning}
 This simulator does not support fancy genomic features like decoy sequences, HLA sequences, EBV sequences, pathes or alternative loci. You are free to use references with those features but generated data may not be biologically meaningful.
@@ -49,12 +49,12 @@ This simulator does not support fancy genomic features like decoy sequences, HLA
 
 ### List All Available Subcommands
 
-Coexistance of different functionality in YASIM works through subcommands. Through `python3 -m yasim lscmd`, you would see some output like:
+Coexistence of different functionality in YASIM works through subcommands. Through `python3 -m yasim lscmd`, you would see some output like:
 
 ```text
-2023-01-09 03:28:38,268 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 1.0.0
-2023-01-09 03:28:38,268 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py lscmd
-2023-01-09 03:28:38,268 [INFO] Listing modules...
+2023-01-19 04:20:27,739 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 0.2.13
+2023-01-19 04:20:27,739 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py lscmd
+2023-01-19 04:20:27,739 [INFO] Listing modules...
 badread
 dwgsim
 generate_as_events
@@ -65,6 +65,19 @@ transcribe
 ```
 
 Inside the output, you would find 3 lines of log and 7 subcommands sorted in alphabetical order. We would introduce all subcommands in logical order below.
+
+### The Example
+
+Inside the example, _C. Elegans_ reference data from UCSC is used. See:
+
+- <https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz>
+- <https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz>
+
+To reduce time consumption, only chromosome 1 was used.
+
+```{warning}
+This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT stable and is to be removed. You shold use **UNSORTED** UCSC references for compatibility.
+```
 
 ### Generate Alternative Splicing Events: `generate_as_events`
 
@@ -83,6 +96,35 @@ Required arguments:
 Optional arguments:
 
 - `-h`, `--help` show this help message and exit
+
+Example:
+
+```shell
+python -m yasim generate_as_events -f ce11.fa -g ce11.ncbiRefSeq_sorted.gtf -o ce11.ncbiRefSeq_as.gtf
+```
+
+```text
+2023-01-19 04:16:07,405 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 0.2.13
+2023-01-19 04:16:07,405 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py generate_as_events -f ce11.fa -g ce11.ncbiRefSeq.gtf -o ce11.ncbiRefSeq_as.gtf
+Reading ce11.ncbiRefSeq.gtf:   0%|                                             | 0/74066 [00:00<?, ?L/s]
+2023-01-19 04:16:07,737 [WARNING] Gene Y74C9A.6 is inferred from feature transcript
+2023-01-19 04:16:07,738 [WARNING] Gene homt-1 is inferred from feature transcript
+2
+[...]
+Reading ce11.ncbiRefSeq.gtf: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 74066/74066 [00:01<00:00, 53647.41L/s]
+2023-01-19 04:16:09,118 [INFO] Pickling to gvpkl...
+2023-01-19 04:16:10,827 [INFO] Loaded 3961 genes with 5300 transcript
+Generating isoforms...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 3961/3961 [00:10<00:00, 380.15it/s]
+2023-01-19 04:16:21,274 [INFO] Will remove 1135 genes out of 3961
+2023-01-19 04:16:21,341 [INFO] Will remove genes FIN
+Standardizing transcripts: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 3841/3841 [00:00<00:00, 89509.25it/s]
+Standardizing genes: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 3922/3922 [00:00<00:00, 85025.10it/s]
+```
+
+Generates:
+
+- `ce11.ncbiRefSeq_as.gtf`.
+- `ce11.ncbiRefSeq.gtf.0.4.gvpkl.xz`, if not exist. This is a cache file for the `labw_utils` GTF parser.
 
 ### Generate Sequencing Depth of Gene: `generate_depth`
 
@@ -104,6 +146,26 @@ Optional arguments:
 The generated coverage is **NOT** number of reads generated! It cannot be used as ground truth to assess quantification software! The number of reads ground truth will be provided by LLRG UIs introduced below.
 ```
 
+Example:
+
+```shell
+python -m yasim generate_depth -g ce11.ncbiRefSeq_as.gtf -o ce11_depth.tsv -d 5
+```
+
+```text
+2023-01-19 04:40:16,317 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 0.2.13
+2023-01-19 04:40:16,317 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py generate_depth -g ce11.ncbiRefSeq_as.gtf -o ce11_depth.tsv -d 5
+Reading ce11.ncbiRefSeq_as.gtf.0.4.gvpkl.xz: 100%|XXXXXXXXXXXXXXXXX| 5.97M/5.97M [00:00<00:00, 24.6MB/s]
+Simulating...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 3841/3841 [00:00<00:00, 411355.37it/s]
+```
+
+Generates:
+
+- `ce11_depth.tsv`, a TSV file with following columns:
+  - `TRANSCRIPT_ID`
+  - `DEPTH`
+- `ce11.ncbiRefSeq_as.gtf.0.4.gvpkl.xz`, if not present.
+
 ### Transcribe GTF to FASTA: `transcribe`
 
 This step would transcribe the input genome GTF and genome FASTA into stranded transcriptome FASTA.
@@ -112,7 +174,7 @@ This step is designed to be general-purposed. It can be applied on any matching 
 
 This step should generate similiar output with `bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]`
 
-Synposis: `python3 -m yasim transcribe -f [FASTA] -g [GTF] -o [OUT]`
+Synopsis: `python3 -m yasim transcribe -f [FASTA] -g [GTF] -o [OUT]`
 
 Optional arguments:
 
@@ -127,6 +189,35 @@ Required arguments:
 ```{note}
 Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while YASIM transcribed cDNA includes all transcripts inside provided GTF.
 ```
+
+Example:
+
+```shell
+python -m yasim transcribe -f ce11.fa -g ce11.ncbiRefSeq_as.gtf -o ce11_transcripts.fa
+```
+
+```text
+2023-01-19 04:26:07,014 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 0.2.13
+2023-01-19 04:26:07,014 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py transcribe -f ce11.fa -g ce11.ncbiRefSeq_as.gtf -o ce11_transcripts.fa
+Reading ce11.ncbiRefSeq_as.gtf.0.4.gvpkl.xz: 100%|XXXXXXXXXXXXXXXXX| 5.97M/5.97M [00:00<00:00, 39.9MB/s]
+Reading ce11.fa: 301451L [00:00, 881722.09L/s]
+Transcribing GTF...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 3841/3841 [00:01<00:00, 2877.34it/s]
+```
+
+Generates:
+
+- `ce11_transcripts.fa`.
+- `ce11_transcripts.fa.d`, the directory where every transcipt is stored as separate FASTA.
+- `ce11_transcripts.fa.stats`, a TSV file with following columns:
+  - `TRANSCRIPT_ID`
+  - `GENE_ID`
+  - `SEQNAME`
+  - `START`
+  - `END`
+  - `STRAND`
+  - `ABSOLUTE_LENGTH`, is `START` - `END`
+  - `TRANSCRIBED_LENGTH`, length of the CDNA
+  - `GC`
 
 ### Simulate: Use Badread for Example
 
@@ -208,21 +299,25 @@ exec pbsim "${@}"
 ```
 ````
 
-### Put them Together
-
-This is an example of simulating AS events using hg38 genome with PBSIM2 as LLRG.
+Example:
 
 ```shell
-python3 -m yasim generate_as_events -f hg38.fa -g hg38.gtf -o hg38_as.gtf
-python3 -m yasim generate_depth -g hg38_as.gtf -o hg38_depth.tsv -d 100
-python3 -m yasim transcribe -f hg38.fa -g hg38_as.gtf -o hg38_trans.fa
 python3 -m yasim pbsim2 \
-    -F hg38_trans.fa.d \
+    -F ce11.fa.d \
     -o hg38_pbsim \
-    -d hg38_depth.tsv \
+    -d ce11_depth.tsv \
     --hmm_model P4C2 \
-    --exename PATH_TO_PBSIM2 \
+    --exename /home/yuzj/bin/pbsim2 \
     -j 40
+```
+
+```text
+2023-01-19 05:04:29,970 [INFO] yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene ver. 0.2.13
+2023-01-19 05:04:29,971 [INFO] Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py pbsim2 -F ce11.fa.d -o hg38_pbsim -d ce11_depth.tsv --hmm_model P4C2 --exename /home/yuzj/bin/pbsim2 -j 40
+Reading depth file...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 716/716 [00:00<00:00, 1861823.72it/s]
+Submitting jobs...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 716/716 [00:00<00:00, 88949.76it/s]
+Simulating jobs: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 716/716 [00:16<00:00, 43.38it/s]
+Merging...: 100%|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX| 716/716 [00:00<00:00, 81860.16it/s]
 ```
 
 ## NEWS

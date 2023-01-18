@@ -19,6 +19,7 @@ dependencies:
   - numpy=1.23
   - pandas=1.5
   - pysam=0.19.1
+  - joblib=1.1.0
 
   # Recommended libraries
   - seaborn=0.11 # A high-level plotting library over matplotlib.

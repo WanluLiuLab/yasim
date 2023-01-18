@@ -13,7 +13,6 @@ LLRG_SHELL_ADAPTER_PATH = os.path.join(os.path.dirname(__file__), "shell")
 class BaseLLRGAdapter(threading.Thread):
     """
     Base class of LLRG Python adapter.
-    See :doc:`/src/devel/design` for more details.
 
     It performs following operations:
 
