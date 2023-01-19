@@ -1,23 +1,57 @@
 library("tidyverse")
-library("svglite")
 library("fitdistrplus")
+library("ggridges")
+library("pheatmap")
 
 #' Get dataset metadata
 datasets_metadata <-
-    readr::read_csv("datasets.csv", show_col_types = FALSE) %>%
-        dplyr::mutate(filename = sprintf("./datasets/%s/%s.stringtie_guided.gtf.gene.tsv", Model, Read))
+    readr::read_csv(
+        "datasets.csv",
+        show_col_types = FALSE,
+        col_types = c(
+            Generation = col_character(),
+            SequencerManufacturer = col_character(),
+            SequencerModel = col_character(),
+            ProjectAccession = col_character(),
+            RunAccession = col_character()
+        ),
+    ) %>%
+        dplyr::mutate(
+            nipg_filename = sprintf(
+                "./datasets/%s/%s.stringtie_guided.gtf.gene.tsv",
+                SequencerModel,
+                RunAccession
+            )
+        ) %>%
+        dplyr::rows_insert(
+            tibble(
+                Generation = "reference",
+                SequencerManufacturer = "reference",
+                SequencerModel = "reference",
+                ProjectAccession = "reference",
+                RunAccession = "ce11.ncbiRefSeq.gtf",
+                nipg_filename = "./datasets/reference/ce11.ncbiRefSeq.gtf.gene.tsv"
+            )
+        )
 
 #' Raw sequence run accessions
-all_run_accessions <- unlist(datasets_metadata$Read)
+all_run_accessions <- unlist(datasets_metadata$RunAccession)
 
-#' All GEP data in depth
-all_gep_data <- list()
+#' All NIpG Data
+all_nipg_data <- list()
 
 #' Read data
 for (i in seq_len(nrow(datasets_metadata))) {
     data_tuple <- datasets_metadata[i,]
-    all_gep_data[[data_tuple$Read]] <-
-        readr::read_tsv(data_tuple$filename, show_col_types = FALSE) %>%
+    all_nipg_data[[data_tuple$RunAccession]] <-
+        readr::read_tsv(
+            data_tuple$nipg_filename,
+            show_col_types = FALSE,
+            col_types = c(
+                GENE_ID = col_character(),
+                TRANSCRIPT_NUMBER = col_integer()
+            )
+        ) %>%
             dplyr::select(TRANSCRIPT_NUMBER) %>%
             unlist() %>%
             as.vector()
@@ -25,32 +59,34 @@ for (i in seq_len(nrow(datasets_metadata))) {
 
 n_bins <- 0
 for (i in all_run_accessions) {
-    n_bins <- max(n_bins, max(all_gep_data[[i]]))
+    n_bins <- max(n_bins, max(all_nipg_data[[i]]))
 }
 
-all_gep_data_reformatted <- tibble(
+all_nipg_data_binned <- tibble(
     x = 1:n_bins
 )
 
 for (i in all_run_accessions) {
     adding_col <- NULL
     for (n in 1:n_bins) {
-        adding_col[n] <- length(which(all_gep_data[[i]] == n))
+        adding_col[n] <- length(which(all_nipg_data[[i]] == n))
     }
-    all_gep_data_reformatted <- all_gep_data_reformatted %>%
+    all_nipg_data_binned <- all_nipg_data_binned %>%
         dplyr::mutate(!!i := adding_col)
 }
 
-all_gep_data_reformatted_long <- all_gep_data_reformatted %>%
-    tidyr::gather(key = "Read", value = "GeneNumber", -x)
+pheatmap_data <- all_nipg_data_binned
+pheatmap_data$x <- NULL
 
-g <- ggplot(all_gep_data_reformatted_long) +
-    geom_line(aes(x = x, y = GeneNumber, color = Read), stat = "identity") +
-    scale_x_discrete(name = "N. Isoforms") +
-    scale_y_continuous(name = "log(N. Genes)", trans = "log") +
-    theme_bw() +
-    ggtitle("Number of isoforms in a gene accross all samples")
-ggsave("gep_n_isoforms.svg", g, width = 8, height = 5)
+pheatmap(
+    log(pheatmap_data + 1),
+    cluster_rows = FALSE,
+    cluster_cols = TRUE,
+    main = "Logged Number of isoforms in a gene accross all samples",
+    filename = "nipg_heatmap.pdf",
+    wifth = 8,
+    height = 5
+)
 
 all_gep_data_reformatted_mean <- all_gep_data_reformatted %>%
     dplyr::mutate(count = as.integer(rowMeans(all_gep_data_reformatted)))
@@ -140,7 +176,7 @@ plot_qq <- function(retl) {
 
 gs_all <- fit_common(all_gep_data_reformatted_mean)
 g1 <- plot_density(gs_all)
-ggsave("fitted_n_isoforms.svg", g1, width = 8, height = 5)
+ggsave("fitted_n_isoforms.pdf", g1, width = 8, height = 5)
 write_csv(all_gep_data_reformatted_mean, "fitted_n_isoforms.csv")
 
 #' Get number of records

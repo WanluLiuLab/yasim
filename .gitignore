@@ -425,3 +425,5 @@ SiLiCO_Scratch/
 *.kdev4
 *.tiff
 /makefile_test_data/.RData
+*.parquet
+*.gff3
