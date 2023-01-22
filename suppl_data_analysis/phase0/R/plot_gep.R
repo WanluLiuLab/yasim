@@ -1,38 +1,36 @@
----
-title: "Test Analysis over Nanopore Data"
-output: html_notebook
----
-
-
-```{r Preparation}
-# Purge current environment.
-rm(list = ls())
-
-load_package <- function(name) {
-    suppressWarnings(suppressMessages(library(name, quietly = TRUE, warn.conflicts = FALSE, character.only = TRUE)))
-}
-
-load_package("tidyverse")
-load_package("ggpubr")
-load_package("gamlss")
-load_package("fitdistrplus")
-load_package("parallel")
-load_package("knitr")
-load_package("rmutil")
-load_package("ggpmisc")
-
-knitr::opts_chunk$set(cache = TRUE)
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.width = 8)
-knitr::opts_chunk$set(fig.height = 7)
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
-sessionInfo()
-version
+library("tidyverse")
+library("ggpubr")
+library("gamlss")
+library("fitdistrplus")
+library("parallel")
+library("rmutil")
+library("ggpmisc")
 
 cl <- parallel::makeCluster(parallel::detectCores() - 1)
 clusterExport(cl, varlist = ls())
 
-all_data <- read_tsv("../all_data.tsv", show_col_types = FALSE)
+all_data <- read_tsv(
+    "../all_data.tsv",
+    show_col_types = FALSE,
+    col_types = c(
+        TRANSCRIPT_ID = col_character(),
+        GENE_ID = col_character(),
+        SEQNAME = col_character(),
+        START = col_double(),
+        END = col_double(),
+        STRAND = col_character(),
+        ABSOLUTE_LENGTH = col_integer(),
+        TRANSCRIBED_LENGTH = col_integer(),
+        GC = col_double(),
+        PACB_AVG_DEPTH = col_double(),
+        NANOPORE_AVG_DEPTH = col_double(),
+        ILLM_AVG_DEPTH = col_double()
+    )
+)
+
+scale_depth <- function(vec){
+    (vec - min(vec)) / (max(vec) - min(vec)) * 5000 + 1
+}
 
 all_data_nano <- all_data %>%
     dplyr::rename(count = NANOPORE_AVG_DEPTH) %>%
@@ -43,39 +41,54 @@ all_data_pacb <- all_data %>%
 all_data_illm <- all_data %>%
     dplyr::rename(count = ILLM_AVG_DEPTH) %>%
     dplyr::filter(count > 0)
-```
 
-```{r test ziff law}
+all_data_nano$count <- scale_depth(all_data_nano$count)
+all_data_pacb$count <- scale_depth(all_data_pacb$count)
+all_data_illm$count <- scale_depth(all_data_illm$count)
+
 mutate_data <- function(data) {
     dplyr::mutate(data,
                   rank = dplyr::dense_rank(dplyr::desc(count)),
                   rank_zipfs = rank^(-2),
                   zipfs_freq = max(count) / rank,
-                  rank_l2n = log2(rank),
-                  rank_zipfs_l2n = log2(rank_zipfs),
-                  zipfs_freq_l2n = log2(zipfs_freq),
-                  count_l2n = log2(count),
+                  rank_l10n = log10(rank),
+                  rank_zipfs_l10n = log10(rank_zipfs),
+                  zipfs_freq_l10n = log10(zipfs_freq),
+                  count_l10n = log10(count),
     )
 }
 plot_zipf <- function(data) {
     ggplot(data) +
-        geom_point(aes(x = count_l2n, y = rank_zipfs_l2n), color = "blue") +
-        geom_point(aes(x = zipfs_freq_l2n, y = rank_zipfs_l2n), color = "red") +
-        geom_smooth(aes(x = count_l2n, y = rank_zipfs_l2n), method = 'lm') +
+        geom_point(aes(x = count_l10n, y = rank_zipfs_l10n), color = "blue") +
+        geom_point(aes(x = zipfs_freq_l10n, y = rank_zipfs_l10n), color = "red") +
+        geom_smooth(aes(x = count_l10n, y = rank_zipfs_l10n), method = 'lm') +
         theme_bw()
 }
 
 all_data_nano <- mutate_data(all_data_nano)
-plot_zipf(all_data_nano)
+g <- plot_zipf(all_data_nano) +
+    ggtitle(
+        "Zipf's Distribution Fitting for Nanopore Data ",
+        "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
+    )
+ggsave("gep_zipf_nanopore.pdf", g, width=10, height=8)
 
 all_data_pacb <- mutate_data(all_data_pacb)
-plot_zipf(all_data_pacb)
+g <- plot_zipf(all_data_pacb) +
+    ggtitle(
+        "Zipf's Distribution Fitting for PacBio Data ",
+        "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
+    )
+ggsave("gep_zipf_pacbio.pdf", g, width=10, height=8)
 
 all_data_illm <- mutate_data(all_data_illm)
-plot_zipf(all_data_illm)
-```
+g <- plot_zipf(all_data_illm) +
+    ggtitle(
+        "Zipf's Distribution Fitting for Illumina Data ",
+        "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
+    )
+ggsave("gep_zipf_illumina.pdf", g, width=10, height=8)
 
-```{r fit common distributions}
 fit_common <- function(data) {
     fnbiom <- fitdistrplus::fitdist(as.integer(data$count), "nbinom", method = "mme")
     fpois <- fitdistrplus::fitdist(as.integer(data$count), "pois", method = "mme")
@@ -129,14 +142,15 @@ fit_common <- function(data) {
         )
     )
 }
+
 plot_density <- function(retl) {
     data <- retl$data
 
     g <- ggplot(data) +
-        geom_density(aes(x = log2(count)), color = "red", size = 3) +
-        geom_density(aes(x = log2(lnorm_theo)), color = "blue") +
-        geom_density(aes(x = log2(gamma_theo)), color = "purple") +
-        geom_density(aes(x = log2(nbiom_theo)), color = "black") +
+        geom_density(aes(x = log10(count)), color = "red", size = 3) +
+        geom_density(aes(x = log10(lnorm_theo)), color = "blue") +
+        geom_density(aes(x = log10(gamma_theo)), color = "purple") +
+        geom_density(aes(x = log10(nbiom_theo)), color = "black") +
         scale_x_continuous(
             limits = c(-1, NA)
         )
@@ -160,17 +174,22 @@ plot_qq <- function(retl) {
         theme_bw()
 }
 gs_nano <- fit_common(all_data_nano)
-plot_density(gs_nano)
-plot_qq(gs_nano)
+g <- plot_density(gs_nano) +
+    ggtitle(
+        "Fitting of Commonly Seen Distributions for Nanopore Data",
+        "Blue: LogNormal. Purple: Gamma. Black: Negative Biomial. Red: Real"
+    )
+ggsave("gep_common_nanopore.pdf", g, width=10, height=8)
+
+g <- plot_qq(gs_nano) +
+    ggtitle(
+        "Fitting of Commonly Seen Distributions for Nanopore Data",
+        "Blue: LogNormal. Purple: Gamma. Black: Negative Biomial. Red: Real"
+    )
+ggsave("gep_common_nanopore_qq.pdf", g, width=10, height=8)
 gs_pacb <- fit_common(all_data_pacb)
 plot_density(gs_pacb)
 plot_qq(gs_pacb)
 gs_illm <- fit_common(all_data_illm)
 plot_density(gs_illm)
 plot_qq(gs_illm)
-```
-```{r}
-options("nwarnings"=120)
-warnings()
-```
-

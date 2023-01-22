@@ -20,7 +20,8 @@ yasim_fa_stats_col_types <- cols(
     START = col_number(),
     END = col_number(),
     STRAND = col_character(),
-    LEN = col_number(),
+    ABSOLUTE_LENGTH = col_number(),
+    TRANSCRIBED_LENGTH = col_number(),
     GC = col_number()
 )
 

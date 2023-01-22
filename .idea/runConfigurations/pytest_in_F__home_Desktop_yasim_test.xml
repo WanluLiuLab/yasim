@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="pytest in test" type="tests" factoryName="py.test" nameIsGenerated="true">
+  <configuration default="false" name="pytest in F:/home/Desktop/yasim/test" type="tests" factoryName="py.test" nameIsGenerated="true">
     <module name="yasim" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
