@@ -45,6 +45,7 @@ done
 python -m labw_utils.bioutils describe_sam ce11_badread_nanopore2018.fq.bam ce11_badread_nanopore2020.fq.bam ce11_badread_pacbio2016.fq.bam ce11_pbsim2_r94.fq.bam ce11_pbsim_clr.fq.bam
 
 for fn in *.fq; do
+    # TODO ERROR: TO BE REDONE
     minimap2 -x splice -a -t 50 ce11_trans.fa "${fn}" > "${fn/.fq/_trans.fq}".sam
     samtools sort "${fn/.fq/_trans.fq}".sam -@ 50 -o "${fn/.fq/_trans.fq}".bam
     samtools index "${fn/.fq/_trans.fq}".bam
