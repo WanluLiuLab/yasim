@@ -73,15 +73,25 @@
       <excludeFolder url="file://$MODULE_DIR$/venv_py36" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/AAAAA.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/yasim/helper/BBBB.d" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/R/analyse-over-nanopore_files" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/as_data" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/R/analyse-over-nanopore_cache" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/src" />
       <excludeFolder url="file://$MODULE_DIR$/iter_7" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1/batch_c_elegans/datasets" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/ce11.fa_STAR_idx" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/ce11.trans.fa_bwa_idx" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/R/analyse-over-nanopore_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/R/analyse-over-nanopore_files" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1/batch_c_elegans/datasets (copy)" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/as_data" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase0/src" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1/batch_c_elegans/datasets" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_trans.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_trans_as.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim_clr.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_r94.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/_STARtmp" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_STAR_index" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_trans_bwa_index" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2018.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_pacbio2016.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2020.d" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
