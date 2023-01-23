@@ -105,11 +105,11 @@ g <- ggplot(sample_level_abundance) +
     ), stat = "identity") +
     theme_bw() +
     scale_x_continuous(
-        name = "Mean of Unnormalized NTpI Abundance",
+        name = "per Transcript Unnormalized Mean Coveragee",
         labels = scales::label_number()
     ) +
     ylab("Run Accession") +
-    ggtitle("Bar Plot of Run Accession-Sum of Unnormalized NTpI Abundance")
+    ggtitle("Bar Plot of Run Accession-per Isoform Unnormalized Mean Coverage")
 ggsave(
     "run_level_abundance.pdf",
     g,
@@ -141,11 +141,11 @@ g <- ggplot(sample_level_abundance_per_base) +
     ), stat = "identity") +
     theme_bw() +
     scale_x_continuous(
-        name = "Mean of Unnormalized Coverage",
+        name = "Sum of Unnormalized Mean Coverage",
         labels = scales::label_number()
     ) +
     ylab("Run Accession") +
-    ggtitle("Bar Plot of Run Accession-Sum of Unnormalized Mean Coverage")
+    ggtitle("Bar Plot of Run Accession-per Base Unnormalized Mean Coverage")
 ggsave(
     "run_level_abundance_per_base.pdf",
     g,
