@@ -92,6 +92,21 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2018.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_pacbio2016.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2020.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2018.fq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2020.fq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_pacbio2016.fq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_r94.fq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim_clr.fq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2018.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2020.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_pacbio2016.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_r94.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim_clr.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2018_trans.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_nanopore2020_trans.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_badread_pacbio2016_trans.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_r94_trans.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim_clr_trans.fq.bam.stats.d" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

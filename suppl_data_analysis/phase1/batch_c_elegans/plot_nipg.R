@@ -84,7 +84,7 @@ pheatmap(
     cluster_cols = TRUE,
     main = "Logged Number of isoforms in a gene accross all samples",
     filename = "nipg_heatmap.pdf",
-    wifth = 8,
+    width = 8,
     height = 5
 )
 

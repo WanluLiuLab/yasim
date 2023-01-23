@@ -28,10 +28,9 @@ get_featureCounts_data <- function(featureCounts_tsv, n, ATTR_NAME) {
         comment = "#"
     )
     featureCounts_data <- featureCounts_data %>%
-        dplyr::filter(NumReads > 0) %>%
         dplyr::transmute(
             !!rlang::sym(ATTR_NAME) := Geneid,
-            !!rlang::sym(sprintf("FEATURECOUNTS_%d_ACTUAL_N_OF_READS", n)) := NumReads
+            !!rlang::sym(sprintf("FEATURECOUNTS_%s_ACTUAL_N_OF_READS", n)) := NumReads
         )
     message(sprintf("Reading %s... DONE", featureCounts_tsv))
     return(featureCounts_data)
