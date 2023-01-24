@@ -4,17 +4,14 @@ depth.py -- DGE Datastructure and Utils
 import math
 from typing import Dict
 
-
 import numpy as np
-
-from yasim.helper.gmm import GaussianMixture1D
-
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from scipy.stats import nbinom, uniform
 
+from yasim.helper.gmm import GaussianMixture1D
 
 DepthType = Dict[str, int]
 """DGE type, is transcript_id -> coverage"""

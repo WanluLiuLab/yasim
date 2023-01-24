@@ -1,14 +1,10 @@
 import argparse
 from typing import List
 
-from yasim.helper.as_events import ASManipulator
-
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory, GeneViewType
-from labw_utils.bioutils.datastructure.gv_feature_proxy import Transcript
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
+from yasim.helper.as_events import ASManipulator
 
 logger = get_logger(__name__)
 

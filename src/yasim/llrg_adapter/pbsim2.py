@@ -1,9 +1,7 @@
 import glob
 import os
-from typing import List, Optional
-
-from labw_utils.commonutils import shell_utils
-from labw_utils.commonutils.io.safe_io import get_writer, get_reader
+import shutil
+from typing import List, Final
 
 from yasim.llrg_adapter import BaseLLRGAdapter
 
@@ -14,36 +12,28 @@ Where PBSIM2 stores its model.
 
 
 class Pbsim2Adapter(BaseLLRGAdapter):
-    hmm_model: str
+    """
+    Wrapper of PBSIM2.
 
-    def assemble_cmd(self) -> List[str]:
+    CMDline Spec::
+
         cmd = [
             self.exename,
-            "--prefix", self.tmp_prefix,
-            "--id-prefix", self.tmp_prefix,
+            "--prefix", self.tmp_dir,
             "--depth", str(self.depth),
-            "--hmm_model", os.path.join(PBSIM2_DIST, f"{self.hmm_model}.model"),
+            "--hmm_model", self.hmm_model,
+            *self.other_args,
             self.input_fasta
         ]
-        return cmd
+    """
+    hmm_model: str
+    """Absolute path to or name of HMM filename"""
 
-    def move_file_after_finish(self):
-        counter = 0
-        with get_writer(self.output_fastq_prefix + ".fq") as writer:
-            for filename in glob.glob(self.tmp_prefix + "_*.fastq"):
-                with get_reader(filename) as reader:
-                    while True:
-                        line = reader.readline()
-                        if not line:
-                            break
-                        writer.write(line)
-                        counter += 1
-                shell_utils.rm_rf(filename)
-                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".maf")
-                shell_utils.rm_rf(os.path.splitext(filename)[0] + ".ref")
+    tmp_dir: str
+    """Prefix for generated temporary files"""
 
-    def run(self) -> None:
-        self.run_simulator_as_process("pbsim2")
+    _llrg_name: Final[str] = "pbsim2"
+    _require_integer_depth: Final[bool] = False
 
     def __init__(
             self,
@@ -51,17 +41,42 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             output_fastq_prefix: str,
             depth: int,
             hmm_model: str,
-            exename: Optional[str] = None,
-            **kwargs):
+            exename: str,
+            other_args: List[str]
+    ):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
             depth=depth,
             exename=exename,
-            **kwargs
+            other_args=other_args
         )
-        self.hmm_model = hmm_model
-        if self.exename is None:
-            self.exename = "pbsim2"
+        if os.path.exists(hmm_model):
+            hmm_model = hmm_model
+        elif os.path.exists(os.path.join(PBSIM2_DIST, f"{hmm_model}.model")):
+            hmm_model = os.path.join(PBSIM2_DIST, f"{hmm_model}.model")
         else:
-            self.exename = exename
+            raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
+        self.hmm_model = hmm_model
+        self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    def run(self):
+        self.run_simulator_as_process()
+
+    def _assemble_cmd_hook(self) -> List[str]:
+        cmd = [
+            self.exename,
+            "--prefix", os.path.join(self.tmp_dir, "tmp"),
+            "--depth", str(self.depth),
+            "--hmm_model", self.hmm_model,
+            *self.other_args,
+            self.input_fasta
+        ]
+        return cmd
+
+    def _rename_file_after_finish_hook(self):
+        with open(self.output_fastq_prefix + ".fq", "wb") as writer:
+            for filename in glob.glob(os.path.join(self.tmp_dir,"tmp_????.fastq")):
+                with open(filename, "rb") as reader:
+                    shutil.copyfileobj(reader, writer)

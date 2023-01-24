@@ -1,46 +1,58 @@
-import glob
+import os
 import shutil
-from typing import List, Union, Optional
+from typing import List, Union, Final
 
-from labw_utils.commonutils import shell_utils
-from labw_utils.commonutils.io import file_system
-from labw_utils.commonutils.shell_utils import gz_decompress
+from labw_utils.commonutils.io import file_system, get_reader, get_writer
 
 from yasim.llrg_adapter import BaseLLRGAdapter
 
 
 class DwgsimAdapter(BaseLLRGAdapter):
+    """
+    Wrapper of DWGSIM.
 
-    def __init__(self,
-                 input_fasta: str,
-                 output_fastq_prefix: str,
-                 depth: Union[int, float],
-                 exename: Optional[str] = None,
-                 **kwargs):
+    Cmdline Specs::
+
+        cmd = [
+            self.exename,
+            "-C", str(self.depth),
+            *self.other_args,
+            self.input_fasta,
+            self.tmp_dir
+        ]
+    """
+    _llrg_name:Final[str] = "dwgsim"
+    _require_integer_depth:Final[bool] = False
+
+    def __init__(
+            self,
+            input_fasta: str,
+            output_fastq_prefix: str,
+            depth: Union[int, float],
+            exename: str,
+            other_args: List[str],
+    ):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
             depth=depth,
             exename=exename,
-            **kwargs
+            other_args=other_args
         )
-        if self.exename is None:
-            self.exename = "dwgsim"
-        else:
-            self.exename = exename
+        self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        os.makedirs(self.tmp_dir, exist_ok=True)
 
-    def assemble_cmd(self) -> List[str]:
+    def _assemble_cmd_hook(self) -> List[str]:
         cmd = [
             self.exename,
-            "-1", "140",
-            "-2", "140",
             "-C", str(self.depth),
+            *self.other_args,
             self.input_fasta,
-            self.tmp_prefix
+            os.path.join(self.tmp_dir, "tmp")
         ]
         return cmd
 
-    def move_file_after_finish(self):
+    def _rename_file_after_finish_hook(self):
         try_read1_suffix = (
             ".bwa.read1.fastq.gz",
             ".bwa.read1.fastq",
@@ -54,32 +66,21 @@ class DwgsimAdapter(BaseLLRGAdapter):
             ".bwa.read2.fq"
         )
         for suffix_r1, suffix_r2 in zip(try_read1_suffix, try_read2_suffix):
-            if not file_system.file_exists(self.tmp_prefix + suffix_r1) or \
-                    not file_system.file_exists(self.tmp_prefix + suffix_r2):
+            r1_file_path = os.path.join(self.tmp_dir, "tmp" + suffix_r1)
+            r2_file_path = os.path.join(self.tmp_dir, "tmp" + suffix_r2)
+
+            if not file_system.file_exists(r1_file_path) or \
+                    not file_system.file_exists(r2_file_path):
                 continue
-            if suffix_r1.endswith(".gz"):
-                gz_decompress(
-                    self.tmp_prefix + suffix_r1,
-                    self.output_fastq_prefix + f"_1.fq"
-                )
-                gz_decompress(
-                    self.tmp_prefix + suffix_r2,
-                    self.output_fastq_prefix + f"_2.fq"
-                )
-            else:  # Need to archive
-                shutil.move(
-                    self.tmp_prefix + suffix_r1,
-                    self.output_fastq_prefix + f"_1.fq"
-                )
-                shutil.move(
-                    self.tmp_prefix + suffix_r2,
-                    self.output_fastq_prefix + f"_2.fq"
-                )
+            with get_reader(r1_file_path, is_binary=True) as r1, \
+                    get_writer(self.output_fastq_prefix + "_1.fq", is_binary=True) as w1:
+                shutil.copyfileobj(r1, w1)
+            with get_reader(r2_file_path, is_binary=True) as r2, \
+                    get_writer(self.output_fastq_prefix + "_2.fq", is_binary=True) as w2:
+                shutil.copyfileobj(r2, w2)
             break
         else:
             self.lh.error(f"Unable to find output")
-        for filename in glob.glob(self.tmp_prefix + ".bfast.fastq*"):
-            shell_utils.rm_rf(filename)
 
     def run(self) -> None:
-        self.run_simulator_as_process("dwgsim")
+        self.run_simulator_as_process()

@@ -1,18 +1,19 @@
-import os
+import subprocess
 import subprocess
 import threading
 from abc import abstractmethod
-from typing import Dict, Any, Optional, Union, List, Callable
+from typing import Union, List, Callable
 
-from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
-LLRG_SHELL_ADAPTER_PATH = os.path.join(os.path.dirname(__file__), "shell")
 
 
 class BaseLLRGAdapter(threading.Thread):
     """
     Base class of LLRG Python adapter.
+
+    The LLRG adapter is a thread-safe Python wrapper of various LLRGs.
+    They can be used to simulate DNA and RNA data with pre-defined arguments.
+
 
     It performs following operations:
 
@@ -24,7 +25,7 @@ class BaseLLRGAdapter(threading.Thread):
     input_fasta: str
     """
     Input reference FASTA,
-    can be DNA or transcriptom cDNA,
+    can be DNA or transcript cDNA,
     can contain more than 1 entries.
     """
 
@@ -46,12 +47,7 @@ class BaseLLRGAdapter(threading.Thread):
     .. warning:: This is NOT final read count!
     """
 
-    kwargs: Dict[str, Any]
-    """
-    Other arguments for LLRG.
-    """
-
-    tmp_prefix: str
+    tmp_dir: str
     """
     Simulator-based temp directory name.
     """
@@ -67,79 +63,108 @@ class BaseLLRGAdapter(threading.Thread):
     _on_success_hooks: List[Callable[[], None]]
     _on_failure_hooks: List[Callable[[], None]]
 
-    def __init__(self,
-                 input_fasta: str,
-                 output_fastq_prefix: str,
-                 depth: Union[int, float],
-                 exename: Optional[str] = None,
-                 **kwargs
-                 ):
+    # Following fields are left for LLRGs.
+    _llrg_name: str
+    _require_integer_depth: bool
+
+    def __init__(
+            self,
+            input_fasta: str,
+            output_fastq_prefix: str,
+            depth: Union[int, float],
+            exename: str,
+            other_args: List[str]
+    ):
         super(BaseLLRGAdapter, self).__init__()
+        if not hasattr(self, "_llrg_name"):
+            raise TypeError
+        if not hasattr(self, "_require_integer_depth"):
+            raise TypeError
         self.input_fasta = input_fasta
         self.output_fastq_prefix = output_fastq_prefix
-        self.depth = depth
-        self.kwargs = dict(kwargs)
+        self.depth = int(depth) if self._require_integer_depth else depth
         self.exename = exename
         self.lh = get_logger(__name__)
         self._before_cmd_hooks = []
         self._after_cmd_hooks = []
         self._on_failure_hooks = []
         self._on_success_hooks = []
+        self.other_args = other_args
 
     @abstractmethod
-    def assemble_cmd(self) -> List[str]:
+    def _assemble_cmd_hook(self) -> List[str]:
         """
         Assemble the command line into a list of string.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
-    def move_file_after_finish(self):
+    def _rename_file_after_finish_hook(self):
         """
         Move the file into desired destination.
         May involve (de-)compression.
         """
-        pass
+        raise NotImplementedError
 
-    @staticmethod
-    def _execute_hooks(_hooks: List[Callable[[], None]]):
-        for hook in _hooks:
-            hook()
+    @abstractmethod
+    def run(self):
+        """
+        The Default run method.
+        Designed for LLRGs that does not pour generated sequences into STDOUT.
+        """
+        raise NotImplementedError
 
-    def run_simulator_as_process(self, simulator_name: str, stdout_filename: Optional[str] = None) -> int:
+    def run_simulator_as_process_with_stdout_capturing(
+            self
+    ):
+        """
+        Use a subprocess to run LLRG. It performs following tasks:
+
+        - Assembles CMD.
+        - Execute the process.
+
+        This method would redirect stdout into desired output location,
+        so can only be used in single-end conditions.
+
+        :return: The return value of top-level LLRG process. 0 for normal.
+        """
+        cmd = self._assemble_cmd_hook()
+        self.lh.debug(f"Subprocess {' '.join(cmd)} START")
+        with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler, \
+                open(self.output_fastq_prefix + ".fq", "wb") as stdout_handler:
+            p = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=stdout_handler,
+                stderr=subprocess_log_handler
+            )
+            retv = p.wait()
+        if retv == 0:
+            self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
+            self._rename_file_after_finish_hook()
+        else:
+            self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
+        return retv
+
+    def run_simulator_as_process(self) -> int:
         """
         Use a subprocess to run LLRG.
 
-        :param simulator_name: Name to use in logs.
-        :param stdout_filename: If the LLRG creates output in stdout, set this param to destination filename.
         :return: The return value of top-level LLRG process. 0 for normal.
         """
-        tmp_dir = os.path.join(os.path.dirname(self.output_fastq_prefix), f"{simulator_name}_tmp")
-        shell_utils.mkdir_p(tmp_dir)
-        self.tmp_prefix = os.path.join(tmp_dir, os.path.basename(self.output_fastq_prefix))
-        cmd = self.assemble_cmd()
-        log_filename = self.output_fastq_prefix + ".log"
-        log_handler = open(log_filename, "w")
-        BaseLLRGAdapter._execute_hooks(self._before_cmd_hooks)
+        cmd = self._assemble_cmd_hook()
         self.lh.debug(f"Subprocess {' '.join(cmd)} START")
-        if stdout_filename is None:
-            stdout = log_handler
-        else:
-            stdout = open(stdout_filename, "wb")
-        p = subprocess.Popen(
-            cmd,
-            stdin=subprocess.DEVNULL,
-            stdout=stdout,
-            stderr=log_handler
-        )
-        retv = p.wait()
-        BaseLLRGAdapter._execute_hooks(self._after_cmd_hooks)
+        with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler:
+            p = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess_log_handler,
+                stderr=subprocess_log_handler
+            )
+            retv = p.wait()
         if retv == 0:
-            BaseLLRGAdapter._execute_hooks(self._on_success_hooks)
             self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
-            shell_utils.rm_rf(log_filename)
-            self.move_file_after_finish()
+            self._rename_file_after_finish_hook()
         else:
-            BaseLLRGAdapter._execute_hooks(self._on_failure_hooks)
             self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
         return retv

@@ -8,16 +8,13 @@ from __future__ import annotations
 
 import random
 import sys
-
 from typing import List, Callable, Iterable
-
-from scipy.stats import lognorm
 
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
+from scipy.stats import lognorm
 
 organism_dict = {
     "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
@@ -223,4 +220,3 @@ if __name__ == '__main__':
         asm = ASManipulator(GeneViewFactory.from_file(sys.argv[1]))
         asm.run(i)
         asm.to_file(f"{i}.gtf.xz")
-

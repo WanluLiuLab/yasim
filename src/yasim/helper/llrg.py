@@ -68,10 +68,18 @@ def remark_fastq_pair_end(
             FastqIterator(input_filename_1, show_tqdm=False),
             FastqIterator(input_filename_2, show_tqdm=False)
     ):
-        fastq_record_1.seq_id = f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/1"
-        fastq_record_2.seq_id = f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/2"
-        writer1.write(fastq_record_1)
-        writer2.write(fastq_record_2)
+        new_fastq_record_1 = FastqRecord(
+            seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/1",
+            sequence=fastq_record_1.sequence,
+            quality=fastq_record_1.quality
+        )
+        new_fastq_record_2 = FastqRecord(
+            seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/2",
+            sequence=fastq_record_2.sequence,
+            quality=fastq_record_2.quality
+        )
+        writer1.write(new_fastq_record_1)
+        writer2.write(new_fastq_record_2)
         num_of_reads += 1
     return num_of_reads
 
@@ -120,8 +128,8 @@ def assemble_single_end(
     Assemble single_end reads into one.
     """
     output_fastq_dir = output_fastq_prefix + ".d"
-    with FastqWriter(output_fastq_prefix + ".fq") as writer, get_writer(
-            output_fastq_prefix + ".fq.stats") as stats_writer:
+    with FastqWriter(output_fastq_prefix + ".fq") as writer, \
+            get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
         stats_writer.write("\t".join((
             "TRANSCRIPT_ID",
             "INPUT_DEPTH",

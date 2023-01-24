@@ -10,13 +10,13 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 from yasim.helper.depth import DepthType, read_depth
 from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_single_end
-from yasim.llrg_adapter import pbsim2
+from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
 
 logger = get_logger(__name__)
 
 ALL_POSSIBLE_MODELS = [
-    os.path.basename(os.path.splitext(filename)[0])
-    for filename in glob.glob(os.path.join(pbsim2.PBSIM2_DIST, "*.model"))
+    os.path.basename(os.path.splitext(filename.replace("ERRHMM-", ""))[0])
+    for filename in glob.glob(os.path.join(pbsim3.PBSIM3_DIST, "ERRHMM-*.model"))
 ]
 
 
@@ -32,8 +32,8 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     parser.add_argument('-m', '--hmm_model', required=True, help="Basename of HMM file", nargs='?',
                         type=str, action='store', choices=ALL_POSSIBLE_MODELS)
     parser.add_argument('-e', '--exename', required=False,
-                        help="Executable name of pbsim2, may be pbsim2 or pbsim.", nargs='?',
-                        type=str, action='store', default="pbsim2")
+                        help="Executable name of pbsim3, may be pbsim3 or pbsim.", nargs='?',
+                        type=str, action='store', default="pbsim3")
     parser.add_argument('-j', '--jobs', required=False,
                         help="Number of threads", nargs='?',
                         type=int, action='store', default=multiprocessing.cpu_count())
@@ -57,7 +57,7 @@ def simulate(
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir, depth))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        sim_thread = pbsim2.Pbsim2Adapter(
+        sim_thread = pbsim3.Pbsim3Adapter(
             input_fasta=transcript_filename,
             output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
             depth=transcript_depth,
@@ -71,7 +71,7 @@ def simulate(
     assemble_single_end(
         depth=depth,
         output_fastq_prefix=output_fastq_prefix,
-        simulator_name=f"pbsim2_{hmm_model}"
+        simulator_name=f"pbsim3_{hmm_model}"
     )
 
 
