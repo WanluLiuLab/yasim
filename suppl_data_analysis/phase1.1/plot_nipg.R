@@ -10,14 +10,18 @@ fns <- c(
     "ce11_badread_nanopore2020.fq.bam.stringtie.gtf.gene.tsv",
     "ce11_badread_pacbio2016.fq.bam.stringtie.gtf.gene.tsv",
     "ce11_pbsim2_r94.fq.bam.stringtie.gtf.gene.tsv",
-    "ce11_pbsim_clr.fq.bam.stringtie.gtf.gene.tsv"
+    "ce11_pbsim_clr.fq.bam.stringtie.gtf.gene.tsv",
+    "ce11.ncbiRefSeq_as.gtf.gene.tsv",
+    "ce11.ncbiRefSeq.gtf.gene.tsv"
 )
 conditions <- c(
     "NANOPORE2018",
     "NANOPORE2020",
     "PACBIO2016",
     "R94",
-    "CLR"
+    "CLR",
+    "GROUND TRUTH",
+    "REFERENCE"
 )
 
 

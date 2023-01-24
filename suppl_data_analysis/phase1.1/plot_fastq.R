@@ -22,40 +22,40 @@ conditions <- c(
     "CLR"
 )
 
-for (i in seq_along(conditions)){
-    if (is.null(all_data)){
+for (i in seq_along(conditions)) {
+    if (is.null(all_data)) {
         all_data <- readr::read_tsv(
             file.path(fns[i], "all.tsv"),
             col_types = c(
-                SEQID=col_character(),
-                GC=col_double(),
-                LEN=col_integer(),
-                MEANQUAL=col_double()
+                SEQID = col_character(),
+                GC = col_double(),
+                LEN = col_integer(),
+                MEANQUAL = col_double()
             ),
-            progress=TRUE
+            progress = TRUE
         ) %>%
             dplyr::select(!(SEQID)) %>%
             dplyr::mutate(
-                Condition=conditions[i]
+                Condition = conditions[i]
             )
     }
     all_data <- all_data %>%
         dplyr::rows_append(
-        readr::read_tsv(
-            file.path(fns[i], "all.tsv"),
-            col_types = c(
-                SEQID=col_character(),
-                GC=col_double(),
-                LEN=col_integer(),
-                MEANQUAL=col_double()
-            ),
-            progress=TRUE
-        ) %>%
-            dplyr::select(!(SEQID)) %>%
-            dplyr::mutate(
-                Condition=conditions[i]
-            )
-    )
+            readr::read_tsv(
+                file.path(fns[i], "all.tsv"),
+                col_types = c(
+                    SEQID = col_character(),
+                    GC = col_double(),
+                    LEN = col_integer(),
+                    MEANQUAL = col_double()
+                ),
+                progress = TRUE
+            ) %>%
+                dplyr::select(!(SEQID)) %>%
+                dplyr::mutate(
+                    Condition = conditions[i]
+                )
+        )
 }
 
 arrow::write_parquet(all_data, "all_fastq_data.parquet")
@@ -63,9 +63,9 @@ arrow::write_parquet(all_data, "all_fastq_data.parquet")
 g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
-            x=LEN,
-            y=Condition,
-            fill=Condition
+            x = LEN,
+            y = Condition,
+            fill = Condition
         )
     ) +
     scale_x_continuous(
@@ -82,9 +82,9 @@ ggsave("fastq_length_all.pdf", g, width = 12, height = 8)
 g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
-            x=GC,
-            y=Condition,
-            fill=Condition
+            x = GC,
+            y = Condition,
+            fill = Condition
         )
     ) +
     ylab("density") +
@@ -96,9 +96,9 @@ ggsave("fastq_gc_all.pdf", g, width = 12, height = 8)
 g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
-            x=MEANQUAL,
-            y=Condition,
-            fill=Condition
+            x = MEANQUAL,
+            y = Condition,
+            fill = Condition
         )
     ) +
     ylab("density") +
