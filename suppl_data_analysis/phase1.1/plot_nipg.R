@@ -5,21 +5,19 @@ library("ggridges")
 library("arrow")
 library("corrplot")
 
+fns <- Sys.glob("ce11_*.fq.bam.stringtie.gtf.gene.tsv")
+conditions <- fns %>%
+    stringr::str_replace("ce11_", "") %>%
+    stringr::str_replace(".fq.bam.stringtie.gtf.gene.tsv", "")
+
 fns <- c(
-    "ce11_badread_nanopore2018.fq.bam.stringtie.gtf.gene.tsv",
-    "ce11_badread_nanopore2020.fq.bam.stringtie.gtf.gene.tsv",
-    "ce11_badread_pacbio2016.fq.bam.stringtie.gtf.gene.tsv",
-    "ce11_pbsim2_r94.fq.bam.stringtie.gtf.gene.tsv",
-    "ce11_pbsim_clr.fq.bam.stringtie.gtf.gene.tsv",
+    fns,
     "ce11.ncbiRefSeq_as.gtf.gene.tsv",
     "ce11.ncbiRefSeq.gtf.gene.tsv"
 )
+
 conditions <- c(
-    "NANOPORE2018",
-    "NANOPORE2020",
-    "PACBIO2016",
-    "R94",
-    "CLR",
+    conditions,
     "GROUND TRUTH",
     "REFERENCE"
 )

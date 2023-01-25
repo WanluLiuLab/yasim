@@ -7,30 +7,10 @@ library("corrplot")
 
 all_data <- NULL
 
-fns <- c(
-    "ce11_badread_nanopore2018.fq.bam.stats.d",
-    "ce11_badread_nanopore2020.fq.bam.stats.d",
-    "ce11_badread_pacbio2016.fq.bam.stats.d",
-    "ce11_pbsim2_r94.fq.bam.stats.d",
-    "ce11_pbsim_clr.fq.bam.stats.d",
-    "ce11_badread_nanopore2018_trans.fq.bam.stats.d",
-    "ce11_badread_nanopore2020_trans.fq.bam.stats.d",
-    "ce11_badread_pacbio2016_trans.fq.bam.stats.d",
-    "ce11_pbsim2_r94_trans.fq.bam.stats.d",
-    "ce11_pbsim_clr_trans.fq.bam.stats.d"
-)
-conditions <- c(
-    "NANOPORE2018_GENOME",
-    "NANOPORE2020_GENOME",
-    "PACBIO2016_GENOME",
-    "R94_GENOME",
-    "CLR_GENOME",
-    "NANOPORE2018_TRANSCRIPTOME",
-    "NANOPORE2020_TRANSCRIPTOME",
-    "PACBIO2016_TRANSCRIPTOME",
-    "R94_TRANSCRIPTOME",
-    "CLR_TRANSCRIPTOME"
-)
+fns <- Sys.glob("ce11_*.fq.bam.stats.d")
+conditions <- fns %>%
+    stringr::str_replace("ce11_", "") %>%
+    stringr::str_replace(".fq.bam.stats.d", "")
 
 for (i in seq_along(conditions)) {
     if (is.null(all_data)) {

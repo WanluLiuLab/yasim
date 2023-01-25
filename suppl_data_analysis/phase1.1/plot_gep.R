@@ -4,99 +4,132 @@ library("scales")
 library("ggridges")
 library("arrow")
 library("corrplot")
+library("glue")
+library("rlang")
 
-source("../../R/lib/featureCounts.R")
-source("../../R/lib/yasim.R")
 
-all_fq_stats <- get_fq_stats_data("ce11_badread_nanopore2018.fq.stats", "NANOPORE2018") %>%
-    dplyr::inner_join(
-        get_fq_stats_data("ce11_badread_nanopore2020.fq.stats", "NANOPORE2020"),
-        by = "TRANSCRIPT_ID"
+all_fastq_data <- arrow::read_parquet("all_fastq_data.parquet")
+
+transcript_sample_mean_readlength <- all_fastq_data %>%
+    dplyr::group_by(TRANSCRIPT_ID, Condition, TRANSCRIBED_LENGTH) %>%
+    dplyr::summarise(
+        MEAN_READ_LENGTH = mean(LEN)
     ) %>%
-    dplyr::inner_join(
-        get_fq_stats_data("ce11_badread_pacbio2016.fq.stats", "PACBIO2016"),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_fq_stats_data("ce11_pbsim2_r94.fq.stats", "R94"),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_fq_stats_data("ce11_pbsim_clr.fq.stats", "CLR"),
-        by = "TRANSCRIPT_ID"
+    dplyr::ungroup()
+
+
+all_fq_stats <- NULL
+
+for (fq_stats_fn in Sys.glob("ce11_*.fq.stats")) {
+    condition <- fq_stats_fn %>%
+        stringr::str_replace(".fq.stats", "") %>%
+        stringr::str_replace("ce11_", "")
+    this_fq_stats_data <- readr::read_tsv(
+        fq_stats_fn,
+        col_types = cols(
+            TRANSCRIPT_ID = col_character(),
+            INPUT_DEPTH = col_number(),
+            SIMULATED_N_OF_READS = col_number()
+        ),
+        comment = "#"
     )
+    if (is.null(all_fq_stats)) {
+        all_fq_stats <- this_fq_stats_data %>%
+            dplyr::select(TRANSCRIPT_ID, INPUT_DEPTH) %>%
+            dplyr::rename(YASIM_INPUT_DEPTH = INPUT_DEPTH)
+    }
+    this_mean_length_data <- transcript_sample_mean_readlength %>%
+        dplyr::filter(Condition == condition) %>%
+        dplyr::select(!Condition)
+    this_fq_stats_data <- this_fq_stats_data %>%
+        dplyr::select(!(INPUT_DEPTH)) %>%
+        dplyr::inner_join(this_mean_length_data, by = "TRANSCRIPT_ID") %>%
+        dplyr::mutate(ACTUAL_DEPTH = SIMULATED_N_OF_READS * MEAN_READ_LENGTH / TRANSCRIBED_LENGTH) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = TRANSCRIPT_ID,
+            !!rlang::sym(sprintf("YASIM_%s_ACTUAL_DEPTH", condition)) := ACTUAL_DEPTH
+        )
+    all_fq_stats <- all_fq_stats %>%
+        dplyr::inner_join(this_fq_stats_data, by = "TRANSCRIPT_ID")
+    rm(condition, this_fq_stats_data, this_mean_length_data, fq_stats_fn)
+}
 
-all_featureCounts_data <- get_featureCounts_data(
-    "ce11_badread_nanopore2018.fq.bam.fc.tsv",
-    "NANOPORE2018",
-    "TRANSCRIPT_ID"
-) %>%
-    dplyr::inner_join(
-        get_featureCounts_data(
-            "ce11_badread_nanopore2020.fq.bam.fc.tsv",
-            "NANOPORE2020",
-            "TRANSCRIPT_ID"
+all_fc_data <- NULL
+
+for (fc_data_fn in Sys.glob("ce11_*.fq.bam.fc.tsv")) {
+    condition <- fc_data_fn %>%
+        stringr::str_replace(".fq.bam.fc.tsv", "") %>%
+        stringr::str_replace("ce11_", "")
+    this_fc_data <- readr::read_tsv(
+        fc_data_fn,
+        col_types = cols(
+            TRANSCRIPT_ID = col_character(),
+            Chr = col_character(),
+            Start = col_character(),
+            End = col_character(),
+            Strand = col_character(),
+            Length = col_number(),
+            NumReads = col_double(),
         ),
-        by = "TRANSCRIPT_ID"
+        col_names = c(
+            "TRANSCRIPT_ID",
+            "Chr",
+            "Start",
+            "End",
+            "Strand",
+            "Length",
+            "NumReads"
+        ),
+        comment = "#"
     ) %>%
-    dplyr::inner_join(
-        get_featureCounts_data(
-            "ce11_badread_pacbio2016.fq.bam.fc.tsv",
-            "PACBIO2016",
-            "TRANSCRIPT_ID"
+        dplyr::select(TRANSCRIPT_ID, NumReads)
+    if (is.null(all_fc_data)) {
+        all_fc_data <- this_fc_data %>%
+            dplyr::select(TRANSCRIPT_ID)
+    }
+    this_mean_length_data <- transcript_sample_mean_readlength %>%
+        dplyr::filter(Condition == condition) %>%
+        dplyr::select(!Condition)
+    this_fc_data <- this_fc_data %>%
+        dplyr::inner_join(this_mean_length_data, by = "TRANSCRIPT_ID") %>%
+        dplyr::mutate(ACTUAL_DEPTH = NumReads * MEAN_READ_LENGTH / TRANSCRIBED_LENGTH) %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = TRANSCRIPT_ID,
+            !!rlang::sym(sprintf("FC_%s_ACTUAL_DEPTH", condition)) := ACTUAL_DEPTH
+        )
+    all_fc_data <- all_fc_data %>%
+        dplyr::inner_join(this_fc_data, by = "TRANSCRIPT_ID")
+    rm(condition, this_fc_data, this_mean_length_data, fc_data_fn)
+}
+
+
+all_depth_data <- NULL
+
+for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.stats.d")) {
+    condition <- depth_data_fn %>%
+        stringr::str_replace("_trans.fq.bam.stats.d", "") %>%
+        stringr::str_replace("ce11_", "")
+    this_depth_data <- readr::read_tsv(
+        file.path(depth_data_fn, "pileup_stat.merged.tsv"),
+        col_types = cols(
+            TRANSCRIPT_ID = col_character(),
+            AVG_DEPTH = col_number()
         ),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_featureCounts_data(
-            "ce11_pbsim2_r94.fq.bam.fc.tsv",
-            "R94",
-            "TRANSCRIPT_ID"
-        ),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_featureCounts_data(
-            "ce11_pbsim_clr.fq.bam.fc.tsv",
-            "CLR",
-            "TRANSCRIPT_ID"
-        ),
-        by = "TRANSCRIPT_ID"
+        comment = "#"
     )
-
-
-all_depth_data <- get_pileup_stats_merged_data(
-    "ce11_badread_nanopore2018_trans.fq.bam.stats.d/pileup_stat.merged.tsv",
-    "NANOPORE2018"
-) %>%
-    dplyr::inner_join(
-        get_pileup_stats_merged_data(
-            "ce11_badread_nanopore2020_trans.fq.bam.stats.d/pileup_stat.merged.tsv",
-            "NANOPORE2020"
-        ),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_pileup_stats_merged_data(
-            "ce11_badread_pacbio2016_trans.fq.bam.stats.d/pileup_stat.merged.tsv",
-            "PACBIO2016"
-        ),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_pileup_stats_merged_data(
-            "ce11_pbsim2_r94_trans.fq.bam.stats.d/pileup_stat.merged.tsv",
-            "R94"
-        ),
-        by = "TRANSCRIPT_ID"
-    ) %>%
-    dplyr::inner_join(
-        get_pileup_stats_merged_data(
-            "ce11_pbsim_clr_trans.fq.bam.stats.d/pileup_stat.merged.tsv",
-            "CLR"
-        ),
-        by = "TRANSCRIPT_ID"
-    )
+    if (is.null(all_depth_data)) {
+        all_depth_data <- this_depth_data %>%
+            dplyr::select(TRANSCRIPT_ID)
+    }
+    this_depth_data <- this_depth_data %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = TRANSCRIPT_ID,
+            !!rlang::sym(sprintf("TRANS_%s_ACTUAL_DEPTH", condition)) := AVG_DEPTH
+        )
+    all_depth_data <- all_depth_data %>%
+        dplyr::inner_join(this_depth_data, by = "TRANSCRIPT_ID")
+    rm(condition, this_depth_data, depth_data_fn)
+}
 
 transcript_stats <- readr::read_tsv(
     "ce11.ncbiRefSeq.gtf.transcripts.tsv",
@@ -106,31 +139,8 @@ transcript_stats <- readr::read_tsv(
 
 all_data <- transcript_stats %>%
     dplyr::inner_join(all_depth_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_featureCounts_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_fq_stats, by = "TRANSCRIPT_ID") %>%
-    dplyr::transmute(
-        TRANSCRIPT_ID = TRANSCRIPT_ID,
-        GENE_ID = GENE_ID,
-        NAIVE_LENGTH = NAIVE_LENGTH,
-        TRANSCRIBED_LENGTH = TRANSCRIBED_LENGTH,
-        EXON_NUMBER = EXON_NUMBER,
-        INPUT_DEPTH = YASIM_NANOPORE2018_INPUT_DEPTH,
-        TRANSCRIPTOMICS_ALN_NANOPORE2018_AVG_DEPTH = PILEUP_STATS_YASIM_NANOPORE2018_AVG_DEPTH,
-        TRANSCRIPTOMICS_ALN_NANOPORE2020_AVG_DEPTH = PILEUP_STATS_YASIM_NANOPORE2020_AVG_DEPTH,
-        TRANSCRIPTOMICS_ALN_PACBIO2016_AVG_DEPTH = PILEUP_STATS_YASIM_PACBIO2016_AVG_DEPTH,
-        TRANSCRIPTOMICS_ALN_R94_AVG_DEPTH = PILEUP_STATS_YASIM_R94_AVG_DEPTH,
-        TRANSCRIPTOMICS_ALN_CLR_AVG_DEPTH = PILEUP_STATS_YASIM_CLR_AVG_DEPTH,
-        FC_NANOPORE2018_AVG_DEPTH = FEATURECOUNTS_NANOPORE2018_ACTUAL_N_OF_READS * 1391.652494 / TRANSCRIBED_LENGTH,
-        FC_NANOPORE2020_AVG_DEPTH = FEATURECOUNTS_NANOPORE2018_ACTUAL_N_OF_READS * 1424.785730 / TRANSCRIBED_LENGTH,
-        FC_PACBIO2016_AVG_DEPTH = FEATURECOUNTS_PACBIO2016_ACTUAL_N_OF_READS * 1436.293968 / TRANSCRIBED_LENGTH,
-        FC_R94_AVG_DEPTH = FEATURECOUNTS_R94_ACTUAL_N_OF_READS * 1013.049713 / TRANSCRIBED_LENGTH,
-        FC_CLR_AVG_DEPTH = FEATURECOUNTS_CLR_ACTUAL_N_OF_READS * 1966.099342 / TRANSCRIBED_LENGTH,
-        YASIM_NANOPORE2018_ACTUAL_DEPTH = YASIM_NANOPORE2018_ACTUAL_N_OF_READS * 1391.652494 / TRANSCRIBED_LENGTH,
-        YASIM_NANOPORE2020_ACTUAL_DEPTH = YASIM_NANOPORE2020_ACTUAL_N_OF_READS * 1424.785730 / TRANSCRIBED_LENGTH,
-        YASIM_PACBIO2016_ACTUAL_DEPTH = YASIM_PACBIO2016_ACTUAL_N_OF_READS * 1436.293968 / TRANSCRIBED_LENGTH,
-        YASIM_R94_ACTUAL_DEPTH = YASIM_R94_ACTUAL_N_OF_READS * 1013.049713 / TRANSCRIBED_LENGTH,
-        YASIM_CLR_ACTUAL_DEPTH = YASIM_CLR_ACTUAL_N_OF_READS * 1966.099342 / TRANSCRIBED_LENGTH,
-    )
+    dplyr::inner_join(all_fc_data, by = "TRANSCRIPT_ID") %>%
+    dplyr::inner_join(all_fq_stats, by = "TRANSCRIPT_ID")
 
 arrow::write_parquet(all_data, "all_gep_data.parquet")
 
@@ -151,7 +161,7 @@ g <- ggplot(all_data_long) +
     theme_ridges() +
     ggtitle("Depth of all runs")
 
-ggsave("gep_depth_all.pdf", g, width = 12, height = 8)
+ggsave("gep_depth_all.pdf", g, width = 12, height = 18)
 
 
 all_conditions <- unique(all_data_long$Condition)

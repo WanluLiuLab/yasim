@@ -7,22 +7,9 @@ library("corrplot")
 
 all_data <- NULL
 
-fns <- c(
-    "ce11_badread_nanopore2018.fq.stats.d",
-    "ce11_badread_nanopore2020.fq.stats.d",
-    "ce11_badread_pacbio2016.fq.stats.d",
-    "ce11_pbsim2_r94.fq.stats.d",
-    "ce11_pbsim_clr.fq.stats.d"
-)
-conditions <- c(
-    "NANOPORE2018",
-    "NANOPORE2020",
-    "PACBIO2016",
-    "R94",
-    "CLR"
-)
+fns <- Sys.glob("ce11_*.fq.stats.d")
 
-for (i in seq_along(conditions)) {
+for (i in seq_along(fns)) {
     if (is.null(all_data)) {
         all_data <- readr::read_tsv(
             file.path(fns[i], "all.tsv"),
@@ -32,12 +19,9 @@ for (i in seq_along(conditions)) {
                 LEN = col_integer(),
                 MEANQUAL = col_double()
             ),
-            progress = TRUE
-        ) %>%
-            dplyr::select(!(SEQID)) %>%
-            dplyr::mutate(
-                Condition = conditions[i]
-            )
+            progress = TRUE,
+            quote = "\'"
+        )
     }
     all_data <- all_data %>%
         dplyr::rows_append(
@@ -49,23 +33,38 @@ for (i in seq_along(conditions)) {
                     LEN = col_integer(),
                     MEANQUAL = col_double()
                 ),
-                progress = TRUE
-            ) %>%
-                dplyr::select(!(SEQID)) %>%
-                dplyr::mutate(
-                    Condition = conditions[i]
-                )
+                progress = TRUE,
+                quote = "\'"
+            )
         )
 }
+transcript_stats <- readr::read_tsv(
+    "ce11.ncbiRefSeq_as.gtf.transcripts.tsv",
+    show_col_types = FALSE
+)
 
-arrow::write_parquet(all_data, "all_fastq_data.parquet")
+all_data_merged <- all_data %>%
+    tidyr::separate(
+        "SEQID",
+        c("TRANSCRIPT_ID", "READ_ID", "INPUT_DEPTH", "Condition"),
+        sep = ":"
+    ) %>%
+    dplyr::rename(READ_GC = GC) %>%
+    dplyr::mutate(READ_ID = as.integer(READ_ID)) %>%
+    dplyr::mutate(INPUT_DEPTH = as.double(INPUT_DEPTH)) %>%
+    dplyr::inner_join(transcript_stats, by = "TRANSCRIPT_ID") %>%
+    dplyr::mutate(READ_COMPLETENESS = LEN / TRANSCRIBED_LENGTH)
 
-g <- ggplot(all_data) +
+
+conditions <- unique(all_data_merged$Condition)
+
+arrow::write_parquet(all_data_merged, "all_fastq_data.parquet")
+
+g <- ggplot(all_data_merged) +
     geom_density_ridges_gradient(
         aes(
             x = LEN,
-            y = Condition,
-            fill = Condition
+            y = Condition
         )
     ) +
     scale_x_continuous(
@@ -79,12 +78,11 @@ g <- ggplot(all_data) +
 
 ggsave("fastq_length_all.pdf", g, width = 12, height = 8)
 
-g <- ggplot(all_data) +
+g <- ggplot(all_data_merged) +
     geom_density_ridges_gradient(
         aes(
-            x = GC,
-            y = Condition,
-            fill = Condition
+            x = READ_GC,
+            y = Condition
         )
     ) +
     ylab("density") +
@@ -93,12 +91,11 @@ g <- ggplot(all_data) +
 
 ggsave("fastq_gc_all.pdf", g, width = 12, height = 8)
 
-g <- ggplot(all_data) +
+g <- ggplot(all_data_merged) +
     geom_density_ridges_gradient(
         aes(
             x = MEANQUAL,
-            y = Condition,
-            fill = Condition
+            y = Condition
         )
     ) +
     ylab("density") +
@@ -106,3 +103,18 @@ g <- ggplot(all_data) +
     ggtitle("Mean Read Quality of all conditions")
 
 ggsave("fastq_qual_all.pdf", g, width = 12, height = 8)
+
+
+g <- ggplot(all_data_merged) +
+    geom_density_ridges_gradient(
+        aes(
+            x = READ_COMPLETENESS,
+            y = Condition
+        )
+    ) +
+    ylab("density") +
+    xlim(c(0.7, 1)) +
+    theme_ridges() +
+    ggtitle("Read Completeness of all conditions")
+
+ggsave("fastq_read_completeness_all.pdf", g, width = 12, height = 8)

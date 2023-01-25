@@ -13,7 +13,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('-o', '--out', required=True, help="Output TSV", nargs='?',
                         type=str, action='store')
     parser.add_argument('-d', '--mu', required=False, help="Average depth", nargs='?',
-                        type=int, action='store', default=100)
+                        type=float, action='store', default=100)
     return parser.parse_args(args)
 
 

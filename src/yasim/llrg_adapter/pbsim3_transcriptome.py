@@ -22,9 +22,8 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             self.exename,
             "--strategy", "trans",
             "--method", "errhmm",
-            "--errhmm", self.hmm_model,
+            "--qshmm", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--id-prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
         ]
     """
@@ -55,8 +54,8 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         )
         if os.path.exists(hmm_model):
             hmm_model = hmm_model
-        elif os.path.exists(os.path.join(PBSIM3_DIST, f"ERRHMM-{hmm_model}.model")):
-            hmm_model = os.path.join(PBSIM3_DIST, f"ERRHMM-{hmm_model}.model")
+        elif os.path.exists(os.path.join(PBSIM3_DIST, f"QSHMM-{hmm_model}.model")):
+            hmm_model = os.path.join(PBSIM3_DIST, f"QSHMM-{hmm_model}.model")
         else:
             raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
@@ -85,10 +84,9 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         cmd = [
             self.exename,
             "--strategy", "trans",
-            "--method", "errhmm",
-            "--errhmm", self.hmm_model,
+            "--method", "qshmm",
+            "--qshmm", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--id-prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
         ]
         return cmd

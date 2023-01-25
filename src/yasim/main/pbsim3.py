@@ -15,8 +15,8 @@ from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
 logger = get_logger(__name__)
 
 ALL_POSSIBLE_MODELS = [
-    os.path.basename(os.path.splitext(filename.replace("ERRHMM-", ""))[0])
-    for filename in glob.glob(os.path.join(pbsim3.PBSIM3_DIST, "ERRHMM-*.model"))
+    os.path.basename(os.path.splitext(filename.replace("QSHMM-", ""))[0])
+    for filename in glob.glob(os.path.join(pbsim3.PBSIM3_DIST, "QSHMM-*.model"))
 ]
 
 

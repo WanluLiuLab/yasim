@@ -13,13 +13,13 @@ from scipy.stats import nbinom, uniform
 
 from yasim.helper.gmm import GaussianMixture1D
 
-DepthType = Dict[str, int]
+DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""
 
 
 def simulate_dge_uniform(
         gv: GeneViewType,
-        mu: int
+        mu: float
 ) -> DepthType:
     """
     Simulate DGE using a uniform distribution.
@@ -39,7 +39,7 @@ def simulate_dge_uniform(
 
 def simulate_dge_nb(
         gv: GeneViewType,
-        mu: int
+        mu: float
 ) -> DepthType:
     """
     Simulate DGE using a negative binomial distribution.
@@ -61,7 +61,7 @@ def simulate_dge_nb(
 
 def simulate_dge_gmm(
         gv: GeneViewType,
-        mu: int
+        mu: float
 ) -> DepthType:
     """
     Simulate DGE using Gaussian mixture model.
@@ -78,11 +78,11 @@ def simulate_dge_gmm(
     gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
     data = np.exp(gmm_model.rvs(size=2 * n_transcript_ids) - 1)
     data = data[13 * mu >= data]
-    data = list(map(int, data[data >= 0][:n_transcript_ids]))
+    data = data[data >= 0][:n_transcript_ids]
     i = 0
     for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
         if data[i] != 0:
-            depth[transcript_id] = int(data[i])
+            depth[transcript_id] = data[i]
         i += 1
     return depth
 
@@ -105,5 +105,5 @@ def read_depth(input_tsv: str) -> DepthType:
         for line in tqdm(iterable=reader.readlines(), desc="Reading depth file...", total=total - 1):
             line = line.strip()
             lkv = line.split("\t")
-            retd[lkv[0]] = int(lkv[1])
+            retd[lkv[0]] = float(lkv[1])
     return retd
