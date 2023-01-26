@@ -54,8 +54,8 @@ class BadReadAdapter(BaseLLRGAdapter):
     model_name: str
     """Filename of pre-defined model."""
 
-    _llrg_name:Final[str] = "badread"
-    _require_integer_depth:Final[bool] = True
+    _llrg_name: Final[str] = "badread"
+    _require_integer_depth: Final[bool] = True
 
     def __init__(
             self,

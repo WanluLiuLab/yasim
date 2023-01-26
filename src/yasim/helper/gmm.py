@@ -4,6 +4,7 @@ from random import choices
 from typing import Optional, Union, Iterable, Tuple
 
 import numpy as np
+import tqdm
 from joblib import Parallel, delayed
 from numpy.typing import ArrayLike
 from scipy.integrate import quad
@@ -33,14 +34,18 @@ class GaussianMixture1D:
         self._mu = init_mus or np.zeros(n_components)
         self._sigma = init_sigmas or np.ones(n_components)
 
-    def fit(self, data: ArrayLike):
+    def fit(self, data: ArrayLike, show_progress_bar: bool = True):
         N = len(data)
 
         # Use k-means to cluster points
         centers = np.random.choice(data, size=self._n_components)
         categories = np.repeat(0, N)
         bags = [[]] * self._n_components
-        for _ in range(self._n_iter):
+        if show_progress_bar:
+            it = tqdm.tqdm(range(self._n_iter))
+        else:
+            it = range(self._n_iter)
+        for _ in it:
             converged = True
             for j in range(self._n_components):
                 bags[j] = []

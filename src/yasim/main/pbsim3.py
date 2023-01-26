@@ -47,7 +47,7 @@ def simulate(
         exename: str,
         depth: DepthType,
         jobs: int,
-        other_args:List[str]
+        other_args: List[str]
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)

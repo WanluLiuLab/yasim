@@ -77,6 +77,6 @@ class Pbsim2Adapter(BaseLLRGAdapter):
 
     def _rename_file_after_finish_hook(self):
         with open(self.output_fastq_prefix + ".fq", "wb") as writer:
-            for filename in glob.glob(os.path.join(self.tmp_dir,"tmp_????.fastq")):
+            for filename in glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")):
                 with open(filename, "rb") as reader:
                     shutil.copyfileobj(reader, writer)

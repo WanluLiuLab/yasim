@@ -24,4 +24,8 @@ def main(args: List[str]):
         gv=gv,
         mu=args.mu
     )
-    depth.write_dge(dge_data, args.out)
+    depth.write_dge(
+        dge_data,
+        args.out,
+        feature_name="TRANSCRIPT_ID"
+    )

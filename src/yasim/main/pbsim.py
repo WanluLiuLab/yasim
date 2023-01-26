@@ -3,7 +3,6 @@ import multiprocessing
 import os.path
 from typing import List, Tuple
 
-from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -41,7 +40,7 @@ def simulate(
         depth: DepthType,
         is_ccs: bool,
         jobs: int,
-        other_args:List[str]
+        other_args: List[str]
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)

@@ -9,7 +9,6 @@ from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-from scipy.stats import nbinom, uniform
 
 from yasim.helper.gmm import GaussianMixture1D
 
@@ -17,45 +16,30 @@ DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""
 
 
-def simulate_dge_uniform(
+def simulate_gene_level_dge_gmm(
         gv: GeneViewType,
         mu: float
-) -> DepthType:
+):
     """
-    Simulate DGE using a uniform distribution.
-
-    :param gv: Input GeneViewType. Read only.
-    :param mu: Mean of sequencing depth
+    Simulate DGE using Gaussian mixture model. Used in YASIM 3.0
     """
-    transcript_ids = list(gv.iter_transcript_ids())
+    gmm_model = GaussianMixture1D.import_model(
+        [
+            (0.12827805183096117, 1.3597462971461431, 0.20564573367723052),
+            (0.15548306830287628, 0.8132604801292427, 0.1932997409289587),
+            (0.1182911269313193, 1.8663843368510689, 0.23483302069369835),
+            (0.033586632398567316, 2.617052700717236, 0.5027565062645347),
+            (0.16480393079998523, 0.3188344745000003, 0.12415694780744323),
+            (0.3995571897362907, 1.0000000000000086e-06, 8.682087709356578e-21)
+        ]
+    )
+    n_gene_ids = gv.number_of_genes
     depth = {}
-
-    generated_data = list(map(int, uniform.rvs(scale=mu * 2, size=len(transcript_ids)) + 1))
-
-    for i in range(len(transcript_ids)):
-        depth[transcript_ids[i]] = generated_data[i]
-    return depth
-
-
-def simulate_dge_nb(
-        gv: GeneViewType,
-        mu: float
-) -> DepthType:
-    """
-    Simulate DGE using a negative binomial distribution.
-    """
-
-    nb_generator = nbinom(n=2, p=0.016291702363523883)
-    nb_generator_mean = nb_generator.mean()
-
-    transcript_ids = gv.iter_transcript_ids()
-    depth = {}
-
-    for transcript_id in tqdm(iterable=transcript_ids, desc="Simulating..."):
-        d = 0
-        while not d > 0:
-            d = int(nb_generator.rvs() / nb_generator_mean * mu)
-        depth[transcript_id] = d
+    gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
+    data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - -1E-6) - 1
+    data = data[data >= 0][:n_gene_ids]
+    for i, gene_id in enumerate(tqdm(iterable=gv.iter_genes(), desc="Simulating...")):
+        depth[gene_id] = data[i]
     return depth
 
 
@@ -87,12 +71,16 @@ def simulate_dge_gmm(
     return depth
 
 
-def write_dge(dge_data: DepthType, output_tsv: str):
+def write_dge(
+        dge_data: DepthType,
+        output_tsv: str,
+        feature_name: str = "TRANSCRIPT_ID"
+):
     """
     Write DGE information to file
     """
     with get_writer(output_tsv) as writer:
-        writer.write(f"TRANSCRIPT_ID\tDEPTH\n")
+        writer.write(f"{feature_name}\tDEPTH\n")
         for transcript_id, d in dge_data.items():
             writer.write(f"{transcript_id}\t{d}\n")
 

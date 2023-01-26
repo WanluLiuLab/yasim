@@ -21,8 +21,8 @@ class DwgsimAdapter(BaseLLRGAdapter):
             self.tmp_dir
         ]
     """
-    _llrg_name:Final[str] = "dwgsim"
-    _require_integer_depth:Final[bool] = False
+    _llrg_name: Final[str] = "dwgsim"
+    _require_integer_depth: Final[bool] = False
 
     def __init__(
             self,
