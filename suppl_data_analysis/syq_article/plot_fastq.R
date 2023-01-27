@@ -7,9 +7,12 @@ library("corrplot")
 
 all_data <- NULL
 
-fns <- Sys.glob("ce11_*.fq.stats.d")
-
+fns <- Sys.glob(file.path("real_stats", "*.fastq.stats.d"))
+conditions <- fns %>%
+    stringr::str_replace("real_stats/", "") %>%
+    stringr::str_replace(".fastq.stats.d", "")
 for (i in seq_along(fns)) {
+
     this_data <- readr::read_tsv(
         file.path(fns[i], "all.tsv"),
         col_types = c(
@@ -20,37 +23,22 @@ for (i in seq_along(fns)) {
         ),
         progress = TRUE,
         quote = "\'"
-    )
+    ) %>%
+        dplyr::select(!(SEQID)) %>%
+        dplyr::mutate(Condition = conditions[i])
     if (is.null(all_data)) {
         all_data <- this_data
     } else {
         all_data <- all_data %>%
             dplyr::rows_append(this_data)
     }
+    rm(i)
 }
-transcript_stats <- readr::read_tsv(
-    "ce11.ncbiRefSeq_as.gtf.transcripts.tsv",
-    show_col_types = FALSE
-)
-
-all_data_merged <- all_data %>%
-    tidyr::separate(
-        "SEQID",
-        c("TRANSCRIPT_ID", "READ_ID", "INPUT_DEPTH", "Condition"),
-        sep = ":"
-    ) %>%
-    dplyr::rename(READ_GC = GC) %>%
-    dplyr::mutate(READ_ID = as.integer(READ_ID)) %>%
-    dplyr::mutate(INPUT_DEPTH = as.double(INPUT_DEPTH)) %>%
-    dplyr::inner_join(transcript_stats, by = "TRANSCRIPT_ID") %>%
-    dplyr::mutate(READ_COMPLETENESS = LEN / TRANSCRIBED_LENGTH)
 
 
-conditions <- unique(all_data_merged$Condition)
+arrow::write_parquet(all_data, "all_fastq_data.parquet")
 
-arrow::write_parquet(all_data_merged, "all_fastq_data.parquet")
-
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
             x = LEN,
@@ -68,10 +56,10 @@ g <- ggplot(all_data_merged) +
 
 ggsave("fastq_length_all.pdf", g, width = 12, height = 8)
 
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
-            x = READ_GC,
+            x = GC,
             y = Condition
         )
     ) +
@@ -81,7 +69,7 @@ g <- ggplot(all_data_merged) +
 
 ggsave("fastq_gc_all.pdf", g, width = 12, height = 8)
 
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
             x = MEANQUAL,
@@ -93,18 +81,3 @@ g <- ggplot(all_data_merged) +
     ggtitle("Mean Read Quality of all conditions")
 
 ggsave("fastq_qual_all.pdf", g, width = 12, height = 8)
-
-
-g <- ggplot(all_data_merged) +
-    geom_density_ridges_gradient(
-        aes(
-            x = READ_COMPLETENESS,
-            y = Condition
-        )
-    ) +
-    ylab("density") +
-    xlim(c(0.7, 1)) +
-    theme_ridges() +
-    ggtitle("Read Completeness of all conditions")
-
-ggsave("fastq_read_completeness_all.pdf", g, width = 12, height = 8)

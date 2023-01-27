@@ -46,6 +46,7 @@ dependencies:
   - numexpr>=2.8
   - numba>=0.53
   - pyarrow
+  - pyspark
 
   - pip
   - setuptools

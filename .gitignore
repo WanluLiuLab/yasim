@@ -428,3 +428,6 @@ SiLiCO_Scratch/
 *.parquet
 *.gff3
 _STARtmp/
+*.maf
+*.ref
+*.train

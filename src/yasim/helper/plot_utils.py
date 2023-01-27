@@ -6,7 +6,7 @@ from numpy import typing as npt
 matplotlib.use('qtagg')
 
 
-def plot(data: npt.ArrayLike, model):
+def plot(data: npt.ArrayLike, model, title:str=""):
     def normalize(_simulated_data: npt.ArrayLike) -> npt.ArrayLike:
         return _simulated_data[_simulated_data >= 0][:len(data)]
 
@@ -22,4 +22,5 @@ def plot(data: npt.ArrayLike, model):
     axes.hist(data_n, bins=n_bins, density=True, color="blue", alpha=0.2)
     axes.hist(simulated_data_n, bins=n_bins, density=True, color="red", alpha=0.2)
     print(np.mean(data), np.mean(simulated_data))
+    plt.title(f"{title} Red: Simulated, Blue: Real")
     plt.show()

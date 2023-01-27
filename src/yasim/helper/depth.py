@@ -2,6 +2,7 @@
 depth.py -- DGE Datastructure and Utils
 """
 import math
+from random import uniform
 from typing import Dict
 
 import numpy as np
@@ -16,7 +17,7 @@ DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""
 
 
-def simulate_gene_level_dge_gmm(
+def simulate_gene_level_depth_gmm(
         gv: GeneViewType,
         mu: float
 ):
@@ -43,7 +44,7 @@ def simulate_gene_level_dge_gmm(
     return depth
 
 
-def simulate_dge_gmm(
+def simulate_depth_gmm(
         gv: GeneViewType,
         mu: float
 ) -> DepthType:
@@ -71,13 +72,13 @@ def simulate_dge_gmm(
     return depth
 
 
-def write_dge(
+def write_depth(
         dge_data: DepthType,
         output_tsv: str,
         feature_name: str = "TRANSCRIPT_ID"
 ):
     """
-    Write DGE information to file
+    Write Depth information to file
     """
     with get_writer(output_tsv) as writer:
         writer.write(f"{feature_name}\tDEPTH\n")
@@ -95,3 +96,13 @@ def read_depth(input_tsv: str) -> DepthType:
             lkv = line.split("\t")
             retd[lkv[0]] = float(lkv[1])
     return retd
+
+
+def generate_depth_replicates_uniform(
+        input_depth: DepthType,
+        _range: float = 0.001
+) -> DepthType:
+    return {
+        k: v + uniform(-_range, +_range) * v
+        for k, v in input_depth.items()
+    }

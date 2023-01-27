@@ -153,6 +153,9 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94.fq.bam.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94.fq.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94_trans.fq.bam.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/real_stats" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.3/sim" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.3/lastdb" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
