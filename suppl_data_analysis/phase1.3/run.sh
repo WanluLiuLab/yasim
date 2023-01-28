@@ -3,24 +3,20 @@ export NUM_THREADS=40
 
 mkdir -p sim
 rm -rf sim/*
-python filter_pbsim_reference.py < ce11_trans.fa | head -n 1000 > ce11_trans.filtered.fa
 
-pbsim --prefix sim/sim \
-    --data-type CLR \
-    --depth 50 \
-    --model_qc ../../src/yasim/llrg_adapter/pbsim_dist/model_qc_clr \
-    ce11_trans.filtered.fa  &> pbsim.log
+pbsim3 \
+    --strategy wgs \
+    --method qshmm \
+    --qshmm ../../src/yasim/llrg_adapter/pbsim3_dist/QSHMM-ONT.model \
+    --prefix sim/ce11 \
+    --genome ce11.fa  &> pbsim.log
 
-cat sim/*.fastq > simulated.fastq
+cat sim/*.fastq | pigz -9  > simulated.fastq.gz
 
 mkdir -p lastdb
 
-lastdb -P"${NUM_THREADS}" -uRY4 lastdb/ce11 ce11.fa
-last-train -P"${NUM_THREADS}" -Q0 lastdb/ce11 simulated.fastq > simulated.train
-lastal -P"${NUM_THREADS}" --split -p simulated.train lastdb/ce11 simulated.fastq > simulated.maf
+lastdb -v -P"${NUM_THREADS}" lastdb/ce11 ce11.fa
+zcat simulated.fastq.gz | last-train -v -Qfastx -P"${NUM_THREADS}" lastdb/ce11 /dev/stdin > simulated.train
+zcat simulated.fastq.gz | lastal -v -P"${NUM_THREADS}" -p simulated.train -Qfastx lastdb/ce11 /dev/stdin | pigz -9 > simulated.maf.gz
 
-lastdb -P"${NUM_THREADS}" -uRY4 lastdb/ce11_trans.filtered ce11_trans.filtered.fa
-last-train -P"${NUM_THREADS}" -Q0 lastdb/ce11_trans.filtered simulated.fastq > simulated_trans.train
-lastal -P"${NUM_THREADS}" -p simulated_trans.train lastdb/ce11_trans.filtered simulated.fastq > simulated_trans.maf
-
-
+cat sim/*.maf | pigz -9 > simulated_gt.maf.gz

@@ -10,7 +10,6 @@ maf_record_regex = re.compile(r"^s +(\S+) +([0-9]+) +([0-9]+) +([+-]) +([0-9]+) 
 
 
 def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
-    tmpl = []
     num_error = 0
     num_record = 0
     with get_tqdm_line_reader(maf_path) as reader:
@@ -36,25 +35,20 @@ def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
 
 
 if __name__ == "__main__":
-    all_fake_cigar = ""
-    for maf_record in maf_parse("/home/yuzj/Documents/yasim/suppl_data_analysis/phase1.3/simulated.maf"):
-        # {'I': 9.99, 'D': 3.79, 'M': 80.2, 'S': 6.01}
-        # {'I': 9.54, 'D': 3.68, 'M': 80.88, 'S': 5.9}
-        fake_cigar = ""
+    all_qual = {"I":0, "D":0, "M":0, "S":0}
+    for maf_record in maf_parse("simulated.maf.gz"):
+        # LAST Generated MAF         {'I': '6.05%', 'D': '4.13%', 'M': '70.81%', 'S': '19.01%'} 869316 lines
+        # PBSIM Generated MAF        {'I': '7.71%', 'D': '5.46%', 'M': '85.98%', 'S': '0.84%'}  869316 lines
+        # PBSIM Generated Log (Mean) {'I': '8.12%', 'D': '5.74%', 'M': '85.23%', 'S': '0.88%'}
         for b1, b2 in zip(maf_record[2], maf_record[3]):
             if b1 == "-":
-                fake_cigar += "I"
+                this_cigar = "I"
             elif b2 == "-":
-                fake_cigar += "D"
+                this_cigar= "D"
             elif b1 == b2:
-                fake_cigar += "M"
+                this_cigar= "M"
             else:
-                fake_cigar += "S"
-        # print(maf_record[2] + "\n" + maf_record[3] + "\n" + fake_cigar + "\n")
-        all_fake_cigar += fake_cigar
-    all_qual = {
-        k: all_fake_cigar.count(k)
-        for k in "IDMS"
-    }
-    print("Events:", {k:str(round(v / len(all_fake_cigar)*100, 2)) + "%" for k, v in all_qual.items()})
+                this_cigar= "S"
+            all_qual[this_cigar] += 1
+    print("Events:", {k:str(round(v / sum(all_qual.values())*100, 2)) + "%" for k, v in all_qual.items()})
 
