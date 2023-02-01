@@ -134,7 +134,7 @@ for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.stats.d")) {
 }
 
 transcript_stats <- readr::read_tsv(
-    "ce11.ncbiRefSeq.gtf.transcripts.tsv",
+    "ce11.ncbiRefSeq.chr1.gtf.transcripts.tsv",
     show_col_types = FALSE
 )
 
@@ -196,21 +196,6 @@ pheatmap(
     labels_col = replicate(length(all_conditions), "")
 )
 
-tsne <- Rtsne(all_data[6:length(all_data), ], perplexity = 5)
-tsne_df <- as.data.frame(tsne$Y)
-g <- ggplot(tsne_df) +
-    geom_point(aes(
-        x=V1,
-        y=V2
-    )) +
-    geom_text_repel(aes(
-        x=V1,
-        y=V2,
-        label=colnames(all_data)[6:length(all_data)]
-    )) +
-    theme_bw()
-
-ggsave("gep_tsne.pdf", g, width=16, height=12)
 
 # Get History of PacBio and ONT
 # Look into Phread 33 Quality

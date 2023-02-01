@@ -50,6 +50,8 @@ def simulate(
     )
     depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir, depth))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
+        if transcript_depth == 0:
+            continue
         sim_thread = pbsim.PbsimAdapter(
             input_fasta=transcript_filename,
             output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),

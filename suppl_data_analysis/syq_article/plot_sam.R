@@ -52,7 +52,7 @@ g <- ggplot(all_data) +
     theme_bw() +
     ggtitle("Mapping Status of all conditions")
 
-ggsave("sam_map_stat_all.pdf", g, width = 12, height = 8)
+ggsave("sam_map_stat_all.pdf", g, width = 8, height = 5)
 
 g <- ggplot(all_data) +
     geom_bar(
@@ -67,17 +67,4 @@ g <- ggplot(all_data) +
     theme_bw() +
     ggtitle("Mapping Status of all conditions")
 
-ggsave("sam_map_stat_all_fill.pdf", g, width = 12, height = 8)
-
-g <- ggplot(all_data) +
-    geom_density_ridges_gradient(
-        aes(
-            x = MAPPING_QUALITY,
-            y = Condition
-        )
-    ) +
-    ylab("density") +
-    theme_ridges() +
-    ggtitle("MAPQ of all conditions")
-
-ggsave("sam_mapq_all.pdf", g, width = 12, height = 8)
+ggsave("sam_map_stat_all_fill.pdf", g, width = 8, height = 5)

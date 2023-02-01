@@ -3,7 +3,7 @@ depth.py -- DGE Datastructure and Utils
 """
 import math
 from random import uniform
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
@@ -24,25 +24,44 @@ def simulate_gene_level_depth_gmm(
     """
     Simulate DGE using Gaussian mixture model. Used in YASIM 3.0
     """
-    gmm_model = GaussianMixture1D.import_model(
-        [
-            (0.12827805183096117, 1.3597462971461431, 0.20564573367723052),
-            (0.15548306830287628, 0.8132604801292427, 0.1932997409289587),
-            (0.1182911269313193, 1.8663843368510689, 0.23483302069369835),
-            (0.033586632398567316, 2.617052700717236, 0.5027565062645347),
-            (0.16480393079998523, 0.3188344745000003, 0.12415694780744323),
-            (0.3995571897362907, 1.0000000000000086e-06, 8.682087709356578e-21)
-        ]
-    )
+    gmm_model = GaussianMixture1D.import_model([
+        (0.3043757984608804, 2.3107772552803634, 0.3956119888112459),
+        (0.3106118627088962, 1.3815767710834788, 0.19646588205588317),
+        (0.2905529799446133, 1.000000000000003, 3.108624468950436e-15),
+        (0.09445935888561038, 3.04499166208647, 0.6200436778100588)
+    ])
     n_gene_ids = gv.number_of_genes
     depth = {}
     gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
-    data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - -1E-6) - 1
-    data = data[data >= 0][:n_gene_ids]
-    for i, gene_id in enumerate(tqdm(iterable=gv.iter_genes(), desc="Simulating...")):
-        depth[gene_id] = data[i]
+    data = np.power(10, gmm_model.rvs(size=n_gene_ids) - 1) - 1
+    for i, gene_id in enumerate(tqdm(iterable=gv.iter_gene_ids(), desc="Simulating...")):
+        if data[i] > 0.001:
+            depth[gene_id] = data[i]
+        else:
+            depth[gene_id] = 0
     return depth
 
+
+def simulate_isoform_variance_inside_a_gene(
+        n: int,
+        mu: float,
+        alpha: int = 10
+) -> List[float]:
+    """
+    Generate isoform variance inside a gene using Zipf's Distribution
+
+    :param n: Number of isoforms
+    :param mu: Mean of expression data
+    :param alpha: Zipf's Coefficient
+    :return: Generated abundance
+    """
+    if n == 1:
+        return [mu]
+    generated_abundance = [(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)]
+    generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
+    np.random.shuffle(generated_abundance)
+    generated_abundance[generated_abundance<0.01] = 0
+    return generated_abundance
 
 def simulate_depth_gmm(
         gv: GeneViewType,

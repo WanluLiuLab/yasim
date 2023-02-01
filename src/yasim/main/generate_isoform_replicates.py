@@ -11,7 +11,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('-n', '--num_replicates', required=False, help="Number of Replicates", nargs='?',
                         type=int, action='store', default=3)
     parser.add_argument('-r', '--range', required=False, help="Range of Generated Data", nargs='?',
-                        type=float, action='store', default=0.001)
+                        type=float, action='store', default=0.1)
     return parser.parse_args(args)
 
 
@@ -24,5 +24,5 @@ def main(args: List[str]):
                 depth_data,
                 args.range
             ),
-            f"{depth_data}.{i}"
+            f"{args.depth}.{i}"
         )

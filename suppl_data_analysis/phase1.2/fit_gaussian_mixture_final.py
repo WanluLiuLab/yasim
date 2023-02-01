@@ -18,8 +18,6 @@ def _main():
     parser = argparse.ArgumentParser()
     parser.add_argument('data')
     parser.add_argument('-c', '--numComponents', type=int, required=False, default=2)
-    parser.add_argument('--columnIndex', type=int, required=False, default=-1)
-    parser.add_argument('--header', type=int, required=False)
     parser.add_argument('--transform', nargs='+', required=False,
                         choices=('log',), default=[])
     parser.add_argument('--numIters', type=int, required=False, default=100)
@@ -35,12 +33,11 @@ def _main():
         print(f"Ground truth is {p}*N({mu1}, {sigma1}) + {1 - p}*N({mu2}, {sigma2})")
     else:
         df = pd.read_parquet(args.data)
-        # df = df[df.iloc[:, args.columnIndex] != 0]  # filter zeros
-        data = np.asarray(df.iloc[:, args.columnIndex])
+        data = np.asarray(df.iloc[:, 1:]).flatten()
 
     for transform_method in args.transform:
         if transform_method == 'log':
-            data = np.log10(data + 1) + 1E-6
+            data = np.log10(data + 1) + 1
 
     model = GaussianMixture1D(
         n_components=args.numComponents,
@@ -49,6 +46,7 @@ def _main():
     print(f"Fitted to Gaussian mixture model ({args.numComponents} components)")
     export_str = '\n'.join(map(str,(model.export())))
     plot(data, model, f"GMM {args.numComponents} components\n{export_str}\n")
+    print(list(model.export()))
 
 
 if __name__ == '__main__':

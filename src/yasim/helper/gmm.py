@@ -4,6 +4,7 @@ from random import choices
 from typing import Optional, Union, Iterable, Tuple
 
 import numpy as np
+import tqdm
 from joblib import Parallel, delayed
 from numpy.random import choice
 from numpy.typing import ArrayLike
@@ -41,16 +42,19 @@ class GaussianMixture1D:
         centers = np.random.choice(data, size=self._n_components)
         categories = np.repeat(0, N)
         bags = [[]] * self._n_components
-        for _ in range(self._n_iter):
+        knn_range = range(self._n_iter)
+        if show_progress_bar:
+            knn_range = tqdm.tqdm(iterable=knn_range, desc="KNN")
+        for _ in knn_range:
             converged = True
             for j in range(self._n_components):
-                bags[j].clear()
+                bags[j] = []
 
             for i in range(N):
                 x = data[i]
                 category = categories[i]
                 least_dist = abs(x - centers[category])
-                for j in range(0, self._n_components):
+                for j in range(self._n_components):
                     center = centers[j]
                     dist = abs(x - center)
                     if dist < least_dist:
@@ -78,6 +82,38 @@ class GaussianMixture1D:
                 self._sigma[j] = 0
                 self._weights[j] = 0
         self._weights /= N
+
+        last_ll = np.NINF
+        densities = np.zeros((self._n_components, N))
+        em_range = range(self._n_iter)
+        if show_progress_bar:
+            em_range = tqdm.tqdm(iterable=em_range, desc="EM")
+        for epoch in em_range:
+            # E step: compute ownership weights
+            for j in range(self._n_components):
+                model = norm(loc=self._mu[j], scale=self._sigma[j])
+                densities[j, :] = model.pdf(data)
+
+            a = np.transpose(np.multiply(np.transpose(densities), self._weights))
+            b = (np.transpose(self._weights) @ densities)
+            gamma = a / b
+
+            # M step: compute means, variances and weights
+            denom = np.sum(gamma, axis=1)  # row sum
+            self._mu = (gamma @ data) / denom
+
+            for j in range(self._n_components):
+                for i in range(N):
+                    gamma[j, i] *= (data[i] - self._mu[j]) ** 2
+
+            self._sigma = np.sqrt(np.sum(gamma, axis=1) / denom)
+            self._weights = denom / N
+
+            ll = self.log_likelihood(data)
+            if 0 <= ll - last_ll < self._precision:
+                break
+            last_ll = ll
+
         return self
 
     def log_likelihood(self, data):

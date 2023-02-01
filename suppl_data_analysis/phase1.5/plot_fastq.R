@@ -8,6 +8,9 @@ library("corrplot")
 all_data <- NULL
 
 fns <- Sys.glob("ce11_*.fq.stats.d")
+conditions <- fns %>%
+    stringr::str_replace("ce11_", "") %>%
+    stringr::str_replace(".fq.stats.d", "")
 
 for (i in seq_along(fns)) {
     this_data <- readr::read_tsv(
@@ -20,7 +23,10 @@ for (i in seq_along(fns)) {
         ),
         progress = TRUE,
         quote = "\'"
-    )
+    ) %>%
+        dplyr::mutate(
+            Condition=conditions[i]
+        )
     if (is.null(all_data)) {
         all_data <- this_data
     } else {
@@ -29,16 +35,17 @@ for (i in seq_along(fns)) {
     }
 }
 transcript_stats <- readr::read_tsv(
-    "ce11.ncbiRefSeq_as.gtf.transcripts.tsv",
+    "ce11.ncbiRefSeq.chr1.gtf.transcripts.tsv",
     show_col_types = FALSE
 )
 
 all_data_merged <- all_data %>%
     tidyr::separate(
         "SEQID",
-        c("TRANSCRIPT_ID", "READ_ID", "INPUT_DEPTH", "Condition"),
+        c("TRANSCRIPT_ID", "READ_ID", "INPUT_DEPTH", "TmpCondition"),
         sep = ":"
     ) %>%
+    dplyr::select(!(TmpCondition)) %>%
     dplyr::rename(READ_GC = GC) %>%
     dplyr::mutate(READ_ID = as.integer(READ_ID)) %>%
     dplyr::mutate(INPUT_DEPTH = as.double(INPUT_DEPTH)) %>%
