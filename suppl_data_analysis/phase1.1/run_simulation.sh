@@ -58,7 +58,6 @@ done
 for fn in *.fq.bam; do
     python -m labw_utils.bioutils describe_sam "${fn}"
     Rscript R/plot_describe_sam.R "${fn}.stats.d"
-    Rscript R/transform_depth_results.R "${fn}.stats.d"/pileup_stat.tsv.gz "${fn}.stats.d"/pileup_stat.merged.tsv
 done
 
 find . | grep .fq.bam$ | grep -v trans | while read -r fn; do
@@ -67,6 +66,13 @@ find . | grep .fq.bam$ | grep -v trans | while read -r fn; do
     python -m labw_utils.bioutils get_gtf_statistics -g "${fn}".stringtie.gtf -o "${fn}".stringtie.gtf
 done
 
+find . | grep .fq.bam$ | grep trans | while read -r fn; do
+    printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
+    samtools depth -aa "${fn}" >> "${fn}".depth.tsv
+    Rscript R/transform_depth_results.R "${fn}".depth.tsv "${fn}".depth.mean.tsv
+done
+
 Rscript ./plot_fastq.R
 Rscript ./plot_nipg.R
 Rscript ./plot_sam.R
+Rscript ./plot_gep.R

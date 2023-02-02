@@ -25,7 +25,7 @@ for (i in seq_along(fns)) {
         quote = "\'"
     ) %>%
         dplyr::mutate(
-            Condition=conditions[i]
+            Condition = conditions[i]
         )
     if (is.null(all_data)) {
         all_data <- this_data
@@ -96,18 +96,3 @@ g <- ggplot(all_data_merged) +
     ggtitle("Mean Read Quality of all conditions")
 
 ggsave("fastq_qual_all.pdf", g, width = 8, height = 5)
-
-
-g <- ggplot(all_data_merged) +
-    geom_density_ridges_gradient(
-        aes(
-            x = READ_COMPLETENESS,
-            y = Condition
-        )
-    ) +
-    ylab("density") +
-    xlim(c(0.7, 1)) +
-    theme_ridges() +
-    ggtitle("Read Completeness of all conditions")
-
-ggsave("fastq_read_completeness_all.pdf", g, width = 8, height = 5)

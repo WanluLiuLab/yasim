@@ -1,13 +1,17 @@
-SequencerModel,Species,SampleName
-ONT,human,treated_rep2
-ONT,human,control_rep1
-PacBio,human,Hela_rep1
-PacBio,human,iPSC_rep1
-ONT,mouse,E15.5
-ONT,mouse,P1.5
-PacBio,mouse,SRR12800923_subreads
-PacBio,mouse,SRR12800924_subreads
-ONT,drosophila,brain_3
-PacBio,drosophila,testis
-PacBio,drosophila,ovary
-ONT,drosophila,muscle_1
+SequencerManufacturer,SequencerModel,Species,SampleName,Chemistry,Basecaller
+ONT,NA,human,treated_rep2,NA,NA
+ONT,NA,human,control_rep1,NA,NA
+ONT,PromethION24/48,human,FINE2A,R9.4.1,Guppy 5.1.13
+ONT,PromethION24/48,human,FINE2B,R9.4.1,Guppy 5.1.13
+ONT,PromethION24/48,human,TesR7A,R9.4.1,Guppy 5.1.13
+ONT,PromethION24/48,human,TesR7B,R9.4.1,Guppy 5.1.13
+PacBio,NA,human,Hela_rep1,NA,NA
+PacBio,NA,human,iPSC_rep1,NA,NA
+ONT,NA,mouse,E15.5,NA,NA
+ONT,NA,mouse,P1.5,NA,NA
+PacBio,NA,mouse,SRR12800923_subreads,NA,NA
+PacBio,NA,mouse,SRR12800924_subreads,NA,NA
+ONT,NA,drosophila,brain_3,NA,NA
+PacBio,NA,drosophila,testis,NA,NA
+PacBio,NA,drosophila,ovary,NA,NA
+ONT,NA,drosophila,muscle_1,NA,NA

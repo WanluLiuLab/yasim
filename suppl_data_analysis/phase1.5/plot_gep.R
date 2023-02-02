@@ -107,12 +107,12 @@ for (fc_data_fn in Sys.glob("ce11_*.fq.bam.fc.tsv")) {
 
 all_depth_data <- NULL
 
-for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.stats.d")) {
+for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.depth.mean.tsv")) {
     condition <- depth_data_fn %>%
-        stringr::str_replace("_trans.fq.bam.stats.d", "") %>%
+        stringr::str_replace("_trans.fq.bam.depth.mean.tsv", "") %>%
         stringr::str_replace("ce11_", "")
     this_depth_data <- readr::read_tsv(
-        file.path(depth_data_fn, "pileup_stat.merged.tsv"),
+        depth_data_fn,
         col_types = cols(
             TRANSCRIPT_ID = col_character(),
             AVG_DEPTH = col_number()
@@ -140,9 +140,11 @@ transcript_stats <- readr::read_tsv(
 
 
 all_data <- transcript_stats %>%
-    dplyr::inner_join(all_depth_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_fc_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_fq_stats, by = "TRANSCRIPT_ID")
+    dplyr::full_join(all_depth_data, by = "TRANSCRIPT_ID") %>%
+    dplyr::full_join(all_fc_data, by = "TRANSCRIPT_ID") %>%
+    dplyr::full_join(all_fq_stats, by = "TRANSCRIPT_ID") %>%
+    dplyr::filter(!is.na(.$GENE_ID)) %>%
+    replace(is.na(.), 0)
 
 arrow::write_parquet(all_data, "all_gep_data.parquet")
 
@@ -165,6 +167,21 @@ g <- ggplot(all_data_long) +
 
 ggsave("gep_depth_all.pdf", g, width = 12, height = 18)
 
+g <- ggplot(all_data_long) +
+    geom_density_ridges_gradient(aes(
+        x = Depth + 1,
+        y = Condition
+    )) +
+    scale_x_continuous(
+        name = "Depth, log10 transformed",
+        trans = "log10",
+        limits = c(1.0001, NA)
+    ) +
+    ylab("density") +
+    theme_ridges() +
+    ggtitle("Depth of all runs")
+
+ggsave("gep_depth_all_lim.pdf", g, width = 12, height = 18)
 
 all_conditions <- unique(all_data_long$Condition)
 

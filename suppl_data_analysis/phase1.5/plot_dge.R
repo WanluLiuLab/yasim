@@ -50,17 +50,17 @@ for (fc_data_fn in Sys.glob("ce11_*.fq.bam.fc.tsv")) {
 
     condition_break <- strsplit(condition, "_")
     this_experiment_design <- data.frame(
-        model=condition_break[[1]][1],
-        group=condition_break[[1]][3],
-        condition=condition
+        model = condition_break[[1]][1],
+        group = condition_break[[1]][3],
+        condition = condition
     )
-    if (is.null(experiment_design)){
+    if (is.null(experiment_design)) {
         experiment_design <- this_experiment_design
-    } else{
+    } else {
         experiment_design <- experiment_design %>%
             dplyr::rows_append(
-            this_experiment_design
-        )
+                this_experiment_design
+            )
     }
     rm(condition, this_fc_data, fc_data_fn, this_experiment_design)
 }
@@ -76,6 +76,21 @@ all_fc_data$TRANSCRIPT_ID <- NULL
 dds <- DESeqDataSetFromMatrix(
     countData = all_fc_data,
     colData = experiment_design,
-    design = ~ model + group
+    design = ~model + group
 )
 dds <- DESeq(dds)
+
+gt_data <- dplyr::inner_join(
+    readr::read_tsv("ce11_depth_diu1.chr1.tsv") %>%
+        dplyr::rename(diu1 = DEPTH),
+    readr::read_tsv("ce11_depth_diu2.chr1.tsv") %>%
+        dplyr::rename(diu2 = DEPTH),
+    by = "TRANSCRIPT_ID"
+) %>%
+    dplyr::mutate(
+        log2fc = log2(diu1 / diu2)
+    )
+ggplot(gt_data) +
+    geom_point(aes(x = diu1, y = log2fc)) +
+    theme_bw()
+

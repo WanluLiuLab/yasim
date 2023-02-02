@@ -32,13 +32,11 @@ def simulate_gene_level_depth_gmm(
     ])
     n_gene_ids = gv.number_of_genes
     depth = {}
-    gmm_model.lintrans((math.log(mu) - 1) / gmm_model.positive_mean())
     data = np.power(10, gmm_model.rvs(size=n_gene_ids) - 1) - 1
+    data[data < 0.001] = 0
+    data = data / np.mean(data) * mu
     for i, gene_id in enumerate(tqdm(iterable=gv.iter_gene_ids(), desc="Simulating...")):
-        if data[i] > 0.001:
-            depth[gene_id] = data[i]
-        else:
-            depth[gene_id] = 0
+        depth[gene_id] = data[i]
     return depth
 
 
@@ -57,11 +55,12 @@ def simulate_isoform_variance_inside_a_gene(
     """
     if n == 1:
         return [mu]
-    generated_abundance = [(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)]
+    generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
+    generated_abundance[generated_abundance < 0.01] = 0
     generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
     np.random.shuffle(generated_abundance)
-    generated_abundance[generated_abundance<0.01] = 0
     return generated_abundance
+
 
 def simulate_depth_gmm(
         gv: GeneViewType,

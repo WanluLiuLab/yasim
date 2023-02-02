@@ -107,12 +107,12 @@ for (fc_data_fn in Sys.glob("ce11_*.fq.bam.fc.tsv")) {
 
 all_depth_data <- NULL
 
-for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.stats.d")) {
+for (depth_data_fn in Sys.glob("ce11_*_trans.fq.bam.depth.mean.tsv")) {
     condition <- depth_data_fn %>%
-        stringr::str_replace("_trans.fq.bam.stats.d", "") %>%
+        stringr::str_replace("_trans.fq.bam.depth.mean.tsv", "") %>%
         stringr::str_replace("ce11_", "")
     this_depth_data <- readr::read_tsv(
-        file.path(depth_data_fn, "pileup_stat.merged.tsv"),
+        depth_data_fn,
         col_types = cols(
             TRANSCRIPT_ID = col_character(),
             AVG_DEPTH = col_number()
@@ -140,9 +140,11 @@ transcript_stats <- readr::read_tsv(
 
 
 all_data <- transcript_stats %>%
-    dplyr::inner_join(all_depth_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_fc_data, by = "TRANSCRIPT_ID") %>%
-    dplyr::inner_join(all_fq_stats, by = "TRANSCRIPT_ID")
+    dplyr::full_join(all_depth_data, by = "TRANSCRIPT_ID") %>%
+    dplyr::full_join(all_fc_data, by = "TRANSCRIPT_ID") %>%
+    dplyr::full_join(all_fq_stats, by = "TRANSCRIPT_ID") %>%
+    dplyr::filter(!is.na(.$GENE_ID)) %>%
+    replace(is.na(.), 0)
 
 arrow::write_parquet(all_data, "all_gep_data.parquet")
 
@@ -165,6 +167,22 @@ g <- ggplot(all_data_long) +
 
 ggsave("gep_depth_all.pdf", g, width = 12, height = 18)
 
+
+g <- ggplot(all_data_long) +
+    geom_density_ridges_gradient(aes(
+        x = Depth + 1,
+        y = Condition
+    )) +
+    scale_x_continuous(
+        name = "Depth, log10 transformed",
+        trans = "log10",
+        limits = c(1.0001, NA)
+    ) +
+    ylab("density") +
+    theme_ridges() +
+    ggtitle("Depth of all runs")
+
+ggsave("gep_depth_all_lim.pdf", g, width = 12, height = 18)
 
 all_conditions <- unique(all_data_long$Condition)
 
@@ -190,6 +208,37 @@ for (accession1 in all_conditions) {
 pheatmap(
     condition_distance_matrix,
     filename = "gep_condition_level_distance.pdf",
+    width = 12,
+    height = 10,
+    main = "Condition-level GEP difference (Euclidean)",
+    labels_col = replicate(length(all_conditions), "")
+)
+
+all_conditions_pbsims <- as.vector(stringr::str_match(all_conditions, ".*pbsim.*"))
+all_conditions_pbsims <- all_conditions_pbsims[!is.na(all_conditions_pbsims)]
+
+
+condition_distance_matrix_pbsims <- matrix(
+    nrow = length(all_conditions_pbsims),
+    ncol = length(all_conditions_pbsims)
+)
+colnames(condition_distance_matrix_pbsims) <- all_conditions_pbsims
+rownames(condition_distance_matrix_pbsims) <- all_conditions_pbsims
+for (accession1 in all_conditions_pbsims) {
+    for (accession2 in all_conditions_pbsims) {
+        condition_distance_matrix_pbsims[accession1, accession2] <- dist(
+            rbind(
+                all_data[[accession1]],
+                all_data[[accession2]]
+            ),
+            method = "euclidean"
+        )
+    }
+}
+
+pheatmap(
+    condition_distance_matrix_pbsims,
+    filename = "gep_condition_level_distance_pbsims.pdf",
     width = 12,
     height = 10,
     main = "Condition-level GEP difference (Euclidean)",
