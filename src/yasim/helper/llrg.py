@@ -1,6 +1,8 @@
 import argparse
 import multiprocessing
 import os
+import shutil
+import stat
 from typing import Iterable, Tuple
 
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
@@ -185,3 +187,17 @@ def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
                         help="Ratio of 5 prime truncation", nargs='?',
                         type=float, action='store', default=0.0)
     return parser
+
+
+def enhanced_which(path_or_filename: str) -> str:
+    if os.path.exists(path_or_filename):
+        stat_result = os.stat(path_or_filename)
+        if not stat.S_IXUSR & stat_result.st_mode:
+            raise FileNotFoundError(f"File {path_or_filename} is not executable!")
+    else:
+        resolved_path = shutil.which(path_or_filename)
+        if resolved_path is None:
+            raise FileNotFoundError(f"File {path_or_filename} not found!")
+        else:
+            path_or_filename=resolved_path
+    return path_or_filename

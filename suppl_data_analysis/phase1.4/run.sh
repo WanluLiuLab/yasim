@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -ue
 
-
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.fa.gz
 wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
 gunzip ./*.gz
@@ -10,7 +9,7 @@ grep '^chr1\s' hg38.ncbiRefSeq.gtf > hg38.ncbiRefSeq.chr1.gtf
 head hg38.fa -n "$(($(cat -n hg38.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  hg38.chr1.fa
 python -m labw_utils.bioutils transcribe -g hg38.ncbiRefSeq.chr1.gtf -f hg38.chr1.fa -o hg38_trans.fa
 
-shuf < hg38_trans.fa | python filter_pbsim_reference.py | head -n 4000 > hg38_trans.filtered.fa
+shuf < hg38_trans.fa | python -m yasim_scripts filter_pbsim_reference | head -n 4000 > hg38_trans.filtered.fa
 
 function perform_pbsim2_length() {
     mkdir -p pbsim2_length_"${1}"
@@ -61,20 +60,6 @@ for fn in pbsim2_accuracy_*.fastq; do
     > "${fn}"_trans.maf
 done
 
-#
-#for fn in pbsim2_accuracy_*.fastq; do
-#    minimap2 -x splice -a -n 1 -m 1 -A 1200 -B 1 -t 50 hg38.chr1.fa "${fn}" > "${fn}".sam
-#    samtools sort "${fn}".sam -@ 50 -o "${fn}".bam
-#    samtools index "${fn}".bam
-#    rm -f "${fn}".sam
-#done
-#
-#for fn in *.bam; do
-#    echo $fn
-#    samtools flagstat $fn | grep mapped | grep -v with
-#done
-
-
 function perform_pbsim3_multi_pass_parallel(){
     mkdir -p pbsim3_multi_pass_"${1}"
     pbsim3 \
@@ -99,7 +84,7 @@ function perform_pbsim3_multi_pass() {
         --log-file pbsim3_multi_pass_"${1}"/ccs.log \
         pbsim3_multi_pass_"${1}"/subreads.bam pbsim3_multi_pass_"${1}"/ccs.bam
     samtools fastq pbsim3_multi_pass_"${1}"/ccs.bam > pbsim3_multi_pass_"${1}".fastq
-    # rm -rf pbsim3_multi_pass_"${1}"
+    rm -rf pbsim3_multi_pass_"${1}"
     python -m labw_utils.bioutils describe_fastq pbsim3_multi_pass_"${1}".fastq
 }
 
@@ -127,11 +112,7 @@ for fn in pbsim3_multi_pass*.fastq; do
     > "${fn}"_trans.maf
 done
 
-for fn in pbsim3_multi_pass_*.maf; do
-    python ./extract_quality_from_maf.py "${fn}" >> all_last_mapq.tsv
-done
-
 printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" > all_last_mapq.tsv
 for fn in *.maf; do
-    python ./extract_quality_from_maf.py "${fn}" >> all_last_mapq.tsv
+    python -m extract_quality_from_maf "${fn}" >> all_last_mapq.tsv
 done

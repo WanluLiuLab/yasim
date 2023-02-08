@@ -1,6 +1,8 @@
 import sys
+from typing import List
 
-if __name__ == "__main__":
+
+def main(_:List[str]):
     name_cache = None
     for line in sys.stdin:
         if name_cache is None:

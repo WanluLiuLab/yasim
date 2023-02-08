@@ -172,8 +172,8 @@ done
 
 printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" > all_last_mapq.tsv
 for fn in *.maf.gz; do
-    python ./extract_read_length_from_maf.py "${fn}" > "${fn}".rlen.tsv
-    python ./extract_quality_from_maf.py "${fn}" >> all_last_mapq.tsv
+    python -m yasim_scripts extract_read_length_from_maf "${fn}" > "${fn}".rlen.tsv
+    python -m yasim_scripts extract_quality_from_maf "${fn}" >> all_last_mapq.tsv
 done
 
 Rscript ./plot_fastq.R

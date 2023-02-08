@@ -1,6 +1,6 @@
 import re
 import sys
-from typing import Tuple, Iterable
+from typing import Tuple, Iterable, List
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
@@ -38,9 +38,9 @@ def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
     )
 
 
-if __name__ == "__main__":
+def main(args:List[str]):
     all_qual = {"I":0, "D":0, "M":0, "S":0}
-    for maf_record in maf_parse(sys.argv[1]):
+    for maf_record in maf_parse(args[0]):
         for b1, b2 in zip(maf_record[2].upper(), maf_record[3].upper()):
             if b1 == "-":
                 this_cigar = "I"
