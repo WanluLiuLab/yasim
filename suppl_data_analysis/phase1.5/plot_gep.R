@@ -212,8 +212,3 @@ pheatmap(
     main = "Condition-level GEP difference (Euclidean)",
     labels_col = replicate(length(all_conditions), "")
 )
-
-
-# Get History of PacBio and ONT
-# Look into Phread 33 Quality
-# Real data read completeness

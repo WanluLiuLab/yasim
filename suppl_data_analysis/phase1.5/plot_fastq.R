@@ -1,17 +1,15 @@
 library("tidyverse")
-library("pheatmap")
-library("scales")
 library("ggridges")
 library("arrow")
 library("corrplot")
 
-all_data <- NULL
 
-fns <- Sys.glob("ce11_*.fq.stats.d")
+fns <- Sys.glob("ce11_*.fq.gz.stats.d")
 conditions <- fns %>%
     stringr::str_replace("ce11_", "") %>%
-    stringr::str_replace(".fq.stats.d", "")
+    stringr::str_replace(".fq.gz.stats.d", "")
 
+all_data <- NULL
 for (i in seq_along(fns)) {
     this_data <- readr::read_tsv(
         file.path(fns[i], "all.tsv"),
@@ -21,78 +19,72 @@ for (i in seq_along(fns)) {
             LEN = col_integer(),
             MEANQUAL = col_double()
         ),
-        progress = TRUE,
+        progress = FALSE,
         quote = "\'"
     ) %>%
         dplyr::mutate(
             Condition = conditions[i]
-        )
+        ) %>%
+        dplyr::select(!(SEQID)) %>%
+        dplyr::sample_n(10000)
     if (is.null(all_data)) {
         all_data <- this_data
     } else {
         all_data <- all_data %>%
             dplyr::rows_append(this_data)
     }
+    message(sprintf("Processing %d/%d", i, length(conditions)))
+    rm(i, this_data)
+    gc()
 }
-transcript_stats <- readr::read_tsv(
-    "ce11.ncbiRefSeq.chr1.gtf.transcripts.tsv",
-    show_col_types = FALSE
-)
 
-all_data_merged <- all_data %>%
+arrow::write_parquet(all_data, "all_fastq_data_sampled.parquet")
+
+all_data_mutated <- all_data %>%
     tidyr::separate(
-        "SEQID",
-        c("TRANSCRIPT_ID", "READ_ID", "INPUT_DEPTH", "TmpCondition"),
-        sep = ":"
-    ) %>%
-    dplyr::select(!(TmpCondition)) %>%
-    dplyr::rename(READ_GC = GC) %>%
-    dplyr::mutate(READ_ID = as.integer(READ_ID)) %>%
-    dplyr::mutate(INPUT_DEPTH = as.double(INPUT_DEPTH)) %>%
-    dplyr::inner_join(transcript_stats, by = "TRANSCRIPT_ID") %>%
-    dplyr::mutate(READ_COMPLETENESS = LEN / TRANSCRIBED_LENGTH)
+        "Condition",
+        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID")
+    )
 
-
-conditions <- unique(all_data_merged$Condition)
-
-arrow::write_parquet(all_data_merged, "all_fastq_data.parquet")
-
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
             x = LEN,
-            y = Condition
+            y = sprintf("%s_%s", SIMULATOR, MODE)
         )
     ) +
     xlim(c(0, 3000)) +
     ylab("density") +
     theme_ridges() +
+    facet_wrap(DGEID ~ DIUID) +
     ggtitle("Length of all conditions")
 
 ggsave("fastq_length_all.pdf", g, width = 8, height = 5)
 
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
-            x = READ_GC,
-            y = Condition
+            x = GC,
+            y = sprintf("%s_%s", SIMULATOR, MODE)
         )
     ) +
     ylab("density") +
     theme_ridges() +
+    facet_wrap(DGEID ~ DIUID) +
     ggtitle("GC of all conditions")
 
 ggsave("fastq_gc_all.pdf", g, width = 8, height = 5)
 
-g <- ggplot(all_data_merged) +
+g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
             x = MEANQUAL,
-            y = Condition
+            y = sprintf("%s_%s", SIMULATOR, MODE)
         )
     ) +
     ylab("density") +
     theme_ridges() +
+    facet_wrap(DGEID ~ DIUID) +
     ggtitle("Mean Read Quality of all conditions")
 
 ggsave("fastq_qual_all.pdf", g, width = 8, height = 5)

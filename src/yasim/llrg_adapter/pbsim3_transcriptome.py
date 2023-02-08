@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 from typing import List, Final
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
@@ -22,7 +23,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             self.exename,
             "--strategy", "trans",
             "--method", "errhmm",
-            "--qshmm", self.hmm_model,
+            "--errhmm", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
         ]
@@ -30,8 +31,23 @@ class Pbsim3Adapter(BaseLLRGAdapter):
     hmm_model: str
     """Absolute path to or name of HMM filename"""
 
+    hmm_method: str
+    """Error-based or quality-score-based model"""
+
     tmp_dir: str
     """Prefix for generated temporary files"""
+
+    ccs_pass: str
+    """Number of CCS passes"""
+
+    samtools_path: str
+    """Path to Samtools"""
+
+    ccs_path: str
+    """Path to PacBio PBCCS"""
+
+    ccs_num_threads:int
+    "Number of threads used when invoking PBCCS"
 
     _llrg_name: Final[str] = "pbsim3"
     _require_integer_depth: Final[bool] = False
@@ -41,8 +57,13 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             input_fasta: str,
             output_fastq_prefix: str,
             depth: int,
+            hmm_method:str,
             hmm_model: str,
+            ccs_pass:int,
             exename: str,
+            samtools_path:str,
+            ccs_path:str,
+            ccs_num_threads:int,
             other_args: List[str]
     ):
         super().__init__(
@@ -52,10 +73,19 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             exename=exename,
             other_args=other_args
         )
+        self.samtools_path = samtools_path
+        self.ccs_path = ccs_path
+        self.ccs_pass = ccs_pass
+        self.ccs_num_threads = ccs_num_threads
+        self.hmm_method = hmm_method
+        possible_hmm_model_path = os.path.join(
+            PBSIM3_DIST, 
+            f"{self.hmm_method.upper()}-{hmm_model}.model"
+        )
         if os.path.exists(hmm_model):
             hmm_model = hmm_model
-        elif os.path.exists(os.path.join(PBSIM3_DIST, f"QSHMM-{hmm_model}.model")):
-            hmm_model = os.path.join(PBSIM3_DIST, f"QSHMM-{hmm_model}.model")
+        elif os.path.exists(possible_hmm_model_path):
+            hmm_model =possible_hmm_model_path
         else:
             raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
@@ -84,14 +114,55 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         cmd = [
             self.exename,
             "--strategy", "trans",
-            "--method", "qshmm",
-            "--qshmm", self.hmm_model,
+            "--method", self.hmm_method,
+            f"--{self.hmm_method}", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
+            "--pass-num", self.ccs_pass
         ]
         return cmd
 
     def _rename_file_after_finish_hook(self):
-        with open(self.output_fastq_prefix + ".fq", "wb") as writer:
-            with open(os.path.join(self.tmp_dir, "tmp.fastq"), "rb") as reader:
-                shutil.copyfileobj(reader, writer)
+        if self.ccs_pass == 1:
+            with open(self.output_fastq_prefix + ".fq", "wb") as writer:
+                with open(os.path.join(self.tmp_dir, "tmp.fastq"), "rb") as reader:
+                    shutil.copyfileobj(reader, writer)
+        else:
+            with open("call_ccs.log", "wb") as log_writer:
+                subprocess.Popen(
+                    [
+                        self.samtools_path,
+                        "view",
+                        os.path.join(self.tmp_dir, "tmp.sam"),
+                        "-o", os.path.join(self.tmp_dir, "tmp.subreads.bam")
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    stdout=log_writer,
+                    stderr=log_writer
+                ).wait()
+                subprocess.Popen(
+                    [
+                        self.ccs_path,
+                        "--report-json", os.path.join(self.tmp_dir, "tmp.ccs.report.json"),
+                        "--report-file", os.path.join(self.tmp_dir, "tmp.ccs.report.txt"),
+                        "--log-level", "INFO",
+                        "--log-file", os.path.join(self.tmp_dir, "tmp.ccs.log"),
+                        "--num-threads", str(self.ccs_num_threads),
+                        os.path.join(self.tmp_dir, "tmp.subreads.bam"),
+                        os.path.join(self.tmp_dir, "tmp.ccs.bam")
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    stdout=log_writer,
+                    stderr=log_writer
+                ).wait()
+                subprocess.Popen(
+                    [
+                        self.samtools_path,
+                        "fastq",
+                        os.path.join(self.tmp_dir, "tmp.ccs.bam"),
+                        self.output_fastq_prefix + ".fq"
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    stdout=log_writer,
+                    stderr=log_writer
+                ).wait()

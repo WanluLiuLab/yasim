@@ -31,13 +31,13 @@ for (i in seq_along(fns)) {
         all_data <- all_data %>%
             dplyr::rows_append(this_data)
     }
-    rm(i,this_data)
+    rm(i, this_data)
     gc()
 }
 
 metadata <- readr::read_csv("metadata.csv")
 all_data <- all_data %>%
-    dplyr::inner_join(metadata, by=c("Condition"="SampleName"))
+    dplyr::inner_join(metadata, by = c("Condition" = "SampleName"))
 
 arrow::write_parquet(all_data, "all_fastq_data.parquet")
 
@@ -46,7 +46,7 @@ g <- ggplot(all_data) +
         aes(
             x = LEN,
             y = Condition,
-            fill=SequencerModel
+            fill = SequencerModel
         )
     ) +
     xlim(c(0, 3000)) +
@@ -61,7 +61,7 @@ g <- ggplot(all_data) +
         aes(
             x = GC,
             y = Condition,
-            fill=Species
+            fill = Species
         )
     ) +
     ylab("density") +
@@ -75,7 +75,7 @@ g <- ggplot(all_data) +
         aes(
             x = MEANQUAL,
             y = Condition,
-            fill=SequencerModel
+            fill = SequencerModel
         )
     ) +
     ylab("density") +

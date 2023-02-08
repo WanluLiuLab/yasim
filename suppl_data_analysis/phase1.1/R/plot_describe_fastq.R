@@ -67,7 +67,7 @@ extension_tsv <- readr::read_tsv(
 )
 
 prealign_extension_plot <- ggplot(extension_tsv) +
-    geom_line(aes(x = POS, y = QUAL), alpha=0.1) +
+    geom_line(aes(x = POS, y = QUAL), alpha = 0.1) +
     xlim(c(0, NA)) +
     theme_bw() +
     ggtitle("Prealign base extension plot")

@@ -28,7 +28,7 @@ all_data <- read_tsv(
     )
 )
 
-scale_depth <- function(vec){
+scale_depth <- function(vec) {
     (vec - min(vec)) / (max(vec) - min(vec)) * 5000 + 1
 }
 
@@ -57,6 +57,7 @@ mutate_data <- function(data) {
                   count_l10n = log10(count),
     )
 }
+
 plot_zipf <- function(data) {
     ggplot(data) +
         geom_point(aes(x = count_l10n, y = rank_zipfs_l10n), color = "blue") +
@@ -71,7 +72,7 @@ g <- plot_zipf(all_data_nano) +
         "Zipf's Distribution Fitting for Nanopore Data ",
         "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
     )
-ggsave("gep_zipf_nanopore.pdf", g, width=10, height=8)
+ggsave("gep_zipf_nanopore.pdf", g, width = 10, height = 8)
 
 all_data_pacb <- mutate_data(all_data_pacb)
 g <- plot_zipf(all_data_pacb) +
@@ -79,7 +80,7 @@ g <- plot_zipf(all_data_pacb) +
         "Zipf's Distribution Fitting for PacBio Data ",
         "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
     )
-ggsave("gep_zipf_pacbio.pdf", g, width=10, height=8)
+ggsave("gep_zipf_pacbio.pdf", g, width = 10, height = 8)
 
 all_data_illm <- mutate_data(all_data_illm)
 g <- plot_zipf(all_data_illm) +
@@ -87,7 +88,7 @@ g <- plot_zipf(all_data_illm) +
         "Zipf's Distribution Fitting for Illumina Data ",
         "Blue dots: Actual data. Red dots: Theoritical Distribution. Line: Fitted Distribution"
     )
-ggsave("gep_zipf_illumina.pdf", g, width=10, height=8)
+ggsave("gep_zipf_illumina.pdf", g, width = 10, height = 8)
 
 fit_common <- function(data) {
     fnbiom <- fitdistrplus::fitdist(as.integer(data$count), "nbinom", method = "mme")
@@ -160,10 +161,11 @@ plot_density <- function(retl) {
             data = gb[['data']][[1]],
             aes(x = x, y = density),
             geom = "text"
-        )+
+        ) +
         theme_bw()
 
 }
+
 plot_qq <- function(retl) {
     data <- retl$data
     ggplot(data, aes(sample = count)) +
@@ -173,20 +175,21 @@ plot_qq <- function(retl) {
         geom_abline(slope = 1, intercept = 0) +
         theme_bw()
 }
+
 gs_nano <- fit_common(all_data_nano)
 g <- plot_density(gs_nano) +
     ggtitle(
         "Fitting of Commonly Seen Distributions for Nanopore Data",
         "Blue: LogNormal. Purple: Gamma. Black: Negative Biomial. Red: Real"
     )
-ggsave("gep_common_nanopore.pdf", g, width=10, height=8)
+ggsave("gep_common_nanopore.pdf", g, width = 10, height = 8)
 
 g <- plot_qq(gs_nano) +
     ggtitle(
         "Fitting of Commonly Seen Distributions for Nanopore Data",
         "Blue: LogNormal. Purple: Gamma. Black: Negative Biomial. Red: Real"
     )
-ggsave("gep_common_nanopore_qq.pdf", g, width=10, height=8)
+ggsave("gep_common_nanopore_qq.pdf", g, width = 10, height = 8)
 gs_pacb <- fit_common(all_data_pacb)
 plot_density(gs_pacb)
 plot_qq(gs_pacb)

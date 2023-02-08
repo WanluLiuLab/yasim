@@ -14,22 +14,22 @@ conditions <- fns %>%
 
 for (i in seq_along(conditions)) {
     this_data <- readr::read_tsv(
-            file.path(fns[i], "read_stat.tsv"),
-            col_types = c(
-                QUERY_NAME = col_character(),
-                MAP_STAT = col_character(),
-                QUERY_LENGTH = col_integer(),
-                REFERENCE_LENGTH = col_integer(),
-                CIGAR_INFERRED_QUERY_LENGTH = col_integer(),
-                CIGAR_INFERRED_READ_LENGTH = col_integer(),
-                MAPPING_QUALITY = col_double()
-            ),
-            progress = TRUE
-        ) %>%
-            dplyr::select(!(QUERY_NAME)) %>%
-            dplyr::mutate(
-                Condition = conditions[i]
-            )
+        file.path(fns[i], "read_stat.tsv"),
+        col_types = c(
+            QUERY_NAME = col_character(),
+            MAP_STAT = col_character(),
+            QUERY_LENGTH = col_integer(),
+            REFERENCE_LENGTH = col_integer(),
+            CIGAR_INFERRED_QUERY_LENGTH = col_integer(),
+            CIGAR_INFERRED_READ_LENGTH = col_integer(),
+            MAPPING_QUALITY = col_double()
+        ),
+        progress = TRUE
+    ) %>%
+        dplyr::select(!(QUERY_NAME)) %>%
+        dplyr::mutate(
+            Condition = conditions[i]
+        )
     if (is.null(all_data)) {
         all_data <- this_data
     }

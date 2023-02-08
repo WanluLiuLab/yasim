@@ -6,7 +6,7 @@ from numpy import typing as npt
 matplotlib.use('qtagg')
 
 
-def plot(data: npt.ArrayLike, model, title:str=""):
+def plot(data: npt.ArrayLike, model, title: str = ""):
     def normalize(_simulated_data: npt.ArrayLike) -> npt.ArrayLike:
         return _simulated_data[_simulated_data >= 0][:len(data)]
 

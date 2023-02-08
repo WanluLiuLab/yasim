@@ -32,21 +32,18 @@ def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
             g2 = lm2.groups()
             yield g1[0], g2[0], g1[5], g2[5]
             num_record += 1
-    print(f"Finished with {num_error} errors and {num_record} records")
+    print(f"Finished with {num_error} errors and {num_record} records", file=sys.stderr)
 
 
 if __name__ == "__main__":
     all_qual = {"I":0, "D":0, "M":0, "S":0}
+    print("\t".join(("ALIGNED_TRANSCRIPT_ID", "SIMULATED_TRANSCRIPT_ID", "READ_LENGTH")))
     for maf_record in maf_parse(sys.argv[1]):
-        for b1, b2 in zip(maf_record[2].upper(), maf_record[3].upper()):
-            if b1 == "-":
-                this_cigar = "I"
-            elif b2 == "-":
-                this_cigar= "D"
-            elif b1 == "N" or b2 == "N" or b1 == b2:
-                this_cigar= "M"
-            else:
-                this_cigar= "S"
-            all_qual[this_cigar] += 1
-    print("Events:", {k:str(round(v / sum(all_qual.values())*100, 2)) + "%" for k, v in all_qual.items()})
-
+        aligned_transcript_id = maf_record[0]
+        simulated_transcript_id = maf_record[1].split(":")[0]
+        read_length = len(maf_record[3].replace("-", ""))
+        print("\t".join((
+            aligned_transcript_id,
+            simulated_transcript_id,
+            str(read_length)
+        )))

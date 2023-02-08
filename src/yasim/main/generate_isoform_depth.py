@@ -28,8 +28,8 @@ def main(args: List[str]):
                 transcript_level_depth[transcript.transcript_id] = 0
             continue
         this_transcript_level_depth = depth.simulate_isoform_variance_inside_a_gene(
-                gene.number_of_transcripts,
-                gene_level_depth[gene.gene_id]
+            gene.number_of_transcripts,
+            gene_level_depth[gene.gene_id]
         )
         for i, transcript in enumerate(gene.iter_transcripts()):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]

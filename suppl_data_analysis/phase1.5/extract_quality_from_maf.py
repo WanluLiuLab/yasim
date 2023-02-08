@@ -32,7 +32,10 @@ def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
             g2 = lm2.groups()
             yield g1[0], g2[0], g1[5], g2[5]
             num_record += 1
-    print(f"Finished with {num_error} errors and {num_record} records")
+    print(
+        f"Finished with {num_error} errors and {num_record} records",
+        file=sys.stderr
+    )
 
 
 if __name__ == "__main__":
@@ -48,5 +51,7 @@ if __name__ == "__main__":
             else:
                 this_cigar= "S"
             all_qual[this_cigar] += 1
-    print("Events:", {k:str(round(v / sum(all_qual.values())*100, 2)) + "%" for k, v in all_qual.items()})
+    retl = [sys.argv[1]]
+    retl.extend(map(str, all_qual.values()))
+    print("\t".join(retl))
 

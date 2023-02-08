@@ -9,25 +9,25 @@ gene_data <- readr::read_tsv("ce11.ncbiRefSeq.gtf.gene.tsv") %>%
     dplyr::rename(GENE_MAPPABLE_LENGTH = MAPPABLE_LENGTH)
 
 all_gep_data <- gene_data %>%
-    dplyr::inner_join(arrow::read_parquet("all_gep_data.parquet"), by="GENE_ID")
+    dplyr::inner_join(arrow::read_parquet("all_gep_data.parquet"), by = "GENE_ID")
 
 gep_data_genelevel <- NULL
 
-for (accesion in colnames(all_gep_data)[11:length(all_gep_data)]){
+for (accesion in colnames(all_gep_data)[11:length(all_gep_data)]) {
     message(accesion)
     this_gep_data <- all_gep_data %>%
         dplyr::group_by(GENE_ID) %>%
         dplyr::summarise(
-            !!rlang::sym(accesion) := sum(!!rlang::sym(accesion)*TRANSCRIBED_LENGTH)/GENE_MAPPABLE_LENGTH
+            !!rlang::sym(accesion) := sum(!!rlang::sym(accesion) * TRANSCRIBED_LENGTH) / GENE_MAPPABLE_LENGTH
         ) %>%
         dplyr::ungroup() %>%
         dplyr::distinct()
     print(colnames(this_gep_data))
-    if (is.null(gep_data_genelevel)){
+    if (is.null(gep_data_genelevel)) {
         gep_data_genelevel <- this_gep_data
-    } else{
+    } else {
         gep_data_genelevel <- gep_data_genelevel %>%
-            dplyr::inner_join(this_gep_data, by="GENE_ID")
+            dplyr::inner_join(this_gep_data, by = "GENE_ID")
     }
     rm(accesion, this_gep_data)
 }
@@ -52,7 +52,7 @@ arrow::write_parquet(
 )
 
 gep_data_genelevel_normalized_long <- gep_data_genelevel_normalized %>%
-    tidyr::gather(key="RunAccession", value="Abundance", -GENE_ID)
+    tidyr::gather(key = "RunAccession", value = "Abundance", -GENE_ID)
 
 g <- ggplot(gep_data_genelevel_normalized_long) +
     geom_density_ridges_gradient(aes(

@@ -1,9 +1,5 @@
 library("tidyverse")
-library("pheatmap")
-library("scales")
-library("ggridges")
 library("arrow")
-library("corrplot")
 
 fns_genome <- Sys.glob("ce11_*_*_dge?_diu?_?.fq.gz.bam.stats.d")
 conditions_genome <- fns_genome %>%
@@ -37,11 +33,9 @@ for (i in seq_along(conditions)) {
         progress = FALSE,
         lazy = TRUE
     ) %>%
-        dplyr::select(MAP_STAT) %>%
         dplyr::mutate(
             Condition = conditions[i]
-        ) %>%
-        dplyr::sample_n(10000)
+        )
     if (is.null(all_data)) {
         all_data <- this_data
     } else {
@@ -53,29 +47,4 @@ for (i in seq_along(conditions)) {
     gc()
 }
 
-arrow::write_parquet(all_data, "all_sam_data_sampled.parquet")
-
-all_data_mutated <- all_data %>%
-    tidyr::separate(
-        "Condition",
-        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID", "ALNTO")
-    )
-
-all_data_alignment_rate <- all_data_mutated %>%
-    dplyr::group_by(SIMULATOR, MODE, DGEID, DIUID, REPID, ALNTO) %>%
-    dplyr::summarise(PRIMIARY_ALN_RATE = sum(MAP_STAT == "primiary") / n()) %>%
-    dplyr::ungroup()
-
-g <- ggplot(all_data_alignment_rate) +
-    geom_boxplot(
-        aes(
-            y = sprintf("%s_%s", SIMULATOR, MODE),
-            x = PRIMIARY_ALN_RATE,
-            color = ALNTO
-        )
-    ) +
-    theme_bw() +
-    facet_wrap(DGEID ~ DIUID) +
-    ggtitle("Primiary Mapping Rate of all conditions")
-
-ggsave("sam_primiary_mapping_rate.pdf", g, width = 10, height = 8)
+arrow::write_parquet(all_data, "all_sam_data.parquet")

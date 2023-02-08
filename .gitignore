@@ -432,3 +432,6 @@ _STARtmp/
 *.ref
 *.train
 lastdb/
+mount.sh
+*.ngm
+*.pbi

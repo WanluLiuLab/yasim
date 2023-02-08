@@ -245,21 +245,21 @@ pheatmap(
     labels_col = replicate(length(all_conditions), "")
 )
 
-tsne <- Rtsne(all_data[6:length(all_data), ], perplexity = 5)
+tsne <- Rtsne(all_data[6:length(all_data),], perplexity = 5)
 tsne_df <- as.data.frame(tsne$Y)
 g <- ggplot(tsne_df) +
     geom_point(aes(
-        x=V1,
-        y=V2
+        x = V1,
+        y = V2
     )) +
     geom_text_repel(aes(
-        x=V1,
-        y=V2,
-        label=colnames(all_data)[6:length(all_data)]
+        x = V1,
+        y = V2,
+        label = colnames(all_data)[6:length(all_data)]
     )) +
     theme_bw()
 
-ggsave("gep_tsne.pdf", g, width=16, height=12)
+ggsave("gep_tsne.pdf", g, width = 16, height = 12)
 
 # Get History of PacBio and ONT
 # Look into Phread 33 Quality

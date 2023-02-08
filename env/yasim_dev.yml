@@ -48,6 +48,16 @@ dependencies:
   - pyarrow
   - pyspark
 
+  # R
+  - bioconductor-deseq2=1.38.0
+  - r-arrow=10.0.1
+  - r-corrplot=0.92
+  - r-ggridges=0.5.4
+  - r-tidyverse=1.3.2
+  - r-scales=1.2.1
+  - r-pheatmap=1.0.12
+  - r-base=4.2.2
+
   - pip
   - setuptools
   - wheel

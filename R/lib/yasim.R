@@ -25,7 +25,6 @@ yasim_unmapped_stats_col_types <- cols(
 )
 
 
-
 yasim_pileup_stats_col_types <- cols(
     REFERENCE_NAME = col_character(),
     REFERENCE_POS = col_number(),

@@ -5,15 +5,15 @@ library("ggridges")
 library("arrow")
 library("corrplot")
 
-fns <- Sys.glob("ce11_*.fq.bam.stringtie.gtf.gene.tsv")
+fns <- Sys.glob("ce11_*.fq.gz.bam.stringtie.gtf.gene.tsv")
 conditions <- fns %>%
     stringr::str_replace("ce11_", "") %>%
-    stringr::str_replace(".fq.bam.stringtie.gtf.gene.tsv", "")
+    stringr::str_replace(".fq.gz.bam.stringtie.gtf.gene.tsv", "")
 
 fns <- c(
     fns,
     "ce11.ncbiRefSeq.chr1.gtf.gene.tsv",
-    "ce11.ncbiRefSeq.chr1_as.gtf.gene.tsv"
+    "ce11.ncbiRefSeq_as.chr1.gtf.gene.tsv"
 )
 
 conditions <- c(
@@ -21,7 +21,6 @@ conditions <- c(
     "GROUND TRUTH",
     "REFERENCE"
 )
-
 
 #' All NIpG Data
 all_nipg_data <- list()
@@ -43,6 +42,7 @@ for (i in seq_along(conditions)) {
             dplyr::select(TRANSCRIPT_NUMBER) %>%
             unlist() %>%
             as.vector()
+    message(sprintf("Processing %d/%d", i, length(conditions)))
 }
 
 n_bins <- 0
@@ -72,6 +72,6 @@ pheatmap(
     cluster_cols = TRUE,
     main = "Logged Number of isoforms in a gene accross all conditions",
     filename = "nipg_heatmap.pdf",
-    width = 8,
-    height = 5
+    width = 60,
+    height = 8
 )

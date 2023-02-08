@@ -7,10 +7,10 @@ library("corrplot")
 
 all_data <- NULL
 
-fns <- Sys.glob("ce11_*.fq_trans.maf.rlen.tsv")
+fns <- Sys.glob("ce11_*.fq.gz_trans.maf.gz.rlen.tsv")
 conditions <- fns %>%
     stringr::str_replace("ce11_", "") %>%
-    stringr::str_replace(".fq_trans.maf.rlen.tsv", "")
+    stringr::str_replace(".fq.gz_trans.maf.gz.rlen.tsv", "")
 
 for (i in seq_along(fns)) {
     this_data <- readr::read_tsv(
@@ -32,16 +32,20 @@ for (i in seq_along(fns)) {
         all_data <- all_data %>%
             dplyr::rows_append(this_data)
     }
+    message(sprintf("Processing %d/%d", i, length(conditions)))
     rm(this_data, i)
+    gc()
 }
 aligned_transcript_stats <- readr::read_tsv(
     "ce11.ncbiRefSeq.chr1.gtf.transcripts.tsv",
     show_col_types = FALSE
 )
 simulated_transcript_stats <- readr::read_tsv(
-    "ce11.ncbiRefSeq.chr1_as.gtf.transcripts.tsv",
+    "ce11.ncbiRefSeq_as.chr1.gtf.transcripts.tsv",
     show_col_types = FALSE
 )
+arrow::write_parquet(all_data, "all_last_aligned_maf_data.parquet")
+
 correctness <- all_data %>%
     dplyr::group_by(Condition) %>%
     dplyr::summarise(
@@ -49,10 +53,23 @@ correctness <- all_data %>%
     ) %>%
     dplyr::ungroup()
 
-g <- ggplot(correctness) +
-    geom_bar(aes(y = Condition, x = correctness), stat = "identity") +
+correctness_mutated <- correctness %>%
+    tidyr::separate(
+        "Condition",
+        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID")
+    )
+
+g <- ggplot(correctness_mutated) +
+    geom_boxplot(
+        aes(
+            y = sprintf("%s_%s", SIMULATOR, MODE),
+            x = correctness
+        )
+    ) +
     xlim(c(0.0, 1.0)) +
-    theme_bw()
+    theme_bw() +
+    facet_wrap(DGEID ~ DIUID) +
+    ggtitle("Primiary Mapping Rate of all conditions")
 ggsave("last_correctness.pdf", g, width = 5, height = 4)
 
 all_data_sim <- all_data %>%
@@ -60,6 +77,7 @@ all_data_sim <- all_data %>%
         simulated_transcript_stats,
         by = c("SIMULATED_TRANSCRIPT_ID" = "TRANSCRIPT_ID")
     ) %>%
+    dplyr::sample_n(10000) %>%
     dplyr::transmute(
         Condition = sprintf("%s_sim", Condition),
         TRANSCRIPT_ID = SIMULATED_TRANSCRIPT_ID,
@@ -70,6 +88,7 @@ all_data_aln <- all_data %>%
         aligned_transcript_stats,
         by = c("ALIGNED_TRANSCRIPT_ID" = "TRANSCRIPT_ID")
     ) %>%
+    dplyr::sample_n(10000) %>%
     dplyr::transmute(
         Condition = sprintf("%s_aln", Condition),
         TRANSCRIPT_ID = ALIGNED_TRANSCRIPT_ID,
@@ -77,75 +96,28 @@ all_data_aln <- all_data %>%
     )
 
 all_data_long <- dplyr::rows_append(all_data_sim, all_data_aln)
+rm(all_data_sim, all_data_aln)
+gc()
 
-g <- ggplot(all_data_long) +
-    geom_density_ridges_gradient(
+all_data_long_mutated <- all_data_long %>%
+    tidyr::separate(
+        "Condition",
+        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID", "SOURCE")
+    )
+
+g <- ggplot(all_data_long_mutated) +
+    geom_density_ridges(
         aes(
             x = READ_COMPLETENESS,
-            y = Condition
-        )
+            y = sprintf("%s_%s", SIMULATOR, MODE),
+            color = SOURCE
+        ),
+        alpha = 0
     ) +
     ylab("density") +
     xlim(c(0.7, 1)) +
     theme_ridges() +
+    facet_wrap(DGEID ~ DIUID) +
     ggtitle("Read Completeness of all conditions")
 
 ggsave("last_read_completeness.pdf", g, width = 8, height = 8)
-
-all_data_public <- all_data %>%
-    dplyr::inner_join(
-        aligned_transcript_stats,
-        by = c("ALIGNED_TRANSCRIPT_ID" = "TRANSCRIPT_ID")
-    ) %>%
-    dplyr::transmute(
-        ALIGNED_READ_COMPLETENESS = READ_LENGTH / TRANSCRIBED_LENGTH,
-        Condition = Condition,
-        READ_LENGTH = READ_LENGTH,
-        SIMULATED_TRANSCRIPT_ID = SIMULATED_TRANSCRIPT_ID
-    ) %>%
-    dplyr::inner_join(
-        simulated_transcript_stats,
-        by = c("SIMULATED_TRANSCRIPT_ID" = "TRANSCRIPT_ID")
-    ) %>%
-    dplyr::transmute(
-        SIMULATED_READ_COMPLETENESS = READ_LENGTH / TRANSCRIBED_LENGTH,
-        Condition = Condition,
-        ALIGNED_READ_COMPLETENESS = ALIGNED_READ_COMPLETENESS
-    )
-
-all_data_p <- NULL
-
-all_conditions <- unique(all_data_public$Condition)
-
-for (accession in all_conditions){
-    this_data <- all_data_public %>%
-                    dplyr::filter(Condition==accession)
-    distance <- dist(
-            rbind(
-                density(this_data$SIMULATED_READ_COMPLETENESS, from = 0, to = 1)$y,
-                density(this_data$ALIGNED_READ_COMPLETENESS, from = 0, to = 1)$y
-            ),
-            method = "euclidean"
-        )[1]
-    pvalue <- wilcox.test(
-        density(this_data$SIMULATED_READ_COMPLETENESS, from = 0, to = 1)$y,
-        density(this_data$ALIGNED_READ_COMPLETENESS, from = 0, to = 1)$y
-    )$p.value
-    this_data_p <- tibble(
-        Condition=accession,
-        pvalue = pvalue,
-        distance =distance
-    )
-    if (is.null(all_data_p)){
-        all_data_p <- this_data_p
-    } else{
-        all_data_p <- dplyr::rows_append(
-            all_data_p, this_data_p
-        )
-    }
-    rm(accession, this_data)
-}
-
-ggplot(all_data_p) +
-    geom_bar(aes(y=Condition, x=pvalue), stat="identity") +
-    theme_bw()

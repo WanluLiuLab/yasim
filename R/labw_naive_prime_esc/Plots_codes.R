@@ -131,7 +131,7 @@ OEvsWT_gene_id_data <- dplyr::full_join(
     dplyr::rename(up = nup, dw = ndw) %>%
     tidyr::replace_na(list(up = 0.0, dw = 0.0)) %>%
     dplyr::inner_join(TE_family_count, by = "gene_id") %>%
-                #' TODO: No idea why have this filter
+                    #' TODO: No idea why have this filter
     dplyr::filter(total_count >= 80) %>%
     dplyr::mutate(
         up_percent = up / total_count,
@@ -140,7 +140,7 @@ OEvsWT_gene_id_data <- dplyr::full_join(
     dplyr::mutate(diff = up_percent - dw_percent)
 
 OEvsWT_gene_id_data_top10 <- OEvsWT_gene_id_data %>%
-                #' TODO: No isea why have this filter
+                    #' TODO: No isea why have this filter
     dplyr::filter(up >= 8 | dw >= 8) %>%
     dplyr::arrange(desc(diff)) %>%
     dplyr::filter(between(row_number(), 1, 10) | between(row_number(), n() - 9, n()))
@@ -261,17 +261,17 @@ message("================ Producing Expression Level Scatter Plot ... ==========
 #' axis: log2(CPM+1)
 
 DETE_cpm_mean <- readcount %>%
-                #' TODO: No idea what this line do
+                    #' TODO: No idea what this line do
     dplyr::filter(name %in% DETE_noFiltered$name) %>%
     dplyr::inner_join(TE_gene_transcript_class, by = c("name" = "transcript_id")) %>%
-                #' Calculate isoform-level CPM (Count per Million)
+                    #' Calculate isoform-level CPM (Count per Million)
     dplyr::mutate(
         FINE2a_cpm = FINE2a / sum(FINE2a) * 10^6,
         FINE2b_cpm = FINE2b / sum(FINE2b) * 10^6,
         TesR7A_cpm = TesR7A / sum(TesR7A) * 10^6,
         TesR7B_cpm = TesR7B / sum(TesR7B) * 10^6
     ) %>%
-                #' Calculate gene-level CPM
+                    #' Calculate gene-level CPM
     dplyr::group_by(gene_id) %>%
     dplyr::summarize(
         FINE_cpm_mean = mean(c(FINE2a_cpm, FINE2b_cpm)),
