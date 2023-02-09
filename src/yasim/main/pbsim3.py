@@ -99,9 +99,9 @@ def simulate(
         truncate_ratio_3p: float,
         truncate_ratio_5p: float,
         hmm_method: str,
-        samtools_path:str,
-        ccs_path:str,
-        ccs_pass:int,
+        samtools_path: str,
+        ccs_path: str,
+        ccs_pass: int,
         other_args: List[str]
 ):
     output_fastq_dir = output_fastq_prefix + ".d"

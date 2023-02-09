@@ -38,20 +38,20 @@ def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
     )
 
 
-def main(args:List[str]):
-    all_qual = {"I":0, "D":0, "M":0, "S":0}
-    for maf_record in maf_parse(args[0]):
-        for b1, b2 in zip(maf_record[2].upper(), maf_record[3].upper()):
-            if b1 == "-":
-                this_cigar = "I"
-            elif b2 == "-":
-                this_cigar= "D"
-            elif b1 == "N" or b2 == "N" or b1 == b2:
-                this_cigar= "M"
-            else:
-                this_cigar= "S"
-            all_qual[this_cigar] += 1
-    retl = [sys.argv[1]]
-    retl.extend(map(str, all_qual.values()))
-    print("\t".join(retl))
-
+def main(args: List[str]):
+    for arg in args:
+        all_qual = {"I": 0, "D": 0, "M": 0, "S": 0}
+        for maf_record in maf_parse(arg):
+            for b1, b2 in zip(maf_record[2].upper(), maf_record[3].upper()):
+                if b1 == "-":
+                    this_cigar = "I"
+                elif b2 == "-":
+                    this_cigar = "D"
+                elif b1 == "N" or b2 == "N" or b1 == b2:
+                    this_cigar = "M"
+                else:
+                    this_cigar = "S"
+                all_qual[this_cigar] += 1
+        retl = [sys.argv[1]]
+        retl.extend(map(str, all_qual.values()))
+        print("\t".join(retl))

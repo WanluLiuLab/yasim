@@ -1,0 +1,2 @@
+- 数据 Yao_2023 在论文里表示他们用的是 PromethION，而在 SRA 上表示他们用的是 MinION。他们用了一个找不到的 Flow Cell FLO-MIN109
+- 文章 Thomaidou_etal_2021 (treated_rep2/control_rep1) 的 supplementary 里面先描述了一个 R9.4+Albacore 的 pipeline，又描述了一个 R9.4.1+Guppy 的 pipeline

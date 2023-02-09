@@ -1557,6 +1557,9 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.4/pbsim3_multi_pass_50" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.4/pbsim3_multi_pass_50.fastq.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.4/pbsim3_multi_pass_1.fastq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/real_stats.bup" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/new_real_data_stats" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/sam_stats_d" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

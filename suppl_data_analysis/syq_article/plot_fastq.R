@@ -12,6 +12,7 @@ conditions <- fns %>%
     stringr::str_replace("real_stats/", "") %>%
     stringr::str_replace(".fastq.stats.d", "")
 for (i in seq_along(fns)) {
+    message(sprintf("Reading %s --  %d/%d",fns[i], i, length(conditions)))
     this_data <- readr::read_tsv(
         file.path(fns[i], "all.tsv"),
         col_types = c(
@@ -20,7 +21,7 @@ for (i in seq_along(fns)) {
             LEN = col_integer(),
             MEANQUAL = col_double()
         ),
-        progress = TRUE,
+        progress = FALSE,
         quote = "\'"
     ) %>%
         dplyr::select(!(SEQID)) %>%
@@ -35,7 +36,22 @@ for (i in seq_along(fns)) {
     gc()
 }
 
-metadata <- readr::read_csv("metadata.csv")
+metadata <- readr::read_csv(
+    "metadata.csv",
+    col_types = c(
+        SequencerManufacturer=col_character(),
+        SequencerModel=col_character(),
+        Species=col_character(),
+        SampleName=col_character(),
+        Paper=col_character(),
+        Mode=col_character(),
+        Chemistry=col_character(),
+        Basecaller=col_character(),
+        Depth=col_double()
+    ),
+    comment = "#"
+)
+
 all_data <- all_data %>%
     dplyr::inner_join(metadata, by = c("Condition" = "SampleName"))
 
@@ -54,7 +70,7 @@ g <- ggplot(all_data) +
     theme_ridges() +
     ggtitle("Length of all conditions")
 
-ggsave("fastq_length_all.pdf", g, width = 8, height = 5)
+ggsave("fastq_length_all.pdf", g, width = 8, height = 10)
 
 g <- ggplot(all_data) +
     geom_density_ridges_gradient(
@@ -68,18 +84,19 @@ g <- ggplot(all_data) +
     theme_ridges() +
     ggtitle("GC of all conditions")
 
-ggsave("fastq_gc_all.pdf", g, width = 8, height = 5)
+ggsave("fastq_gc_all.pdf", g, width = 8, height = 10)
 
 g <- ggplot(all_data) +
     geom_density_ridges_gradient(
         aes(
             x = MEANQUAL,
             y = Condition,
-            fill = SequencerModel
+            fill = Paper
         )
     ) +
     ylab("density") +
     theme_ridges() +
     ggtitle("Mean Read Quality of all conditions")
 
-ggsave("fastq_qual_all.pdf", g, width = 8, height = 5)
+ggsave("fastq_qual_all.pdf", g, width = 8, height = 10)
+

@@ -7,13 +7,15 @@ as_events.py -- Generate AS Events
 from __future__ import annotations
 
 import random
-import sys
 from typing import List, Callable, Iterable
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewType, GeneViewFactory
+import numpy as np
+import seaborn as sns
+from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from matplotlib import pyplot as plt
 from scipy.stats import lognorm
 
 organism_dict = {
@@ -187,19 +189,38 @@ class ASManipulator:
                 elif gene.number_of_transcripts == n:
                     return
 
-    def run(self, organism: str):
-        if not organism in organism_dict.keys():
+    def run(self, organism: str, mu: int):
+        if organism not in organism_dict.keys():
             raise ValueError(f"no organism {organism} available! Available: {organism_dict.keys()}")
         fit_tuple = organism_dict[organism]
         gene_ids_to_del: List[str] = []
-        for gene in tqdm(
-                iterable=list(self._gv.iter_genes()),
+        all_gene_ids = list(self._gv.iter_gene_ids())
+        targeted_nipg = np.array(
+            lognorm.rvs(
+                fit_tuple[0],
+                loc=fit_tuple[1],
+                scale=fit_tuple[2],
+                size=len(all_gene_ids) * 5
+            ),
+            dtype=float
+        )
+        minvalue = np.min(targeted_nipg)
+        targeted_nipg = (targeted_nipg - minvalue) * mu / np.mean(targeted_nipg) + minvalue
+        targeted_nipg = targeted_nipg[np.logical_and(1 < targeted_nipg, targeted_nipg < 25)][:len(all_gene_ids)]
+        targeted_nipg = np.array(np.sort(targeted_nipg), dtype=int)
+        sns.histplot(x=targeted_nipg)
+        plt.show()
+        reference_nipg = [
+            self._gv.get_gene(gene_id).number_of_transcripts for gene_id in all_gene_ids
+        ]
+        reference_nipg_rank = np.argsort(reference_nipg)
+        for gene_index in tqdm(
+                iterable=range(len(all_gene_ids)),
                 desc="Generating isoforms...",
                 total=self._gv.number_of_genes
         ):
-            n = 0
-            while n < 1 or n > 25:
-                n = int(lognorm.rvs(fit_tuple[0], loc=fit_tuple[1], scale=fit_tuple[2], size=1))
+            gene = self._gv.get_gene(all_gene_ids[gene_index])
+            n = targeted_nipg[reference_nipg_rank[gene_index]]
             try:
                 self.try_generate_n_isoform_for_a_gene(gene, n, organism)
             except ImpossibleToGenerateASEventError:
@@ -213,10 +234,3 @@ class ASManipulator:
 
     def to_file(self, filename: str):
         self._gv.to_file(filename)
-
-
-if __name__ == '__main__':
-    for i in range(1, 10, 2):
-        asm = ASManipulator(GeneViewFactory.from_file(sys.argv[1]))
-        asm.run(i)
-        asm.to_file(f"{i}.gtf.xz")

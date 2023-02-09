@@ -2,7 +2,7 @@ import sys
 from typing import List
 
 
-def main(_:List[str]):
+def main(_: List[str]):
     name_cache = None
     for line in sys.stdin:
         if name_cache is None:

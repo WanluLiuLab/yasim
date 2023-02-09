@@ -199,5 +199,5 @@ def enhanced_which(path_or_filename: str) -> str:
         if resolved_path is None:
             raise FileNotFoundError(f"File {path_or_filename} not found!")
         else:
-            path_or_filename=resolved_path
+            path_or_filename = resolved_path
     return path_or_filename

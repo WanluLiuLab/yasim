@@ -12,7 +12,49 @@ conditions <- fns %>%
     stringr::str_replace("real_stats/", "") %>%
     stringr::str_replace(".fastq.sam.stats.d", "")
 
+
+metadata <- readr::read_csv(
+    "metadata.csv",
+    col_types = c(
+        SequencerManufacturer=col_character(),
+        SequencerModel=col_character(),
+        Species=col_character(),
+        SampleName=col_character(),
+        Paper=col_character(),
+        Mode=col_character(),
+        Chemistry=col_character(),
+        Basecaller=col_character(),
+        Depth=col_double()
+    ),
+    comment = "#"
+)
+
+g <- metadata  %>%
+    dplyr::mutate(Paper = factor(
+        Paper,
+        level = sort(unique(.$Paper))
+    )) %>%
+    dplyr::arrange(desc(Paper)) %>%
+    dplyr::mutate(SampleName = factor(
+        SampleName,
+        level = unique(.$SampleName)
+    )) %>%
+    ggplot() +
+    geom_bar(
+        aes(
+            x = Depth,
+            y = SampleName,
+            fill = Paper
+        ),
+        stat="identity"
+    ) +
+    theme_ridges() +
+    ggtitle("Sequencing Depth of all conditions")
+
+ggsave("sam_depth_all.pdf", g, width = 10, height = 8)
+
 for (i in seq_along(conditions)) {
+    message(sprintf("Reading %s --  %d/%d",fns[i], i, length(conditions)))
     this_data <- readr::read_tsv(
         file.path(fns[i], "read_stat.tsv"),
         col_types = c(
@@ -24,19 +66,24 @@ for (i in seq_along(conditions)) {
             CIGAR_INFERRED_READ_LENGTH = col_integer(),
             MAPPING_QUALITY = col_double()
         ),
-        progress = TRUE
+        progress = FALSE,
+        na = "None" # Be compatible with lower versions of labw_utils
     ) %>%
         dplyr::select(!(QUERY_NAME)) %>%
+        dplyr::mutate(across(where(is.numeric), replace_na, 0)) %>%
         dplyr::mutate(
             Condition = conditions[i]
         )
     if (is.null(all_data)) {
         all_data <- this_data
+    } else{
+        all_data <- all_data %>%
+            dplyr::rows_append(this_data)
     }
-    all_data <- all_data %>%
-        dplyr::rows_append(this_data)
     rm(this_data, i)
 }
+all_data <- all_data %>%
+    dplyr::inner_join(metadata, by = c("Condition" = "SampleName"))
 
 arrow::write_parquet(all_data, "all_sam_data.parquet")
 
@@ -52,7 +99,7 @@ g <- ggplot(all_data) +
     theme_bw() +
     ggtitle("Mapping Status of all conditions")
 
-ggsave("sam_map_stat_all.pdf", g, width = 8, height = 5)
+ggsave("sam_map_stat_all.pdf", g, width = 8, height = 10)
 
 g <- ggplot(all_data) +
     geom_bar(
@@ -67,4 +114,4 @@ g <- ggplot(all_data) +
     theme_bw() +
     ggtitle("Mapping Status of all conditions")
 
-ggsave("sam_map_stat_all_fill.pdf", g, width = 8, height = 5)
+ggsave("sam_map_stat_all_fill.pdf", g, width = 8, height = 10)
