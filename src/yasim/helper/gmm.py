@@ -1,13 +1,13 @@
 """Gaussian Mixture Model bu YUAN Ruihong"""
 import multiprocessing
 from random import choices
-from typing import Optional, Union, Iterable, Tuple
+from typing import Optional, Union, Iterable, Tuple, List
 
 import numpy as np
+import numpy.typing as npt
 import tqdm
 from joblib import Parallel, delayed
 from numpy.random import choice
-from numpy.typing import ArrayLike
 from scipy.integrate import quad
 from scipy.stats import norm
 
@@ -16,16 +16,16 @@ class GaussianMixture1D:
     _n_components: int
     _n_iter: int
     _precision: float
-    _weights: ArrayLike
-    _mu: ArrayLike
-    _sigma: ArrayLike
+    _weights: npt.NDArray
+    _mu: npt.NDArray
+    _sigma: npt.NDArray
 
     def __init__(
             self, n_components: int = 1,
             n_iter: int = 100,
-            init_weights: Optional[ArrayLike] = None,
-            init_mus: Optional[ArrayLike] = None,
-            init_sigmas: Optional[ArrayLike] = None,
+            init_weights: Optional[npt.ArrayLike] = None,
+            init_mus: Optional[npt.ArrayLike] = None,
+            init_sigmas: Optional[npt.ArrayLike] = None,
             precision: float = 1E-4,
     ) -> None:
         self._n_components = n_components
@@ -35,13 +35,13 @@ class GaussianMixture1D:
         self._mu = init_mus or np.zeros(n_components)
         self._sigma = init_sigmas or np.ones(n_components)
 
-    def fit(self, data: ArrayLike, show_progress_bar: bool = True):
-        N = len(data)
+    def fit(self, data: npt.ArrayLike, show_progress_bar: bool = True):
+        n = len(data)
 
         # Use k-means to cluster points
         centers = np.random.choice(data, size=self._n_components)
-        categories = np.repeat(0, N)
-        bags = [[]] * self._n_components
+        categories = np.repeat(0, n)
+        bags: List[List[Union[int, float]]] = [[]] * self._n_components
         knn_range = range(self._n_iter)
         if show_progress_bar:
             knn_range = tqdm.tqdm(iterable=knn_range, desc="KNN")
@@ -50,7 +50,7 @@ class GaussianMixture1D:
             for j in range(self._n_components):
                 bags[j] = []
 
-            for i in range(N):
+            for i in range(n):
                 x = data[i]
                 category = categories[i]
                 least_dist = abs(x - centers[category])
@@ -59,7 +59,7 @@ class GaussianMixture1D:
                     dist = abs(x - center)
                     if dist < least_dist:
                         converged = False
-                        category = j  # assign to nearest center
+                        category = j  # assign to the nearest center
                         least_dist = dist
                 categories[i] = category
                 bags[category].append(x)
@@ -81,14 +81,14 @@ class GaussianMixture1D:
             else:
                 self._sigma[j] = 0
                 self._weights[j] = 0
-        self._weights /= N
+        self._weights /= n
 
         last_ll = np.NINF
-        densities = np.zeros((self._n_components, N))
+        densities = np.zeros((self._n_components, n))
         em_range = range(self._n_iter)
         if show_progress_bar:
             em_range = tqdm.tqdm(iterable=em_range, desc="EM")
-        for epoch in em_range:
+        for _ in em_range:
             # E step: compute ownership weights
             for j in range(self._n_components):
                 model = norm(loc=self._mu[j], scale=self._sigma[j])
@@ -103,11 +103,11 @@ class GaussianMixture1D:
             self._mu = (gamma @ data) / denom
 
             for j in range(self._n_components):
-                for i in range(N):
+                for i in range(n):
                     gamma[j, i] *= (data[i] - self._mu[j]) ** 2
 
             self._sigma = np.sqrt(np.sum(gamma, axis=1) / denom)
-            self._weights = denom / N
+            self._weights = denom / n
 
             ll = self.log_likelihood(data)
             if 0 <= ll - last_ll < self._precision:
@@ -119,7 +119,7 @@ class GaussianMixture1D:
     def log_likelihood(self, data):
         return np.sum(self.logpdf(data))
 
-    def pdf(self, x: Union[int, float, ArrayLike]) -> float:
+    def pdf(self, x: Union[int, float, npt.ArrayLike]) -> float:
         if isinstance(x, (int, float)):
             result = 0.0
         else:
@@ -130,7 +130,7 @@ class GaussianMixture1D:
             result += self._weights[j] * model.pdf(x)
         return result
 
-    def logpdf(self, x: Union[int, float, ArrayLike]) -> float:
+    def logpdf(self, x: Union[int, float, npt.ArrayLike]) -> float:
         if isinstance(x, (int, float)):
             result = 0.0
         else:
@@ -154,8 +154,8 @@ class GaussianMixture1D:
 
         def f(x):
             result = 0.0
-            for j in range(self._n_components):
-                result += self._weights[j] * models[j].pdf(x)
+            for _j in range(self._n_components):
+                result += self._weights[_j] * models[_j].pdf(x)
             return result * x
 
         return quad(f, start, np.inf)[0]
@@ -163,7 +163,7 @@ class GaussianMixture1D:
     def mean(self) -> float:
         return np.average(self._mu, weights=self._weights)
 
-    def rvs(self, size: int = 1) -> ArrayLike:
+    def rvs(self, size: int = 1) -> npt.ArrayLike:
         indices = list(range(self._n_components))
 
         def _rvs():

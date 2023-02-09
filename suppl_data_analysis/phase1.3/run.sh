@@ -63,7 +63,7 @@ lastal -v \
 
 for fn in *.maf.gz; do
     echo "${fn}"
-    python analyse_last_maf.py "${fn}"
+    python -m yasim_scripts extract_quality_from_maf "${fn}"
 done
 python analyse_pbsim_log.py
 
