@@ -7,10 +7,10 @@ ONT,MinION,mouse,naive_rep3,Angeli_2022,cDNA,R9.4.1,Guppy 4.0.11,16.089168904583
 ONT,MinION,mouse,activate_rep1,Angeli_2022,cDNA,R9.4.1,Guppy 4.0.11,15.392017725030264
 ONT,MinION,mouse,activate_rep2,Angeli_2022,cDNA,R9.4.1,Guppy 4.0.11,16.29476855576876
 ONT,MinION,mouse,activate_rep3,Angeli_2022,cDNA,R9.4.1,Guppy 4.0.11,18.1554556899095
-ONT,PromethION,human,FINE2A,Liu_unpublished,NA,R9.4.1,Guppy 5.1.13,77.09120768759296
-ONT,PromethION,human,FINE2B,Liu_unpublished,NA,R9.4.1,Guppy 5.1.13,82.3605504765468
-ONT,PromethION,human,TesR7A,Liu_unpublished,NA,R9.4.1,Guppy 5.1.13,81.14626107106112
-ONT,PromethION,human,TesR7B,Liu_unpublished,NA,R9.4.1,Guppy 5.1.13,78.04878954323163
+ONT,PromethION,human,FINE2A,Liu_unpublished,cDNA,R9.4.1,Guppy 5.1.13,77.09120768759296
+ONT,PromethION,human,FINE2B,Liu_unpublished,cDNA,R9.4.1,Guppy 5.1.13,82.3605504765468
+ONT,PromethION,human,TesR7A,Liu_unpublished,cDNA,R9.4.1,Guppy 5.1.13,81.14626107106112
+ONT,PromethION,human,TesR7B,Liu_unpublished,cDNA,R9.4.1,Guppy 5.1.13,78.04878954323163
 ONT,MinION,worm,L1_larva,Li_etal_2020,dRNA,R9.4.1,Albacore 2.0.1,43.374188384024706
 ONT,MinION,worm,mix_stage,Li_etal_2020,dRNA,R9.4.1,Albacore 2.0.1,48.78254566341584
 ONT,MinION,worm,young_adult,Li_etal_2020,dRNA,R9.4.1,Albacore 2.0.1,64.46589712565067

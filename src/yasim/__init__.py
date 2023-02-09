@@ -9,8 +9,4 @@ __author__ = ",".join((
     "YU Zhejian"
 ))
 
-author_email = ",".join((
-    "Zhejian.19@intl.zju.edu.cn",
-))
-
 description = __doc__.splitlines()[1]
