@@ -58,6 +58,9 @@ dependencies:
   - r-pheatmap=1.0.12
   - r-base=4.2.2
 
+  # TGS utils
+  - pbccs=6.0.0
+
   - pip
   - setuptools
   - wheel

@@ -16,20 +16,20 @@ conditions <- fns %>%
 metadata <- readr::read_csv(
     "metadata.csv",
     col_types = c(
-        SequencerManufacturer=col_character(),
-        SequencerModel=col_character(),
-        Species=col_character(),
-        SampleName=col_character(),
-        Paper=col_character(),
-        Mode=col_character(),
-        Chemistry=col_character(),
-        Basecaller=col_character(),
-        Depth=col_double()
+        SequencerManufacturer = col_character(),
+        SequencerModel = col_character(),
+        Species = col_character(),
+        SampleName = col_character(),
+        Paper = col_character(),
+        Mode = col_character(),
+        Chemistry = col_character(),
+        Basecaller = col_character(),
+        Depth = col_double()
     ),
     comment = "#"
 )
 
-g <- metadata  %>%
+g <- metadata %>%
     dplyr::mutate(Paper = factor(
         Paper,
         level = sort(unique(.$Paper))
@@ -46,7 +46,7 @@ g <- metadata  %>%
             y = SampleName,
             fill = Paper
         ),
-        stat="identity"
+        stat = "identity"
     ) +
     theme_ridges() +
     ggtitle("Sequencing Depth of all conditions")
@@ -54,7 +54,7 @@ g <- metadata  %>%
 ggsave("sam_depth_all.pdf", g, width = 10, height = 8)
 
 for (i in seq_along(conditions)) {
-    message(sprintf("Reading %s --  %d/%d",fns[i], i, length(conditions)))
+    message(sprintf("Reading %s --  %d/%d", fns[i], i, length(conditions)))
     this_data <- readr::read_tsv(
         file.path(fns[i], "read_stat.tsv"),
         col_types = c(
@@ -76,7 +76,7 @@ for (i in seq_along(conditions)) {
         )
     if (is.null(all_data)) {
         all_data <- this_data
-    } else{
+    } else {
         all_data <- all_data %>%
             dplyr::rows_append(this_data)
     }
@@ -87,7 +87,10 @@ all_data <- all_data %>%
 
 arrow::write_parquet(all_data, "all_sam_data.parquet")
 
-g <- ggplot(all_data) +
+all_data_sampled <- all_data %>%
+    dplyr::sample_frac(0.01)
+
+g <- ggplot(all_data_sampled) +
     geom_bar(
         aes(
             y = Condition,
@@ -101,7 +104,7 @@ g <- ggplot(all_data) +
 
 ggsave("sam_map_stat_all.pdf", g, width = 8, height = 10)
 
-g <- ggplot(all_data) +
+g <- ggplot(all_data_sampled) +
     geom_bar(
         aes(
             y = Condition,
@@ -115,3 +118,14 @@ g <- ggplot(all_data) +
     ggtitle("Mapping Status of all conditions")
 
 ggsave("sam_map_stat_all_fill.pdf", g, width = 8, height = 10)
+
+all_data_sampled_primiary <- all_data_sampled %>%
+    dplyr::filter(MAP_STAT == "primiary")
+
+g <- ggplot(all_data_sampled_primiary) +
+    geom_hex(aes(x = QUERY_LENGTH, y = REFERENCE_LENGTH)) +
+    theme_bw() +
+    scale_fill_continuous(trans = "log10") +
+    facet_wrap(. ~ Condition)
+ggsave("sam_query_reference_relation.pdf", g, width = 10, height = 8)
+
