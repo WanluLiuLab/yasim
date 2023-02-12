@@ -68,11 +68,9 @@ extensions = [
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',
-    'sphinx_copybutton',
-    'sphinxcontrib.bibtex'
+    'sphinx_copybutton'
 ]
 myst_enable_extensions = ["deflist", "dollarmath"]
-bibtex_bibfiles = ['refs.bib']
 exclude_patterns = [
     '_build',
     'Thumbs.db',

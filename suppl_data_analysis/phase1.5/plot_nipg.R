@@ -13,13 +13,15 @@ conditions <- fns %>%
 fns <- c(
     fns,
     "ce11.ncbiRefSeq.chr1.gtf.gene.tsv",
-    "ce11.ncbiRefSeq_as.chr1.gtf.gene.tsv"
+    "ce11.ncbiRefSeq_as.chr1.gtf.gene.tsv",
+    "stringtie_merged.gtf.gene.tsv"
 )
 
 conditions <- c(
     conditions,
     "GROUND TRUTH",
-    "REFERENCE"
+    "REFERENCE",
+    "STRINGTIE_MERGED"
 )
 
 #' All NIpG Data

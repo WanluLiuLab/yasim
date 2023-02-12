@@ -25,9 +25,7 @@ python -m yasim transcribe \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.gtf \
     -o ce11_trans.chr1.fa
-python -m labw_utils.bioutils get_gtf_statistics \
-    -g ce11.ncbiRefSeq.chr1.gtf \
-    -o ce11.ncbiRefSeq.chr1.gtf
+python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.chr1.gtf \
 python -m yasim generate_as_events \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.gtf \
@@ -36,9 +34,7 @@ python -m yasim transcribe \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq_as.chr1.gtf \
     -o ce11_trans_as.chr1.fa
-python -m labw_utils.bioutils get_gtf_statistics \
-    -g ce11.ncbiRefSeq_as.chr1.gtf \
-    -o ce11.ncbiRefSeq_as.chr1.gtf
+python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq_as.chr1.gtf
 
 for dge in dge1 dge2; do
     python -m yasim generate_gene_depth \
@@ -159,10 +155,24 @@ find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
         -o "${fn}".stringtie.gtf \
         -p 40 \
         "${fn}"
-    python -m labw_utils.bioutils get_gtf_statistics \
-    -g "${fn}".stringtie.gtf \
-    -o "${fn}".stringtie.gtf
+    python -m labw_utils.bioutils get_gtf_statistics "${fn}".stringtie.gtf
 done
+
+find ./*.stringtie.gtf > stringtie-mergelist.txt
+stringtie --merge -G ce11.ncbiRefSeq.chr1.gtf -p 40 -o stringtie_merged.gtf stringtie-mergelist.txt
+
+find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
+    featureCounts -L -O \
+        -a stringtie_merged.gtf \
+        -g transcript_id \
+        -o "${fn}".fc_stringtie.tsv \
+        "${fn}"
+    featureCounts -L -O \
+        -a stringtie_merged.gtf \
+        -g gene_id \
+        -o "${fn}".fc_stringtie.gene.tsv \
+        "${fn}"
+done 
 
 find . | grep .fq.gz.bam$ | grep trans | while read -r fn; do
     printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
