@@ -2,69 +2,125 @@
 library(IsoformSwitchAnalyzeR)
 library(tidyverse)
 
-sg1 <- read.table("ce11_pbsim2_P4C2_diu1.fq.bam.fc.txt", sep = "\t", header = T)
-sg1 <- sg1[, c(1, 7)]
-sg2 <- read.table("ce11_pbsim2_P4C2_diu2.fq.bam.fc.txt", sep = "\t", header = T)
-sg2 <- sg2[, c(1, 7)]
-#sg3<-read.table("na_rep3Aligned.out.sam.bam.txt",sep = "\t",header = T)
-#sg3<-sg3[,c(1,7)]
-w1 <- read.table("ce11_pbsim3_ONT_diu1.fq.bam.fc.txt", sep = "\t", header = T)
-w1 <- w1[, c(1, 7)]
-w2 <- read.table("ce11_pbsim3_ONT_diu2.fq.bam.fc.txt", sep = "\t", header = T)
-w2 <- w2[, c(1, 7)]
-#w3<-read.table("pr_rep3Aligned.out.sam.bam.txt",sep = "\t",header = T)
-#w3<-w3[,c(1,7)]
-merge <- dplyr::full_join(sg1, sg2, by = "Geneid")
-#merge<-dplyr::full_join(merge,sg3,by="Geneid")
-merge <- dplyr::full_join(merge, w1, by = "Geneid")
-merge <- dplyr::full_join(merge, w2, by = "Geneid")
-#merge<-dplyr::full_join(merge,w3,by="Geneid")
-colnames(merge) <- c("isoform_id", "P4C2_1", "P4C2_2", "ONT_1", "ONT_2")
-merge <- replace(merge, is.na(merge), 0)
-#write.csv(merge,"./Mix_DIU_merge.csv")
-sampleID <- c("P4C2_1", "P4C2_2", "ONT_1", "ONT_2")
-condition <- c("P4C2", "P4C2", "ONT", "ONT")
-designMatrix <- cbind(data.frame(sampleID), data.frame(condition))
+all_fc_data_isoform_level <- NULL
+experiment_design <- NULL
+fns <- Sys.glob("ce11_*.fq.gz.bam.fc_stringtie.tsv")
+conditions <- fns %>%
+    stringr::str_replace(".fq.gz.bam.fc_stringtie.tsv", "") %>%
+    stringr::str_replace("ce11_", "")
+
+for (i in seq_along(fns)) {
+    fc_data_fn <- fns[i]
+    condition <- conditions[i]
+    this_fc_data <- readr::read_tsv(
+        fc_data_fn,
+        col_types = cols(
+            TRANSCRIPT_ID = col_character(),
+            Chr = col_character(),
+            Start = col_character(),
+            End = col_character(),
+            Strand = col_character(),
+            Length = col_integer(),
+            NumReads = col_integer(),
+        ),
+        col_names = c(
+            "TRANSCRIPT_ID",
+            "Chr",
+            "Start",
+            "End",
+            "Strand",
+            "Length",
+            "NumReads"
+        ),
+        comment = "#"
+    ) %>%
+        dplyr::select(TRANSCRIPT_ID, NumReads) %>%
+        tidyr::drop_na()
+    this_fc_data_isoform_level <- this_fc_data %>%
+        dplyr::transmute(
+            TRANSCRIPT_ID = TRANSCRIPT_ID,
+            !!rlang::sym(condition) := NumReads
+        )
+    if (is.null(all_fc_data_isoform_level)) {
+        all_fc_data_isoform_level <- this_fc_data_isoform_level %>%
+            dplyr::select(TRANSCRIPT_ID)
+    }
+    all_fc_data_isoform_level <- all_fc_data_isoform_level %>%
+        dplyr::inner_join(this_fc_data_isoform_level, by = "TRANSCRIPT_ID")
+
+    condition_break <- strsplit(condition, "_")
+    this_experiment_design <- data.frame(
+        SIMULATOR = condition_break[[1]][1],
+        MODE = condition_break[[1]][2],
+        DGEID = condition_break[[1]][3],
+        DIUID = condition_break[[1]][4],
+        REPID = condition_break[[1]][5],
+        condition = condition
+    )
+    if (is.null(experiment_design)) {
+        experiment_design <- this_experiment_design
+    } else {
+        experiment_design <- experiment_design %>%
+            dplyr::rows_append(
+                this_experiment_design
+            )
+    }
+    message(sprintf("Processing %d/%d", i, length(fns)))
+    rm(
+        condition,
+        condition_break,
+        this_fc_data,
+        this_fc_data_isoform_level,
+        fc_data_fn,
+        this_experiment_design,
+        i
+    )
+    gc()
+}
+
+arrow::write_parquet(all_fc_data_isoform_level, "diu_fc_data.parquet")
+
+isar_design_matrix <- experiment_design %>%
+    dplyr::filter(SIMULATOR=="pbsim3") %>%
+    dplyr::filter(DIUID=="diu1") %>%
+    dplyr::filter(REPID=="0") %>%
+    dplyr::transmute(sampleID=condition, condition=DGEID)
+isar_count_matrix <- all_fc_data_isoform_level %>%
+    dplyr::select(tidyselect::contains("pbsim3")) %>%
+    dplyr::select(tidyselect::contains("diu1")) %>%
+    dplyr::select(tidyselect::ends_with("0")) %>%
+    dplyr::mutate(isoform_id=all_fc_data_isoform_level$TRANSCRIPT_ID) %>%
+    dplyr::relocate(isoform_id, .before = tidyselect::where(is.numeric))
 
 ### Create switchAnalyzeRlist
-aSwitchList <- importRdata(
-    isoformNtFasta = "stringtie_P4C2_pbsim3ONT.fa",
-    showProgress = FALSE,
-    isoformCountMatrix = merge,
-    designMatrix = designMatrix,
-    isoformExonAnnoation = "merge_P4C2_pbsim3ONT.gtf",
+aSwitchList <- IsoformSwitchAnalyzeR::importRdata(
+    isoformNtFasta = "ce11_trans_stringtie.fa",
+    showProgress = TRUE,
+    isoformCountMatrix = isar_count_matrix,
+    designMatrix = isar_design_matrix,
+    isoformExonAnnoation = "stringtie_merged.gtf",
     ignoreAfterPeriod = FALSE #if using the reference gtf, then this should set TRUE.
 )
 
-
-#SwitchListFiltered <- preFilter(
-# switchAnalyzeRlist = aSwitchList,
-#geneExpressionCutoff = 5,
-#isoformExpressionCutoff = 5,
-#removeSingleIsoformGenes = TRUE)
-
-SwitchListAnalyzed <- isoformSwitchTestDEXSeq(
+SwitchListAnalyzed <- IsoformSwitchAnalyzeR::isoformSwitchTestDEXSeq(
     switchAnalyzeRlist = aSwitchList,
     reduceToSwitchingGenes = TRUE,
     reduceFurtherToGenesWithConsequencePotential = FALSE,
     alpha = 0.05,
     dIFcutoff = 0.1,
     onlySigIsoforms = FALSE
-)
+) %>%
+    IsoformSwitchAnalyzeR::analyzeORF(showProgress = TRUE) %>%
+    IsoformSwitchAnalyzeR::extractSequence() %>%
+    IsoformSwitchAnalyzeR::analyzeAlternativeSplicing(showProgress = TRUE, onlySwitchingGenes = FALSE)
 
-switchListO <- analyzeORF(SwitchListAnalyzed,
-                          showProgress = FALSE)
-switchListS <- extractSequence(switchListO,
-)
-switchListsR <- analyzeAlternativeSplicing(switchListS, quiet = TRUE, onlySwitchingGenes = FALSE)
-consequencesOfInterest <- c('intron_retention', 'NMD_status', 'ORF_seq_similarity')
 
 exampleSwitchListAnalyzed <- analyzeSwitchConsequences(
-    switchListsR,
-    consequencesToAnalyze = consequencesOfInterest,
+    SwitchListAnalyzed,
+    consequencesToAnalyze = c('intron_retention', 'NMD_status', 'ORF_seq_similarity'),
     dIFcutoff = 0.1,
     alpha = 0.05,
-    showProgress = FALSE
+    showProgress = TRUE
 )
 
 ##Obtain all switching genes

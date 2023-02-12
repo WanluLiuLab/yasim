@@ -172,7 +172,8 @@ find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
         -g gene_id \
         -o "${fn}".fc_stringtie.gene.tsv \
         "${fn}"
-done 
+done
+python -m labw_utils.bioutils transcribe -g stringtie_merged.gtf -f ce11.chr1.fa -o ce11_trans_stringtie.fa
 
 find . | grep .fq.gz.bam$ | grep trans | while read -r fn; do
     printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
