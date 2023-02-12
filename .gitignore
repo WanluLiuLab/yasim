@@ -435,3 +435,5 @@ lastdb/
 mount.sh
 *.ngm
 *.pbi
+*.tar
+*.txt

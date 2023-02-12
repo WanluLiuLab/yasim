@@ -150,6 +150,16 @@ find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
         -g gene_id \
         -o "${fn}".fc.gene.tsv \
         "${fn}"
+    featureCounts -L -O \
+        -a ce11.ncbiRefSeq_as.chr1.gtf \
+        -g transcript_id \
+        -o "${fn}".fc_gt.tsv \
+        "${fn}"
+    featureCounts -L -O \
+        -a ce11.ncbiRefSeq_as.chr1.gtf \
+        -g gene_id \
+        -o "${fn}".fc_gt.gene.tsv \
+        "${fn}"
     stringtie -L \
         -G ce11.ncbiRefSeq.chr1.gtf \
         -o "${fn}".stringtie.gtf \
@@ -160,6 +170,7 @@ done
 
 find ./*.stringtie.gtf > stringtie-mergelist.txt
 stringtie --merge -G ce11.ncbiRefSeq.chr1.gtf -p 40 -o stringtie_merged.gtf stringtie-mergelist.txt
+python -m labw_utils.bioutils transcribe -g stringtie_merged.gtf -f ce11.chr1.fa -o ce11_trans_stringtie.fa
 
 find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
     featureCounts -L -O \
@@ -173,7 +184,6 @@ find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
         -o "${fn}".fc_stringtie.gene.tsv \
         "${fn}"
 done
-python -m labw_utils.bioutils transcribe -g stringtie_merged.gtf -f ce11.chr1.fa -o ce11_trans_stringtie.fa
 
 find . | grep .fq.gz.bam$ | grep trans | while read -r fn; do
     printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
