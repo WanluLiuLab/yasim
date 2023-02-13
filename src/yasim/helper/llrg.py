@@ -47,12 +47,12 @@ def remark_fastq_single_end(
     """
     num_of_reads = 0
     for fastq_record in FastqIterator(input_filename, show_tqdm=False):
-        sequence, quality = fastq_record.sequence
+        sequence, quality = fastq_record.sequence, fastq_record.quality
         seq_len = len(sequence)
         truncate_len_3p = int(seq_len * truncate_ratio_3p)
         truncate_len_5p = int(seq_len * truncate_ratio_5p)
-        sequence = sequence[truncate_len_3p:-truncate_len_5p]
-        quality = quality[truncate_len_3p:-truncate_len_5p]
+        sequence = sequence[truncate_len_3p:seq_len - truncate_len_5p]
+        quality = quality[truncate_len_3p:seq_len - truncate_len_5p]
         new_record = FastqRecord(
             seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}",
             sequence=sequence,
