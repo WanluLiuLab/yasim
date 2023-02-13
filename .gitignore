@@ -437,3 +437,4 @@ mount.sh
 *.pbi
 *.tar
 *.txt
+*.d
