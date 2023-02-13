@@ -16,13 +16,12 @@ conditions <- c(
     conditions
 )
 
-if (file.exists("all_nipg_data_binned.parquet")){
+if (file.exists("all_nipg_data_binned.parquet")) {
     all_nipg_data_binned <- arrow::read_parquet("all_nipg_data_binned.parquet")
-} else{
-    #' All NIpG Data
+} else {
     all_nipg_data <- list()
 
-    #' Read data
+        #' Read data
     for (i in seq_along(conditions)) {
         all_nipg_data[[conditions[i]]] <-
             readr::read_tsv(
@@ -75,14 +74,14 @@ pheatmap(
 )
 
 all_nipg_data_binned_long <- all_nipg_data_binned %>%
-    tidyr::gather(key="Condition", value="Count", -x)
+    tidyr::gather(key = "Condition", value = "Count", -x)
 
 g <- ggplot(all_nipg_data_binned_long) +
-    geom_bar(aes(x=x, y=Count), stat="identity") +
-    scale_y_continuous(trans="log10") +
+    geom_bar(aes(x = x, y = Count), stat = "identity") +
+    scale_y_continuous(trans = "log10") +
     theme_bw() +
-    facet_wrap(.~Condition)
-ggsave("nipg_hist.pdf", g, width=8, height=5)
+    facet_wrap(. ~ Condition)
+ggsave("nipg_hist.pdf", g, width = 8, height = 5)
 
 #' Count number of genes and transcripts in each sample
 
@@ -102,31 +101,31 @@ conditions <- c(
 )
 
 
-if (file.exists("all_nipg_ngenes_nisoforms.parquet")){
+if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     all_nipg_ngenes_nisoforms <- arrow::read_parquet("all_nipg_ngenes_nisoforms.parquet")
-} else{
-    #' All NIpG Data
+} else {
+        #' All NIpG Data
     all_data <- NULL
 
-    #' Read data
+        #' Read data
     for (i in seq_along(conditions)) {
         this_data <- readr::read_tsv(
-                fns[i],
-                show_col_types = FALSE,
-                col_types = c(
-                    TRANSCRIPT_ID = col_character(),
-                    GENE_ID = col_character(),
-                    TRANSCRIPT_NUMBER = col_integer(),
-                    NAIVE_LENGTH = col_integer(),
-                    TRANSCRIBED_LENGTH = col_integer(),
-                    EXON_NUMBER = col_integer()
-                )
-            ) %>%
-                dplyr::select(TRANSCRIPT_ID, GENE_ID) %>%
-                dplyr::mutate(Condition=conditions[i])
-        if (is.null(all_data)){
+            fns[i],
+            show_col_types = FALSE,
+            col_types = c(
+                TRANSCRIPT_ID = col_character(),
+                GENE_ID = col_character(),
+                TRANSCRIPT_NUMBER = col_integer(),
+                NAIVE_LENGTH = col_integer(),
+                TRANSCRIBED_LENGTH = col_integer(),
+                EXON_NUMBER = col_integer()
+            )
+        ) %>%
+            dplyr::select(TRANSCRIPT_ID, GENE_ID) %>%
+            dplyr::mutate(Condition = conditions[i])
+        if (is.null(all_data)) {
             all_data <- this_data
-        } else{
+        } else {
             all_data <- all_data %>%
                 dplyr::rows_append(this_data)
         }
@@ -134,9 +133,9 @@ if (file.exists("all_nipg_ngenes_nisoforms.parquet")){
     all_nipg_ngenes_nisoforms <- all_data %>%
         dplyr::group_by(Condition) %>%
         dplyr::transmute(
-            nGenes=length(unique(GENE_ID)),
-            nIsoforms=length(unique(TRANSCRIPT_ID)),
-            Condition=Condition
+            nGenes = length(unique(GENE_ID)),
+            nIsoforms = length(unique(TRANSCRIPT_ID)),
+            Condition = Condition
         ) %>%
         dplyr::distinct()
 
@@ -144,13 +143,13 @@ if (file.exists("all_nipg_ngenes_nisoforms.parquet")){
 }
 
 g <- ggplot(all_nipg_ngenes_nisoforms) +
-    geom_bar(aes(y=Condition, x=nGenes), stat="identity") +
+    geom_bar(aes(y = Condition, x = nGenes), stat = "identity") +
     theme_bw()
 
-ggsave("nipg_ngenes.pdf", g, width=8, height=5)
+ggsave("nipg_ngenes.pdf", g, width = 8, height = 5)
 
 g <- ggplot(all_nipg_ngenes_nisoforms) +
-    geom_bar(aes(y=Condition, x=nIsoforms), stat="identity") +
+    geom_bar(aes(y = Condition, x = nIsoforms), stat = "identity") +
     theme_bw()
 
-ggsave("nipg_nisoforms.pdf", g, width=8, height=5)
+ggsave("nipg_nisoforms.pdf", g, width = 8, height = 5)

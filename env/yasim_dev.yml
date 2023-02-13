@@ -60,6 +60,7 @@ dependencies:
   - r-scales=1.2.1
   - r-pheatmap=1.0.12
   - r-base=4.2.2
+  - r-rlanguageserver
 
   # TGS utils
   - pbccs=6.0.0
