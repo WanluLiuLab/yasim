@@ -7,7 +7,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, assemble_single_end, \
+from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
     patch_frontend_parser, \
     enhanced_which, AssembleSingleEnd, generate_callback
 from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
