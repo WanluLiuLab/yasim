@@ -83,7 +83,7 @@ function perform_pbsim2_simulation() {
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
-        -m "${pbsim2_mode}" \
+        -m "${2}" \
         -F ../ce11_trans_2.fa.d \
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
