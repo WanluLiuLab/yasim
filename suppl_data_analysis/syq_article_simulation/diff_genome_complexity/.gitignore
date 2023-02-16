@@ -1,6 +1,4 @@
-bin/
-src/
-*tmp*
+*
 !.gitignore
 !run.sh
 !*.R

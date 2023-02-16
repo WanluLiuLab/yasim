@@ -180,8 +180,11 @@ class AssembleSingleEnd(threading.Thread):
                     this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                     this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
                     this_fastq_path = this_fastq_basename + ".fq"
-                    if not file_system.file_exists(this_fastq_path) or not file_system.file_exists(this_fasta_path):
-                        _lh.error(f"Skipped error transcript: %s", transcript_id)
+                    if not file_system.file_exists(this_fastq_path):
+                        _lh.warning(f"Skipped non-expressing transcript: %s (FASTQ not exist)", transcript_id)
+                        continue
+                    if not file_system.file_exists(this_fasta_path):
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTA not exist)", transcript_id)
                         continue
                     try:
                         transcribed_length = FastaViewFactory(
@@ -190,7 +193,7 @@ class AssembleSingleEnd(threading.Thread):
                             show_tqdm=False
                         ).get_chr_length(transcript_id)
                     except KeyError:
-                        _lh.error(f"Skipped error transcript: %s", transcript_id)
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
                         continue
                     transcript_depth = self._depth[transcript_id]
                     num_of_reads, num_of_bases = remark_fastq_single_end(
@@ -210,6 +213,7 @@ class AssembleSingleEnd(threading.Thread):
                         str(transcribed_length),  # "TRANSCRIBED_LENGTH",
                         str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
                     )) + "\n")
+                    stats_writer.flush()
                 time.sleep(0.01)
 
     def add_transcript_id(self, transcript_id: str):
@@ -218,8 +222,10 @@ class AssembleSingleEnd(threading.Thread):
     def terminate(self):
         self._should_stop = True
 
+
 def generate_callback(assembler: AssembleSingleEnd, transcript_id: str):
     return lambda _: assembler.add_transcript_id(transcript_id)
+
 
 def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('-F', '--fastas', required=True,

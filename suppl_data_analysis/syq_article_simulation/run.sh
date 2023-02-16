@@ -17,13 +17,13 @@ function generate_as_events(){
         -g ce11_as_"${1}".gtf.gz \
         -f ce11.fa.gz \
         -o ce11_trans_"${1}".fa
-    xz -9 -T0 ce11_as_"${1}".gtf.gz.*.tsv -vv
+    xz -9 -vv ce11_as_"${1}".gtf.gz.*.tsv
 }
 
-
 for gene_complexity_level in 1 2 3 5 7 9; do
-    generate_as_events "${gene_complexity_level}"
+    generate_as_events "${gene_complexity_level}" &
 done
+wait
 
 # Install LLRGs
 
@@ -55,7 +55,10 @@ cd diff_accuracy || exit 1
 bash run.sh
 cd .. || exit 1
 
-
+# Genome Complexity
+cd diff_genome_complexity || exit 1
+bash run.sh
+cd .. || exit 1
 
 
 
@@ -65,6 +68,5 @@ done
 
 # NIpG
 # RLEN
-# ERROR RATE
 # RC
 

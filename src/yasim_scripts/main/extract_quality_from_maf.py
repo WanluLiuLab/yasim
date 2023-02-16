@@ -52,6 +52,6 @@ def main(args: List[str]):
                 else:
                     this_cigar = "S"
                 all_qual[this_cigar] += 1
-        retl = [sys.argv[1]]
+        retl = [arg]
         retl.extend(map(str, all_qual.values()))
         print("\t".join(retl))
