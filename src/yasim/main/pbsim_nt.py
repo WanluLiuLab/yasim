@@ -19,6 +19,10 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     return parser.parse_known_args(args)
 
 
+def generate_callback(assembler: AssembleSingleEnd, transcript_id: str):
+    return lambda _: assembler.add_transcript_id(transcript_id)
+
+
 def simulate(
         transcriptome_fasta_dir: str,
         output_fastq_prefix: str,
@@ -37,7 +41,8 @@ def simulate(
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs",
-        pool_size=jobs
+        pool_size=jobs,
+        refresh_interval=0
     )
     depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
     assembler = AssembleSingleEnd(
@@ -60,11 +65,7 @@ def simulate(
             is_ccs=is_ccs,
             other_args=other_args
         )
-
-        def this_callback(_: pbsim.PbsimAdapter):
-            assembler.add_transcript_id(transcript_id)
-
-        simulating_pool.append(sim_thread, callback=this_callback)
+        simulating_pool.append(sim_thread, callback=generate_callback(assembler, transcript_id))
     simulating_pool.start()
     simulating_pool.join()
     assembler.terminate()
