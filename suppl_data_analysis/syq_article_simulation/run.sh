@@ -20,55 +20,12 @@ function generate_as_events(){
     xz -9 -T0 ce11_as_"${1}".gtf.gz.*.tsv -vv
 }
 
-function perform_simulation(){
-    python -m yasim pbsim3 \
-        -e ../bin/pbsim3 \
-        -m RSII \
-        -M qshmm \
-        -F ../ce11_trans_2.fa.d \
-        -d "${1}".tsv.xz \
-        -o "${2}"_pbsim3_RSII_CLR \
-        -j 40
-    python -m yasim pbsim3 \
-        -e ../bin/pbsim3 \
-        -m RSII \
-        -M qshmm \
-        -F ../ce11_trans_2.fa.d \
-        --ccs_pass 10 \
-        -d "${1}".tsv.xz \
-        -o "${2}"_pbsim3_RSII_CCS \
-        -j 40
-    python -m yasim pbsim3 \
-        -e ../bin/pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -F ../ce11_trans_2.fa.d \
-        -d "${1}".tsv.xz \
-        -o "${2}"_pbsim3_SEQUEL_CLR \
-        -j 40
-    python -m yasim pbsim3 \
-        -e ../bin/pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -F ../ce11_trans_2.fa.d \
-        --ccs_pass 10 \
-        -d "${1}".tsv.xz \
-        -o "${2}"_pbsim3_SEQUEL_CCS \
-        -j 40
-    for pbsim2_mode in R94 R103; do
-        python -m yasim pbsim2 \
-            -e ../bin/pbsim2 \
-            -m "${pbsim2_mode}" \
-            -F ../ce11_trans_2.fa.d \
-            -d "${1}".tsv.xz \
-            -o "${2}"_pbsim2_"${pbsim2_mode}" \
-            -j 40
-    done
-}
 
 for gene_complexity_level in 1 2 3 5 7 9; do
     generate_as_events "${gene_complexity_level}"
 done
+
+# Install LLRGs
 
 mkdir -p src bin
 cd src || exit 1
@@ -89,28 +46,18 @@ cd .. || exit 1
 cd .. || exit 1
 
 # Read depth
-mkdir -p diff_read_depth
 cd diff_read_depth || exit 1
-
-for mean_depth in 10 25 40 55 70 85 100; do
-    python -m yasim generate_gene_depth \
-        -g ../ce11_as_2.gtf.gz \
-        -o ce11_as_2_gene_depth_"${mean_depth}".tsv.xz \
-        -d "${mean_depth}"
-    python -m yasim generate_isoform_depth \
-        -g ../ce11_as_2.gtf.gz \
-        -d ce11_as_2_gene_depth_"${mean_depth}".tsv.xz \
-        -o ce11_as_2_isoform_depth_"${mean_depth}".tsv.xz
-    perform_simulation ce11_as_2_isoform_depth_"${mean_depth}" ce11_as_2_isoform_depth_"${mean_depth}" &
-done
-wait
-
-
+bash run.sh
 cd .. || exit 1
 
-for accuracy in 0.6 0.7 0.8 0.9 1.0; do
-    pass
-done
+# Read accuracy
+cd diff_accuracy || exit 1
+bash run.sh
+cd .. || exit 1
+
+
+
+
 
 for five_prime_break in ; do
     pass

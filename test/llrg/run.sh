@@ -16,7 +16,8 @@ python -m yasim pbsim3 \
     -F chrM.trans.fa.d \
     -d depth.tsv \
     -o pbsim3_RSII_CLR \
-    -j 40
+    -j 40 \
+    --accuracy-mean 0.4
 python -m yasim pbsim3 \
     -e /mnt/volume2/TGS/phase_2_simulation/yasim-dev/suppl_data_analysis/syq_article_simulation/bin/pbsim3 \
     -m RSII \
