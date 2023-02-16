@@ -12,7 +12,7 @@ LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
     -o ce11_as_2_isoform_depth_20.tsv.xz
 
 function perform_housekeeping() {
-    cat "${1}".d/*.maf | gzip -9 >"${1}".maf
+    cat "${1}".d/*/*.maf | gzip -9 >"${1}".maf.gz
     gzip -9 "${1}".fq
     rm -rf "${1}".d
 }

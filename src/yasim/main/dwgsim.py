@@ -1,14 +1,13 @@
 import argparse
 import multiprocessing
 import os.path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_pair_end
+from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, assemble_pair_end
 from yasim.llrg_adapter import dwgsim
 
 logger = get_logger(__name__)
@@ -38,15 +37,18 @@ def simulate(
         exename: str,
         depth: DepthType,
         jobs: int,
+        simulator_name: Optional[str],
         other_args: List[str]
 ):
+    if simulator_name is None:
+        simulator_name = "dwgsim"
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs",
         pool_size=jobs
     )
-    depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir, depth))
+    depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(intermediate_fasta_dir, depth))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         if transcript_depth == 0:
             continue
@@ -60,17 +62,17 @@ def simulate(
         simulating_pool.append(sim_thread)
     simulating_pool.start()
     simulating_pool.join()
-    assemble_pair_end(depth, output_fastq_prefix, simulator_name="dwgsim")
+    assemble_pair_end(depth, output_fastq_prefix, simulator_name=simulator_name)
 
 
 def main(args: List[str]):
     args, other_args = _parse_args(args)
-    depth = read_depth(args.depth)
     simulate(
         intermediate_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,
         exename=args.exename,
-        depth=depth,
+        depth=read_depth(args.depth),
         jobs=args.jobs,
+        simulator_name=args.simulator_name,
         other_args=other_args
     )

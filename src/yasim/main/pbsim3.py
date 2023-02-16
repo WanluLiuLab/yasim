@@ -1,14 +1,14 @@
 import argparse
 import glob
 import os.path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import get_depth_from_intermediate_fasta, assemble_single_end, patch_frontend_parser, \
+from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, assemble_single_end, \
+    patch_frontend_parser, \
     enhanced_which
 from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
 
@@ -90,7 +90,7 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
 
 
 def simulate(
-        intermediate_fasta_dir: str,
+        transcriptome_fasta_dir: str,
         output_fastq_prefix: str,
         hmm_model: str,
         exename: str,
@@ -102,15 +102,18 @@ def simulate(
         samtools_path: str,
         ccs_path: str,
         ccs_pass: int,
+        simulator_name: Optional[str],
         other_args: List[str]
 ):
+    if simulator_name is None:
+        simulator_name = "_".join(("pbsim3", hmm_model, "ccs" if ccs_pass > 1 else "clr"))
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = parallel_helper.ParallelJobExecutor(
         pool_name="Simulating jobs",
         pool_size=jobs
     )
-    depth_info = list(get_depth_from_intermediate_fasta(intermediate_fasta_dir, depth))
+    depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         if transcript_depth == 0:
             continue
@@ -133,15 +136,15 @@ def simulate(
     assemble_single_end(
         depth=depth,
         output_fastq_prefix=output_fastq_prefix,
-        simulator_name=f"pbsim3_{hmm_model}",
+        simulator_name=simulator_name,
         truncate_ratio_3p=truncate_ratio_3p,
-        truncate_ratio_5p=truncate_ratio_5p
+        truncate_ratio_5p=truncate_ratio_5p,
+        input_transcriptome_fasta_dir=transcriptome_fasta_dir
     )
 
 
 def main(args: List[str]):
     args, other_args = _parse_args(args)
-    depth = read_depth(args.depth)
     if args.ccs_pass > 1:
         samtools_path = enhanced_which(args.samtools_path)
         ccs_path = enhanced_which(args.ccs_path)
@@ -149,17 +152,17 @@ def main(args: List[str]):
         samtools_path = ""
         ccs_path = ""
     simulate(
-        intermediate_fasta_dir=args.fastas,
+        transcriptome_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,
         hmm_model=args.hmm_model,
         exename=enhanced_which(args.exename),
-        depth=depth,
+        depth=read_depth(args.depth),
         jobs=args.jobs,
         truncate_ratio_3p=args.truncate_ratio_3p,
         truncate_ratio_5p=args.truncate_ratio_5p,
         hmm_method=args.hmm_method,
         samtools_path=samtools_path,
-        ccs_path=ccs_path,
-        ccs_pass=args.ccs_pass,
+        ccs_path=ccs_path, ccs_pass=args.ccs_pass,
+        simulator_name=args.simulator_name,
         other_args=other_args
     )

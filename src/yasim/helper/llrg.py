@@ -5,12 +5,13 @@ import shutil
 import stat
 from typing import Iterable, Tuple
 
+from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
 from labw_utils.bioutils.record.fastq import FastqRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
-
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType
 
 DepthInfoType = Iterable[Tuple[int, str, str]]
@@ -20,16 +21,18 @@ Depth information used by LLRG frontend interfaces.
 They are: [depth, transcript_id, filename]
 """
 
+_lh = get_logger(__name__)
 
-def get_depth_from_intermediate_fasta(
-        intermediate_fasta_dir: str,
+
+def pair_depth_info_with_transcriptome_fasta_filename(
+        input_transcriptome_fasta_dir: str,
         depth: DepthType
 ) -> DepthInfoType:
     """
     Glob and parse a filename line ``base_dir/1/transcript_id.fasta``.
     """
     for transcript_id, transcript_depth in depth.items():
-        filename = os.path.join(intermediate_fasta_dir, transcript_id + ".fa")
+        filename = os.path.join(input_transcriptome_fasta_dir, transcript_id + ".fa")
         yield transcript_depth, transcript_id, filename
 
 
@@ -41,11 +44,12 @@ def remark_fastq_single_end(
         simulator_name: str,
         truncate_ratio_3p: float,
         truncate_ratio_5p: float
-) -> int:
+) -> Tuple[int, int]:
     """
     Re-mark all seq_id in FASTQ files.
     """
     num_of_reads = 0
+    num_of_bases = 0
     for fastq_record in FastqIterator(input_filename, show_tqdm=False):
         sequence, quality = fastq_record.sequence, fastq_record.quality
         seq_len = len(sequence)
@@ -60,7 +64,8 @@ def remark_fastq_single_end(
         )
         writer.write(new_record)
         num_of_reads += 1
-    return num_of_reads
+        num_of_bases += len(quality)
+    return num_of_reads, num_of_bases
 
 
 def remark_fastq_pair_end(
@@ -136,7 +141,8 @@ def assemble_single_end(
         output_fastq_prefix: str,
         simulator_name: str,
         truncate_ratio_3p: float,
-        truncate_ratio_5p: float
+        truncate_ratio_5p: float,
+        input_transcriptome_fasta_dir: str
 ):
     """
     Assemble single_end reads into one.
@@ -148,13 +154,29 @@ def assemble_single_end(
             "TRANSCRIPT_ID",
             "INPUT_DEPTH",
             "SIMULATED_N_OF_READS",
+            "SIMULATED_N_OF_BASES",
+            "TRANSCRIBED_LENGTH",
+            "SIMULATED_DEPTH"
         )) + "\n")
         for transcript_id, transcript_depth in tqdm(iterable=depth.items(), desc="Merging..."):
+            this_fasta_path = os.path.join(input_transcriptome_fasta_dir, transcript_id + ".fa")
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
-            if not file_system.file_exists(this_fastq_basename + ".fq"):
+            this_fastq_path = this_fastq_basename + ".fq"
+            if not file_system.file_exists(this_fastq_path) or not file_system.file_exists(this_fasta_path):
+                _lh.error(f"Skipped error transcript: %s", transcript_id)
                 continue
-            num_of_reads = remark_fastq_single_end(
-                input_filename=this_fastq_basename + ".fq",
+            try:
+                transcribed_length = FastaViewFactory(
+                    filename=this_fasta_path,
+                    read_into_memory=True,
+                    show_tqdm=False
+                ).get_chr_length(transcript_id)
+            except KeyError:
+                _lh.error(f"Skipped error transcript: %s", transcript_id)
+                continue
+
+            num_of_reads, num_of_bases = remark_fastq_single_end(
+                input_filename=this_fastq_path,
                 writer=writer,
                 transcript_id=transcript_id,
                 transcript_depth=transcript_depth,
@@ -163,9 +185,12 @@ def assemble_single_end(
                 truncate_ratio_5p=truncate_ratio_5p
             )
             stats_writer.write("\t".join((
-                transcript_id,
-                str(transcript_depth),
-                str(num_of_reads)
+                transcript_id,  # "TRANSCRIPT_ID",
+                str(transcript_depth),  # "INPUT_DEPTH",
+                str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
             )) + "\n")
 
 
@@ -186,6 +211,9 @@ def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
     parser.add_argument('--truncate_ratio_5p', required=False,
                         help="Ratio of 5 prime truncation", nargs='?',
                         type=float, action='store', default=0.0)
+    parser.add_argument('--simulator_name', required=False,
+                        help="Custom simulator name. Used in FASTQ tags", nargs='?',
+                        type=str, action='store', default=None)
     return parser
 
 

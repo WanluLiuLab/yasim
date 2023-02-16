@@ -1,4 +1,5 @@
 bin/*
+*tmp*
 !.gitignore
 !run.sh
 !*.R
