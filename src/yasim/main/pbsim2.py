@@ -7,8 +7,8 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, assemble_single_end, \
-    patch_frontend_parser
+from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
+    patch_frontend_parser, AssembleSingleEnd, generate_callback
 from yasim.llrg_adapter import pbsim2
 
 logger = get_logger(__name__)
@@ -51,6 +51,15 @@ def simulate(
         pool_size=jobs
     )
     depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
+    assembler = AssembleSingleEnd(
+        depth=depth,
+        output_fastq_prefix=output_fastq_prefix,
+        simulator_name=simulator_name,
+        truncate_ratio_3p=truncate_ratio_3p,
+        truncate_ratio_5p=truncate_ratio_5p,
+        input_transcriptome_fasta_dir=transcriptome_fasta_dir
+    )
+    assembler.start()
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         if transcript_depth == 0:
             continue
@@ -62,17 +71,12 @@ def simulate(
             exename=exename,
             other_args=other_args
         )
-        simulating_pool.append(sim_thread)
+        simulating_pool.append(sim_thread, callback=generate_callback(assembler, transcript_id))
     simulating_pool.start()
     simulating_pool.join()
-    assemble_single_end(
-        depth=depth,
-        output_fastq_prefix=output_fastq_prefix,
-        simulator_name=simulator_name,
-        truncate_ratio_3p=truncate_ratio_3p,
-        truncate_ratio_5p=truncate_ratio_5p,
-        input_transcriptome_fasta_dir=transcriptome_fasta_dir
-    )
+    assembler.terminate()
+    assembler.join()
+
 
 
 def main(args: List[str]):

@@ -218,64 +218,8 @@ class AssembleSingleEnd(threading.Thread):
     def terminate(self):
         self._should_stop = True
 
-
-def assemble_single_end(
-        depth: DepthType,
-        output_fastq_prefix: str,
-        simulator_name: str,
-        truncate_ratio_3p: float,
-        truncate_ratio_5p: float,
-        input_transcriptome_fasta_dir: str
-):
-    """
-    Assemble single_end reads into one.
-    """
-    output_fastq_dir = output_fastq_prefix + ".d"
-    with FastqWriter(output_fastq_prefix + ".fq") as writer, \
-            get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
-        stats_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "INPUT_DEPTH",
-            "SIMULATED_N_OF_READS",
-            "SIMULATED_N_OF_BASES",
-            "TRANSCRIBED_LENGTH",
-            "SIMULATED_DEPTH"
-        )) + "\n")
-        for transcript_id, transcript_depth in tqdm(iterable=depth.items(), desc="Merging..."):
-            this_fasta_path = os.path.join(input_transcriptome_fasta_dir, transcript_id + ".fa")
-            this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
-            this_fastq_path = this_fastq_basename + ".fq"
-            if not file_system.file_exists(this_fastq_path) or not file_system.file_exists(this_fasta_path):
-                _lh.error(f"Skipped error transcript: %s", transcript_id)
-                continue
-            try:
-                transcribed_length = FastaViewFactory(
-                    filename=this_fasta_path,
-                    read_into_memory=True,
-                    show_tqdm=False
-                ).get_chr_length(transcript_id)
-            except KeyError:
-                _lh.error(f"Skipped error transcript: %s", transcript_id)
-                continue
-
-            num_of_reads, num_of_bases = remark_fastq_single_end(
-                input_filename=this_fastq_path,
-                writer=writer,
-                transcript_id=transcript_id,
-                transcript_depth=transcript_depth,
-                simulator_name=simulator_name,
-                truncate_ratio_3p=truncate_ratio_3p,
-                truncate_ratio_5p=truncate_ratio_5p
-            )
-            stats_writer.write("\t".join((
-                transcript_id,  # "TRANSCRIPT_ID",
-                str(transcript_depth),  # "INPUT_DEPTH",
-                str(num_of_reads),  # "SIMULATED_N_OF_READS",
-                str(num_of_bases),  # "SIMULATED_N_OF_BASES",
-                str(transcribed_length),  # "TRANSCRIBED_LENGTH",
-                str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
-            )) + "\n")
-
+def generate_callback(assembler: AssembleSingleEnd, transcript_id: str):
+    return lambda _: assembler.add_transcript_id(transcript_id)
 
 def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('-F', '--fastas', required=True,
