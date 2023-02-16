@@ -43,7 +43,7 @@ def simulate(
         other_args: List[str]
 ):
     if simulator_name is None:
-        simulator_name = "_".join(("pbsim2", hmm_model, "CLR"))
+        simulator_name = "_".join(("pbsim2", hmm_model, "clr"))
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = parallel_helper.ParallelJobExecutor(
