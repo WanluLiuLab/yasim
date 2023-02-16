@@ -12,7 +12,7 @@ LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
     -o ce11_as_2_isoform_depth_20.tsv.xz
 
 function perform_housekeeping() {
-    cat "${1}".d/*.maf | gzip -9 >"${1}".maf
+    cat "${1}".d/*/*.maf | gzip -9 >"${1}".maf
     gzip -9 "${1}".fq
     rm -rf "${1}".d
 }
@@ -40,7 +40,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -m RSII \
         -M qshmm \
         -F ../ce11_trans_2.fa.d \
-        --ccs-pass 10 \
+        --ccs_pass 10 \
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
@@ -56,7 +56,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -m SEQUEL \
         -M errhmm \
         -F ../ce11_trans_2.fa.d \
-        --ccs-pass 10 \
+        --ccs_pass 10 \
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \

@@ -4,10 +4,16 @@ python -m yasim transcribe \
     -g ../ce11.ncbiRefSeq.chrM.gtf \
     -f ../chrM.fa \
     -o chrM.trans.fa
-python -m yasim generate_depth_v2 \
+
+python -m yasim generate_gene_depth \
+    -g ../ce11.ncbiRefSeq.chrM.gtf \
+    -o depth_gene.tsv \
+    --mu 10
+
+python -m yasim generate_isoform_depth \
     -g ../ce11.ncbiRefSeq.chrM.gtf \
     -o depth.tsv \
-    --mu 10
+    -d depth_gene.tsv
 
 python -m yasim pbsim3 \
     -e /mnt/volume2/TGS/phase_2_simulation/yasim-dev/suppl_data_analysis/syq_article_simulation/bin/pbsim3 \
@@ -53,3 +59,7 @@ for pbsim2_mode in R94 R103; do
         -o pbsim2_"${pbsim2_mode}" \
         -j 40
 done
+for fn in *.fq; do
+    python -m labw_utils.bioutils describe_fastq "${fn}" &
+done
+wait
