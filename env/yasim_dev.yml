@@ -64,6 +64,7 @@ dependencies:
 
   # TGS utils
   - pbccs=6.0.0
+  - minimap2=2.24
 
   - pip
   - setuptools

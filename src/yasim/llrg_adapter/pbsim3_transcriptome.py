@@ -4,7 +4,6 @@ import subprocess
 from typing import List, Final
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-
 from yasim.llrg_adapter import BaseLLRGAdapter
 
 PBSIM3_DIST = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
@@ -26,7 +25,8 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             f"--{self.hmm_method}", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
-            "--pass-num", str(self.ccs_pass)
+            "--pass-num", str(self.ccs_pass),
+            *self.other_args
         ]
     """
     hmm_model: str
@@ -120,7 +120,8 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             f"--{self.hmm_method}", self.hmm_model,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
             "--transcript", self.transcript_tsv_path,
-            "--pass-num", str(self.ccs_pass)
+            "--pass-num", str(self.ccs_pass),
+            *self.other_args
         ]
         return cmd
 
