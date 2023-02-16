@@ -3,7 +3,9 @@ import multiprocessing
 import os
 import shutil
 import stat
-from typing import Iterable, Tuple
+import threading
+import time
+from typing import Iterable, Tuple, List
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
@@ -40,7 +42,7 @@ def remark_fastq_single_end(
         input_filename: str,
         writer: FastqWriter,
         transcript_id: str,
-        transcript_depth: int,
+        transcript_depth: float,
         simulator_name: str,
         truncate_ratio_3p: float,
         truncate_ratio_5p: float
@@ -74,7 +76,7 @@ def remark_fastq_pair_end(
         writer1: FastqWriter,
         writer2: FastqWriter,
         transcript_id: str,
-        transcript_depth: int,
+        transcript_depth: float,
         simulator_name: str
 ) -> int:
     """
@@ -134,6 +136,87 @@ def assemble_pair_end(
                 str(transcript_depth),
                 str(num_of_reads)
             )) + "\n")
+
+
+class AssembleSingleEnd(threading.Thread):
+    _transcript_ids_pending: List[str]
+    _should_stop: bool
+
+    def __init__(
+            self,
+            depth: DepthType,
+            output_fastq_prefix: str,
+            simulator_name: str,
+            truncate_ratio_3p: float,
+            truncate_ratio_5p: float,
+            input_transcriptome_fasta_dir: str
+    ):
+        super().__init__()
+        self._transcript_ids_pending = []
+        self._should_stop = False
+        self._depth = depth
+        self._output_fastq_prefix = output_fastq_prefix
+        self._simulator_name = simulator_name
+        self._truncate_ratio_3p = truncate_ratio_3p
+        self._truncate_ratio_5p = truncate_ratio_5p
+        self._input_transcriptome_fasta_dir = input_transcriptome_fasta_dir
+
+    def run(self):
+        output_fastq_dir = self._output_fastq_prefix + ".d"
+        with FastqWriter(self._output_fastq_prefix + ".fq") as writer, \
+                get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
+            stats_writer.write("\t".join((
+                "TRANSCRIPT_ID",
+                "INPUT_DEPTH",
+                "SIMULATED_N_OF_READS",
+                "SIMULATED_N_OF_BASES",
+                "TRANSCRIBED_LENGTH",
+                "SIMULATED_DEPTH"
+            )) + "\n")
+
+            while not self._should_stop:
+                while not len(self._transcript_ids_pending) == 0:
+                    transcript_id = self._transcript_ids_pending.pop(0)
+                    this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
+                    this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
+                    this_fastq_path = this_fastq_basename + ".fq"
+                    if not file_system.file_exists(this_fastq_path) or not file_system.file_exists(this_fasta_path):
+                        _lh.error(f"Skipped error transcript: %s", transcript_id)
+                        continue
+                    try:
+                        transcribed_length = FastaViewFactory(
+                            filename=this_fasta_path,
+                            read_into_memory=True,
+                            show_tqdm=False
+                        ).get_chr_length(transcript_id)
+                    except KeyError:
+                        _lh.error(f"Skipped error transcript: %s", transcript_id)
+                        continue
+                    transcript_depth = self._depth[transcript_id]
+                    num_of_reads, num_of_bases = remark_fastq_single_end(
+                        input_filename=this_fastq_path,
+                        writer=writer,
+                        transcript_id=transcript_id,
+                        transcript_depth=transcript_depth,
+                        simulator_name=self._simulator_name,
+                        truncate_ratio_3p=self._truncate_ratio_3p,
+                        truncate_ratio_5p=self._truncate_ratio_5p
+                    )
+                    stats_writer.write("\t".join((
+                        transcript_id,  # "TRANSCRIPT_ID",
+                        str(transcript_depth),  # "INPUT_DEPTH",
+                        str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                        str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                        str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                        str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
+                    )) + "\n")
+                time.sleep(0.01)
+
+    def add_transcript_id(self, transcript_id: str):
+        self._transcript_ids_pending.append(transcript_id)
+
+    def terminate(self):
+        self._should_stop = True
 
 
 def assemble_single_end(
