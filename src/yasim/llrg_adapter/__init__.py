@@ -1,3 +1,8 @@
+# TODO
+# New LLRG adapters should NOT simulate -> merge
+# Should merge while simulating
+# Can be implemented using callback functions
+
 import subprocess
 import threading
 from abc import abstractmethod
