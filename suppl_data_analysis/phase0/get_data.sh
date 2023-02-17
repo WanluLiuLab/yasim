@@ -15,7 +15,7 @@ https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
 EOF
 
-gzip -dk ce11.fa.gz ce11.ncbiRefSeq.gtf.gz
+gzip -dkf ce11.fa.gz ce11.ncbiRefSeq.gtf.gz
 samtools faidx ce11.fa
 gffread ce11.ncbiRefSeq.gtf -g ce11.fa -w ce11.reference_transcripts.fa
 

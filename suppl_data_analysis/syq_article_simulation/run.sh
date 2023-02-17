@@ -20,13 +20,9 @@ function generate_as_events(){
     xz -9 -vv ce11_as_"${1}".gtf.gz.*.tsv
 }
 
-for gene_complexity_level in 1 2 3 5 7 9; do
-    generate_as_events "${gene_complexity_level}" &
-done
-wait
+generate_as_events 2
 
 # Install LLRGs
-
 mkdir -p src bin
 cd src || exit 1
 git clone http://github.com/yukiteruono/pbsim3
@@ -60,13 +56,14 @@ cd diff_genome_complexity || exit 1
 bash run.sh
 cd .. || exit 1
 
+# Read Completeness
 
+# Read Length
+cd diff_read_length || exit 1
+bash run.sh
+cd .. || exit 1
 
-for five_prime_break in ; do
-    pass
-done
-
-# NIpG
-# RLEN
-# RC
-
+# Annotation Completeness
+cd diff_annot_compl || exit 1
+bash run.sh
+cd .. || exit 1

@@ -1,7 +1,7 @@
 import os
 import shutil
 import subprocess
-from typing import List, Final
+from typing import List, Final, IO, Union
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from yasim.llrg_adapter import BaseLLRGAdapter
@@ -125,6 +125,26 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         ]
         return cmd
 
+    def _exec_subprocess(
+            self,
+            cmd: List[str],
+            stdin: Union[IO, int],
+            stdout: Union[IO, int],
+            stderr: Union[IO, int]
+    ) -> int:
+        self.lh.debug(f"Subprocess {' '.join(cmd)} START")
+        retv = subprocess.Popen(
+            cmd,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr
+        ).wait()
+        if retv == 0:
+            self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
+        else:
+            self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
+        return retv
+
     def _rename_file_after_finish_hook(self):
         if self.ccs_pass == 1:
             with open(self.output_fastq_prefix + ".fq", "wb") as writer:
@@ -132,40 +152,43 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                     shutil.copyfileobj(reader, writer)
         else:
             with open(os.path.join(self.tmp_dir, "call_ccs.log"), "wb") as log_writer:
-                subprocess.Popen(
-                    [
-                        self.samtools_path,
-                        "view",
-                        os.path.join(self.tmp_dir, "tmp.sam"),
-                        "-o", os.path.join(self.tmp_dir, "tmp.subreads.bam")
-                    ],
-                    stdin=subprocess.DEVNULL,
-                    stdout=log_writer,
-                    stderr=log_writer
-                ).wait()
-                subprocess.Popen(
-                    [
-                        self.ccs_path,
-                        "--report-json", os.path.join(self.tmp_dir, "tmp.ccs.report.json"),
-                        "--report-file", os.path.join(self.tmp_dir, "tmp.ccs.report.txt"),
-                        "--log-level", "INFO",
-                        "--log-file", os.path.join(self.tmp_dir, "tmp.ccs.log"),
-                        "--num-threads", str(self.ccs_num_threads),
-                        os.path.join(self.tmp_dir, "tmp.subreads.bam"),
-                        os.path.join(self.tmp_dir, "tmp.ccs.bam")
-                    ],
-                    stdin=subprocess.DEVNULL,
-                    stdout=log_writer,
-                    stderr=log_writer
-                ).wait()
-                with open(self.output_fastq_prefix + ".fq", "wb") as writer:
-                    subprocess.Popen(
+                if self._exec_subprocess(
                         [
                             self.samtools_path,
-                            "fastq",
+                            "view",
+                            os.path.join(self.tmp_dir, "tmp.sam"),
+                            "-o", os.path.join(self.tmp_dir, "tmp.subreads.bam")
+                        ],
+                        stdin=subprocess.DEVNULL,
+                        stdout=log_writer,
+                        stderr=log_writer
+                ) != 0:
+                    return
+                if self._exec_subprocess(
+                        [
+                            self.ccs_path,
+                            "--report-json", os.path.join(self.tmp_dir, "tmp.ccs.report.json"),
+                            "--report-file", os.path.join(self.tmp_dir, "tmp.ccs.report.txt"),
+                            "--log-level", "INFO",
+                            "--log-file", os.path.join(self.tmp_dir, "tmp.ccs.log"),
+                            "--num-threads", str(self.ccs_num_threads),
+                            os.path.join(self.tmp_dir, "tmp.subreads.bam"),
                             os.path.join(self.tmp_dir, "tmp.ccs.bam")
                         ],
                         stdin=subprocess.DEVNULL,
-                        stdout=writer,
+                        stdout=log_writer,
                         stderr=log_writer
-                    ).wait()
+                ) != 0:
+                    return
+                with open(self.output_fastq_prefix + ".fq", "wb") as writer:
+                    if self._exec_subprocess(
+                            [
+                                self.samtools_path,
+                                "fastq",
+                                os.path.join(self.tmp_dir, "tmp.ccs.bam")
+                            ],
+                            stdin=subprocess.DEVNULL,
+                            stdout=writer,
+                            stderr=log_writer
+                    ) != 0:
+                        return

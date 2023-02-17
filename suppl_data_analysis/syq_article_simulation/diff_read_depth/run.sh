@@ -15,8 +15,8 @@ function generate_depth() {
 }
 
 function perform_housekeeping() {
-    gzip -9 "${1}".fq &&
-        cat "${1}".d/*/*.maf | gzip -9 >"${1}".maf.gz &&
+    gzip -9f "${1}".fq &&
+        cat "${1}".d/*/*.maf | gzip -9f >"${1}".maf.gz &&
         rm -rf "${1}".d
 }
 

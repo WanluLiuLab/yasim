@@ -18,7 +18,7 @@ function perform_housekeeping() {
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_accu_"${1}"_pbsim3_RSII_CLR
+    OUTPUT_BASENAME=ce11_as_2_rlen_"${1}"_pbsim3_RSII_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -28,12 +28,12 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --length-mean "${1}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
 function perform_pbsim3_RSII_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_accu_"${1}"_pbsim3_RSII_CCS
+    OUTPUT_BASENAME=ce11_as_2_rlen_"${1}"_pbsim3_RSII_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -44,12 +44,12 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --length-mean "${1}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
 function perform_pbsim3_SEQUEL_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_accu_"${1}"_pbsim3_SEQUEL_CCS
+    OUTPUT_BASENAME=ce11_as_2_rlen_"${1}"_pbsim3_SEQUEL_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -60,12 +60,12 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --length-mean "${1}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
 function perform_pbsim3_SEQUEL_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_accu_"${1}"_pbsim3_SEQUEL_CLR
+    OUTPUT_BASENAME=ce11_as_2_rlen_"${1}"_pbsim3_SEQUEL_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -75,11 +75,11 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --length-mean "${1}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim2_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_accu_"${1}"_pbsim2_"${2}"
+    OUTPUT_BASENAME=ce11_as_2_rlen_"${1}"_pbsim2_"${2}"
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
@@ -88,7 +88,7 @@ function perform_pbsim2_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --length-mean "${1}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
@@ -103,6 +103,6 @@ function perform_simulation() {
     wait
 }
 
-for accuracy in 0.6 0.7 0.8 0.9 1.0; do
-    perform_simulation "${accuracy}"
+for length in 400 600 800 1000 1200; do
+    perform_simulation "${length}"
 done
