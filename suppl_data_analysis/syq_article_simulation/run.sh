@@ -44,6 +44,9 @@ bash run.sh
 cd .. || exit 1
 
 # Read Completeness
+cd diff_read_compl || exit 1
+bash run.sh
+cd .. || exit 1
 
 # Read Length
 cd diff_read_length || exit 1
