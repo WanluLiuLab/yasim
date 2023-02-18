@@ -3,25 +3,25 @@ set -uex
 
 function generate_as_events(){
     LOG_FILE_NAME="yasim_sample_${1}.log" \
-        python -m bioutils sample_transcript \
-        -g ce11_as_2.gtf.gz \
+        python -m labw_utils.bioutils sample_transcript \
+        -g ../ce11_as_2.gtf.gz \
         --percent "${1}" \
-        --out ce11_as_percent_"${i}".gtf.gz
+        --out ce11_as_percent_"${1}".gtf.gz
     python -m labw_utils.bioutils describe_gtf ce11_as_percent_"${1}".gtf.gz
+    xz -9 -vv -f ce11_as_percent_"${1}".gtf.gz.*.tsv
     LOG_FILE_NAME="yasim_transcribe_${1}.log" \
         python -m yasim transcribe \
         -g ce11_as_percent_"${1}".gtf.gz \
         -f ../ce11.fa.gz \
         -o ce11_trans_"${1}".fa
-    xz -9 -vv -f ce11_as_percent_"${1}".gtf.gz.*.tsv
     LOG_FILE_NAME="yasim_generate_gene_depth_${1}.log" \
         python -m yasim generate_gene_depth \
-        -g ../ce11_as_percent_"${1}".gtf.gz \
+        -g ce11_as_percent_"${1}".gtf.gz \
         -o ce11_as_percent_"${1}"_gene_depth_20.tsv.xz \
         -d 20
     LOG_FILE_NAME="yasim_generate_isoform_depth_${1}.log" \
         python -m yasim generate_isoform_depth \
-        -g ../ce11_as_percent_"${1}".gtf.gz \
+        -g ce11_as_percent_"${1}".gtf.gz \
         -d ce11_as_percent_"${1}"_gene_depth_20.tsv.xz \
         -o ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz
 }
