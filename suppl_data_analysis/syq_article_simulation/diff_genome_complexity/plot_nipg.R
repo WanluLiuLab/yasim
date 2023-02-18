@@ -88,20 +88,22 @@ ggsave("nipg_hist.pdf", g, width = 8, height = 5)
 #' Count number of genes and transcripts in each sample
 
 fns <- Sys.glob("ce11_as_*.gtf.gz.transcripts.tsv.xz")
+
 conditions <- fns %>%
     stringr::str_replace("ce11_as_", "") %>%
-    stringr::str_replace(".gtf.gz.transcripts.tsv.xz", "")
+    stringr::str_replace(".gtf.gz.gene.tsv.xz", "")
 
 fns <- c(
-    "ce11.ncbiRefSeq.gtf.gz.transcripts.tsv.xz",
+    "../ce11.ncbiRefSeq.gtf.gz.transcripts.tsv.xz",
+    "../ce11_as_2.gtf.gz.transcripts.tsv.xz",
     fns
 )
 
 conditions <- c(
     "REFERENCE",
+    "2",
     conditions
 )
-
 
 if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     all_nipg_ngenes_nisoforms <- arrow::read_parquet("all_nipg_ngenes_nisoforms.parquet")
