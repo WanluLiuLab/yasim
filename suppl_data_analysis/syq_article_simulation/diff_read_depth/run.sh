@@ -108,4 +108,4 @@ for mean_depth in 10 25 40 55 70 85 100; do
     perform_simulation ce11_as_2_isoform_depth_"${mean_depth}" ce11_as_2_isoform_depth_"${mean_depth}"
 done
 
-xz ./*.stats -vv -9 -T0
+xz -vv -9 -T0 -f ./*.stats

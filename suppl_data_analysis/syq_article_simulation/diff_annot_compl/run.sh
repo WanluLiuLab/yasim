@@ -13,7 +13,7 @@ function generate_as_events(){
         -g ce11_as_percent_"${1}".gtf.gz \
         -f ../ce11.fa.gz \
         -o ce11_trans_"${1}".fa
-    xz -9 -vv ce11_as_percent_"${1}".gtf.gz.*.tsv
+    xz -9 -vv -f ce11_as_percent_"${1}".gtf.gz.*.tsv
     LOG_FILE_NAME="yasim_generate_gene_depth_${1}.log" \
         python -m yasim generate_gene_depth \
         -g ../ce11_as_percent_"${1}".gtf.gz \
@@ -120,7 +120,4 @@ for annot_compl_level in 20 40 60 80 100; do
     perform_simulation "${annot_compl_level}"
 done
 
-xz ./*.stats -vv -9 -T0
-pigz -9 -p5 -vv ./*.fq
-
-
+xz -vv -9 -T0 -f ./*.stats

@@ -60,9 +60,14 @@ dependencies:
   # - r-scales=1.2.1
   # - r-pheatmap=1.0.12
   # - r-base=4.2.2
+#  - r-languageserver
+#  - radian=0.6.4
+#  - r-lintr
+
 
   # TGS utils
   # - pbccs=6.0.0
+  # - minimap2=2.24
 
   - pip
   - setuptools
