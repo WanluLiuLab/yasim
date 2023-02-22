@@ -9,7 +9,7 @@ function generate_as_events(){
         -o ce11_as_"${1}".gtf.gz \
         --complexity "${1}"
     python -m labw_utils.bioutils describe_gtf ce11_as_"${1}".gtf.gz
-    xz -9 -vv ce11_as_"${1}".gtf.gz.*.tsv
+    xz -9 -vv -f ce11_as_"${1}".gtf.gz.*.tsv
     LOG_FILE_NAME="yasim_transcribe_${1}.log" \
         python -m yasim transcribe \
         -g ce11_as_"${1}".gtf.gz \
@@ -121,4 +121,4 @@ for gene_complexity_level in 1 3 5 7 9; do
     perform_simulation "${gene_complexity_level}"
 done
 
-xz ./*.stats -vv -9 -T0
+xz -vv -9 -T0 -f ./*.stats

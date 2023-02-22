@@ -5,7 +5,7 @@ axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 
 # Generate AS events with different complexity level (defaults 2)
 python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.gtf.gz
-xz -9 -T0 ce11.ncbiRefSeq.gtf.gz.*.tsv -vv
+xz -9 -T0 -f ce11.ncbiRefSeq.gtf.gz.*.tsv -vv
 
 function generate_as_events(){
     python -m yasim generate_as_events \
@@ -17,7 +17,7 @@ function generate_as_events(){
         -g ce11_as_"${1}".gtf.gz \
         -f ce11.fa.gz \
         -o ce11_trans_"${1}".fa
-    xz -9 -vv ce11_as_"${1}".gtf.gz.*.tsv
+    xz -9 -vv -f ce11_as_"${1}".gtf.gz.*.tsv
 }
 
 generate_as_events 2
@@ -44,6 +44,9 @@ bash run.sh
 cd .. || exit 1
 
 # Read Completeness
+cd diff_read_compl || exit 1
+bash run.sh
+cd .. || exit 1
 
 # Read Length
 cd diff_read_length || exit 1

@@ -14,6 +14,10 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-d', '--depth', required=False, help="Input Gene-Level Expression Abundance", nargs='?',
                         type=str, action='store', default=100)
+    parser.add_argument('--low_cutoff', required=False, help="Depth lower than this value would be 0.", nargs='?',
+                        type=float, action='store', default=0.01)
+    parser.add_argument('--alpha', required=False, help="Zipf's Coefficient, larger for larger differences", nargs='?',
+                        type=int, action='store', default=10)
     return parser.parse_args(args)
 
 
@@ -28,8 +32,10 @@ def main(args: List[str]):
                 transcript_level_depth[transcript.transcript_id] = 0
             continue
         this_transcript_level_depth = depth.simulate_isoform_variance_inside_a_gene(
-            gene.number_of_transcripts,
-            gene_level_depth[gene.gene_id]
+            n=gene.number_of_transcripts,
+            mu=gene_level_depth[gene.gene_id],
+            low_cutoff=args.low_cutoff,
+            alpha=args.alpha
         )
         for i, transcript in enumerate(gene.iter_transcripts()):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]

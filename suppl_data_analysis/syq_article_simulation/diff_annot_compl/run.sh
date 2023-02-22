@@ -8,7 +8,7 @@ function generate_as_events(){
         --percent "${1}" \
         --out ce11_as_percent_"${1}".gtf.gz
     python -m labw_utils.bioutils describe_gtf ce11_as_percent_"${1}".gtf.gz
-    xz -9 -vv ce11_as_percent_"${1}".gtf.gz.*.tsv
+    xz -9 -vv -f ce11_as_percent_"${1}".gtf.gz.*.tsv
     LOG_FILE_NAME="yasim_transcribe_${1}.log" \
         python -m yasim transcribe \
         -g ce11_as_percent_"${1}".gtf.gz \
@@ -120,4 +120,4 @@ for annot_compl_level in 20 40 60 80 100; do
     perform_simulation "${annot_compl_level}"
 done
 
-xz ./*.stats -vv -9 -T0
+xz -vv -9 -T0 -f ./*.stats

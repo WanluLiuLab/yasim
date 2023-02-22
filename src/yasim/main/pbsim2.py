@@ -78,7 +78,6 @@ def simulate(
     assembler.join()
 
 
-
 def main(args: List[str]):
     args, other_args = _parse_args(args)
     simulate(

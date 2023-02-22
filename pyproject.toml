@@ -44,25 +44,3 @@ dependencies = { file = "requirements.txt" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.pytest.ini_options]
-addopts = "-vv --continue-on-collection-errors 	--junitxml=dist/pytest/junit.xml --html=dist/htdocs/pytest_report.html --self-contained-html --doctest-modules --doctest-continue-on-failure --ignore-glob=*/_deprecated/* --cov --cov-report=html"
-testpaths = "test/ src/"
-log_level = 8
-log_file = "pytest.log"
-log_file_level = 8
-log_cli = false
-junit_logging = "all"
-junit_log_passing_tests = true
-junit_duration_report = "call"
-
-[tool.coverage.run]
-source = [
-    "src",
-]
-
-[tool.coverage.report]
-skip_empty = true
-
-[tool.coverage.html]
-directory = "dist/htdocs/cov_html"
