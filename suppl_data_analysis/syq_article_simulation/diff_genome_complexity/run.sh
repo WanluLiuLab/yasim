@@ -96,8 +96,7 @@ function perform_pbsim2_simulation() {
         -F ce11_trans_"${1}".fa \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
-        -j 40 \
-        --accuracy-mean "${1}" || return
+        -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
