@@ -109,24 +109,13 @@ function perform_simulation() {
     wait
 }
 
-perform_simulation 0.0 0.5
-perform_simulation 0.25 0.25
-perform_simulation 0.5 0.0
 
 perform_simulation 0.0 0.4
 perform_simulation 0.2 0.2
 perform_simulation 0.4 0.0
 
-perform_simulation 0.0 0.3
-perform_simulation 0.15 0.15
-perform_simulation 0.3 0.0
+# perform_simulation 0.0 0.2
+# perform_simulation 0.1 0.1
+# perform_simulation 0.2 0.0
 
-perform_simulation 0.0 0.2
-perform_simulation 0.1 0.1
-perform_simulation 0.2 0.0
-
-perform_simulation 0.0 0.1
-perform_simulation 0.05 0.05
-perform_simulation 0.1 0.0
-
-perform_simulation 0.0 0.0
+# perform_simulation 0.0 0.0
