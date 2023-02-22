@@ -124,16 +124,7 @@ for fn in *.fq.gz; do
     -p "${fn}"_trans.train \
     lastdb/ce11_trans.chr1 "${fn}" |\
     last-map-probs /dev/stdin | \
-    pigz -9 > "${fn}"_trans.maf
-done
-
-for fn in *.fq.gz; do
-    echo "${fn}"
-    lastal -P30 -Qfastx -m100 -j7 \
-    -p "${fn}"_trans.train \
-    lastdb/ce11_trans.chr1 "${fn}" |\
-    last-map-probs /dev/stdin | \
-    pigz -9 - > "${fn}"_trans.maf
+    pigz -9 > "${fn}"_trans.maf.gz
 done
 
 python -m labw_utils.bioutils describe_fastq ./*.fq.gz
@@ -193,7 +184,7 @@ done
 
 printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" > all_last_mapq.tsv
 for fn in *.maf.gz; do
-    python -m yasim_scripts extract_read_length_from_maf "${fn}" > "${fn}".rlen.tsv
+    python -m yasim_scripts extract_read_length_from_maf_yasim "${fn}" > "${fn}".rlen.tsv
     python -m yasim_scripts extract_quality_from_maf "${fn}" >> all_last_mapq.tsv
 done
 

@@ -103,6 +103,6 @@ function perform_simulation() {
     wait
 }
 
-for accuracy in 0.6 0.7 0.8 0.9 1.0; do
+for accuracy in 0.80 0.85 0.90 0.95 1.00; do
     perform_simulation "${accuracy}"
 done

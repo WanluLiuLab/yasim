@@ -40,7 +40,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
-        -F ../ce11_trans_2.fa.d \
+        -F ce11_trans_"${1}".fa \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
@@ -53,7 +53,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
-        -F ../ce11_trans_2.fa.d \
+        -F ce11_trans_"${1}".fa \
         --ccs_pass 10 \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
@@ -67,7 +67,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
-        -F ../ce11_trans_2.fa.d \
+        -F ce11_trans_"${1}".fa \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
@@ -80,7 +80,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
-        -F ../ce11_trans_2.fa.d \
+        -F ce11_trans_"${1}".fa \
         --ccs_pass 10 \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
@@ -92,8 +92,8 @@ function perform_pbsim2_simulation() {
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
-        -m "${3}" \
-        -F ../ce11_trans_2.fa.d \
+        -m "${2}" \
+        -F ce11_trans_"${1}".fa \
         -d ce11_as_"${1}"_isoform_depth_20.tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
