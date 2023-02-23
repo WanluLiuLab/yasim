@@ -83,28 +83,27 @@ function perform_pbsim2_simulation() {
         -F ../ce11_trans_2.fa.d \
         -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
-        -j 40 \
-        --accuracy-mean "${1}" || return
+        -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
 function perform_simulation() {
-    perform_pbsim3_RSII_CLR_simulation "${1}" "${2}" &
-    perform_pbsim3_RSII_CCS_simulation "${1}" "${2}" &
-    perform_pbsim3_SEQUEL_CLR_simulation "${1}" "${2}" &
-    perform_pbsim3_SEQUEL_CCS_simulation "${1}" "${2}" &
+    # perform_pbsim3_RSII_CLR_simulation "${1}" "${2}" &
+    # perform_pbsim3_RSII_CCS_simulation "${1}" "${2}" &
+    # perform_pbsim3_SEQUEL_CLR_simulation "${1}" "${2}" &
+    # perform_pbsim3_SEQUEL_CCS_simulation "${1}" "${2}" &
     for pbsim2_mode in R94 R103; do
         perform_pbsim2_simulation "${1}" "${2}" "${pbsim2_mode}" &
     done
     wait
 }
 
-for mean_depth in 10 25 40 55 70 85 100; do
-    generate_depth "${mean_depth}" &
-done
-wait
+# for mean_depth in 10 25 40 55 70 85 100; do
+#     generate_depth "${mean_depth}" &
+# done
+# wait
 
-for mean_depth in 10 25 40 55 70 85 100; do
+for mean_depth in 10 25 40 55 70; do
     perform_simulation ce11_as_2_isoform_depth_"${mean_depth}" ce11_as_2_isoform_depth_"${mean_depth}"
 done
 
