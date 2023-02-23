@@ -438,3 +438,5 @@ mount.sh
 *.tar
 *.txt
 *.d
+*.mmi
+*_salmon/

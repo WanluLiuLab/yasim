@@ -70,6 +70,7 @@ dependencies:
   - minimap2=2.24
   - samtools=1.16.1
   - last=1449
+  - subread=2.0.3
 
   - pip
   - setuptools

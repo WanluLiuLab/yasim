@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -uex
-LOG_FILE_NAME="yasim_generate_gene_depth.log" \
-    python -m yasim generate_gene_depth \
-    -g ../ce11_as_2.gtf.gz \
-    -o ce11_as_2_gene_depth_20.tsv.xz \
-    -d 20
-LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
-    python -m yasim generate_isoform_depth \
-    -g ../ce11_as_2.gtf.gz \
-    -d ce11_as_2_gene_depth_20.tsv.xz \
-    -o ce11_as_2_isoform_depth_20.tsv.xz
+# LOG_FILE_NAME="yasim_generate_gene_depth.log" \
+#     python -m yasim generate_gene_depth \
+#     -g ../ce11_as_2.gtf.gz \
+#     -o ce11_as_2_gene_depth_20.tsv.xz \
+#     -d 20
+# LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
+#     python -m yasim generate_isoform_depth \
+#     -g ../ce11_as_2.gtf.gz \
+#     -d ce11_as_2_gene_depth_20.tsv.xz \
+#     -o ce11_as_2_isoform_depth_20.tsv.xz
 
 function perform_housekeeping() {
     gzip -9f "${1}".fq && \
@@ -110,12 +110,12 @@ function perform_simulation() {
 }
 
 
-perform_simulation 0.0 0.4
-perform_simulation 0.2 0.2
-perform_simulation 0.4 0.0
+# perform_simulation 0.0 0.4
+# perform_simulation 0.2 0.2
+# perform_simulation 0.4 0.0
 
 # perform_simulation 0.0 0.2
 # perform_simulation 0.1 0.1
 # perform_simulation 0.2 0.0
 
-# perform_simulation 0.0 0.0
+perform_simulation 0.0 0.0
