@@ -93,10 +93,10 @@ for (i in seq_along(fns)) {
             !!rlang::sym(condition) := SIMULATED_N_OF_READS
         )
     all_fq_stats_isoform_level <- all_fq_stats_isoform_level %>%
-            dplyr::left_join(
-                this_fq_stats_data_isoform_level,
-                by = "TRANSCRIPT_ID"
-            )
+        dplyr::left_join(
+            this_fq_stats_data_isoform_level,
+            by = "TRANSCRIPT_ID"
+        )
 
     message(sprintf("Processing %d/%d -- %s", i, length(fns), fns[i]))
     rm(
@@ -109,7 +109,7 @@ for (i in seq_along(fns)) {
 }
 
 all_fq_stats_isoform_level <- all_fq_stats_isoform_level %>%
-        replace(is.na(.), 0)
+    replace(is.na(.), 0)
 
 arrow::write_parquet(all_fq_stats_isoform_level, "diu_fq_stats.parquet")
 

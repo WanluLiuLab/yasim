@@ -3,5 +3,5 @@ ip <- installed.packages()
 write.csv(
     ip[, c("Package", "Version")],
     "installed.csv",
-    row.names=FALSE
+    row.names = FALSE
 )

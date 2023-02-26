@@ -7,13 +7,13 @@ all_fc_data_isoform_level <- arrow::read_parquet("diu_fc_data_gt.parquet")
 experiment_design <- arrow::read_parquet("dge_experiment_design.parquet")
 
 isar_design_matrix <- experiment_design %>%
-    dplyr::filter(SIMULATOR=="pbsim3") %>%
-    dplyr::filter(REPID=="0") %>%
-    dplyr::transmute(sampleID=condition, condition=DGEID)
+    dplyr::filter(SIMULATOR == "pbsim3") %>%
+    dplyr::filter(REPID == "0") %>%
+    dplyr::transmute(sampleID = condition, condition = DGEID)
 isar_count_matrix <- all_fc_data_isoform_level %>%
     dplyr::select(tidyselect::contains("pbsim3")) %>%
     dplyr::select(tidyselect::ends_with("0")) %>%
-    dplyr::mutate(isoform_id=all_fc_data_isoform_level$TRANSCRIPT_ID) %>%
+    dplyr::mutate(isoform_id = all_fc_data_isoform_level$TRANSCRIPT_ID) %>%
     dplyr::relocate(isoform_id, .before = is.numeric)
 
 ### Create switchAnalyzeRlist

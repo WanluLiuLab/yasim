@@ -58,7 +58,7 @@ g <- ggplot(all_data_alignment_rate) +
         )
     ) +
     theme_bw() +
-    facet_wrap(.~Condition) +
+    facet_wrap(. ~ Condition) +
     ggtitle("Primiary Mapping Rate of all conditions")
 
 ggsave("sam_primiary_mapping_rate.pdf", g, width = 10, height = 8)
