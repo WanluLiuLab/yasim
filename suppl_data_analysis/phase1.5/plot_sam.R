@@ -58,18 +58,18 @@ arrow::write_parquet(all_data, "all_sam_data_sampled.parquet")
 all_data_mutated <- all_data %>%
     tidyr::separate(
         "Condition",
-        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID", "ALNTO")
+        c("SIMULATOR", "SEQUENCER", "MODE", "DGEID", "DIUID", "REPID", "ALNTO")
     )
 
 all_data_alignment_rate <- all_data_mutated %>%
-    dplyr::group_by(SIMULATOR, MODE, DGEID, DIUID, REPID, ALNTO) %>%
+    dplyr::group_by(SIMULATOR, MODE, SEQUENCER, DGEID, DIUID, REPID, ALNTO) %>%
     dplyr::summarise(PRIMIARY_ALN_RATE = sum(MAP_STAT == "primiary") / n()) %>%
     dplyr::ungroup()
 
 g <- ggplot(all_data_alignment_rate) +
     geom_boxplot(
         aes(
-            y = sprintf("%s_%s", SIMULATOR, MODE),
+            y = sprintf("%s_%s_%s", SIMULATOR, SEQUENCER, MODE),
             x = PRIMIARY_ALN_RATE,
             color = ALNTO
         )

@@ -66,15 +66,15 @@ function simulate(){
         -d "${1}" \
         -F ce11_trans_as.chr1.fa.d \
         -e pbsim \
-        -o ce11_pbsim_clr_"${2}"
-    perform_housekeeping ce11_pbsim_clr_"${2}"
+        -o ce11_pbsim_RS_clr_"${2}"
+    perform_housekeeping ce11_pbsim_RS_clr_"${2}"
 
     python -m yasim pbsim \
         -d "${1}" \
         -F ce11_trans_as.chr1.fa.d \
         -e pbsim \
         --ccs \
-        -o ce11_pbsim_ccs_"${2}"
+        -o ce11_pbsim_RS_ccs_"${2}"
     perform_housekeeping ce11_pbsim_ccs_"${2}"
 
     for pbsim2_models in R95 P6C4; do
@@ -84,7 +84,7 @@ function simulate(){
         -e pbsim2 \
         -o ce11_pbsim2_"${pbsim2_models}"_"${2}" \
         -m "${pbsim2_models}"
-        perform_housekeeping ce11_pbsim2_"${pbsim2_models}"_"${2}"
+        perform_housekeeping ce11_pbsim2_"${pbsim2_models}"_clr_"${2}"
     done
 
     python \
@@ -92,19 +92,21 @@ function simulate(){
         -d "${1}" \
         -F ce11_trans_as.chr1.fa.d \
         -e pbsim3 \
-        -o ce11_pbsim3_SEQUEL_CLR_"${2}" \
-        -m SEQUEL
-    perform_housekeeping ce11_pbsim3_SEQUEL_CLR_"${2}"
+        -o ce11_pbsim3_SEQUEL_clr_"${2}" \
+        -m SEQUEL \
+        -M errhmm
+    perform_housekeeping ce11_pbsim3_SEQUEL_clr_"${2}"
 
     python \
         -m yasim pbsim3 \
         -d "${1}" \
         -F ce11_trans_as.chr1.fa.d \
         -e pbsim3 \
-        -o ce11_pbsim3_SEQUEL_CCS_"${2}" \
+        -o ce11_pbsim3_SEQUEL_ccs_"${2}" \
         --ccs_pass 10 \
-        -m SEQUEL
-    perform_housekeeping ce11_pbsim3_SEQUEL_CCS_"${2}"
+        -m SEQUEL \
+        -M errhmm
+    perform_housekeeping ce11_pbsim3_SEQUEL_ccs_"${2}"
 }
 
 # PBSIM 1, 2 and 3 is lightweighted so can be run parallely
@@ -131,8 +133,8 @@ for fn in *.fq.gz; do
     samtools sort "${fn/.fq/_trans.fq}".sam -@ 50 -o "${fn/.fq/_trans.fq}".bam
     samtools index "${fn/.fq/_trans.fq}".bam
     rm -f "${fn/.fq/_trans.fq}".sam
-    last-train -v -Qfastx -P40 lastdb/ce11_trans.chr1 "${fn}" > "${fn}"_trans.train
-    lastal -v -P40 -Qfastx -m100 -j7 \
+    last-train -Qfastx -P40 lastdb/ce11_trans.chr1 "${fn}" > "${fn}"_trans.train
+    lastal -P40 -Qfastx -m100 -j7 \
     -p "${fn}"_trans.train \
     lastdb/ce11_trans.chr1 "${fn}" |\
     last-map-probs /dev/stdin | \
@@ -163,10 +165,10 @@ for fn in *.stringtie.gtf; do
 done
 wait
 
-python -m labw_utils.bioutils describe_gtf stringtie_merged.gtf
 
 find ./*.stringtie.gtf > stringtie-mergelist.txt
 stringtie --merge -G ce11.ncbiRefSeq.chr1.gtf -p 40 -o stringtie_merged.gtf stringtie-mergelist.txt
+python -m labw_utils.bioutils describe_gtf stringtie_merged.gtf
 python -m labw_utils.bioutils transcribe -g stringtie_merged.gtf -f ce11.chr1.fa -o ce11_trans_stringtie.fa
 
 find . | grep .fq.gz.bam$ | grep -v trans | while read -r fn; do
@@ -214,12 +216,14 @@ wait
 
 printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" > all_last_mapq.tsv
 for fn in *.maf.gz; do
-    python -m yasim_scripts extract_read_length_from_maf "${fn}" > "${fn}".rlen.tsv
+    python -m yasim_scripts extract_read_length_from_maf_yasim "${fn}" > "${fn}".rlen.tsv &
     python -m yasim_scripts extract_quality_from_maf "${fn}" >> all_last_mapq.tsv
 done
+wait
 
 Rscript ./plot_fastq.R
 Rscript ./plot_nipg.R
 Rscript ./plot_sam.R
 Rscript ./plot_gep.R
-Rscript ./plot_aligned_read_completeness.R
+Rscript ./plot_maf_read_completeness.R
+Rscript ./plot_maf_error_rate.R

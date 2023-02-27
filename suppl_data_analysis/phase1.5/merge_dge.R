@@ -80,10 +80,11 @@ for (i in seq_along(fns)) {
     condition_break <- strsplit(condition, "_")
     this_experiment_design <- data.frame(
         SIMULATOR = condition_break[[1]][1],
-        MODE = condition_break[[1]][2],
-        DGEID = condition_break[[1]][3],
-        DIUID = condition_break[[1]][4],
-        REPID = condition_break[[1]][5],
+        SEQUENCER = condition_break[[1]][2],
+        MODE = condition_break[[1]][3],
+        DGEID = condition_break[[1]][4],
+        DIUID = condition_break[[1]][5],
+        REPID = condition_break[[1]][6],
         condition = condition
     )
     if (is.null(experiment_design)) {
@@ -244,6 +245,17 @@ df_list[["df_filtered_prepared"]] <- list(
 df_list[["exp_prepared"]] <- prepare_tibble_for_dge(
     df_list$exp, "condition"
 )
+
+
+prepare_tibble_for_dge_dge1_only <- function(df, row_name) {
+    df <- df %>%
+        dplyr::select(tidyr::contains("dge1")) %>%
+        as.data.frame(df)
+    rownames(df) <- df[[row_name]]
+    df[[row_name]] <- NULL
+    return(df)
+}
+
 
 df_list[["df_filtered_prepared_dge1_only"]] <- list(
     all_fq_stats_gene_level = filter_genes_isoforms(prepare_tibble_for_dge_dge1_only(
