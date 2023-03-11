@@ -1,9 +1,8 @@
 import glob
 import os
-import shutil
 from typing import List, Final
 
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException
+from yasim.llrg_adapter import BaseLLRGAdapter, automerge
 
 PBSIM_DIST_DIR = os.path.join(os.path.dirname(__file__), "pbsim_dist")
 """
@@ -19,35 +18,35 @@ class PbsimAdapter(BaseLLRGAdapter):
 
         if self.is_ccs:
             cmd = [
-                self.exename,
-                "--prefix", self.tmp_dir,
-                "--depth", str(self.depth),
+                exename,
+                "--prefix", self._tmp_dir,
+                "--_depth", str(self._depth),
                 "--data-type", "CCS",
                 "--model_qc", os.path.join(PBSIM_DIST_DIR, "model_qc_ccs"),
-                *self.other_args,
-                self.input_fasta
+                *other_args,
+                self._input_fasta
             ]
         else:
             cmd = [
-                self.exename,
-                "--prefix", self.tmp_dir,
-                "--depth", str(self.depth),
+                exename,
+                "--prefix", self._tmp_dir,
+                "--_depth", str(self._depth),
                 "--data-type", "CLR",
                 "--model_qc", os.path.join(PBSIM_DIST_DIR, "model_qc_clr"),
-                *self.other_args,
-                self.input_fasta
+                *other_args,
+                self._input_fasta
             ]
     """
     is_ccs: bool
     """
     Whether to simulate CCS or CLR reads.
     """
-    tmp_dir: str
+    _tmp_dir: str
     """Prefix for generated temporary files"""
 
     _llrg_name: Final[str] = "pbsim"
     _require_integer_depth: Final[bool] = False
-    _capture_stdout : Final[bool] = False
+    _capture_stdout: Final[bool] = False
 
     def __init__(
             self,
@@ -61,16 +60,14 @@ class PbsimAdapter(BaseLLRGAdapter):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
-            depth=depth,
-            exename=exename,
-            other_args=other_args
+            depth=depth
         )
         self.is_ccs = is_ccs
-        self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
         cmd = [
-            self.exename,
+            exename,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--depth", str(self.depth),
+            "--_depth", str(self._depth),
         ]
         if self.is_ccs:
             cmd.extend([
@@ -83,19 +80,18 @@ class PbsimAdapter(BaseLLRGAdapter):
                 "--model_qc", os.path.join(PBSIM_DIST_DIR, "model_qc_clr"),
             ])
         cmd.extend([
-            *self.other_args,
-            self.input_fasta
+            *other_args,
+            self._input_fasta
         ])
         self._cmd = cmd
 
     def _pre_execution_hook(self) -> None:
-        try:
-            os.makedirs(self.tmp_dir, exist_ok=True)
-        except OSError as e:
-            raise LLRGException(f"Failed to create temporary directory at {self.tmp_dir}") from e
+        """Does not need extra preparation"""
+        pass
 
     def _rename_file_after_finish_hook(self):
-        with open(self.output_fastq_prefix + ".fq", "wb") as writer:
-            for fn in glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")):
-                with open(fn, "rb") as reader:
-                    shutil.copyfileobj(reader, writer)
+        automerge(glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
+
+    @property
+    def is_pair_end(self) -> bool:
+        return False

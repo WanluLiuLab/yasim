@@ -3,7 +3,6 @@ from typing import List
 
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
 from yasim.helper.as_events import ASManipulator
 
 logger = get_logger(__name__)

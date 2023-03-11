@@ -6,11 +6,11 @@ from random import uniform
 from typing import Dict, List
 
 import numpy as np
+
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-
 from yasim.helper.gmm import GaussianMixture1D
 
 DepthType = Dict[str, float]

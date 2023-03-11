@@ -44,7 +44,7 @@ def _main():
         n_iter=args.numIters
     ).fit(data)
     print(f"Fitted to Gaussian mixture model ({args.numComponents} components)")
-    export_str = '\n'.join(map(str,(model.export())))
+    export_str = '\n'.join(map(str, (model.export())))
     plot(data, model, f"GMM {args.numComponents} components\n{export_str}\n")
     print(list(model.export()))
 

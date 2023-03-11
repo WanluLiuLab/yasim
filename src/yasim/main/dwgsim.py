@@ -1,5 +1,4 @@
 import argparse
-import multiprocessing
 import os.path
 from typing import List, Tuple, Optional
 
@@ -7,7 +6,8 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import generate_callback, pair_depth_info_with_transcriptome_fasta_filename, AssemblePairEnd, patch_frontend_parser
+from yasim.helper.llrg import generate_callback, pair_depth_info_with_transcriptome_fasta_filename, AssemblePairEnd, \
+    patch_frontend_parser
 from yasim.llrg_adapter import dwgsim
 
 logger = get_logger(__name__)

@@ -1,9 +1,8 @@
 import glob
 import os
-import shutil
 from typing import List, Final
 
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException
+from yasim.llrg_adapter import BaseLLRGAdapter, automerge
 
 PBSIM2_DIST = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
@@ -18,23 +17,23 @@ class Pbsim2Adapter(BaseLLRGAdapter):
     CMDline Spec::
 
         cmd = [
-            self.exename,
-            "--prefix", self.tmp_dir,
-            "--depth", str(self.depth),
+            exename,
+            "--prefix", self._tmp_dir,
+            "--_depth", str(self._depth),
             "--hmm_model", self.hmm_model,
-            *self.other_args,
-            self.input_fasta
+            *other_args,
+            self._input_fasta
         ]
     """
     hmm_model: str
     """Absolute path to or name of HMM filename"""
 
-    tmp_dir: str
+    _tmp_dir: str
     """Prefix for generated temporary files"""
 
     _llrg_name: Final[str] = "pbsim2"
     _require_integer_depth: Final[bool] = False
-    _capture_stdout : Final[bool] = False
+    _capture_stdout: Final[bool] = False
 
     def __init__(
             self,
@@ -48,9 +47,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
-            depth=depth,
-            exename=exename,
-            other_args=other_args
+            depth=depth
         )
         if os.path.exists(hmm_model):
             hmm_model = hmm_model
@@ -59,24 +56,23 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         else:
             raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
-        self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
         self._cmd = [
-            self.exename,
+            exename,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--depth", str(self.depth),
+            "--_depth", str(self._depth),
             "--hmm_model", self.hmm_model,
-            *self.other_args,
-            self.input_fasta
+            *other_args,
+            self._input_fasta
         ]
 
     def _pre_execution_hook(self) -> None:
-        try:
-            os.makedirs(self.tmp_dir, exist_ok=True)
-        except OSError as e:
-            raise LLRGException(f"Failed to create temporary directory at {self.tmp_dir}") from e
+        """Does not need extra preparation"""
+        pass
 
     def _rename_file_after_finish_hook(self):
-        with open(self.output_fastq_prefix + ".fq", "wb") as writer:
-            for filename in glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")):
-                with open(filename, "rb") as reader:
-                    shutil.copyfileobj(reader, writer)
+        automerge(glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
+
+    @property
+    def is_pair_end(self) -> bool:
+        return False

@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import argparse
 import multiprocessing
 import os
@@ -6,12 +5,12 @@ import shutil
 import stat
 import threading
 import time
+from abc import ABC, abstractmethod
 from typing import Iterable, Tuple, List
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
 from labw_utils.bioutils.record.fastq import FastqRecord
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -107,7 +106,6 @@ def remark_fastq_pair_end(
     return num_of_reads, num_of_bases
 
 
-
 class BaseAssembler(threading.Thread, ABC):
     _transcript_ids_pending: List[str]
     _should_stop: bool
@@ -140,7 +138,6 @@ class BaseAssembler(threading.Thread, ABC):
 
     def terminate(self):
         self._should_stop = True
-
 
 
 class AssembleSingleEnd(BaseAssembler):
@@ -282,7 +279,6 @@ class AssemblePairEnd(BaseAssembler):
                     )) + "\n")
                     stats_writer.flush()
                 time.sleep(0.01)
-
 
 
 def generate_callback(assembler: BaseAssembler, transcript_id: str):

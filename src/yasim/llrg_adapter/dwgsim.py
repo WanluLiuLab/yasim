@@ -1,10 +1,8 @@
 import os
-import shutil
 from typing import List, Union, Final
 
-from labw_utils.commonutils.io import file_system, get_reader, get_writer
-
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException
+from labw_utils.commonutils.io import file_system
+from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException, autocopy
 
 
 class DwgsimAdapter(BaseLLRGAdapter):
@@ -14,11 +12,11 @@ class DwgsimAdapter(BaseLLRGAdapter):
     Cmdline Specs::
 
         cmd = [
-            self.exename,
-            "-C", str(self.depth),
-            *self.other_args,
-            self.input_fasta,
-            self.tmp_dir
+            exename,
+            "-C", str(self._depth),
+            *other_args,
+            self._input_fasta,
+            self._tmp_dir
         ]
     """
     _llrg_name: Final[str] = "dwgsim"
@@ -36,26 +34,21 @@ class DwgsimAdapter(BaseLLRGAdapter):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
-            depth=depth,
-            exename=exename,
-            other_args=other_args
+            depth=depth
         )
-        self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
 
         self._cmd = [
-            self.exename,
-            "-C", str(self.depth),
-            *self.other_args,
-            self.input_fasta,
+            exename,
+            "-C", str(self._depth),
+            *other_args,
+            self._input_fasta,
             os.path.join(self.tmp_dir, "tmp")
         ]
 
     def _pre_execution_hook(self) -> None:
-        try:
-            os.makedirs(self.tmp_dir, exist_ok=True)
-        except OSError as e:
-            raise LLRGException(f"Failed to create temporary directory at {self.tmp_dir}") from e
-
+        """Does not need extra preparation"""
+        pass
 
     def _rename_file_after_finish_hook(self):
         try_read1_suffix = (
@@ -77,12 +70,12 @@ class DwgsimAdapter(BaseLLRGAdapter):
             if not file_system.file_exists(r1_file_path) or \
                     not file_system.file_exists(r2_file_path):
                 continue
-            with get_reader(r1_file_path, is_binary=True) as r1, \
-                    get_writer(self.output_fastq_prefix + "_1.fq", is_binary=True) as w1:
-                shutil.copyfileobj(r1, w1)
-            with get_reader(r2_file_path, is_binary=True) as r2, \
-                    get_writer(self.output_fastq_prefix + "_2.fq", is_binary=True) as w2:
-                shutil.copyfileobj(r2, w2)
+            autocopy(r1_file_path, self._output_fastq_prefix + "_1.fq")
+            autocopy(r2_file_path, self._output_fastq_prefix + "_2.fq")
             break
         else:
-            self._lh.error(f"Unable to find output")
+            raise LLRGException("Unable to find output")
+
+    @property
+    def is_pair_end(self) -> bool:
+        return True

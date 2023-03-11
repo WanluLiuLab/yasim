@@ -2,7 +2,6 @@ import argparse
 from typing import List
 
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-
 from yasim.helper import depth
 
 

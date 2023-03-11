@@ -11,9 +11,9 @@ class BadReadAdapter(BaseLLRGAdapter):
 
         if self.model_name == "verybad":
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--glitches", "1000,100,100",
                 "--junk_reads", "5",
                 "--random_reads", "5",
@@ -21,13 +21,13 @@ class BadReadAdapter(BaseLLRGAdapter):
                 "--identity", "75,90,8",
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
         elif self.model_name == "verynice":
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--error_model", "random",
                 "--qscore_model", "ideal",
                 "--glitches", "0,0,0",
@@ -37,18 +37,18 @@ class BadReadAdapter(BaseLLRGAdapter):
                 "--identity", "95,100,4",
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
         else:
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--error_model", self.model_name,
                 "--qscore_model", self.model_name,
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
     """
     model_name: str
@@ -56,7 +56,7 @@ class BadReadAdapter(BaseLLRGAdapter):
 
     _llrg_name: Final[str] = "badread"
     _require_integer_depth: Final[bool] = True
-    _capture_stdout : Final[bool] = True
+    _capture_stdout: Final[bool] = True
 
     def __init__(
             self,
@@ -70,16 +70,14 @@ class BadReadAdapter(BaseLLRGAdapter):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
-            depth=depth,
-            exename=exename,
-            other_args=other_args
+            depth=depth
         )
 
         self.model_name = model_name
         cmd = [
-            self.exename, "simulate",
-            "--reference", self.input_fasta,
-            "--quantity", f"{self.depth}x",
+            exename, "simulate",
+            "--reference", self._input_fasta,
+            "--quantity", f"{self._depth}x",
         ]
         if self.model_name == "verybad":
             cmd.extend([
@@ -107,7 +105,7 @@ class BadReadAdapter(BaseLLRGAdapter):
         cmd.extend([
             "--start_adapter_seq", "",
             "--end_adapter_seq", "",
-            *self.other_args
+            *other_args
         ])
         self._cmd = cmd
 
@@ -117,7 +115,10 @@ class BadReadAdapter(BaseLLRGAdapter):
         """
         pass
 
-
     def _pre_execution_hook(self) -> None:
         """Does not need extra preparation"""
         pass
+
+    @property
+    def is_pair_end(self) -> bool:
+        return False
