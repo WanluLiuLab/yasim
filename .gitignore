@@ -441,3 +441,5 @@ mount.sh
 *.mmi
 *_salmon/
 *tmp*
+*.tsv.*
+*.aln

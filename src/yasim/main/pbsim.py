@@ -54,7 +54,7 @@ def simulate(
     )
     assembler.start()
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        if transcript_depth == 0:
+        if transcript_depth == 0 or not os.path.exists(transcript_filename):
             continue
         sim_thread = pbsim.PbsimAdapter(
             input_fasta=transcript_filename,

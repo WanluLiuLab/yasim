@@ -10,7 +10,7 @@ from yasim.helper.depth import DepthType, read_depth
 from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
     patch_frontend_parser, \
     enhanced_which, AssembleSingleEnd, generate_callback
-from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
+from yasim.llrg_adapter import pbsim3 as pbsim3
 
 logger = get_logger(__name__)
 
@@ -124,7 +124,7 @@ def simulate(
     )
     assembler.start()
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        if transcript_depth == 0:
+        if transcript_depth == 0 or not os.path.exists(transcript_filename):
             continue
         sim_thread = pbsim3.Pbsim3Adapter(
             input_fasta=transcript_filename,

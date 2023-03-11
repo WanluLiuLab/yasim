@@ -1,9 +1,21 @@
+import logging
 import subprocess
 import threading
 from abc import abstractmethod
-from typing import Union, List, Callable
+from typing import Union, List, IO, Optional
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
+
+class LLRGException(RuntimeError):
+    def __init__(self, contents: str):
+        self.contents = contents
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        return self.contents
 
 
 class BaseLLRGAdapter(threading.Thread):
@@ -20,6 +32,14 @@ class BaseLLRGAdapter(threading.Thread):
     - Execute the command using :py:mod:`subprocess`.
     - Move generated files to ``output_fastq_prefix``.
     """
+
+    _lh: logging.Logger
+    """
+    Class logger handler
+    """
+
+    _cmd: Optional[List[str]]
+    """Assembled Commandline"""
 
     input_fasta: str
     """
@@ -57,14 +77,15 @@ class BaseLLRGAdapter(threading.Thread):
     Can be name, relative or absolute path to LLRG Shell Adapters or LLRG itself.
     """
 
-    _before_cmd_hooks: List[Callable[[], None]]
-    _after_cmd_hooks: List[Callable[[], None]]
-    _on_success_hooks: List[Callable[[], None]]
-    _on_failure_hooks: List[Callable[[], None]]
-
     # Following fields are left for LLRGs.
     _llrg_name: str
+    """Class attribute, indicating name"""
+
     _require_integer_depth: bool
+    """Class attribute, indicating whether the depts should be converted to ine"""
+
+    _capture_stdout: bool
+    """Whether this simulator pours data into stdout"""
 
     def __init__(
             self,
@@ -79,21 +100,20 @@ class BaseLLRGAdapter(threading.Thread):
             raise TypeError
         if not hasattr(self, "_require_integer_depth"):
             raise TypeError
+        if not hasattr(self, "_capture_stdout"):
+            raise TypeError
         self.input_fasta = input_fasta
         self.output_fastq_prefix = output_fastq_prefix
         self.depth = int(depth) if self._require_integer_depth else depth
         self.exename = exename
-        self.lh = get_logger(__name__)
-        self._before_cmd_hooks = []
-        self._after_cmd_hooks = []
-        self._on_failure_hooks = []
-        self._on_success_hooks = []
+        self._lh = get_logger(__name__)
         self.other_args = other_args
+        self._cmd = None
 
     @abstractmethod
-    def _assemble_cmd_hook(self) -> List[str]:
+    def _pre_execution_hook(self) -> None:
         """
-        Assemble the command line into a list of string.
+        Additional steps to do before starting the simulator process
         """
         raise NotImplementedError
 
@@ -105,65 +125,58 @@ class BaseLLRGAdapter(threading.Thread):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def run(self):
-        """
-        The Default run method.
-        Designed for LLRGs that does not pour generated sequences into STDOUT.
-        """
-        raise NotImplementedError
+        if self._cmd is None:
+            self._lh.error("Commandline Assembly Failed!")
+            return
+        try:
+            self._pre_execution_hook()
+        except LLRGException as e:
+            self._lh.error("Exception %s caught at pre-execution time", str(e))
+            return
 
-    def run_simulator_as_process_with_stdout_capturing(
-            self
-    ):
-        """
-        Use a subprocess to run LLRG. It performs following tasks:
-
-        - Assembles CMD.
-        - Execute the process.
-
-        This method would redirect stdout into desired output location,
-        so can only be used in single-end conditions.
-
-        :return: The return value of top-level LLRG process. 0 for normal.
-        """
-        cmd = self._assemble_cmd_hook()
-        self.lh.debug(f"Subprocess {' '.join(cmd)} START")
-        with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler, \
-                open(self.output_fastq_prefix + ".fq", "wb") as stdout_handler:
-            p = subprocess.Popen(
-                cmd,
-                stdin=subprocess.DEVNULL,
-                stdout=stdout_handler,
-                stderr=subprocess_log_handler
-            )
-            retv = p.wait()
-        if retv == 0:
-            self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
-            self._rename_file_after_finish_hook()
+        if self._capture_stdout:
+            with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler, \
+                    open(self.output_fastq_prefix + ".fq", "wb") as stdout_handler:
+                retv = self._exec_subprocess(
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=stdout_handler,
+                    stderr=subprocess_log_handler
+                )
         else:
-            self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
-        return retv
-
-    def run_simulator_as_process(self) -> int:
-        """
-        Use a subprocess to run LLRG.
-
-        :return: The return value of top-level LLRG process. 0 for normal.
-        """
-        cmd = self._assemble_cmd_hook()
-        self.lh.debug(f"Subprocess {' '.join(cmd)} START")
-        with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler:
-            p = subprocess.Popen(
-                cmd,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess_log_handler,
-                stderr=subprocess_log_handler
-            )
-            retv = p.wait()
-        if retv == 0:
-            self.lh.debug(f"Subprocess {' '.join(cmd)} FIN")
+            with open(self.output_fastq_prefix + ".log", "wb") as subprocess_log_handler:
+                retv = self._exec_subprocess(
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess_log_handler,
+                    stderr=subprocess_log_handler
+                )
+        if retv != 0:
+            return
+        try:
             self._rename_file_after_finish_hook()
+        except LLRGException as e:
+            self._lh.error("Exception %s caught at file renaming", str(e))
+            return
+
+    def _exec_subprocess(
+            self,
+            cmd: List[str],
+            stdin: Union[IO, int],
+            stdout: Union[IO, int],
+            stderr: Union[IO, int]
+    ) -> int:
+        """Wrapper of :py:class:`subprocess.Popen` which logs."""
+        self._lh.debug(f"Subprocess {' '.join(cmd)} START")
+        retv = subprocess.Popen(
+            cmd,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr
+        ).wait()
+        if retv == 0:
+            self._lh.debug(f"Subprocess {' '.join(cmd)} FIN")
         else:
-            self.lh.debug(f"Subprocess {' '.join(cmd)} ERR={retv}")
+            self._lh.error(f"Subprocess {' '.join(cmd)} ERR={retv}")
         return retv

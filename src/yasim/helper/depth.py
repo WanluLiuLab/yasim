@@ -69,7 +69,10 @@ def simulate_isoform_variance_inside_a_gene(
     """
     if n == 1:
         return [mu]
-    generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
+    if alpha == 1:
+        generated_abundance = np.array([(rn ** (-1)) for rn in range(1, n + 1)])
+    else:
+        generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
     generated_abundance[generated_abundance < low_cutoff] = 0
     generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
     np.random.shuffle(generated_abundance)

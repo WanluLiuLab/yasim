@@ -17,7 +17,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument('--low_cutoff', required=False, help="Depth lower than this value would be 0.", nargs='?',
                         type=float, action='store', default=0.01)
     parser.add_argument('--alpha', required=False, help="Zipf's Coefficient, larger for larger differences", nargs='?',
-                        type=int, action='store', default=10)
+                        type=int, action='store', default=4)
     return parser.parse_args(args)
 
 

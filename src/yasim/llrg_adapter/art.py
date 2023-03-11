@@ -1,15 +1,28 @@
 import os
 import shutil
-from typing import List, Union, Final
+from typing import Dict, List, Tuple, Union, Final
 
 from labw_utils.commonutils.io import file_system, get_reader, get_writer
 
 from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException
 
+AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
+        "GA1":("GenomeAnalyzer I", [36,44]),
+        "GA2":("GenomeAnalyzer II", [50, 75]),
+        "HS10":("HiSeq 1000", [100]),
+        "HS20":("HiSeq 2000", [100]),
+        "HS25":("HiSeq 2500", [125, 150]),
+        "HSXn":("HiSeqX PCR free", [150]),
+        "HSXt":("HiSeqX TruSeq", [150]),
+        "MinS":("MiniSeq TruSeq", [50]),
+        "MSv1":("MiSeq v1", [250]),
+        "MSv3":("MSv3 - MiSeq v3", [250]),
+        "NS50":("NextSeq500 v2", [75])
+}
 
-class DwgsimAdapter(BaseLLRGAdapter):
+class ArtAdapter(BaseLLRGAdapter):
     """
-    Wrapper of DWGSIM.
+    Wrapper of ART.
 
     Cmdline Specs::
 
@@ -21,7 +34,7 @@ class DwgsimAdapter(BaseLLRGAdapter):
             self.tmp_dir
         ]
     """
-    _llrg_name: Final[str] = "dwgsim"
+    _llrg_name: Final[str] = "art"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
 
@@ -31,6 +44,9 @@ class DwgsimAdapter(BaseLLRGAdapter):
             output_fastq_prefix: str,
             depth: Union[int, float],
             exename: str,
+            sequencer: str,
+            rlen: int,
+            is_pair_end: bool,
             other_args: List[str],
     ):
         super().__init__(
@@ -41,13 +57,19 @@ class DwgsimAdapter(BaseLLRGAdapter):
             other_args=other_args
         )
         self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
+        sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer]
+
+        if rlen not in sequencer_profile[2]:
+            rlen = sequencer_profile[2][0]
 
         self._cmd = [
             self.exename,
             "-C", str(self.depth),
             *self.other_args,
             self.input_fasta,
-            os.path.join(self.tmp_dir, "tmp")
+            
+            "-l", rlen,
+            "-O", os.path.join(self.tmp_dir, "tmp")
         ]
 
     def _pre_execution_hook(self) -> None:

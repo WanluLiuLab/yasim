@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import List, Final
 
-from yasim.llrg_adapter import BaseLLRGAdapter
+from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException
 
 PBSIM2_DIST = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
@@ -34,6 +34,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
 
     _llrg_name: Final[str] = "pbsim2"
     _require_integer_depth: Final[bool] = False
+    _capture_stdout : Final[bool] = False
 
     def __init__(
             self,
@@ -59,13 +60,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
         self.tmp_dir = self.output_fastq_prefix + ".tmp.d"
-        os.makedirs(self.tmp_dir, exist_ok=True)
-
-    def run(self):
-        self.run_simulator_as_process()
-
-    def _assemble_cmd_hook(self) -> List[str]:
-        cmd = [
+        self._cmd = [
             self.exename,
             "--prefix", os.path.join(self.tmp_dir, "tmp"),
             "--depth", str(self.depth),
@@ -73,7 +68,12 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             *self.other_args,
             self.input_fasta
         ]
-        return cmd
+
+    def _pre_execution_hook(self) -> None:
+        try:
+            os.makedirs(self.tmp_dir, exist_ok=True)
+        except OSError as e:
+            raise LLRGException(f"Failed to create temporary directory at {self.tmp_dir}") from e
 
     def _rename_file_after_finish_hook(self):
         with open(self.output_fastq_prefix + ".fq", "wb") as writer:

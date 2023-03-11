@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import argparse
 import multiprocessing
 import os
@@ -78,11 +79,12 @@ def remark_fastq_pair_end(
         transcript_id: str,
         transcript_depth: float,
         simulator_name: str
-) -> int:
+) -> Tuple[int, int]:
     """
     Re-mark all seq_id in FASTQ files, return number of reads
     """
     num_of_reads = 0
+    num_of_bases = 0
     for fastq_record_1, fastq_record_2 in zip(
             FastqIterator(input_filename_1, show_tqdm=False),
             FastqIterator(input_filename_2, show_tqdm=False)
@@ -100,47 +102,50 @@ def remark_fastq_pair_end(
         writer1.write(new_fastq_record_1)
         writer2.write(new_fastq_record_2)
         num_of_reads += 1
-    return num_of_reads
+        num_of_bases += len(new_fastq_record_1)
+        num_of_bases += len(new_fastq_record_2)
+    return num_of_reads, num_of_bases
 
 
-def assemble_pair_end(
-        depth: DepthType,
-        output_fastq_prefix: str,
-        simulator_name: str
-):
-    """
-    Assemble pair-end reads into one.
-    """
-    output_fastq_dir = output_fastq_prefix + ".d"
-    with FastqWriter(output_fastq_prefix + "_1.fq") as writer1, \
-            FastqWriter(output_fastq_prefix + "_2.fq") as writer2, \
-            get_writer(output_fastq_prefix + ".fq.stats") as stats_writer:
-        stats_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "INPUT_DEPTH",
-            "SIMULATED_N_OF_READS",
-        )) + "\n")
-        for transcript_id, transcript_depth in tqdm(iterable=depth.items(), desc="Merging..."):
-            this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
-            num_of_reads = remark_fastq_pair_end(
-                input_filename_1=this_fastq_basename + "_1.fq",
-                input_filename_2=this_fastq_basename + "_2.fq",
-                writer1=writer1,
-                writer2=writer2,
-                transcript_id=transcript_id,
-                transcript_depth=transcript_depth,
-                simulator_name=simulator_name
-            )
-            stats_writer.write("\t".join((
-                transcript_id,
-                str(transcript_depth),
-                str(num_of_reads)
-            )) + "\n")
 
-
-class AssembleSingleEnd(threading.Thread):
+class BaseAssembler(threading.Thread, ABC):
     _transcript_ids_pending: List[str]
     _should_stop: bool
+    _depth: DepthType
+    _output_fastq_prefix: str
+    _simulator_name: str
+    _input_transcriptome_fasta_dir: str
+
+    def __init__(
+            self,
+            depth: DepthType,
+            output_fastq_prefix: str,
+            simulator_name: str,
+            input_transcriptome_fasta_dir: str
+    ):
+        super().__init__()
+        self._transcript_ids_pending = []
+        self._should_stop = False
+        self._depth = depth
+        self._output_fastq_prefix = output_fastq_prefix
+        self._simulator_name = simulator_name
+        self._input_transcriptome_fasta_dir = input_transcriptome_fasta_dir
+
+    @abstractmethod
+    def run(self):
+        raise NotImplementedError
+
+    def add_transcript_id(self, transcript_id: str):
+        self._transcript_ids_pending.append(transcript_id)
+
+    def terminate(self):
+        self._should_stop = True
+
+
+
+class AssembleSingleEnd(BaseAssembler):
+    _truncate_ratio_3p: float
+    _truncate_ratio_5p: float
 
     def __init__(
             self,
@@ -151,15 +156,14 @@ class AssembleSingleEnd(threading.Thread):
             truncate_ratio_5p: float,
             input_transcriptome_fasta_dir: str
     ):
-        super().__init__()
-        self._transcript_ids_pending = []
-        self._should_stop = False
-        self._depth = depth
-        self._output_fastq_prefix = output_fastq_prefix
-        self._simulator_name = simulator_name
+        super().__init__(
+            depth=depth,
+            output_fastq_prefix=output_fastq_prefix,
+            simulator_name=simulator_name,
+            input_transcriptome_fasta_dir=input_transcriptome_fasta_dir
+        )
         self._truncate_ratio_3p = truncate_ratio_3p
         self._truncate_ratio_5p = truncate_ratio_5p
-        self._input_transcriptome_fasta_dir = input_transcriptome_fasta_dir
 
     def run(self):
         output_fastq_dir = self._output_fastq_prefix + ".d"
@@ -216,14 +220,72 @@ class AssembleSingleEnd(threading.Thread):
                     stats_writer.flush()
                 time.sleep(0.01)
 
-    def add_transcript_id(self, transcript_id: str):
-        self._transcript_ids_pending.append(transcript_id)
 
-    def terminate(self):
-        self._should_stop = True
+class AssemblePairEnd(BaseAssembler):
+
+    def run(self):
+        output_fastq_dir = self._output_fastq_prefix + ".d"
+        with FastqWriter(self._output_fastq_prefix + "_1.fq") as writer1, \
+                FastqWriter(self._output_fastq_prefix + "_2.fq") as writer2, \
+                get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
+            stats_writer.write("\t".join((
+                "TRANSCRIPT_ID",
+                "INPUT_DEPTH",
+                "SIMULATED_N_OF_READS",
+                "SIMULATED_N_OF_BASES",
+                "TRANSCRIBED_LENGTH",
+                "SIMULATED_DEPTH"
+            )) + "\n")
+
+            while not self._should_stop:
+                while not len(self._transcript_ids_pending) == 0:
+                    transcript_id = self._transcript_ids_pending.pop(0)
+                    this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
+                    this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
+                    this_fastq_r1_path = this_fastq_basename + "_1.fq"
+                    this_fastq_r2_path = this_fastq_basename + "_2.fq"
+                    if not file_system.file_exists(this_fastq_r1_path):
+                        _lh.warning(f"Skipped non-expressing transcript: %s (FASTQ 1 not exist)", transcript_id)
+                        continue
+                    if not file_system.file_exists(this_fastq_r2_path):
+                        _lh.warning(f"Skipped non-expressing transcript: %s (FASTQ 2 not exist)", transcript_id)
+                        continue
+                    if not file_system.file_exists(this_fasta_path):
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTA not exist)", transcript_id)
+                        continue
+                    try:
+                        transcribed_length = FastaViewFactory(
+                            filename=this_fasta_path,
+                            read_into_memory=True,
+                            show_tqdm=False
+                        ).get_chr_length(transcript_id)
+                    except KeyError:
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
+                        continue
+                    transcript_depth = self._depth[transcript_id]
+                    num_of_reads, num_of_bases = remark_fastq_pair_end(
+                        input_filename_1=this_fastq_r1_path,
+                        input_filename_2=this_fastq_r2_path,
+                        writer1=writer1,
+                        writer2=writer2,
+                        transcript_id=transcript_id,
+                        transcript_depth=transcript_depth,
+                        simulator_name=self._simulator_name
+                    )
+                    stats_writer.write("\t".join((
+                        transcript_id,  # "TRANSCRIPT_ID",
+                        str(transcript_depth),  # "INPUT_DEPTH",
+                        str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                        str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                        str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                        str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
+                    )) + "\n")
+                    stats_writer.flush()
+                time.sleep(0.01)
 
 
-def generate_callback(assembler: AssembleSingleEnd, transcript_id: str):
+
+def generate_callback(assembler: BaseAssembler, transcript_id: str):
     return lambda _: assembler.add_transcript_id(transcript_id)
 
 
