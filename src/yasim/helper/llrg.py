@@ -2,7 +2,6 @@ import argparse
 import multiprocessing
 import os
 import shutil
-import stat
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -10,7 +9,7 @@ from typing import Iterable, Tuple, List
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
-from labw_utils.bioutils.record.fastq import FastqRecord
+from labw_utils.bioutils.record.fastq import FastqRecord, MisFormattedFastqRecordError
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -119,7 +118,8 @@ class BaseAssembler(threading.Thread, ABC):
             depth: DepthType,
             output_fastq_prefix: str,
             simulator_name: str,
-            input_transcriptome_fasta_dir: str
+            input_transcriptome_fasta_dir: str,
+            **kwargs
     ):
         super().__init__()
         self._transcript_ids_pending = []
@@ -149,9 +149,9 @@ class AssembleSingleEnd(BaseAssembler):
             depth: DepthType,
             output_fastq_prefix: str,
             simulator_name: str,
-            truncate_ratio_3p: float,
-            truncate_ratio_5p: float,
-            input_transcriptome_fasta_dir: str
+            input_transcriptome_fasta_dir: str,
+            truncate_ratio_3p: float = 0,
+            truncate_ratio_5p: float = 0
     ):
         super().__init__(
             depth=depth,
@@ -197,15 +197,19 @@ class AssembleSingleEnd(BaseAssembler):
                         _lh.warning(f"Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
                         continue
                     transcript_depth = self._depth[transcript_id]
-                    num_of_reads, num_of_bases = remark_fastq_single_end(
-                        input_filename=this_fastq_path,
-                        writer=writer,
-                        transcript_id=transcript_id,
-                        transcript_depth=transcript_depth,
-                        simulator_name=self._simulator_name,
-                        truncate_ratio_3p=self._truncate_ratio_3p,
-                        truncate_ratio_5p=self._truncate_ratio_5p
-                    )
+                    try:
+                        num_of_reads, num_of_bases = remark_fastq_single_end(
+                            input_filename=this_fastq_path,
+                            writer=writer,
+                            transcript_id=transcript_id,
+                            transcript_depth=transcript_depth,
+                            simulator_name=self._simulator_name,
+                            truncate_ratio_3p=self._truncate_ratio_3p,
+                            truncate_ratio_5p=self._truncate_ratio_5p
+                        )
+                    except MisFormattedFastqRecordError:
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTQ Parsing Error)", transcript_id)
+                        continue
                     stats_writer.write("\t".join((
                         transcript_id,  # "TRANSCRIPT_ID",
                         str(transcript_depth),  # "INPUT_DEPTH",
@@ -260,15 +264,19 @@ class AssemblePairEnd(BaseAssembler):
                         _lh.warning(f"Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
                         continue
                     transcript_depth = self._depth[transcript_id]
-                    num_of_reads, num_of_bases = remark_fastq_pair_end(
-                        input_filename_1=this_fastq_r1_path,
-                        input_filename_2=this_fastq_r2_path,
-                        writer1=writer1,
-                        writer2=writer2,
-                        transcript_id=transcript_id,
-                        transcript_depth=transcript_depth,
-                        simulator_name=self._simulator_name
-                    )
+                    try:
+                        num_of_reads, num_of_bases = remark_fastq_pair_end(
+                            input_filename_1=this_fastq_r1_path,
+                            input_filename_2=this_fastq_r2_path,
+                            writer1=writer1,
+                            writer2=writer2,
+                            transcript_id=transcript_id,
+                            transcript_depth=transcript_depth,
+                            simulator_name=self._simulator_name
+                        )
+                    except MisFormattedFastqRecordError:
+                        _lh.warning(f"Skipped none-existing transcript: %s (FASTQ Parsing Error)", transcript_id)
+                        continue
                     stats_writer.write("\t".join((
                         transcript_id,  # "TRANSCRIPT_ID",
                         str(transcript_depth),  # "INPUT_DEPTH",
@@ -285,7 +293,7 @@ def generate_callback(assembler: BaseAssembler, transcript_id: str):
     return lambda _: assembler.add_transcript_id(transcript_id)
 
 
-def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def patch_frontend_parser_public(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('-F', '--fastas', required=True,
                         help="Directory of transcribed DGE FASTAs from `transcribe` step", nargs='?',
                         type=str, action='store')
@@ -296,27 +304,27 @@ def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
     parser.add_argument('-j', '--jobs', required=False,
                         help="Number of threads", nargs='?',
                         type=int, action='store', default=multiprocessing.cpu_count())
-    parser.add_argument('--truncate_ratio_3p', required=False,
-                        help="Ratio of 3 prime truncation", nargs='?',
-                        type=float, action='store', default=0.0)
-    parser.add_argument('--truncate_ratio_5p', required=False,
-                        help="Ratio of 5 prime truncation", nargs='?',
-                        type=float, action='store', default=0.0)
     parser.add_argument('--simulator_name', required=False,
                         help="Custom simulator name. Used in FASTQ tags", nargs='?',
                         type=str, action='store', default=None)
     return parser
 
 
+def patch_frontend_parser_tgs(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = patch_frontend_parser_public(parser)
+    parser.add_argument('--truncate_ratio_3p', required=False,
+                        help="Ratio of 3 prime truncation", nargs='?',
+                        type=float, action='store', default=0.0)
+    parser.add_argument('--truncate_ratio_5p', required=False,
+                        help="Ratio of 5 prime truncation", nargs='?',
+                        type=float, action='store', default=0.0)
+    return parser
+
+
 def enhanced_which(path_or_filename: str) -> str:
-    if os.path.exists(path_or_filename):
-        stat_result = os.stat(path_or_filename)
-        if not stat.S_IXUSR & stat_result.st_mode:
-            raise FileNotFoundError(f"File {path_or_filename} is not executable!")
+    resolved_path = shutil.which(path_or_filename)
+    if resolved_path is None:
+        raise FileNotFoundError(f"File {path_or_filename} not found!")
     else:
-        resolved_path = shutil.which(path_or_filename)
-        if resolved_path is None:
-            raise FileNotFoundError(f"File {path_or_filename} not found!")
-        else:
-            path_or_filename = resolved_path
+        path_or_filename = resolved_path
     return path_or_filename

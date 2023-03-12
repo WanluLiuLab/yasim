@@ -56,11 +56,11 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         else:
             raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
-        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
+
         self._cmd = [
             exename,
-            "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--_depth", str(self._depth),
+            "--prefix", os.path.join(self._tmp_dir, "tmp"),
+            "--depth", str(self._depth),
             "--hmm_model", self.hmm_model,
             *other_args,
             self._input_fasta
@@ -71,7 +71,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         pass
 
     def _rename_file_after_finish_hook(self):
-        automerge(glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
+        automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
 
     @property
     def is_pair_end(self) -> bool:

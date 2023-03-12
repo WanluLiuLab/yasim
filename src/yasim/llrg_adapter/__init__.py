@@ -119,7 +119,8 @@ class BaseLLRGAdapter(threading.Thread):
             self,
             input_fasta: str,
             output_fastq_prefix: str,
-            depth: Union[int, float]
+            depth: Union[int, float],
+            **kwargs
     ):
         super(BaseLLRGAdapter, self).__init__()
         if not hasattr(self, "_llrg_name"):
@@ -133,6 +134,7 @@ class BaseLLRGAdapter(threading.Thread):
         self._depth = int(depth) if self._require_integer_depth else depth
         self._lh = get_logger(__name__)
         self._cmd = None
+        self._tmp_dir = self._output_fastq_prefix + ".tmp.d"
 
     @abstractmethod
     def _pre_execution_hook(self) -> None:
@@ -240,7 +242,7 @@ class BaseLLRGAdapter(threading.Thread):
     def depth(self) -> Union[int, float]:
         return self._depth
 
-    @abstractmethod
     @property
+    @abstractmethod
     def is_pair_end(self) -> bool:
         raise NotImplementedError

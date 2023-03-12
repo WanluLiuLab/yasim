@@ -36,14 +36,12 @@ class DwgsimAdapter(BaseLLRGAdapter):
             output_fastq_prefix=output_fastq_prefix,
             depth=depth
         )
-        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
-
         self._cmd = [
             exename,
             "-C", str(self._depth),
             *other_args,
             self._input_fasta,
-            os.path.join(self.tmp_dir, "tmp")
+            os.path.join(self._tmp_dir, "tmp")
         ]
 
     def _pre_execution_hook(self) -> None:
@@ -64,8 +62,8 @@ class DwgsimAdapter(BaseLLRGAdapter):
             ".bwa.read2.fq"
         )
         for suffix_r1, suffix_r2 in zip(try_read1_suffix, try_read2_suffix):
-            r1_file_path = os.path.join(self.tmp_dir, "tmp" + suffix_r1)
-            r2_file_path = os.path.join(self.tmp_dir, "tmp" + suffix_r2)
+            r1_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r1)
+            r2_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r2)
 
             if not file_system.file_exists(r1_file_path) or \
                     not file_system.file_exists(r2_file_path):

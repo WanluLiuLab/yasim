@@ -3,13 +3,11 @@ import glob
 import os.path
 from typing import List, Tuple, Optional
 
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
-    patch_frontend_parser, AssembleSingleEnd, generate_callback
+from yasim.helper.llrg import patch_frontend_parser_tgs, enhanced_which
 from yasim.llrg_adapter import pbsim2
+from yasim.main import abstract_simulate
 
 logger = get_logger(__name__)
 
@@ -26,56 +24,40 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     parser.add_argument('-e', '--exename', required=False,
                         help="Executable name of pbsim2, may be pbsim2 or pbsim.", nargs='?',
                         type=str, action='store', default="pbsim2")
-    parser = patch_frontend_parser(parser)
+    parser = patch_frontend_parser_tgs(parser)
     return parser.parse_known_args(args)
 
 
 def simulate(
         transcriptome_fasta_dir: str,
         output_fastq_prefix: str,
-        hmm_model: str,
         exename: str,
         depth: DepthType,
+        hmm_model: str,
         jobs: int,
         truncate_ratio_3p: float,
         truncate_ratio_5p: float,
         simulator_name: Optional[str],
         other_args: List[str]
 ):
-    if simulator_name is None:
-        simulator_name = "_".join(("pbsim2", hmm_model, "clr"))
-    output_fastq_dir = output_fastq_prefix + ".d"
-    os.makedirs(output_fastq_dir, exist_ok=True)
-    simulating_pool = parallel_helper.ParallelJobExecutor(
-        pool_name="Simulating jobs",
-        pool_size=jobs
-    )
-    depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
-    assembler = AssembleSingleEnd(
-        depth=depth,
+    abstract_simulate(
+        transcriptome_fasta_dir=transcriptome_fasta_dir,
         output_fastq_prefix=output_fastq_prefix,
-        simulator_name=simulator_name,
-        truncate_ratio_3p=truncate_ratio_3p,
-        truncate_ratio_5p=truncate_ratio_5p,
-        input_transcriptome_fasta_dir=transcriptome_fasta_dir
+        depth=depth,
+        jobs=jobs,
+        simulator_name="_".join(("pbsim2", hmm_model, "clr")) if simulator_name is None else simulator_name,
+        assembler_args={
+            "truncate_ratio_3p": truncate_ratio_3p,
+            "truncate_ratio_5p": truncate_ratio_5p
+        },
+        adapter_args={
+            "hmm_model": hmm_model,
+            "exename": exename,
+            "other_args": other_args
+        },
+        adapter_class=pbsim2.Pbsim2Adapter,
+        is_pair_end=False
     )
-    assembler.start()
-    for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        if transcript_depth == 0 or not os.path.exists(transcript_filename):
-            continue
-        sim_thread = pbsim2.Pbsim2Adapter(
-            input_fasta=transcript_filename,
-            output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
-            depth=transcript_depth,
-            hmm_model=hmm_model,
-            exename=exename,
-            other_args=other_args
-        )
-        simulating_pool.append(sim_thread, callback=generate_callback(assembler, transcript_id))
-    simulating_pool.start()
-    simulating_pool.join()
-    assembler.terminate()
-    assembler.join()
 
 
 def main(args: List[str]):
@@ -84,7 +66,7 @@ def main(args: List[str]):
         transcriptome_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,
         hmm_model=args.hmm_model,
-        exename=args.exename,
+        exename=enhanced_which(args.exename),
         depth=read_depth(args.depth),
         jobs=args.jobs,
         truncate_ratio_3p=args.truncate_ratio_3p,

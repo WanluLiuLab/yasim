@@ -64,11 +64,11 @@ class ArtAdapter(BaseLLRGAdapter):
             depth=depth
         )
         self._is_pair_end = is_pair_end
-        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
+        self._tmp_dir = self._output_fastq_prefix + ".tmp.d"
         sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer]
 
-        if rlen not in sequencer_profile[2]:
-            rlen = sequencer_profile[2][0]
+        if rlen not in sequencer_profile[1]:
+            rlen = sequencer_profile[1][0]
         self._cmd = [
             exename,
             "--fcov", str(self._depth),
@@ -76,22 +76,22 @@ class ArtAdapter(BaseLLRGAdapter):
             "--samout",
             "--noALN",
             "-l", str(rlen),
-            "-O", os.path.join(self.tmp_dir, "tmp"),
+            "--out", os.path.join(self._tmp_dir, "tmp"),
             *other_args
         ]
         if self._is_pair_end:
             self._cmd.extend([
                 "-p",
-                "--sdev", str(mflen_mean),
-                "--mflen", str(mflen_std)
+                "--sdev", str(mflen_std),
+                "--mflen", str(mflen_mean)
             ])
 
     def _rename_file_after_finish_hook(self):
         if self._is_pair_end:
-            autocopy(os.path.join(self.tmp_dir, "tmp1.fq"), self._output_fastq_prefix + "_1.fq")
-            autocopy(os.path.join(self.tmp_dir, "tmp2.fq"), self._output_fastq_prefix + "_2.fq")
+            autocopy(os.path.join(self._tmp_dir, "tmp1.fq"), self._output_fastq_prefix + "_1.fq")
+            autocopy(os.path.join(self._tmp_dir, "tmp2.fq"), self._output_fastq_prefix + "_2.fq")
         else:
-            autocopy(os.path.join(self.tmp_dir, "tmp.fq"), self._output_fastq_prefix + ".fq")
+            autocopy(os.path.join(self._tmp_dir, "tmp.fq"), self._output_fastq_prefix + ".fq")
 
     @property
     def is_pair_end(self) -> bool:

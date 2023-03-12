@@ -13,19 +13,19 @@
 [X]: Cdr3DeletionTable
 """
 
+import copy
 import itertools
 import json
 import os
 import random
-import uuid
 from typing import Dict, List, Tuple
 
 from create_tcr_cache import TCRTranslationTableType
 from labw_utils.bioutils.algorithm.sequence import TRANSL_TABLES, TRANSL_TABLES_NT
 from labw_utils.commonutils.appender import load_table_appender_class
 from labw_utils.commonutils.appender.typing import TableAppenderConfig
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
+from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.shell_utils import rm_rf
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
@@ -108,11 +108,11 @@ class TCell:
     _trbv_tt: TCRTranslationTableType
     _tra_cdr3_tt: TCRTranslationTableType
     _trb_cdr3_tt: TCRTranslationTableType
-    _cell_uuid: str
+    _cell_barcode: str
 
     def __init__(
             self,
-            cell_uuid: str,
+            cell_barcode: str,
             traj_name: str,
             trbj_name: str,
             trav_name: str,
@@ -124,7 +124,7 @@ class TCell:
             tra_cdr3_tt: TCRTranslationTableType,
             trb_cdr3_tt: TCRTranslationTableType
     ):
-        self._cell_uuid = cell_uuid
+        self._cell_barcode = cell_barcode
         self._traj_name = traj_name
         self._trbj_name = trbj_name
         self._trav_name = trav_name
@@ -142,15 +142,20 @@ class TCell:
             tcr_genelist: Dict[str, List[str]],
             cdr3_deletion_table: Cdr3DeletionTableType,
             cdr3_insertion_table: Cdr3InsertionTable,
-            tcr_cache: Dict[str, TCRTranslationTableType]
+            tcr_cache: Dict[str, TCRTranslationTableType],
+            barcode: str
     ):
         def choose_name(tcr_type: str) -> Tuple[str, TCRTranslationTableType]:
             while True:
                 tcr_name = random.choice(tcr_genelist[tcr_type])
                 if tcr_name in tcr_cache:
-                    return tcr_name, tcr_cache[tcr_name]
+                    return tcr_name, copy.deepcopy(tcr_cache[tcr_name])
 
-        def clip_aa(tr_cdr3_tt, trv_tt, trj_tt):
+        def clip_aa(
+                tr_cdr3_tt: TCRTranslationTableType,
+                trv_tt: TCRTranslationTableType,
+                trj_tt: TCRTranslationTableType
+            ) -> None:
             trv_tt_real_aa = "".join(list(zip(*trv_tt))[2])
             trj_tt_real_aa = "".join(list(zip(*trj_tt))[2])
             c_idx = trv_tt_real_aa[::-1].find("C")
@@ -162,7 +167,8 @@ class TCell:
             tr_cdr3_tt = trv_tt[- c_idx - 1: -1] + tr_cdr3_tt + trj_tt[0: f_idx + 1]
             trv_tt = trv_tt[0: - c_idx - 1]
             trj_tt = trj_tt[f_idx:]
-            return tr_cdr3_tt, trv_tt, trj_tt
+            if len(trv_tt) * len(trj_tt) * len(tr_cdr3_tt) == 0:
+                raise GenerationFailure
 
         (trbv_name, trbv_tt), (trbj_name, trbj_tt) = choose_name("trbv_names"), choose_name("trbj_names")
         (traj_name, traj_tt), (trav_name, trav_tt) = choose_name("traj_names"), choose_name("trav_names")
@@ -175,35 +181,34 @@ class TCell:
             for k in cdr3_deletion_table.keys()
         }
 
-        def pop(tr_tt, gene_name, pos):
+        def clip_nt(tr_tt: TCRTranslationTableType, gene_name: str, pos: int) -> None:
+            """Delete terminal untranslated NTs and generated deletions"""
             while tr_tt[pos][-1] == "X":
                 _ = tr_tt.pop(pos)
             for _ in range(chosen_deletion[gene_name]):
                 _ = tr_tt.pop(pos)
-            return tr_tt
+            if len(tr_tt) == 0:
+                raise GenerationFailure
 
         try:
-            trav_tt = pop(trav_tt, "trav", -1)
-            trbv_tt = pop(trbv_tt, "trbv", -1)
-            traj_tt = pop(traj_tt, "traj", 0)
-            trbj_tt = pop(trbj_tt, "trbj", 0)
-        except (IndexError, RuntimeError) as e:
+            clip_nt(trav_tt, "trav", -1)
+            clip_nt(trbv_tt, "trbv", -1)
+            clip_nt(traj_tt, "traj", 0)
+            clip_nt(trbj_tt, "trbj", 0)
+        except (IndexError, RuntimeError, GenerationFailure) as e:
             raise GenerationFailure from e
-
+        
         tra_cdr3_tt = cdr3_insertion_table.generate_cdr3("A")
         trb_cdr3_tt = cdr3_insertion_table.generate_cdr3("B")
 
         try:
-            tra_cdr3_tt, trav_tt, traj_tt = clip_aa(tra_cdr3_tt, trav_tt, traj_tt)
-            trb_cdr3_tt, trbv_tt, trbj_tt = clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
-        except (IndexError, RuntimeError) as e:
+            clip_aa(tra_cdr3_tt, trav_tt, traj_tt)
+            clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
+        except (IndexError, RuntimeError, GenerationFailure) as e:
             raise GenerationFailure from e
 
-        if len(trbv_tt) * len(trav_tt) * len(trbj_tt) * len(traj_tt) == 0:
-            raise GenerationFailure
-
         return cls(
-            cell_uuid=str(uuid.uuid4()),
+            cell_barcode=barcode,
             trav_tt=trav_tt,
             traj_tt=traj_tt,
             tra_cdr3_tt=tra_cdr3_tt,
@@ -218,15 +223,15 @@ class TCell:
 
     def to_fasta_record(self) -> str:
         return "\n".join((
-            f">{self._cell_uuid}:A",
+            f">{self._cell_barcode}:A",
             self.alpha_nt,
-            f">{self._cell_uuid}:B",
+            f">{self._cell_barcode}:B",
             self.beta_nt
         ))
 
     @property
     def cell_uuid(self):
-        return self._cell_uuid
+        return self._cell_barcode
 
     @property
     def alpha_names(self) -> Tuple[str, str]:
@@ -265,7 +270,7 @@ class TCell:
 
 
 def rearrange_tcr(
-        n_cells: int,
+        barcode_path: str,
         tcr_cache_path: str,
         tcr_genelist_path: str,
         output_base_path: str,
@@ -279,6 +284,7 @@ def rearrange_tcr(
         cdr3_deletion_table = json.load(reader)
     with get_reader(tcr_cache_path) as reader:
         tcr_cache: Dict[str, TCRTranslationTableType] = json.load(reader)
+    cdr3_insertion_table = Cdr3InsertionTable(cdr3_insertion_table_path)
     cdr3_deletion_table = {
         k: {
             int(_k): _v
@@ -294,14 +300,15 @@ def rearrange_tcr(
                 ],
                 tac=TableAppenderConfig(buffer_size=1024)
         ) as appender:
-            for _ in tqdm(range(n_cells), desc="Simulating..."):
+            for barcode in get_tqdm_line_reader(barcode_path):
                 while True:
                     try:
                         cell = TCell.from_gene_names(
                             tcr_genelist=tcr_genelist,
                             cdr3_deletion_table=cdr3_deletion_table,
-                            cdr3_insertion_table=Cdr3InsertionTable(cdr3_insertion_table_path),
-                            tcr_cache=tcr_cache
+                            cdr3_insertion_table=cdr3_insertion_table,
+                            tcr_cache=tcr_cache,
+                            barcode=barcode
                         )
                     except GenerationFailure:
                         n_failure += 1
@@ -324,10 +331,10 @@ if __name__ == "__main__":
     basename = "."
     rm_rf(os.path.join(basename, "sim") + ".fa.d")
     rearrange_tcr(
-        n_cells=100,
         output_base_path=os.path.join(basename, "sim"),
         tcr_genelist_path=os.path.join(basename, "tcr_genelist.json"),
         tcr_cache_path=os.path.join(basename, "tcr_cache.json"),
         cdr3_deletion_table_path=os.path.join(basename, "cdr3_deletion_table.json"),
-        cdr3_insertion_table_path=os.path.join(basename, "cdr3_insertion_table.json")
+        cdr3_insertion_table_path=os.path.join(basename, "cdr3_insertion_table.json"),
+        barcode_path=os.path.join(basename, "barcode.txt")
     )

@@ -63,11 +63,11 @@ class PbsimAdapter(BaseLLRGAdapter):
             depth=depth
         )
         self.is_ccs = is_ccs
-        self.tmp_dir = self._output_fastq_prefix + ".tmp.d"
+
         cmd = [
             exename,
-            "--prefix", os.path.join(self.tmp_dir, "tmp"),
-            "--_depth", str(self._depth),
+            "--prefix", os.path.join(self._tmp_dir, "tmp"),
+            "--depth", str(self._depth),
         ]
         if self.is_ccs:
             cmd.extend([
@@ -90,7 +90,7 @@ class PbsimAdapter(BaseLLRGAdapter):
         pass
 
     def _rename_file_after_finish_hook(self):
-        automerge(glob.glob(os.path.join(self.tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
+        automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
 
     @property
     def is_pair_end(self) -> bool:

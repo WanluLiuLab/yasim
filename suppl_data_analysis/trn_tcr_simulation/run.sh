@@ -9,33 +9,43 @@ gunzip ./*.gz
 export PYTHONPATH="../../src:../../deps/labw_utils/src:${PYTHONPATH}"
 
 # Target: Cell 1000
+python -m yasim_sc generate_barcode -n 10 -o barcode.txt
+python create_tcr_cache.py
+python rearrange_tcr.py
+python sequencing_art_illumina.py
 
 python -m yasim_scripts exclude_tcr_from_gtf hg38.ncbiRefSeq.gtf
+cat hg38.ncbiRefSeq.gtf | grep '^chr1\s' > hg38.ncbiRefSeq_chr1.gtf
 python -m yasim generate_gene_depth \
-    -g hg38.ncbiRefSeq.gtf.tcr_filtered.gtf \
-    -d 10 \
+    -g hg38.ncbiRefSeq_chr1.gtf \
+    -d 5 \
     -o notcr_gene_depth.tsv
 python -m yasim generate_isoform_depth \
-    -g hg38.ncbiRefSeq.gtf.tcr_filtered.gtf \
+    -g hg38.ncbiRefSeq_chr1.gtf \
     -d notcr_gene_depth.tsv \
     -o notcr_isoform_depth.tsv
-python -m yasim generate_isoform_replicates \
+python -m yasim_sc generate_barcoded_isoform_replicates \
     -d notcr_isoform_depth.tsv \
-    -n 100
+    -b barcode.txt
 
 python -m yasim transcribe \
     -f hg38.fa \
-    -g hg38.ncbiRefSeq.gtf.tcr_filtered.gtf \
-    -o hg38_tcr_filtered_trans.fa
+    -g hg38.ncbiRefSeq_chr1.gtf \
+    -o notcr_trans.fa
 
-python -m yasim dwgsim \
-    -F hg38_tcr_filtered_trans.fa.d \
-    -o ref \
-    -d notcr_isoform_depth.tsv \
-    -e $(which dwgsim) \
-    -j 20
+for fn in notcr_isoform_depth.tsv.d/*.tsv; do
+    python -m yasim art \
+        -F notcr_trans.fa.d \
+        -o "${fn}"_sim \
+        -d "${fn}" \
+        -e art_illumina \
+        -j 20
+done
 
-python create_tcr_cache.py
-python rearrange_tcr.py
+mkdir -p trust4_result
 
-art_illumina -f 10 --in sim.fa -ss HS25 -l 150 --out sim
+run-trust4 -u sim.fq \
+    -f trust4_index/bcrtcr.fa \
+    -t 40 \
+    --ref trust4_index/IMGT+C.fa \
+    --od trust4_result
