@@ -64,6 +64,7 @@ dependencies:
   - r-base=4.2.2
   - r-languageserver
   - radian=0.6.4
+  - r-ggpubr=0.6.0
   - r-lintr
   - r-formatr
 
