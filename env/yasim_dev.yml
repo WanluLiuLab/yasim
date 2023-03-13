@@ -74,6 +74,11 @@ dependencies:
   - samtools=1.16.1
   - last=1449
   - subread=2.0.3
+  - dwgsim=1.1.13
+  - fastqc=0.12.1
+  - gatk4=4.3.0.0
+  - art=2016.06.05
+  - trust4=1.0.8
 
   - pip
   - setuptools

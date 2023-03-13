@@ -2,9 +2,8 @@ import statistics
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
-
 if __name__ == '__main__':
-    retd = {"I": [], "D": [], "M": [], "S":[]}
+    retd = {"I": [], "D": [], "M": [], "S": []}
     with get_tqdm_line_reader("pbsim.log") as reader:
         for line in reader:
             if line.startswith("substitution rate"):

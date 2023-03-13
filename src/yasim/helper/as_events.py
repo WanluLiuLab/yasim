@@ -10,11 +10,12 @@ import random
 from typing import List, Callable, Iterable
 
 import numpy as np
+from scipy.stats import lognorm
+
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from scipy.stats import lognorm
 
 organism_dict = {
     "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
