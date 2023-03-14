@@ -6,7 +6,7 @@ conditions <- fns %>%
     stringr::str_replace("ce11_as_2_isoform_depth_", "") %>%
     stringr::str_replace(".fq.stats.xz", "")
 
-all_transcript_ids <- readr::read_tsv(
+gene_id_transcript_id <- readr::read_tsv(
                 "../ce11_as_2.gtf.gz.transcripts.tsv.xz",
                 show_col_types = FALSE,
                 col_types = c(
@@ -17,7 +17,10 @@ all_transcript_ids <- readr::read_tsv(
                     EXON_NUMBER = col_integer()
                 )
             ) %>%
+                dplyr::select(TRANSCRIPT_ID, GENE_ID)
+all_transcript_ids <- gene_id_transcript_id %>%
                 dplyr::select(TRANSCRIPT_ID)
+
 
 if (file.exists("all_gep_data.parquet")) {
     all_gep_data <- arrow::read_parquet("all_gep_data.parquet")
@@ -86,3 +89,42 @@ means <- all_gep_data %>%
     )
 
 print(as.data.frame(means))
+
+all_gep_data_with_gene_id <- all_gep_data %>%
+    dplyr::inner_join(gene_id_transcript_id, by="TRANSCRIPT_ID") %>%
+    dplyr::select(GENE_ID, TRANSCRIPT_ID, SIMULATED_DEPTH, Condition)
+
+all_variation_data <- data.frame()
+
+for (gene_id in sample(unique(all_gep_data_with_gene_id$GENE_ID), 1000)){
+    print(gene_id)
+    for (condition in unique(all_gep_data_with_gene_id$Condition)){
+        this_gep_data_with_gene_id <- all_gep_data_with_gene_id %>%
+            dplyr::filter(GENE_ID==gene_id, Condition==condition)
+        for (transcript_id1 in this_gep_data_with_gene_id$TRANSCRIPT_ID){
+                for (transcript_id2 in this_gep_data_with_gene_id$TRANSCRIPT_ID){
+                    if (transcript_id1 != transcript_id2){
+                        t1_data <- this_gep_data_with_gene_id %>%
+                            dplyr::filter(TRANSCRIPT_ID==transcript_id1)
+                        t2_data <- this_gep_data_with_gene_id %>%
+                            dplyr::filter(TRANSCRIPT_ID==transcript_id2)
+                        all_variation_data <- rbind(
+                            all_variation_data,
+                            data.frame(
+                                var=t1_data$SIMULATED_DEPTH/t2_data$SIMULATED_DEPTH,
+                                Condition=condition
+                            )
+                        )
+                    }
+            }
+        }
+    }
+
+}
+
+g <- ggplot(all_variation_data) +
+    geom_boxplot(aes(x=log10(var), y=Condition)) +
+    theme_bw()
+
+ggsave("gep_var.png", g, width=15, height=12)
+

@@ -6,10 +6,10 @@ library("arrow")
 if (file.exists("all_fastq_data_sampled.parquet")){
     all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
 } else{
-    fns <- Sys.glob("ce11_*.fq.stats.d")
+    fns <- Sys.glob("ce11_as_2*.fq.gz.stats.d")
     conditions <- fns %>%
         stringr::str_replace("ce11_", "") %>%
-        stringr::str_replace(".fq.stats.d", "")
+        stringr::str_replace(".fq.gz.stats.d", "")
 
     all_data <- NULL
     for (i in seq_along(fns)) {
@@ -26,9 +26,7 @@ if (file.exists("all_fastq_data_sampled.parquet")){
         ) %>%
             dplyr::mutate(
                 Condition = conditions[i]
-            ) %>%
-            dplyr::select(!(SEQID)) %>%
-            dplyr::sample_n(10000)
+            )
         if (is.null(all_data)) {
             all_data <- this_data
         } else {
@@ -97,3 +95,42 @@ g <- ggplot(all_data) +
     ggtitle("Mean Read Quality of all conditions")
 
 ggsave("fastq_qual_all.pdf", g, width = 8, height = 5)
+
+as_ref <- readr::read_tsv(
+    "../ce11_as_2.gtf.gz.transcripts.tsv.xz"
+)
+
+all_data_joint <- all_data %>%
+    dplyr::mutate(
+        TRANSCRIPT_ID = strsplit(.$SEQID, ":")[[1]][1]
+    ) %>%
+    dplyr::inner_join(as_ref, by="TRANSCRIPT_ID") %>%
+    dplyr::mutate(
+        READ_COMPLETENESS = LEN / TRANSCRIBED_LENGTH
+    )
+
+g <- ggplot(all_data_joint) +
+    geom_density_ridges_gradient(
+        aes(
+            x = READ_COMPLETENESS,
+            y = Condition
+        )
+    ) +
+    xlim(c(0, 1.5)) +
+    ylab("density") +
+    theme_ridges() +
+    ggtitle("Length of all conditions")
+
+ggsave("fastq_rc_all.pdf", g, width = 8, height = 10)
+
+g <- ggplot(all_data_joint) +
+    geom_boxplot(
+        aes(
+            x = READ_COMPLETENESS,
+            y = Condition
+        )
+    ) +
+    ylab("density") +
+    theme_bw() +
+    ggtitle("Length of all conditions")
+ggsave("fastq_rc_all_box.pdf", g, width = 8, height = 5)

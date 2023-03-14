@@ -6,10 +6,10 @@ library("arrow")
 if (file.exists("all_fastq_data_sampled.parquet")){
     all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
 } else{
-    fns <- Sys.glob("ce11_as_2*.fq.gz.stats.d")
+    fns <- Sys.glob("ce11_as_2*.fq.stats.d")
     conditions <- fns %>%
         stringr::str_replace("ce11_", "") %>%
-        stringr::str_replace(".fq.gz.stats.d", "")
+        stringr::str_replace(".fq.stats.d", "")
 
     all_data <- NULL
     for (i in seq_along(fns)) {
@@ -134,3 +134,6 @@ g <- ggplot(all_data_joint) +
     theme_bw() +
     ggtitle("Length of all conditions")
 ggsave("fastq_rc_all_box.pdf", g, width = 8, height = 5)
+
+
+

@@ -1,29 +1,19 @@
 #!/usr/bin/env bash
 set -uex
 
-function generate_as_events(){
-    LOG_FILE_NAME="yasim_sample_${1}.log" \
-        python -m labw_utils.bioutils sample_transcript \
-        -g ../ce11_as_2.gtf.gz \
-        --percent "${1}" \
-        --out ce11_as_percent_"${1}".gtf.gz
-    python -m labw_utils.bioutils describe_gtf ce11_as_percent_"${1}".gtf.gz
-    xz -9 -vv -f ce11_as_percent_"${1}".gtf.gz.*.tsv
-    LOG_FILE_NAME="yasim_transcribe_${1}.log" \
-        python -m yasim transcribe \
-        -g ce11_as_percent_"${1}".gtf.gz \
-        -f ../ce11.fa.gz \
-        -o ce11_trans_"${1}".fa
+function generate_depth() {
     LOG_FILE_NAME="yasim_generate_gene_depth_${1}.log" \
         python -m yasim generate_gene_depth \
-        -g ce11_as_percent_"${1}".gtf.gz \
-        -o ce11_as_percent_"${1}"_gene_depth_20.tsv.xz \
-        -d 20
+        -g ../ce11_as_2.gtf.gz \
+        -o ce11_as_2_gene_depth_"${1}".tsv.xz \
+        -d "${1}" \
+        --low_cutoff 0
     LOG_FILE_NAME="yasim_generate_isoform_depth_${1}.log" \
         python -m yasim generate_isoform_depth \
-        -g ce11_as_percent_"${1}".gtf.gz \
-        -d ce11_as_percent_"${1}"_gene_depth_20.tsv.xz \
-        -o ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz
+        -g ../ce11_as_2.gtf.gz \
+        -d ce11_as_2_gene_depth_"${1}".tsv.xz \
+        -o ce11_as_2_isoform_depth_"${1}".tsv.xz \
+        --low_cutoff 0
 }
 
 function perform_housekeeping() {
@@ -33,20 +23,20 @@ function perform_housekeeping() {
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_percent_"${1}"_pbsim3_RSII_CLR
+    OUTPUT_BASENAME="${2}"_pbsim3_RSII_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz \
+        -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim3_RSII_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_percent_"${1}"_pbsim3_RSII_CCS
+    OUTPUT_BASENAME="${2}"_pbsim3_RSII_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -54,26 +44,26 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -M qshmm \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
-        -d ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz \
+        -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim3_SEQUEL_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_percent_"${1}"_pbsim3_SEQUEL_CLR
+    OUTPUT_BASENAME="${2}"_pbsim3_SEQUEL_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz \
+        -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim3_SEQUEL_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_percent_"${1}"_pbsim3_SEQUEL_CCS
+    OUTPUT_BASENAME="${2}"_pbsim3_SEQUEL_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -81,43 +71,47 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -M errhmm \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
-        -d ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz \
+        -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
         -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim2_simulation() {
-    OUTPUT_BASENAME=ce11_as_percent_"${1}"_pbsim2_"${2}"
+    OUTPUT_BASENAME="${2}"_pbsim2_"${3}"
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
         -m "${3}" \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_percent_"${1}"_isoform_depth_20.tsv.xz \
+        -d "${1}".tsv.xz \
         -o "${OUTPUT_BASENAME}" \
-        -j 40 \
-        --accuracy-mean "${1}" || return
+        -j 40 || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
 function perform_simulation() {
-    perform_pbsim3_RSII_CLR_simulation "${1}"  &
-    perform_pbsim3_RSII_CCS_simulation "${1}" &
-    perform_pbsim3_SEQUEL_CLR_simulation "${1}" &
-    perform_pbsim3_SEQUEL_CCS_simulation "${1}" &
+    # perform_pbsim3_RSII_CLR_simulation "${1}" "${2}" &
+    # perform_pbsim3_RSII_CCS_simulation "${1}" "${2}" &
+    # perform_pbsim3_SEQUEL_CLR_simulation "${1}" "${2}" &
+    # perform_pbsim3_SEQUEL_CCS_simulation "${1}" "${2}" &
     for pbsim2_mode in R94 R103; do
-        perform_pbsim2_simulation "${1}" "${pbsim2_mode}" &
+        perform_pbsim2_simulation "${1}" "${2}" "${pbsim2_mode}" &
     done
-    wait
 }
 
-for annot_compl_level in 20 40 60 80 100; do
-    generate_as_events "${annot_compl_level}" &
+generate_depth 100
+
+for mean_depth in 10 25 40 55 70; do 
+    python downscale_depth.py \
+        ce11_as_2_isoform_depth_100.tsv.xz \
+        ce11_as_2_isoform_depth_"${mean_depth}".tsv.xz \
+        "0.${mean_depth}" &
 done
 wait
 
-for annot_compl_level in 20 40 60 80 100; do
-    perform_simulation "${annot_compl_level}"
+for mean_depth in 10 25 40 55 70; do
+    perform_simulation ce11_as_2_isoform_depth_"${mean_depth}" ce11_as_2_isoform_depth_"${mean_depth}"
 done
+wait
 
 xz -vv -9 -T0 -f ./*.stats
