@@ -443,3 +443,4 @@ mount.sh
 *tmp*
 *.tsv.*
 *.aln
+.rfss

@@ -5,13 +5,12 @@ from typing import List, Tuple
 
 import numpy as np
 
-from labw_utils.bioutils.algorithm.alignment import SmithWatermanAligner
+from labw_utils.bioutils.algorithm.alignment import SmithWatermanAligner, get_subst_mtx
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname, translate_cdna
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
-from labw_utils.commonutils.shell_utils import rm_rf
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
@@ -76,12 +75,11 @@ def create_tcr_cache(
         tcr_aa_table = json.load(reader)
     ref_fasta_view = FastaViewFactory(
         ref_fa_path,
-        full_header=False,
-        read_into_memory=False,
-        show_tqdm=True
+        show_tqdm=True,
+        read_into_memory=False
     )
     ref_gene_view = GeneViewFactory.from_file(ref_gtf_path)
-    TCRs = {}
+    tcrs = {}
     for gene_name in tqdm(
             list(itertools.chain(*tcr_genelist.values())),
             desc="Generating TCR Cache"
@@ -119,17 +117,20 @@ def create_tcr_cache(
                 gene_name
             )
             continue
-        TCRs[gene_name] = align(real_nt_seq=real_nt_seq, real_aa_seq=real_aa_seq)
+        tcrs[gene_name] = align(real_nt_seq=real_nt_seq, real_aa_seq=real_aa_seq)
     with get_writer(tcr_cache_path) as writer:
-        json.dump(TCRs, writer)
+        json.dump(tcrs, writer)
+
+    with get_writer(tcr_cache_path + ".fa") as writer:
+        for tcr_name, tcr_tt in tcrs.items():
+            writer.write(f">{tcr_name}\n{''.join(list(zip(*tcr_tt))[0])}\n")
 
 
 if __name__ == "__main__":
     basename = "."
-    rm_rf(os.path.join(basename, "sim") + ".fa.d")
     create_tcr_cache(
         ref_fa_path=os.path.join(basename, "hg38.fa"),
-        ref_gtf_path=os.path.join(basename, "hg38.ncbiRefSeq.gtf"),
+        ref_gtf_path=os.path.join(basename, "hg38.ncbiRefSeq_chr7_14.gtf"),
         tcr_genelist_path=os.path.join(basename, "tcr_genelist.json"),
         tcr_aa_table_path=os.path.join(basename, "IMGT_Protein_Display.json"),
         tcr_cache_path=os.path.join(basename, "tcr_cache.json")
