@@ -1,10 +1,10 @@
 library("tidyverse")
 library("pheatmap")
 
-fns <- Sys.glob("ce11_as_2_isoform_depth_*.fq.stats")
+fns <- Sys.glob("ce11_as_2_isoform_depth_*.fq.stats.xz")
 conditions <- fns %>%
     stringr::str_replace("ce11_as_2_isoform_depth_", "") %>%
-    stringr::str_replace(".fq.stats", "")
+    stringr::str_replace(".fq.stats.xz", "")
 
 all_transcript_ids <- readr::read_tsv(
     "../ce11_as_2.gtf.gz.transcripts.tsv.xz",
@@ -60,6 +60,21 @@ g <- ggplot(all_gep_data) +
     theme_bw()
 
 ggsave("gep_ratio.png", g, width = 15, height = 12)
+
+g <- ggplot(all_gep_data) +
+    geom_boxplot(aes(x=INPUT_DEPTH, y=Condition)) +
+    facet_wrap(.~Condition, scales="free") +
+    theme_bw()
+
+ggsave("gep_real.png", g, width=15, height=12)
+
+g <- ggplot(all_gep_data) +
+    geom_histogram(aes(x=INPUT_DEPTH)) +
+    xlim(c(0, 500)) +
+    facet_wrap(.~Condition) +
+    theme_bw()
+
+ggsave("gep_real_hist.png", g, width=15, height=12)
 
 means <- all_gep_data %>%
     dplyr::group_by(Condition) %>%

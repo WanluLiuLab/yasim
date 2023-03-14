@@ -444,3 +444,12 @@ mount.sh
 *.tsv.*
 *.aln
 .rfss
+core.*
+*.gffcmp
+*.transID
+*.d12
+*.RData
+.RData
+*.bedgraph
+*.region
+gffcmp*
