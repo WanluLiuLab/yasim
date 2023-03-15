@@ -36,6 +36,7 @@ dependencies:
   - findutils
   - git
   - grep
+  - axel
 
   # Sphinx documentation
   - sphinx=5.3

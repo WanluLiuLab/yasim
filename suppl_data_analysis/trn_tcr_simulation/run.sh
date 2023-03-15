@@ -11,8 +11,9 @@ export PYTHONPATH="../../src:../../deps/labw_utils/src:${PYTHONPATH}"
 grep -e '^chr7\s' -e '^chr14\s' hg38.ncbiRefSeq.gtf > hg38.ncbiRefSeq_chr7_14.gtf
 
 # TCR
+
+python -m yasim_sc generate_barcode -n 100 -o barcode.txt
 python generate_tcr_depth.py
-python -m yasim_sc generate_barcode -n 10 -o barcode.txt
 python create_tcr_cache.py
 python rearrange_tcr.py
 python -m labw_utils.bioutils split_fasta sim_tcr.fa
@@ -24,6 +25,7 @@ python -m yasim art \
     -j 20
 
 # Gene
+python sample_pcg.py
 python -m yasim generate_gene_depth \
     -g hg38.ncbiRefSeq_subsampled.gtf \
     -d 5 \
