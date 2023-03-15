@@ -23,7 +23,7 @@ if (file.exists("all_nipg_data_binned.parquet")) {
 } else {
     all_nipg_data <- list()
 
-        #' Read data
+            #' Read data
     for (i in seq_along(conditions)) {
         all_nipg_data[[conditions[i]]] <-
             readr::read_tsv(
@@ -108,10 +108,10 @@ conditions <- c(
 if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     all_nipg_ngenes_nisoforms <- arrow::read_parquet("all_nipg_ngenes_nisoforms.parquet")
 } else {
-        #' All NIpG Data
+            #' All NIpG Data
     all_data <- NULL
 
-        #' Read data
+            #' Read data
     for (i in seq_along(conditions)) {
         this_data <- readr::read_tsv(
             fns[i],

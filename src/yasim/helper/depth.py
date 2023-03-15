@@ -6,15 +6,18 @@ from random import uniform
 from typing import Dict, List
 
 import numpy as np
+
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.gmm import GaussianMixture1D
 
 DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""
+
+_lh = get_logger(__name__)
 
 
 def simulate_gene_level_depth_gmm(
@@ -43,11 +46,16 @@ def simulate_gene_level_depth_gmm(
     ])
     n_gene_ids = gv.number_of_genes
     depth = {}
-    data = np.power(10, gmm_model.rvs(size=n_gene_ids) - 1) - 1
-    data[data < low_cutoff] = 0
-    data[data > mu * high_cutoff_ratio] = 0
-    data = data / np.mean(data) * mu
-    for i, gene_id in enumerate(tqdm(iterable=gv.iter_gene_ids(), desc="Simulating...")):
+    while True:
+        data = np.power(10, gmm_model.rvs(size=n_gene_ids) - 1) - 1
+        data[data < low_cutoff] = 0
+        data[data > mu * high_cutoff_ratio] = 0
+        data = data / np.mean(data) * mu
+        if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
+            break
+        else:
+            _lh.warning("NAN/all zero found in data; would regenerate")
+    for i, gene_id in enumerate(tqdm(iterable=list(gv.iter_gene_ids()), desc="Simulating...")):
         depth[gene_id] = data[i]
     return depth
 
@@ -69,7 +77,15 @@ def simulate_isoform_variance_inside_a_gene(
     """
     if n == 1:
         return [mu]
-    generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
+    while True:
+        if alpha == 1:
+            generated_abundance = np.array([(rn ** (-1)) for rn in range(1, n + 1)])
+        else:
+            generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
+        if np.sum(np.isnan(generated_abundance)) == 0 and np.sum(generated_abundance) != 0:
+            break
+        else:
+            _lh.warning("NAN found in data; would regenerate")
     generated_abundance[generated_abundance < low_cutoff] = 0
     generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
     np.random.shuffle(generated_abundance)

@@ -41,7 +41,7 @@ for (i in seq_along(df_list$df)) {
         t() %>%
         as_tibble(rownames = "condition", .name_repair = function(names) { "value" }) %>%
         dplyr::inner_join(
-            experiment_design,
+            df_list$exp,
             by = "condition"
         )
     g <- ggplot(total_coverage_df) +
@@ -184,9 +184,9 @@ dds_fc_gene_level_pheatmap_data <- dds_fc_gene_level_pheatmap_data %>%
     dplyr::slice_head(n = 20) %>%
     dplyr::select(!var)
 
-repless_conditions <- (df_list$exp %>%
+repless_conditions <- (df_list$exp_prepared %>%
     dplyr::select(!REPID) %>%
-    dplyr::mutate(repless_condition = paste(SIMULATOR, MODE, DGEID, DIUID, sep = "_")))$repless_condition
+    dplyr::mutate(repless_condition = paste(SIMULATOR, SEQUENCER, MODE, DGEID, DIUID, sep = "_")))$repless_condition
 
 dds_fc_gene_level_pheatmap_data_means <- data.frame(
     row.names = row.names(dds_fc_gene_level_pheatmap_data)
@@ -206,10 +206,6 @@ pheatmap(
 )
 
 #' Detect DGE Overlapping Rate
-rm(list = grep("dds", ls(), value = TRUE))
-rm(g)
-gc()
-
 dds_fc_gene_level_dge_result <- DESeqDataSetFromMatrix(
     countData = df_list$
         df_filtered_prepared$
@@ -318,15 +314,6 @@ gc()
 
 #' DGE accross DIU analysis
 
-prepare_tibble_for_dge_dge1_only <- function(df, row_name) {
-    df <- df %>%
-        dplyr::select(tidyr::contains("dge1")) %>%
-        as.data.frame(df)
-    rownames(df) <- df[[row_name]]
-    df[[row_name]] <- NULL
-    return(df)
-}
-
 
 dds_fc_gene_level_dge_result_dge1_only <- DESeqDataSetFromMatrix(
     countData = df_list$
@@ -358,6 +345,27 @@ dds_fq_gene_level_dge_result_dge1_only <- DESeqDataSetFromMatrix(
         is_dge_fq = (abs(log2FoldChange) >= 2 & padj < 0.05)
     )
 
+
+as_transcripts_data <- readr::read_tsv(
+    "ce11.ncbiRefSeq_as.chr1.gtf.transcripts.tsv",
+    col_types = c(
+        TRANSCRIPT_ID = col_character(),
+        GENE_ID = col_character(),
+        NAIVE_LENGTH = col_integer(),
+        TRANSCRIBED_LENGTH = col_integer(),
+        EXON_NUMBER = col_integer()
+    )
+)
+reference_transcripts_data <- readr::read_tsv(
+    "ce11.ncbiRefSeq.chr1.gtf.transcripts.tsv",
+    col_types = c(
+        TRANSCRIPT_ID = col_character(),
+        GENE_ID = col_character(),
+        NAIVE_LENGTH = col_integer(),
+        TRANSCRIBED_LENGTH = col_integer(),
+        EXON_NUMBER = col_integer()
+    )
+)
 dds_gene_level_dge_result_dge1_only <- tibble::tibble(
     GENE_ID = Reduce(
         base::union,

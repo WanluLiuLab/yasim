@@ -36,6 +36,7 @@ dependencies:
   - findutils
   - git
   - grep
+  - axel
 
   # Sphinx documentation
   - sphinx=5.3
@@ -58,10 +59,13 @@ dependencies:
   - r-ggridges=0.5.4
   - r-tidyverse=1.3.2
   - r-scales=1.2.1
+  - r-complexupset=1.3.3
+  - r-hexbin=1.28.2
   - r-pheatmap=1.0.12
   - r-base=4.2.2
   - r-languageserver
   - radian=0.6.4
+  - r-ggpubr=0.6.0
   - r-lintr
   - r-formatr
 
@@ -71,6 +75,11 @@ dependencies:
   - samtools=1.16.1
   - last=1449
   - subread=2.0.3
+  - dwgsim=1.1.13
+  - fastqc=0.12.1
+  - gatk4=4.3.0.0
+  - art=2016.06.05
+  - trust4=1.0.8
 
   - pip
   - setuptools

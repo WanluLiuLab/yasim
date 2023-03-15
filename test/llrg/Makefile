@@ -1,2 +1,145 @@
+export PYTHONPATH := ../../src:../../deps/labw_utils/src
+
+distclean: clean
+	rm -rf chrM.trans.fa chrM.trans.fa.d chrM.trans.fa.stats depth.tsv depth_gene.tsv
+
 clean:
-	rm -rf *.fq pbsim*.d *.log *.fq.stats
+	rm -rf pbsim* art* dwgsim* *.log
+
+
+chrM.trans.fa: ../chrM.fa ../ce11.ncbiRefSeq.chrM.gtf
+	python -m yasim transcribe \
+		-g ../ce11.ncbiRefSeq.chrM.gtf \
+		-f ../chrM.fa \
+		-o chrM.trans.fa
+
+depth_gene.tsv: ../ce11.ncbiRefSeq.chrM.gtf
+	python -m yasim generate_gene_depth \
+		-g ../ce11.ncbiRefSeq.chrM.gtf \
+		-o depth_gene.tsv \
+		--mu 10
+
+depth.tsv: ../ce11.ncbiRefSeq.chrM.gtf depth_gene.tsv
+	python -m yasim generate_isoform_depth \
+		-g ../ce11.ncbiRefSeq.chrM.gtf \
+		-o depth.tsv \
+		-d depth_gene.tsv
+
+pbsim3_genome_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim3 \
+		-m RSII \
+		-M qshmm \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim3_genome_mode \
+		-j 40 \
+		--strategy wgs
+	touch pbsim3_genome_mode
+
+pbsim3_trans_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim3 \
+		-m RSII \
+		-M qshmm \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim3_trans_mode \
+		-j 40 \
+		--strategy trans
+	touch pbsim3_trans_mode
+
+pbsim3_ccs_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim3 \
+		-m RSII \
+		-M qshmm \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim3_ccs_mode \
+		-j 40 \
+		--ccs_pass 10
+	touch pbsim3_ccs_mode
+
+pbsim3_low_accuracy_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim3 \
+		-m RSII \
+		-M qshmm \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim3_ccs_mode \
+		-j 40 \
+		--accuracy-mean 0.4
+	touch pbsim3_low_accuracy_mode
+
+pbsim3_errhmm_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim3 \
+		-m SEQUEL \
+		-M errhmm \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim3_errhmm_mode \
+		-j 40
+	touch pbsim3_errhmm_mode
+
+dwgsim_mode: chrM.trans.fa depth.tsv
+	python -m yasim dwgsim \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o dwgsim_mode \
+		-j 40
+	touch dwgsim_mode
+
+art_mode: chrM.trans.fa depth.tsv
+	python -m yasim art \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o art_mode \
+		-j 40
+	touch art_mode
+
+art_pe_mode: chrM.trans.fa depth.tsv
+	python -m yasim art \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o art_pe_mode \
+		--is_pair_end \
+		--mflen_mean 200 \
+		--mflen_std 5 \
+		-j 40
+	touch art_pe_mode
+
+pbsim2_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim2 \
+		-m P4C2 \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim2_mode \
+		-j 40
+	touch pbsim2_mode
+
+
+pbsim_clr_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim_clr_mode \
+		-j 40
+	touch pbsim_clr_mode
+
+pbsim_ccs_mode: chrM.trans.fa depth.tsv
+	python -m yasim pbsim \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim_ccs_mode \
+		--ccs \
+		-j 40
+	touch pbsim_ccs_mode
+
+all: pbsim3_genome_mode \
+	pbsim3_trans_mode \
+	pbsim3_ccs_mode \
+	pbsim3_low_accuracy_mode \
+	pbsim3_errhmm_mode \
+	dwgsim_mode \
+	art_mode \
+	art_pe_mode \
+	pbsim_ccs_mode \
+	pbsim_clr_mode

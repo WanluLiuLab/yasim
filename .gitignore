@@ -440,6 +440,10 @@ mount.sh
 *.d
 *.mmi
 *_salmon/
+*tmp*
+*.tsv.*
+*.aln
+.rfss
 core.*
 *.gffcmp
 *.transID

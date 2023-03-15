@@ -3,9 +3,9 @@ library("ggridges")
 library("arrow")
 
 
-if (file.exists("all_fastq_data_sampled.parquet")){
+if (file.exists("all_fastq_data_sampled.parquet")) {
     all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
-} else{
+} else {
     fns <- Sys.glob("ce11_*.fq.gz.stats.d")
     conditions <- fns %>%
         stringr::str_replace("ce11_", "") %>%

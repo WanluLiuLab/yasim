@@ -2,7 +2,6 @@ import argparse
 from typing import List
 
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-
 from yasim.helper import depth
 
 
@@ -20,6 +19,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         help="Depth higher than mu * high_cutoff_ratio would be 0.", nargs='?',
                         type=float, action='store', default=10)
     return parser.parse_args(args)
+
 
 def main(args: List[str]):
     args = _parse_args(args)

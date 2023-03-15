@@ -3,14 +3,12 @@ import glob
 import os.path
 from typing import List, Tuple, Optional
 
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.stdlib_helper import parallel_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth import DepthType, read_depth
-from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
-    patch_frontend_parser, \
-    enhanced_which, AssembleSingleEnd, generate_callback
-from yasim.llrg_adapter import pbsim3_transcriptome as pbsim3
+from yasim.helper.llrg import patch_frontend_parser_tgs, \
+    enhanced_which
+from yasim.llrg_adapter import pbsim3 as pbsim3
+from yasim.main import abstract_simulate
 
 logger = get_logger(__name__)
 
@@ -85,7 +83,16 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
         action='store',
         default="samtools"
     )
-    parser = patch_frontend_parser(parser)
+    parser.add_argument(
+        '--strategy',
+        required=False,
+        help="Whether to use transcript mode or wgs mode",
+        choices=pbsim3.PBSIM3_STRATEGY,
+        type=str,
+        action='store',
+        default="trans"
+    )
+    parser = patch_frontend_parser_tgs(parser)
     return parser.parse_known_args(args)
 
 
@@ -102,48 +109,35 @@ def simulate(
         samtools_path: str,
         ccs_path: str,
         ccs_pass: int,
+        strategy: str,
         simulator_name: Optional[str],
         other_args: List[str]
 ):
-    if simulator_name is None:
-        simulator_name = "_".join(("pbsim3", hmm_model, "ccs" if ccs_pass > 1 else "clr"))
-    output_fastq_dir = output_fastq_prefix + ".d"
-    os.makedirs(output_fastq_dir, exist_ok=True)
-    simulating_pool = parallel_helper.ParallelJobExecutor(
-        pool_name="Simulating jobs",
-        pool_size=jobs
-    )
-    depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
-    assembler = AssembleSingleEnd(
-        depth=depth,
+    abstract_simulate(
+        transcriptome_fasta_dir=transcriptome_fasta_dir,
         output_fastq_prefix=output_fastq_prefix,
-        simulator_name=simulator_name,
-        truncate_ratio_3p=truncate_ratio_3p,
-        truncate_ratio_5p=truncate_ratio_5p,
-        input_transcriptome_fasta_dir=transcriptome_fasta_dir
+        depth=depth,
+        jobs=jobs,
+        simulator_name="_".join(
+            ("pbsim3", hmm_model, "ccs" if ccs_pass > 1 else "clr")) if simulator_name is None else simulator_name,
+        assembler_args={
+            "truncate_ratio_3p": truncate_ratio_3p,
+            "truncate_ratio_5p": truncate_ratio_5p
+        },
+        adapter_args={
+            "exename": exename,
+            "hmm_model": hmm_model,
+            "ccs_num_threads": 1,
+            "samtools_path": samtools_path,
+            "ccs_path": ccs_path,
+            "ccs_pass": ccs_pass,
+            "hmm_method": hmm_method,
+            "strategy": strategy,
+            "other_args": other_args
+        },
+        adapter_class=pbsim3.Pbsim3Adapter,
+        is_pair_end=False
     )
-    assembler.start()
-    for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
-        if transcript_depth == 0:
-            continue
-        sim_thread = pbsim3.Pbsim3Adapter(
-            input_fasta=transcript_filename,
-            output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
-            depth=transcript_depth,
-            hmm_model=hmm_model,
-            exename=exename,
-            other_args=other_args,
-            ccs_num_threads=1,
-            samtools_path=samtools_path,
-            ccs_path=ccs_path,
-            ccs_pass=ccs_pass,
-            hmm_method=hmm_method
-        )
-        simulating_pool.append(sim_thread, callback=generate_callback(assembler, transcript_id))
-    simulating_pool.start()
-    simulating_pool.join()
-    assembler.terminate()
-    assembler.join()
 
 
 def main(args: List[str]):
@@ -167,5 +161,6 @@ def main(args: List[str]):
         samtools_path=samtools_path,
         ccs_path=ccs_path, ccs_pass=args.ccs_pass,
         simulator_name=args.simulator_name,
-        other_args=other_args
+        other_args=other_args,
+        strategy=args.strategy
     )

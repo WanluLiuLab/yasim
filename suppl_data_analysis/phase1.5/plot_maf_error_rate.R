@@ -22,19 +22,19 @@ all_error <- readr::read_tsv(
                 ""
             ) %>%
             stringr::str_replace(
-                ".fq.gz_trans.maf.gz",
+                ".maf.gz",
                 ""
             )
     ) %>%
     tidyr::separate(
         "Condition",
-        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID")
+        c("SIMULATOR", "SEQUENCER", "MODE", "DGEID", "DIUID", "REPID")
     )
 
 g <- ggplot(all_error) +
     geom_bar(
         aes(
-            y = sprintf("%s_%s", SIMULATOR, MODE),
+            y = sprintf("%s_%s_%s", SIMULATOR, SEQUENCER, MODE),
             x = EventCount,
             fill = EventType
         ),

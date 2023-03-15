@@ -10,13 +10,12 @@ import random
 from typing import List, Callable, Iterable
 
 import numpy as np
-import seaborn as sns
+from scipy.stats import lognorm
+
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from matplotlib import pyplot as plt
-from scipy.stats import lognorm
 
 organism_dict = {
     "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)
@@ -208,8 +207,6 @@ class ASManipulator:
         targeted_nipg = (targeted_nipg - minvalue) * mu / np.mean(targeted_nipg) + minvalue
         targeted_nipg = targeted_nipg[np.logical_and(1 < targeted_nipg, targeted_nipg < 25)][:len(all_gene_ids)]
         targeted_nipg = np.array(np.sort(targeted_nipg), dtype=int)
-        sns.histplot(x=targeted_nipg)
-        plt.show()
         reference_nipg = [
             self._gv.get_gene(gene_id).number_of_transcripts for gene_id in all_gene_ids
         ]

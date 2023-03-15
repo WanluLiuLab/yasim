@@ -2,6 +2,9 @@ from typing import List, Final
 
 from yasim.llrg_adapter import BaseLLRGAdapter
 
+ALL_POSSIBLE_BADREAD_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
+"""All possible badread model names"""
+
 
 class BadReadAdapter(BaseLLRGAdapter):
     """
@@ -11,9 +14,9 @@ class BadReadAdapter(BaseLLRGAdapter):
 
         if self.model_name == "verybad":
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--glitches", "1000,100,100",
                 "--junk_reads", "5",
                 "--random_reads", "5",
@@ -21,13 +24,13 @@ class BadReadAdapter(BaseLLRGAdapter):
                 "--identity", "75,90,8",
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
         elif self.model_name == "verynice":
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--error_model", "random",
                 "--qscore_model", "ideal",
                 "--glitches", "0,0,0",
@@ -37,18 +40,18 @@ class BadReadAdapter(BaseLLRGAdapter):
                 "--identity", "95,100,4",
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
         else:
             cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+                exename, "simulate",
+                "--reference", self._input_fasta,
+                "--quantity", f"{self._depth}x",
                 "--error_model", self.model_name,
                 "--qscore_model", self.model_name,
                 "--start_adapter_seq", "",
                 "--end_adapter_seq", "",
-                *self.other_args
+                *other_args
             ]
     """
     model_name: str
@@ -56,6 +59,7 @@ class BadReadAdapter(BaseLLRGAdapter):
 
     _llrg_name: Final[str] = "badread"
     _require_integer_depth: Final[bool] = True
+    _capture_stdout: Final[bool] = True
 
     def __init__(
             self,
@@ -69,55 +73,44 @@ class BadReadAdapter(BaseLLRGAdapter):
         super().__init__(
             input_fasta=input_fasta,
             output_fastq_prefix=output_fastq_prefix,
-            depth=depth,
-            exename=exename,
-            other_args=other_args
+            depth=depth
         )
-        self.model_name = model_name
 
-    def _assemble_cmd_hook(self) -> List[str]:
+        self.model_name = model_name
+        cmd = [
+            exename, "simulate",
+            "--reference", self._input_fasta,
+            "--quantity", f"{self._depth}x",
+        ]
         if self.model_name == "verybad":
-            cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+            cmd.extend([
                 "--glitches", "1000,100,100",
                 "--junk_reads", "5",
                 "--random_reads", "5",
                 "--chimeras", "10",
-                "--identity", "75,90,8",
-                "--start_adapter_seq", "",
-                "--end_adapter_seq", "",
-                *self.other_args
-            ]
+                "--identity", "75,90,8"
+            ])
         elif self.model_name == "verynice":
-            cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+            cmd.extend([
                 "--error_model", "random",
                 "--qscore_model", "ideal",
                 "--glitches", "0,0,0",
                 "--junk_reads", "0",
                 "--random_reads", "0",
                 "--chimeras", "0",
-                "--identity", "95,100,4",
-                "--start_adapter_seq", "",
-                "--end_adapter_seq", "",
-                *self.other_args
-            ]
+                "--identity", "95,100,4"
+            ])
         else:
-            cmd = [
-                self.exename, "simulate",
-                "--reference", self.input_fasta,
-                "--quantity", f"{self.depth}x",
+            cmd.extend([
                 "--error_model", self.model_name,
                 "--qscore_model", self.model_name,
-                "--start_adapter_seq", "",
-                "--end_adapter_seq", "",
-                *self.other_args
-            ]
-        return cmd
+            ])
+        cmd.extend([
+            "--start_adapter_seq", "",
+            "--end_adapter_seq", "",
+            *other_args
+        ])
+        self._cmd = cmd
 
     def _rename_file_after_finish_hook(self):
         """
@@ -125,5 +118,10 @@ class BadReadAdapter(BaseLLRGAdapter):
         """
         pass
 
-    def run(self) -> None:
-        self.run_simulator_as_process_with_stdout_capturing()
+    def _pre_execution_hook(self) -> None:
+        """Does not need extra preparation"""
+        pass
+
+    @property
+    def is_pair_end(self) -> bool:
+        return False

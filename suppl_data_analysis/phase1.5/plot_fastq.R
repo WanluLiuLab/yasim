@@ -43,14 +43,14 @@ arrow::write_parquet(all_data, "all_fastq_data_sampled.parquet")
 all_data_mutated <- all_data %>%
     tidyr::separate(
         "Condition",
-        c("SIMULATOR", "MODE", "DGEID", "DIUID", "REPID")
+        c("SIMULATOR", "SEQUENCER", "MODE", "DGEID", "DIUID", "REPID")
     )
 
 g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
             x = LEN,
-            y = sprintf("%s_%s", SIMULATOR, MODE)
+            y = sprintf("%s_%s_%s", SIMULATOR, SEQUENCER, MODE)
         )
     ) +
     xlim(c(0, 3000)) +
@@ -65,7 +65,7 @@ g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
             x = GC,
-            y = sprintf("%s_%s", SIMULATOR, MODE)
+            y = sprintf("%s_%s_%s", SIMULATOR, SEQUENCER, MODE)
         )
     ) +
     ylab("density") +
@@ -79,7 +79,7 @@ g <- ggplot(all_data_mutated) +
     geom_density_ridges_gradient(
         aes(
             x = MEANQUAL,
-            y = sprintf("%s_%s", SIMULATOR, MODE)
+            y = sprintf("%s_%s_%s", SIMULATOR, SEQUENCER, MODE)
         )
     ) +
     ylab("density") +

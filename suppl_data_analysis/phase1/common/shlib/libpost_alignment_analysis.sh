@@ -11,7 +11,7 @@
     --output "${FASTQ_BASE_NAME}".transcript.depth.tsv
 
 
-# NOTE: These code have bugs. You should have SATR aligned with XZ tag.
+# FIXME: These code have bugs. You should have SATR aligned with XZ tag.
 # That is, add `--outSAMstrandField intronMotif` when aligning with STAR.
 #[ ! -f "${FASTQ_BASE_NAME}".stringtie_unguided.gtf ] && \
 #stringtie "${FASTQ_BASE_NAME}".GENE.bam \
