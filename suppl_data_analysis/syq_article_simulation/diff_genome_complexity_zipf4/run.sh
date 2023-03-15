@@ -112,12 +112,12 @@ function perform_simulation() {
     wait
 }
 
-for gene_complexity_level in 1 3 5 7 9; do
-    generate_as_events "${gene_complexity_level}" &
-done
-wait
+# for gene_complexity_level in 1 3 5 7 9; do
+#     generate_as_events "${gene_complexity_level}" &
+# done
+# wait
 
-for gene_complexity_level in 1 3 5 7 9; do
+for gene_complexity_level in 9; do
     perform_simulation "${gene_complexity_level}"
 done
 

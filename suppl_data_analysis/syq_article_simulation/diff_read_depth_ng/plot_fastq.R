@@ -102,7 +102,7 @@ as_ref <- readr::read_tsv(
 
 all_data_joint <- all_data %>%
     dplyr::mutate(
-        TRANSCRIPT_ID = strsplit(.$SEQID, ":")[[1]][1]
+        TRANSCRIPT_ID = sapply(strsplit(all_data$SEQID, ":"), function(s){s[1]})
     ) %>%
     dplyr::inner_join(as_ref, by="TRANSCRIPT_ID") %>%
     dplyr::mutate(
