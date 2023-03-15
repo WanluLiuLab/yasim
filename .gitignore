@@ -453,3 +453,7 @@ core.*
 *.bedgraph
 *.region
 gffcmp*
+*.gzi
+*.cluster
+*.json
+*.pgi

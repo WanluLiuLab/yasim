@@ -1,4 +1,5 @@
 scipy~=1.7
 scikit-learn~=1.2
+jinja2~=3.1.2
 # labw_utils package in internal Git repo
 # http://10.109.92.4:3000/yuzj/labw_utils/archive/0.1.0.zip

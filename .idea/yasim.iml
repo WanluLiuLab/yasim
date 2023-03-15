@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/.virtualenv" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1/common/src" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/deps/labw_utils/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/deps/pbcore" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/build" />
@@ -1839,9 +1840,23 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/IsoformSwitchAnalyseR_test/fake_trans.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/sim_tcr.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/sim.tcr.json.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/.rfss" />
+      <excludeFolder url="file://$MODULE_DIR$/test/llrg/chrM.trans.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/test/llrg/pbsim3_ccs_mode.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/test_ccs/ce11_ccs.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/test_ccs/ce11_trans_as.chr1.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/test_ccs/ce11_trans.chr1.fa.d" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/src/yasim_scripts/main/templates" />
+      </list>
+    </option>
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="py.test" />
