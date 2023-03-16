@@ -4,7 +4,7 @@ from typing import Mapping, Any, Type
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from yasim.helper.depth import DepthType
-from yasim.helper.llrg import pair_depth_info_with_transcriptome_fasta_filename, \
+from yasim.helper.llrg import AssembleDumb, pair_depth_info_with_transcriptome_fasta_filename, \
     generate_callback, AssembleSingleEnd, AssemblePairEnd
 from yasim.llrg_adapter import BaseLLRGAdapter
 
@@ -18,7 +18,8 @@ def abstract_simulate(
         adapter_args: Mapping[str, Any],
         assembler_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
-        is_pair_end: bool
+        is_pair_end: bool,
+        not_perform_assemble: bool = False
 ):
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
@@ -27,7 +28,15 @@ def abstract_simulate(
         pool_size=jobs
     )
     depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
-    if is_pair_end:
+    if not_perform_assemble:
+        assembler = AssembleDumb(
+            depth=depth,
+            output_fastq_prefix=output_fastq_prefix,
+            simulator_name=simulator_name,
+            input_transcriptome_fasta_dir=transcriptome_fasta_dir,
+            **assembler_args
+        )
+    elif is_pair_end:
         assembler = AssemblePairEnd(
             depth=depth,
             output_fastq_prefix=output_fastq_prefix,

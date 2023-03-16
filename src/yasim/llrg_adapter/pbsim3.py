@@ -15,6 +15,22 @@ Where pbsim3 stores its models
 PBSIM3_STRATEGY = ("wgs", "trans")
 
 
+import glob
+import os.path
+import time
+import uuid
+from typing import List
+
+import jinja2
+
+from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
+
+JINJA2_ENV = jinja2.Environment(loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates'))
+PACB_TEMPLATE = JINJA2_ENV.get_template('pbsim_xml_template.xml')
+
+
 class Pbsim3Adapter(BaseLLRGAdapter):
     """
     Wrapper of PBSIM3.
@@ -132,7 +148,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                         "0",  # Reverse
                         sequence
                     )) + "\n")
-            except (KeyError, OSError, PermissionError) as e:
+            except (KeyError, OSError, PermissionError, IndexError) as e:
                 raise LLRGException(f"Sequence {transcript_id} from file {self._input_fasta} failed!") from e
 
     def _rename_file_after_finish_hook(self):
@@ -143,18 +159,29 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                 autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._output_fastq_prefix + ".fq")
         else:
             with open(os.path.join(self._tmp_dir, "call_ccs.log"), "wb") as log_writer:
+                subreads_bam_path = os.path.join(self._tmp_dir, "tmp.subreads.bam")
+                subreads_xml_path = os.path.join(self._tmp_dir, "tmp.subreads.xml")
+                ccs_xml_path = os.path.join(self._tmp_dir, "tmp.ccs.xml")
                 if self._exec_subprocess(
                         [
                             self.samtools_path,
                             "view",
                             os.path.join(self._tmp_dir, "tmp.sam"),
-                            "-o", os.path.join(self._tmp_dir, "tmp.subreads.bam")
+                            "-o", subreads_bam_path
                         ],
                         stdin=subprocess.DEVNULL,
                         stdout=log_writer,
                         stderr=log_writer
                 ) != 0:
                     return
+                with get_writer(subreads_xml_path) as writer:
+                    timestamp = time.localtime()
+                    writer.write(PACB_TEMPLATE.render(
+                        timestamp_file=time.strftime("%y-%m-%dT%H:%M:%S", timestamp),
+                        timestamp_simple=time.strftime("%y%m%d_%H%m%S", timestamp),
+                        bam_filepath=subreads_bam_path,
+                        file_uuid=str(uuid.uuid4())
+                    ))
                 if self._exec_subprocess(
                         [
                             self.ccs_path,
@@ -163,8 +190,8 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                             "--log-level", "INFO",
                             "--log-file", os.path.join(self._tmp_dir, "tmp.ccs.log"),
                             "--num-threads", str(self.ccs_num_threads),
-                            os.path.join(self._tmp_dir, "tmp.subreads.bam"),
-                            os.path.join(self._tmp_dir, "tmp.ccs.bam")
+                            subreads_xml_path,
+                            ccs_xml_path
                         ],
                         stdin=subprocess.DEVNULL,
                         stdout=log_writer,

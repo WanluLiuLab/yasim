@@ -86,7 +86,7 @@ def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     parser.add_argument(
         '--strategy',
         required=False,
-        help="Whether to use transcript mode or wgs mode",
+        help="Whether to use transcript (trans) mode or wgs (wgs) mode",
         choices=pbsim3.PBSIM3_STRATEGY,
         type=str,
         action='store',
@@ -119,7 +119,8 @@ def simulate(
         depth=depth,
         jobs=jobs,
         simulator_name="_".join(
-            ("pbsim3", hmm_model, "ccs" if ccs_pass > 1 else "clr")) if simulator_name is None else simulator_name,
+            ("pbsim3", hmm_model, "ccs" if ccs_pass > 1 else "clr")
+        ) if simulator_name is None else simulator_name,
         assembler_args={
             "truncate_ratio_3p": truncate_ratio_3p,
             "truncate_ratio_5p": truncate_ratio_5p
@@ -137,7 +138,27 @@ def simulate(
         },
         adapter_class=pbsim3.Pbsim3Adapter,
         is_pair_end=False
-    )
+)
+
+
+def simulate_fast_mode(
+        transcriptome_fasta_dir: str,
+        output_fastq_prefix: str,
+        hmm_model: str,
+        exename: str,
+        depth: DepthType,
+        jobs: int,
+        truncate_ratio_3p: float,
+        truncate_ratio_5p: float,
+        hmm_method: str,
+        samtools_path: str,
+        ccs_path: str,
+        ccs_pass: int,
+        strategy: str,
+        simulator_name: Optional[str],
+        other_args: List[str]
+):
+    ...
 
 
 def main(args: List[str]):

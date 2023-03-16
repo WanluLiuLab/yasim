@@ -130,7 +130,7 @@ class BaseLLRGAdapter(threading.Thread):
         if not hasattr(self, "_capture_stdout"):
             raise TypeError
         self._input_fasta = input_fasta
-        self._output_fastq_prefix = output_fastq_prefix
+        self._output_fastq_prefix = os.path.abspath(output_fastq_prefix)
         self._depth = int(depth) if self._require_integer_depth else depth
         self._lh = get_logger(__name__)
         self._cmd = None

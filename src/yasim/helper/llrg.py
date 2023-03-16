@@ -140,6 +140,8 @@ class BaseAssembler(threading.Thread, ABC):
         self._should_stop = True
 
 
+
+
 class AssembleSingleEnd(BaseAssembler):
     _truncate_ratio_3p: float
     _truncate_ratio_5p: float
@@ -286,6 +288,11 @@ class AssemblePairEnd(BaseAssembler):
                         str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
                     )) + "\n")
                     stats_writer.flush()
+                time.sleep(0.01)
+
+class AssembleDumb(BaseAssembler):
+    def run(self):
+            while not self._should_stop:
                 time.sleep(0.01)
 
 
