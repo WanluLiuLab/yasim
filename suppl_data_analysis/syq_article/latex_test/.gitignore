@@ -1,0 +1,9 @@
+*.csv
+*.pdf
+.idea/
+main.*
+*.tex
+!main.tex
+/plot.timestamp
+/fig/
+.idea/
