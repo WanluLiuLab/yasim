@@ -18,7 +18,7 @@ import itertools
 import json
 import os
 import random
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any, Mapping
 
 from create_tcr_cache import TCRTranslationTableType
 from labw_utils.bioutils.algorithm.sequence import TRANSL_TABLES, TRANSL_TABLES_NT
@@ -155,7 +155,7 @@ class TCell:
                 tr_cdr3_tt: TCRTranslationTableType,
                 trv_tt: TCRTranslationTableType,
                 trj_tt: TCRTranslationTableType
-            ) -> None:
+        ) -> Tuple[TCRTranslationTableType, TCRTranslationTableType, TCRTranslationTableType]:
             trv_tt_real_aa = "".join(list(zip(*trv_tt))[2])
             trj_tt_real_aa = "".join(list(zip(*trj_tt))[2])
             c_idx = trv_tt_real_aa[::-1].find("C")
@@ -169,6 +169,7 @@ class TCell:
             trj_tt = trj_tt[f_idx:]
             if len(trv_tt) * len(trj_tt) * len(tr_cdr3_tt) == 0:
                 raise GenerationFailure
+            return tr_cdr3_tt, trv_tt, trj_tt
 
         (trbv_name, trbv_tt), (trbj_name, trbj_tt) = choose_name("trbv_names"), choose_name("trbj_names")
         (traj_name, traj_tt), (trav_name, trav_tt) = choose_name("traj_names"), choose_name("trav_names")
@@ -197,13 +198,13 @@ class TCell:
             clip_nt(trbj_tt, "trbj", 0)
         except (IndexError, RuntimeError, GenerationFailure) as e:
             raise GenerationFailure from e
-        
+
         tra_cdr3_tt = cdr3_insertion_table.generate_cdr3("A")
         trb_cdr3_tt = cdr3_insertion_table.generate_cdr3("B")
 
         try:
-            clip_aa(tra_cdr3_tt, trav_tt, traj_tt)
-            clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
+            tra_cdr3_tt, trav_tt, traj_tt = clip_aa(tra_cdr3_tt, trav_tt, traj_tt)
+            trb_cdr3_tt, trbv_tt, trbj_tt = clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
         except (IndexError, RuntimeError, GenerationFailure) as e:
             raise GenerationFailure from e
 
@@ -229,6 +230,21 @@ class TCell:
             self.beta_nt
         ))
 
+    def to_dict(self) -> Mapping[str, Any]:
+        return {
+            "cell_barcode": self._cell_barcode,
+            "traj_name": self._traj_name,
+            "trbj_name": self._trbj_name,
+            "trav_name": self._trav_name,
+            "trbv_name": self._trbv_name,
+            "traj_tt": self._traj_tt,
+            "trav_tt": self._trav_tt,
+            "trbj_tt": self._trbj_tt,
+            "trbv_tt": self._trbv_tt,
+            "tra_cdr3_tt": self._tra_cdr3_tt,
+            "trb_cdr3_tt": self._trb_cdr3_tt
+        }
+
     @property
     def cell_uuid(self):
         return self._cell_barcode
@@ -245,9 +261,9 @@ class TCell:
     def alpha_nt(self) -> str:
         return "".join(
             itertools.chain(
-                list(zip(*self._traj_tt))[0],
+                list(zip(*self._trav_tt))[0],
                 list(zip(*self._tra_cdr3_tt))[0],
-                list(zip(*self._trav_tt))[0]
+                list(zip(*self._traj_tt))[0],
             )
         )
 
@@ -255,9 +271,9 @@ class TCell:
     def beta_nt(self) -> str:
         return "".join(
             itertools.chain(
-                list(zip(*self._trbj_tt))[0],
+                list(zip(*self._trbv_tt))[0],
                 list(zip(*self._trb_cdr3_tt))[0],
-                list(zip(*self._trbv_tt))[0]
+                list(zip(*self._trbj_tt))[0],
             )
         )
 
@@ -266,6 +282,13 @@ class TCell:
         return (
             "".join(list(zip(*self._tra_cdr3_tt))[1]),
             "".join(list(zip(*self._trb_cdr3_tt))[1])
+        )
+
+    @property
+    def cdr3_nt(self) -> Tuple[str, str]:
+        return (
+            "".join(list(zip(*self._tra_cdr3_tt))[0]),
+            "".join(list(zip(*self._trb_cdr3_tt))[0])
         )
 
 
@@ -292,11 +315,19 @@ def rearrange_tcr(
         }
         for k, v in cdr3_deletion_table.items()
     }
-    with get_writer(output_base_path + ".fa") as writer:
+    with get_writer(output_base_path + ".fa") as fasta_writer:
         with load_table_appender_class("TSVTableAppender")(
                 filename=output_base_path + ".stats",
                 header=[
-                    "UUID", "TRAV", "TRAJ", "TRBV", "TRBJ", "ACDR3_AA", "BCDR3_AA"
+                    "UUID",
+                    "TRAV",
+                    "TRAJ",
+                    "TRBV",
+                    "TRBJ",
+                    "ACDR3_AA",
+                    "BCDR3_AA",
+                    "ACDR3_NT",
+                    "BCDR3_NT"
                 ],
                 tac=TableAppenderConfig(buffer_size=1024)
         ) as appender:
@@ -315,23 +346,25 @@ def rearrange_tcr(
                         continue
                     else:
                         break
-                writer.write(
+                fasta_writer.write(
                     cell.to_fasta_record() + "\n"
                 )
                 appender.append([
                     cell.cell_uuid,
                     *cell.alpha_names,
                     *cell.beta_names,
-                    *cell.cdr3_aa
+                    *cell.cdr3_aa,
+                    *cell.cdr3_nt
                 ])
+                with get_writer(os.path.join(output_base_path+".json.d", cell.cell_uuid+".json")) as writer:
+                    json.dump(cell.to_dict(), writer)
     lh.info("Finished with %d failures", n_failure)
 
 
 if __name__ == "__main__":
     basename = "."
-    rm_rf(os.path.join(basename, "sim") + ".fa.d")
     rearrange_tcr(
-        output_base_path=os.path.join(basename, "sim"),
+        output_base_path=os.path.join(basename, "sim_tcr"),
         tcr_genelist_path=os.path.join(basename, "tcr_genelist.json"),
         tcr_cache_path=os.path.join(basename, "tcr_cache.json"),
         cdr3_deletion_table_path=os.path.join(basename, "cdr3_deletion_table.json"),

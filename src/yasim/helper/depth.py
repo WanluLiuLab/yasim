@@ -51,11 +51,11 @@ def simulate_gene_level_depth_gmm(
         data[data < low_cutoff] = 0
         data[data > mu * high_cutoff_ratio] = 0
         data = data / np.mean(data) * mu
-        if np.nan not in data:
+        if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
             break
         else:
-            _lh.warning("NAN found in data; would regenerate")
-    for i, gene_id in enumerate(tqdm(iterable=gv.iter_gene_ids(), desc="Simulating...")):
+            _lh.warning("NAN/all zero found in data; would regenerate")
+    for i, gene_id in enumerate(tqdm(iterable=list(gv.iter_gene_ids()), desc="Simulating...")):
         depth[gene_id] = data[i]
     return depth
 
@@ -82,7 +82,7 @@ def simulate_isoform_variance_inside_a_gene(
             generated_abundance = np.array([(rn ** (-1)) for rn in range(1, n + 1)])
         else:
             generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
-        if np.nan not in generated_abundance:
+        if np.sum(np.isnan(generated_abundance)) == 0 and np.sum(generated_abundance) != 0:
             break
         else:
             _lh.warning("NAN found in data; would regenerate")

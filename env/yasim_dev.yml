@@ -24,6 +24,7 @@ dependencies:
   - scikit-learn>=1.2
   - requests
   - tomli
+  - jinja2>=3.1.2
 
   # Recommended libraries
   - seaborn>=0.12 # A high-level plotting library over matplotlib.
@@ -36,6 +37,7 @@ dependencies:
   - findutils
   - git
   - grep
+  - axel
 
   # Sphinx documentation
   - sphinx=5.3
@@ -64,6 +66,7 @@ dependencies:
   - r-base=4.2.2
   - r-languageserver
   - radian=0.6.4
+  - r-ggpubr=0.6.0
   - r-lintr
   - r-formatr
 
@@ -78,6 +81,11 @@ dependencies:
   - gatk4=4.3.0.0
   - art=2016.06.05
   - trust4=1.0.8
+  - pbcore=2.1.2
+  - isoseq3=3.8.2
+  - pbmm2=1.10.0
+  - gffcompare=0.12.6
+  - pbpigeon=1.0.0
 
   - pip
   - setuptools
