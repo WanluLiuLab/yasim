@@ -1,9 +1,15 @@
 import glob
 import os
 import subprocess
-from typing import List, Final
+import time
+import uuid
+from typing import Final, List
+
+import jinja2
+import pysam
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
+from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
 from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException, autocopy, automerge
 
@@ -13,20 +19,6 @@ Where pbsim3 stores its models
 """
 
 PBSIM3_STRATEGY = ("wgs", "trans")
-
-
-import glob
-import os.path
-import time
-import uuid
-from typing import List
-
-import jinja2
-
-from labw_utils.commonutils.io.safe_io import get_writer
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
-
 JINJA2_ENV = jinja2.Environment(loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates'))
 PACB_TEMPLATE = JINJA2_ENV.get_template('pbsim_xml_template.xml')
 
@@ -119,13 +111,13 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             )
         else:
             self._input_path = self._input_fasta
-
         self._cmd = [
             exename,
             "--strategy", self.strategy,
             "--method", hmm_method,
             f"--{hmm_method}", hmm_model,
             "--prefix", os.path.join(self._tmp_dir, "tmp"),
+            "--id-prefix", f"movie{uuid.uuid4()}",
             "--transcript" if self.strategy == "trans" else "--genome", self._input_path,
             "--pass-num", str(self.ccs_pass),
             *other_args
@@ -158,15 +150,21 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             else:
                 autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._output_fastq_prefix + ".fq")
         else:
+            subreads_bam_path = os.path.join(self._tmp_dir, "tmp.subreads.bam")
+            subreads_sam_path = os.path.join(self._tmp_dir, "tmp.sam")
+            subreads_xml_path = os.path.join(self._tmp_dir, "tmp.subreads.xml")
+            if not file_system.file_exists(subreads_sam_path):
+                return
+            with pysam.AlignmentFile(subreads_sam_path, check_sq=False) as sam_reader:
+                if len(list(sam_reader.fetch())) == 0:
+                    return
             with open(os.path.join(self._tmp_dir, "call_ccs.log"), "wb") as log_writer:
-                subreads_bam_path = os.path.join(self._tmp_dir, "tmp.subreads.bam")
-                subreads_xml_path = os.path.join(self._tmp_dir, "tmp.subreads.xml")
                 ccs_xml_path = os.path.join(self._tmp_dir, "tmp.ccs.xml")
                 if self._exec_subprocess(
                         [
                             self.samtools_path,
                             "view",
-                            os.path.join(self._tmp_dir, "tmp.sam"),
+                            subreads_sam_path,
                             "-o", subreads_bam_path
                         ],
                         stdin=subprocess.DEVNULL,

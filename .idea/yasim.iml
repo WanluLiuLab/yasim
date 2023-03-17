@@ -1854,7 +1854,7 @@
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/src/yasim_scripts/main/templates" />
+        <option value="$MODULE_DIR$/src/yasim/llrg_adapter/templates" />
       </list>
     </option>
   </component>

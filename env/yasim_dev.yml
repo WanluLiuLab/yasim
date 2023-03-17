@@ -69,9 +69,9 @@ dependencies:
   - r-ggpubr=0.6.0
   - r-lintr
   - r-formatr
+  - r-argparse=2.1.5
 
   # TGS utils
-  - pbccs=6.0.0
   - minimap2=2.24
   - samtools=1.16.1
   - last=1449
@@ -84,8 +84,10 @@ dependencies:
   - pbcore=2.1.2
   - isoseq3=3.8.2
   - pbmm2=1.10.0
-  - gffcompare=0.12.6
   - pbpigeon=1.0.0
+  - pbbam 2.1.0
+  - pbccs=6.0.0
+  - gffcompare=0.12.6
 
   - pip
   - setuptools

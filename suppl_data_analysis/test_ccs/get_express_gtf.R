@@ -1,0 +1,15 @@
+library(argparse)
+parser <- ArgumentParser()
+parser$add_argument("-s", "--stats", help = "The input fq.stats file")
+parser$add_argument("-g", "--gtf", help = "The input GTF file")
+parser$add_argument("-o", "--output", help = "The output file")
+
+library(rtracklayer)
+library(dplyr)
+
+args <- parser$parse_args()
+transID <- read.table(args$stats, header = T, sep = "\t")
+gtf <- import(args$gtf)
+gtf <- as.data.frame(gtf)
+gtf_express <- gtf %>% filter(transcript_id %in% transID[, 1])
+export(gtf_express, args$output)
