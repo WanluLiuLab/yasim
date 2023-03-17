@@ -2,7 +2,7 @@ import glob
 import os
 from typing import List, Final
 
-from yasim.llrg_adapter import BaseLLRGAdapter, automerge
+from yasim.llrg_adapter import BaseLLRGAdapter, automerge, LLRGInitializationException
 
 PBSIM2_DIST = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
@@ -54,7 +54,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         elif os.path.exists(os.path.join(PBSIM2_DIST, f"{hmm_model}.model")):
             hmm_model = os.path.join(PBSIM2_DIST, f"{hmm_model}.model")
         else:
-            raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
+            raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
         self.hmm_model = hmm_model
 
         self._cmd = [
@@ -70,7 +70,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
         """Does not need extra preparation"""
         pass
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
 
     @property

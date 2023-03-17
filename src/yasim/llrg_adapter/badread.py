@@ -112,7 +112,7 @@ class BadReadAdapter(BaseLLRGAdapter):
         ])
         self._cmd = cmd
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         """
         This function is passed since badread pours read into stdout.
         """

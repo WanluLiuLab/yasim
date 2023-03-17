@@ -1,6 +1,5 @@
 import logging
 import os.path
-import shutil
 import subprocess
 import threading
 from abc import abstractmethod
@@ -8,6 +7,9 @@ from typing import Union, List, IO, Optional, Iterable
 
 from labw_utils.commonutils.io import get_reader, get_writer, file_system
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
+COPY_BUFSIZE = 1024 * 1024 if os.name == 'nt' else 64 * 1024
+"""Copy buffer size from shutil."""
 
 
 class LLRGException(RuntimeError):
@@ -23,6 +25,41 @@ class LLRGException(RuntimeError):
         return self.contents
 
 
+class NoOutputFileException(LLRGException):
+    ...
+
+
+class EmptyOutputFileException(LLRGException):
+    ...
+
+
+class LLRGFailException(LLRGException):
+    ...
+
+
+class LLRGInitializationException(LLRGException):
+    """Error raised in initialization or pre-execution stage."""
+    ...
+
+
+def enhanced_copyfileobj(fsrc: IO, fdst: IO, length: int = 0) -> int:
+    """
+    :py:func:`shutil.copyfileobj` with number of bytes copied.
+    """
+    c_len = 0
+    if not length:
+        length = COPY_BUFSIZE
+    fsrc_read = fsrc.read
+    fdst_write = fdst.write
+    while True:
+        buf = fsrc_read(length)
+        if not buf:
+            break
+        fdst_write(buf)
+        c_len += len(buf)
+    return c_len
+
+
 def autocopy(in_fn: str, out_fn: str) -> None:
     """
     Copy one file to another place, with automatic extraction of GZipped files
@@ -34,22 +71,31 @@ def autocopy(in_fn: str, out_fn: str) -> None:
     try:
         with get_reader(in_fn, is_binary=True) as r1, \
                 get_writer(out_fn, is_binary=True) as w1:
-            shutil.copyfileobj(r1, w1)
-    except (FileNotFoundError, OSError, PermissionError, IOError) as e:
+            c_len = enhanced_copyfileobj(r1, w1)
+    except FileNotFoundError as e:
+        raise NoOutputFileException(f"Copy file {in_fn} not found!") from e
+    except (OSError, PermissionError, IOError) as e:
         raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
+    if c_len == 0:
+        raise EmptyOutputFileException(f"Copy file {in_fn} empty!")
 
 
 def automerge(in_fns: Iterable[str], out_fn: str) -> None:
     """
     Merge multiple files into one. See :py:func:`autocopy`.
     """
+    c_len = 0
     with get_writer(out_fn, is_binary=True) as w1:
         for in_fn in in_fns:
             try:
                 with get_reader(in_fn, is_binary=True) as r1:
-                    shutil.copyfileobj(r1, w1)
-            except (FileNotFoundError, OSError, PermissionError,) as e:
+                    c_len += enhanced_copyfileobj(r1, w1)
+            except FileNotFoundError as e:
+                raise NoOutputFileException(f"Copy file {in_fn} not found!") from e
+            except (OSError, PermissionError, IOError) as e:
                 raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
+    if c_len == 0:
+        raise EmptyOutputFileException(f"Copy file {in_fn} empty!")
 
 
 class BaseLLRGAdapter(threading.Thread):
@@ -115,6 +161,8 @@ class BaseLLRGAdapter(threading.Thread):
     _capture_stdout: bool
     """Whether this simulator pours data into stdout"""
 
+    _exception: Optional[LLRGException]
+
     def __init__(
             self,
             input_fasta: str,
@@ -122,6 +170,7 @@ class BaseLLRGAdapter(threading.Thread):
             depth: Union[int, float],
             **kwargs
     ):
+        # To developers: This function should raise LLRGInitializationException only!
         super(BaseLLRGAdapter, self).__init__()
         if not hasattr(self, "_llrg_name"):
             raise TypeError
@@ -135,6 +184,27 @@ class BaseLLRGAdapter(threading.Thread):
         self._lh = get_logger(__name__)
         self._cmd = None
         self._tmp_dir = self._output_fastq_prefix + ".tmp.d"
+        self._exception = None
+
+    @property
+    def exception(self) -> str:
+        """
+        Get Exception status.
+
+        :return:
+        """
+        if self._exception is None:
+            return "NORMAL"
+        elif isinstance(self._exception, EmptyOutputFileException):
+            return "EmptyOutFile"
+        elif isinstance(self._exception, NoOutputFileException):
+            return "NoOutputFile"
+        elif isinstance(self._exception, LLRGFailException):
+            return "LLRGFail"
+        elif isinstance(self._exception, LLRGInitializationException):
+            return "InitFail"
+        else:
+            return "UNKNOWN"
 
     @abstractmethod
     def _pre_execution_hook(self) -> None:
@@ -146,7 +216,7 @@ class BaseLLRGAdapter(threading.Thread):
         raise NotImplementedError
 
     @abstractmethod
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         """
         Move the file into desired destination.
         May involve (de-)compression.
@@ -155,28 +225,31 @@ class BaseLLRGAdapter(threading.Thread):
         """
         raise NotImplementedError
 
-    def run(self):
+    def _llrg_initialization_hook(self) -> None:
+        """
+        Perform pre-flight check for LLRG.
+
+        :raise LLRGInitializationException: On initiation failures.
+        """
         if self._cmd is None:
-            self._lh.error("Commandline Assembly Failed!")
-            return
+            raise LLRGInitializationException("Commandline Assembly Failed!")
         if not file_system.file_exists(self._input_fasta):
-            self._lh.error("Commandline Assembly Failed!")
-            return
+            raise LLRGInitializationException(f"FASTA {self._input_fasta} not found!")
         try:
             os.makedirs(self._tmp_dir, exist_ok=True)
-        except (OSError, PermissionError, FileNotFoundError):
-            self._lh.error(f"Failed to create temporary directory at %s", self._tmp_dir)
-            return
-        try:
-            self._pre_execution_hook()
-        except LLRGException as e:
-            self._lh.error("Exception %s caught at pre-execution time", str(e))
-            return
+        except (OSError, PermissionError, FileNotFoundError) as e:
+            raise LLRGInitializationException(f"MKTEMP Failed!") from e
 
+    def _run_llrg_hook(self) -> None:
+        """
+        Execute LLRG as a process
+
+        :raise LLRGFailException: On running failures.
+        """
         subprocess_log_file_path = os.path.join(self._tmp_dir, "llrg.log")
         if self._capture_stdout:
-            with open(subprocess_log_file_path, "wb") as subprocess_log_handler, \
-                    open(self._output_fastq_prefix + ".fq", "wb") as stdout_handler:
+            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler, \
+                    get_writer(self._output_fastq_prefix + ".fq", is_binary=True) as stdout_handler:
                 retv = self._exec_subprocess(
                     self._cmd,
                     stdin=subprocess.DEVNULL,
@@ -184,7 +257,7 @@ class BaseLLRGAdapter(threading.Thread):
                     stderr=subprocess_log_handler
                 )
         else:
-            with open(subprocess_log_file_path, "wb") as subprocess_log_handler:
+            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler:
                 retv = self._exec_subprocess(
                     self._cmd,
                     stdin=subprocess.DEVNULL,
@@ -192,11 +265,27 @@ class BaseLLRGAdapter(threading.Thread):
                     stderr=subprocess_log_handler
                 )
         if retv != 0:
+            raise LLRGFailException(f"Return value LLRG ({retv}) != 0")
+
+    def run(self):
+        try:
+            self._llrg_initialization_hook()
+            self._pre_execution_hook()
+        except LLRGException as e:
+            self._lh.error("Exception %s caught at pre-execution time", str(e))
+            self._exception = e
             return
         try:
-            self._rename_file_after_finish_hook()
+            self._run_llrg_hook()
         except LLRGException as e:
-            self._lh.error("Exception %s caught at file renaming", str(e))
+            self._lh.error("Exception %s caught at execution time", str(e))
+            self._exception = e
+            return
+        try:
+            self._post_execution_hook()
+        except LLRGException as e:
+            self._lh.error("Exception %s caught at post-execution hook", str(e))
+            self._exception = e
             return
 
     def _exec_subprocess(

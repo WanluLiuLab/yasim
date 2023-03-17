@@ -2,7 +2,7 @@ import os
 from typing import List, Union, Final
 
 from labw_utils.commonutils.io import file_system
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException, autocopy
+from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, NoOutputFileException
 
 
 class DwgsimAdapter(BaseLLRGAdapter):
@@ -48,7 +48,7 @@ class DwgsimAdapter(BaseLLRGAdapter):
         """Does not need extra preparation"""
         pass
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         try_read1_suffix = (
             ".bwa.read1.fastq.gz",
             ".bwa.read1.fastq",
@@ -72,7 +72,7 @@ class DwgsimAdapter(BaseLLRGAdapter):
             autocopy(r2_file_path, self._output_fastq_prefix + "_2.fq")
             break
         else:
-            raise LLRGException("Unable to find output")
+            raise NoOutputFileException("Unable to find output")
 
     @property
     def is_pair_end(self) -> bool:

@@ -11,7 +11,9 @@ import pysam
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGException, autocopy, automerge
+from labw_utils.commonutils.shell_utils import wc_c
+from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, automerge, LLRGInitializationException, \
+    NoOutputFileException, EmptyOutputFileException, LLRGFailException
 
 PBSIM3_DIST = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
 """
@@ -99,10 +101,10 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         elif os.path.exists(possible_hmm_model_path):
             hmm_model = possible_hmm_model_path
         else:
-            raise ValueError(f"HMM Model {hmm_model} cannot be resolved!")
+            raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
 
         if strategy not in PBSIM3_STRATEGY:
-            raise ValueError(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
+            raise LLRGInitializationException(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
         self.strategy = strategy
 
         if self.strategy == "trans":
@@ -141,9 +143,10 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                         sequence
                     )) + "\n")
             except (KeyError, OSError, PermissionError, IndexError) as e:
-                raise LLRGException(f"Sequence {transcript_id} from file {self._input_fasta} failed!") from e
+                raise LLRGInitializationException(
+                    f"Sequence {transcript_id} from file {self._input_fasta} failed!") from e
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         if self.ccs_pass == 1:
             if self.strategy == "wgs":
                 automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
@@ -153,11 +156,13 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             subreads_bam_path = os.path.join(self._tmp_dir, "tmp.subreads.bam")
             subreads_sam_path = os.path.join(self._tmp_dir, "tmp.sam")
             subreads_xml_path = os.path.join(self._tmp_dir, "tmp.subreads.xml")
+            ccs_bam_path = os.path.join(self._tmp_dir, "tmp.ccs.bam")
+            output_fastq_path = self._output_fastq_prefix + ".fq"
             if not file_system.file_exists(subreads_sam_path):
-                return
+                raise NoOutputFileException(f"Subread SAM output {subreads_sam_path} not found!")
             with pysam.AlignmentFile(subreads_sam_path, check_sq=False) as sam_reader:
                 if len(list(sam_reader.fetch())) == 0:
-                    return
+                    raise EmptyOutputFileException(f"Subread SAM output {subreads_sam_path} empty!")
             with open(os.path.join(self._tmp_dir, "call_ccs.log"), "wb") as log_writer:
                 ccs_xml_path = os.path.join(self._tmp_dir, "tmp.ccs.xml")
                 if self._exec_subprocess(
@@ -171,7 +176,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                         stdout=log_writer,
                         stderr=log_writer
                 ) != 0:
-                    return
+                    raise LLRGFailException(f"Failed in conversion of subread SAM output {subreads_sam_path}")
                 with get_writer(subreads_xml_path) as writer:
                     timestamp = time.localtime()
                     writer.write(PACB_TEMPLATE.render(
@@ -195,19 +200,21 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                         stdout=log_writer,
                         stderr=log_writer
                 ) != 0:
-                    return
-                with open(self._output_fastq_prefix + ".fq", "wb") as writer:
+                    raise LLRGFailException(f"Failed in CCS calling of subread BAM output {subreads_sam_path}")
+                with get_writer(output_fastq_path, is_binary=True) as writer:
                     if self._exec_subprocess(
                             [
                                 self.samtools_path,
                                 "fastq",
-                                os.path.join(self._tmp_dir, "tmp.ccs.bam")
+                                ccs_bam_path
                             ],
                             stdin=subprocess.DEVNULL,
                             stdout=writer,
                             stderr=log_writer
                     ) != 0:
-                        return
+                        raise LLRGFailException(f"Failed in Conversion of CCS BAM output {subreads_sam_path}")
+                if wc_c(output_fastq_path) < 2:
+                    raise EmptyOutputFileException(f"CCS BAM output {ccs_bam_path} empty!")
 
     @property
     def is_pair_end(self) -> bool:

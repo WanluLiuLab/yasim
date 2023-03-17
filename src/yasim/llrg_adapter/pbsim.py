@@ -89,7 +89,7 @@ class PbsimAdapter(BaseLLRGAdapter):
         """Does not need extra preparation"""
         pass
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._output_fastq_prefix + ".fq")
 
     @property

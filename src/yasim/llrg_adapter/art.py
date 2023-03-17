@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List, Tuple, Union, Final
 
-from yasim.llrg_adapter import BaseLLRGAdapter, autocopy
+from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, LLRGInitializationException
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
     "GA1": ("GenomeAnalyzer I", [36, 44]),
@@ -65,7 +65,10 @@ class ArtAdapter(BaseLLRGAdapter):
         )
         self._is_pair_end = is_pair_end
         self._tmp_dir = self._output_fastq_prefix + ".tmp.d"
-        sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer]
+        try:
+            sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer]
+        except KeyError as e:
+            raise LLRGInitializationException from e
 
         if rlen not in sequencer_profile[1]:
             rlen = sequencer_profile[1][0]
@@ -86,7 +89,7 @@ class ArtAdapter(BaseLLRGAdapter):
                 "--mflen", str(mflen_mean)
             ])
 
-    def _rename_file_after_finish_hook(self):
+    def _post_execution_hook(self):
         if self._is_pair_end:
             autocopy(os.path.join(self._tmp_dir, "tmp1.fq"), self._output_fastq_prefix + "_1.fq")
             autocopy(os.path.join(self._tmp_dir, "tmp2.fq"), self._output_fastq_prefix + "_2.fq")
