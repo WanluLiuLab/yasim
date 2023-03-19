@@ -9,4 +9,4 @@ if __name__ == "__main__":
         depth_db[f"{barcode}:A"] = 400
         depth_db[f"{barcode}:B"] = 400
 
-    write_depth(depth_db, "tcr_depth.tsv")
+    write_depth(depth_db, "tcr_depth.tsv", )

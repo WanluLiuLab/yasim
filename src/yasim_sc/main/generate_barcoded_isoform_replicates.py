@@ -21,10 +21,7 @@ def main(args: List[str]):
     args = _parse_args(args)
     depth_data = depth.read_depth(args.depth)
     for barcode in get_tqdm_line_reader(args.barcodes):
-        depth.write_depth(
-            depth.generate_depth_replicates_uniform(
-                depth_data,
-                args.range
-            ),
-            os.path.join(f"{args.depth}.d", f"{barcode}.tsv")
-        )
+        depth.write_depth(depth.generate_depth_replicates_uniform(
+            depth_data,
+            args.range
+        ), os.path.join(f"{args.depth}.d", f"{barcode}.tsv"), )

@@ -19,5 +19,5 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
-    dge_data = depth.simulate_depth_gmm(gv=gv, mu=args.mu)
+    dge_data = depth.simulate_depth_gmm_v2(gv=gv, mu=args.mu)
     depth.write_depth(dge_data, args.out, feature_name="TRANSCRIPT_ID")

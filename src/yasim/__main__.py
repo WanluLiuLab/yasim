@@ -6,7 +6,7 @@ from yasim import \
 
 if __name__ == '__main__':
     setup_frontend(
-        "yasim.main",
+        "yasim._main",
         description,
         yasim_ver,
     )

@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-from labw_utils.bioutils.algorithm.alignment import SmithWatermanAligner, get_subst_mtx
+from labw_utils.bioutils.algorithm.alignment import SmithWatermanAligner
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname, translate_cdna
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory

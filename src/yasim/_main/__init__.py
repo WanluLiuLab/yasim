@@ -1,4 +1,4 @@
-import os.path
+import os
 from collections import defaultdict
 from typing import Mapping, Any, Type
 
@@ -33,37 +33,34 @@ def abstract_simulate(
         delete_after_finish=False
     )
     depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth))
+
+    # Get assembler arguments
+    assembler_full_args = {
+        "depth_data": depth,
+        "output_fastq_prefix": output_fastq_prefix,
+        "simulator_name": simulator_name,
+        "input_transcriptome_fasta_dir": transcriptome_fasta_dir,
+    }
+    assembler_full_args.update(assembler_args)
+
+    # Create assembler
     if not_perform_assemble:
-        assembler = AssembleDumb(
-            depth=depth,
-            output_fastq_prefix=output_fastq_prefix,
-            simulator_name=simulator_name,
-            input_transcriptome_fasta_dir=transcriptome_fasta_dir,
-            **assembler_args
-        )
+        assembler_class = AssembleDumb
     elif is_pair_end:
-        assembler = AssemblePairEnd(
-            depth=depth,
-            output_fastq_prefix=output_fastq_prefix,
-            simulator_name=simulator_name,
-            input_transcriptome_fasta_dir=transcriptome_fasta_dir,
-            **assembler_args
-        )
+        assembler_class = AssemblePairEnd
     else:
-        assembler = AssembleSingleEnd(
-            depth=depth,
-            output_fastq_prefix=output_fastq_prefix,
-            simulator_name=simulator_name,
-            input_transcriptome_fasta_dir=transcriptome_fasta_dir,
-            **assembler_args,
-        )
+        assembler_class = AssembleSingleEnd
+    assembler = assembler_class(**assembler_full_args)
     assembler.start()
+
+    # Start simulation and assembly.
     for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         try:
             sim_thread = adapter_class(
-                input_fasta=transcript_filename,
-                output_fastq_prefix=os.path.join(output_fastq_dir, transcript_id),
+                src_fasta_file_path=transcript_filename,
+                dst_fastq_file_prefix=os.path.join(output_fastq_dir, transcript_id),
                 depth=transcript_depth,
+                is_trusted=True,
                 **adapter_args
             )
         except LLRGInitializationException as e:
@@ -72,10 +69,14 @@ def abstract_simulate(
         simulating_pool.append(sim_thread, callback=generate_callback(assembler, transcript_id))
     simulating_pool.start()
     simulating_pool.join()
+
+    # Terminate assemblers.
+    assembler.terminate()
+    assembler.join()
+
+    # Calculating number of exceptions
     exception_dict = defaultdict(lambda: 0)
     for job in simulating_pool.iter_finished_jobs():
         job: BaseLLRGAdapter
         exception_dict[job.exception] += 1
     _lh.info(f"Status of errors: {dict(exception_dict)}")
-    assembler.terminate()
-    assembler.join()

@@ -2,27 +2,28 @@ import argparse
 from typing import List, Tuple, Optional
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from yasim._main import abstract_simulate
 from yasim.helper.depth import DepthType, read_depth
 from yasim.helper.llrg import patch_frontend_parser_public, enhanced_which
 from yasim.llrg_adapter import dwgsim
-from yasim.main import abstract_simulate
 
 logger = get_logger(__name__)
 
 
 def _parse_args(args: List[str]) -> Tuple[argparse.Namespace, List[str]]:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--exename', required=False, help="Executable name or absolute path of dwgsim",
-                        nargs='?',
-                        type=str, action='store', default="dwgsim")
-    parser = patch_frontend_parser_public(parser)
+    parser = patch_frontend_parser_public(
+        parser,
+        llrg_name="dwgsim",
+        default_llrg_executable_name="dwgsim"
+    )
     return parser.parse_known_args(args)
 
 
 def simulate(
         transcriptome_fasta_dir: str,
         output_fastq_prefix: str,
-        exename: str,
+        llrg_executable_path: str,
         depth: DepthType,
         jobs: int,
         simulator_name: Optional[str],
@@ -36,7 +37,7 @@ def simulate(
         simulator_name="dwgsim" if simulator_name is None else simulator_name,
         assembler_args={},
         adapter_args={
-            "exename": exename,
+            "llrg_executable_path": llrg_executable_path,
             "other_args": other_args
         },
         adapter_class=dwgsim.DwgsimAdapter,
@@ -49,7 +50,7 @@ def main(args: List[str]):
     simulate(
         transcriptome_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,
-        exename=enhanced_which(args.exename),
+        llrg_executable_path=enhanced_which(args.llrg_executable_path),
         depth=read_depth(args.depth),
         jobs=args.jobs,
         simulator_name=args.simulator_name,

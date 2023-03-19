@@ -19,10 +19,7 @@ def main(args: List[str]):
     args = _parse_args(args)
     depth_data = depth.read_depth(args.depth)
     for i in range(args.num_replicates):
-        depth.write_depth(
-            depth.generate_depth_replicates_uniform(
-                depth_data,
-                args.range
-            ),
-            f"{args.depth}.{i}"
-        )
+        depth.write_depth(depth.generate_depth_replicates_uniform(
+            depth_data,
+            args.range
+        ), f"{args.depth}.{i}", )

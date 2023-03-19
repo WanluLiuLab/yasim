@@ -38,4 +38,4 @@ def main(args: List[str]):
         )
         for i, transcript in enumerate(gene.iter_transcripts()):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]
-    depth.write_depth(transcript_level_depth, args.out)
+    depth.write_depth(transcript_level_depth, args.out, )

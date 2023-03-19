@@ -25,7 +25,10 @@ python -m yasim art \
     -j 20
 
 # Gene
-python sample_pcg.py
+python -m yasim_scripts sample_pcg \
+    -i ncbi_dataset.tsv \
+    -g hg38.ncbiRefSeq.gtf \
+    -o hg38.ncbiRefSeq_subsampled.gtf
 python -m yasim generate_gene_depth \
     -g hg38.ncbiRefSeq_subsampled.gtf \
     -d 5 \

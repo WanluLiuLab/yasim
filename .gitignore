@@ -458,3 +458,4 @@ gffcmp*
 *.json
 *.pgi
 *.build
+*.xml

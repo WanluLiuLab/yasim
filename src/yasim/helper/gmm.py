@@ -1,4 +1,11 @@
-"""Gaussian Mixture Model bu YUAN Ruihong"""
+"""
+gmm.py -- Gaussian Mixture Model bu YUAN Ruihong
+"""
+
+__all__ = (
+    "GaussianMixture1D",
+)
+
 import multiprocessing
 from random import choices
 from typing import Optional, Union, Iterable, Tuple, List

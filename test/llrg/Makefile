@@ -101,8 +101,8 @@ art_pe_mode: chrM.trans.fa depth.tsv
 		-d depth.tsv \
 		-o art_pe_mode \
 		--is_pair_end \
-		--mflen_mean 200 \
-		--mflen_std 5 \
+		--pair_end_fragment_length_mean 200 \
+		--pair_end_fragment_length_std 5 \
 		-j 40
 	touch art_pe_mode
 
