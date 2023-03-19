@@ -7,7 +7,7 @@ __all__ = (
 )
 
 import os
-from typing import List, Union, Final
+from typing import List, Union, Final, Mapping, Any
 
 from labw_utils.commonutils.io import file_system
 from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, NoOutputFileException
@@ -30,6 +30,10 @@ class DwgsimAdapter(BaseLLRGAdapter):
     llrg_name: Final[str] = "dwgsim"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
+
+    @staticmethod
+    def validate_params(**kwargs) -> Mapping[str, Any]:
+        return {}
 
     def __init__(
             self,

@@ -11,7 +11,7 @@ __all__ = (
 import argparse
 import glob
 import os
-from typing import List, Final
+from typing import List, Final, Mapping, Any
 
 from yasim.llrg_adapter import BaseLLRGAdapter, automerge, LLRGInitializationException
 
@@ -44,15 +44,22 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             self._src_fasta_file_path
         ]
     """
-    hmm_model: str
-    """Absolute path to or name of HMM filename"""
-
-    _tmp_dir: str
-    """Prefix for generated temporary files"""
-
     llrg_name: Final[str] = "pbsim2"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
+
+    @staticmethod
+    def validate_params(
+            hmm_model: str,
+            **kwargs
+    ) -> Mapping[str, Any]:
+        if os.path.exists(hmm_model):
+            hmm_model = hmm_model
+        elif os.path.exists(os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")):
+            hmm_model = os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")
+        else:
+            raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
+        return {"hmm_model": hmm_model}
 
     def __init__(
             self,
@@ -83,19 +90,15 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted
         )
-        if os.path.exists(hmm_model):
-            hmm_model = hmm_model
-        elif os.path.exists(os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")):
-            hmm_model = os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")
-        else:
-            raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
-        self.hmm_model = hmm_model
 
+        if not is_trusted:
+            validated_params = Pbsim2Adapter.validate_params(hmm_model=hmm_model)
+            hmm_model = validated_params["hmm_model"]
         self._cmd = [
             llrg_executable_path,
             "--prefix", os.path.join(self._tmp_dir, "tmp"),
             "--depth", str(self._depth),
-            "--hmm_model", self.hmm_model,
+            "--hmm_model", hmm_model,
             *other_args,
             self._src_fasta_file_path
         ]

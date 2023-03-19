@@ -14,7 +14,7 @@ import os
 import subprocess
 import time
 import uuid
-from typing import Final, List
+from typing import Final, List, Mapping, Any, Optional
 
 import jinja2
 import pysam
@@ -23,6 +23,8 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.shell_utils import wc_c
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from yasim.helper.llrg import enhanced_which
 from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, automerge, LLRGInitializationException, \
     NoOutputFileException, EmptyOutputFileException, LLRGFailException
 
@@ -51,6 +53,8 @@ PBSIM3_ERRHMM_POSSIBLE_MODELS = [
     for filename in glob.glob(os.path.join(PBSIM3_DIST_DIR_PATH, "ERRHMM-*.model"))
 ]
 
+_lh = get_logger(__name__)
+
 
 class Pbsim3Adapter(BaseLLRGAdapter):
     """
@@ -70,9 +74,9 @@ class Pbsim3Adapter(BaseLLRGAdapter):
         ]
     """
     _ccs_pass: int
-    _samtools_executable_path: str
-    _ccs_executable_path: str
-    _ccs_num_threads: int
+    _samtools_executable_path: Optional[str]
+    _ccs_executable_path: Optional[str]
+    _ccs_num_threads: Optional[int]
     _strategy: str
 
     _input_path: str
@@ -81,6 +85,48 @@ class Pbsim3Adapter(BaseLLRGAdapter):
     llrg_name: Final[str] = "pbsim3"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
+
+    @staticmethod
+    def validate_params(
+            hmm_model: str,
+            hmm_method: str,
+            strategy: str,
+            ccs_pass: int,
+            ccs_executable_path: Optional[str],
+            samtools_executable_path: Optional[str],
+            **kwargs
+    ) -> Mapping[str, Any]:
+        possible_hmm_model_path = os.path.join(
+            PBSIM3_DIST_DIR_PATH,
+            f"{hmm_method.upper()}-{hmm_model}.model"
+        )
+        if os.path.exists(hmm_model):
+            hmm_model = hmm_model
+        elif os.path.exists(possible_hmm_model_path):
+            hmm_model = possible_hmm_model_path
+        else:
+            raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
+        if strategy not in PBSIM3_STRATEGY:
+            raise LLRGInitializationException(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
+        if ccs_pass > 1:
+            try:
+                ccs_executable_path = enhanced_which(ccs_executable_path)
+            except FileNotFoundError as e:
+                raise LLRGInitializationException(f"PBCCS at {ccs_executable_path} not found!")
+            try:
+                samtools_executable_path = enhanced_which(samtools_executable_path)
+            except FileNotFoundError as e:
+                raise LLRGInitializationException(f"SAMTOOLS at {samtools_executable_path} not found!")
+        else:
+            if ccs_executable_path is not None:
+                _lh.warning("CCS Executable path ignored in CLR mode")
+            if samtools_executable_path is not None:
+                _lh.warning("SAMTOOLS Executable path ignored in CLR mode")
+        return {
+            "hmm_model": hmm_model,
+            "ccs_executable_path": ccs_executable_path,
+            "samtools_executable_path": samtools_executable_path
+        }
 
     def __init__(
             self,
@@ -92,9 +138,9 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             strategy: str,
             hmm_method: str,
             hmm_model: str,
-            samtools_executable_path: str,
-            ccs_executable_path: str,
-            ccs_num_threads: int,
+            samtools_executable_path: Optional[str],
+            ccs_executable_path: Optional[str],
+            ccs_num_threads: Optional[int],
             ccs_pass: int,
             other_args: List[str]
     ):
@@ -122,6 +168,18 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted
         )
+
+        if not is_trusted:
+            validated_params = Pbsim3Adapter.validate_params(
+                hmm_model=hmm_model,
+                hmm_method=hmm_method,
+                strategy=strategy,
+                ccs_pass=ccs_pass,
+                samtools_executable_path=samtools_executable_path,
+                ccs_executable_path=ccs_executable_path
+            )
+            hmm_model = validated_params["hmm_model"]
+        self._strategy = strategy
         self._samtools_executable_path = samtools_executable_path
         self._ccs_executable_path = ccs_executable_path
         self._ccs_pass = ccs_pass

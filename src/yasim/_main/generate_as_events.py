@@ -10,20 +10,42 @@ logger = get_logger(__name__)
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--fasta', required=True, help="Reference genome, in FASTA format", nargs='?',
-                        type=str, action='store')
-    parser.add_argument('-g', '--gtf', required=True, help="Reference genome, in GTF format", nargs='?',
-                        type=str, action='store')
     parser.add_argument(
-        '-c', '--complexity',
+        '-f',
+        '--fasta',
         required=True,
-        help="Genome Complexity, should be an integer between 1 and 9",
+        help="Reference genome, in FASTA format",
+        nargs='?',
+        type=str,
+        action='store'
+    )
+    parser.add_argument(
+        '-g',
+        '--gtf',
+        required=True,
+        help="Reference genome, in GTF format",
+        nargs='?',
+        type=str,
+        action='store'
+    )
+    parser.add_argument(
+        '-c',
+        '--complexity',
+        required=True,
+        help="Genome Complexity Index, should be an integer between 1 and 9",
         nargs='?',
         type=int,
         action='store'
     )
-    parser.add_argument('-o', '--out', required=True, help="Output GTF", nargs='?',
-                        type=str, action='store')
+    parser.add_argument(
+        '-o',
+        '--out',
+        required=True,
+        help="Output GTF",
+        nargs='?',
+        type=str,
+        action='store'
+    )
     return parser.parse_args(args)
 
 

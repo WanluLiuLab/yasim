@@ -9,9 +9,9 @@ __all__ = (
 )
 
 import argparse
-from typing import List, Final
+from typing import List, Final, Mapping, Any
 
-from yasim.llrg_adapter import BaseLLRGAdapter
+from yasim.llrg_adapter import BaseLLRGAdapter, LLRGInitializationException
 
 ALL_POSSIBLE_BADREAD_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
 """All possible badread model names"""
@@ -65,6 +65,13 @@ class BadReadAdapter(BaseLLRGAdapter):
                 *other_args
             ]
     """
+
+    @staticmethod
+    def validate_params(model_name: str, **kwargs) -> Mapping[str, Any]:
+        if model_name not in ALL_POSSIBLE_BADREAD_MODELS:
+            raise LLRGInitializationException(f"Illegal model name {model_name}")
+        return {}
+
     llrg_name: Final[str] = "badread"
     _require_integer_depth: Final[bool] = True
     _capture_stdout: Final[bool] = True
@@ -98,7 +105,8 @@ class BadReadAdapter(BaseLLRGAdapter):
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted
         )
-
+        if not is_trusted:
+            _ = BadReadAdapter.validate_params(model_name=model_name)
         cmd = [
             llrg_executable_path, "simulate",
             "--reference", self._src_fasta_file_path,

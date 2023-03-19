@@ -10,8 +10,9 @@ __all__ = (
 
 import argparse
 import os
-from typing import Dict, List, Tuple, Union, Final
+from typing import Dict, List, Tuple, Union, Final, Any, Mapping
 
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, LLRGInitializationException
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
@@ -27,6 +28,8 @@ AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
     "MSv3": ("MSv3 - MiSeq v3", [250]),
     "NS50": ("NextSeq500 v2", [75])
 }
+
+_lh = get_logger(__name__)
 
 
 class ArtAdapter(BaseLLRGAdapter):
@@ -55,6 +58,40 @@ class ArtAdapter(BaseLLRGAdapter):
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
     _is_pair_end: bool
+
+    @staticmethod
+    def validate_params(
+            sequencer_name: str,
+            read_length: int,
+            pair_end_fragment_length_mean: int,
+            pair_end_fragment_length_std: int,
+            is_pair_end: bool,
+            **kwargs
+    ) -> Mapping[str, Any]:
+        _ = kwargs
+        retd = {}
+        try:
+            sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer_name]
+        except KeyError as e:
+            raise LLRGInitializationException(f"Sequencer Profile for sequencer {sequencer_name} not found!") from e
+        if read_length not in sequencer_profile[1]:
+            read_length_used = sequencer_profile[1][0]
+            _lh.warning("Read length %d not allowed, would use default %d.", read_length, read_length_used)
+        else:
+            read_length_used = read_length
+        retd.update({"read_length": read_length_used})
+        if is_pair_end:
+            if pair_end_fragment_length_mean * pair_end_fragment_length_std == 0:
+                raise LLRGInitializationException(
+                    "Please set pair_end_fragment_length_mean and pair_end_fragment_length_std in PE simulation"
+                )
+        else:
+            if pair_end_fragment_length_mean != 0 or pair_end_fragment_length_std != 0:
+                _lh.warning(
+                    "PE Params pair_end_fragment_length_mean pair_end_fragment_length_std "
+                    "should not be used in SE mode, ignored."
+                )
+        return retd
 
     def __init__(
             self,
@@ -94,16 +131,19 @@ class ArtAdapter(BaseLLRGAdapter):
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted
         )
-        self._is_pair_end = is_pair_end
-        try:
-            sequencer_profile = AVAILABLE_ILLUMINA_ART_SEQUENCER[sequencer_name]
-        except KeyError as e:
-            raise LLRGInitializationException(f"Sequencer Profile for sequencer {sequencer_name} not found!") from e
 
-        if read_length not in sequencer_profile[1]:
-            read_length = sequencer_profile[1][0]
+        if not is_trusted:
+            validated_params = ArtAdapter.validate_params(
+                sequencer_name=sequencer_name,
+                read_length=read_length,
+                pair_end_fragment_length_mean=pair_end_fragment_length_mean,
+                pair_end_fragment_length_std=pair_end_fragment_length_std,
+                is_pair_end=is_pair_end
+            )
+            read_length = validated_params["read_length"]
+        self._is_pair_end = is_pair_end
         self._cmd = [
-            llrg_executable_path,
+            self._llrg_executable_path,
             "--fcov", str(self._depth),
             "--in", self._src_fasta_file_path,
             "--samout",

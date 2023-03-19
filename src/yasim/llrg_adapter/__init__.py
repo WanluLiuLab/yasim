@@ -11,7 +11,7 @@ import os.path
 import subprocess
 import threading
 from abc import abstractmethod
-from typing import Union, List, IO, Optional, Iterable
+from typing import Union, List, IO, Optional, Iterable, Mapping, Any
 
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer, file_system
 from labw_utils.commonutils.shell_utils import wc_c
@@ -131,6 +131,7 @@ class BaseLLRGAdapter(threading.Thread):
     _src_fasta_file_path: str
     _dst_fastq_file_prefix: str
     _depth: Union[int, float]
+    _llrg_executable_path: str
 
     # Following fields are left for LLRGs.
 
@@ -159,6 +160,31 @@ class BaseLLRGAdapter(threading.Thread):
 
     _capture_stdout: bool
     """Whether this simulator pours data into stdout. Should be Final."""
+
+    @staticmethod
+    def validate_base_params(
+            depth: Union[int, float],
+            src_fasta_file_path: str,
+            llrg_executable_path: str,
+            **kwargs
+    ) -> Mapping[str, Any]:
+        _ = kwargs
+        if depth <= 0:
+            raise LLRGInitializationException(f"Depth {depth} too low")
+        if not file_system.file_exists(src_fasta_file_path):
+            raise LLRGInitializationException(f"FASTA {src_fasta_file_path} not found!")
+        try:
+            llrg_executable_path = enhanced_which(llrg_executable_path)
+        except FileNotFoundError as e:
+            raise LLRGInitializationException(
+                f"LLRG Executable {llrg_executable_path} not found or not executable!"
+            ) from e
+        return {"llrg_executable_path": llrg_executable_path}
+
+    @staticmethod
+    @abstractmethod
+    def validate_params(**kwargs):
+        raise NotImplementedError
 
     def __init__(
             self,
@@ -190,6 +216,16 @@ class BaseLLRGAdapter(threading.Thread):
             raise TypeError
         if not hasattr(self, "_capture_stdout"):
             raise TypeError
+
+        if not is_trusted:
+            validated_params = BaseLLRGAdapter.validate_base_params(
+                src_fasta_file_path=src_fasta_file_path,
+                depth=depth,
+                llrg_executable_path=llrg_executable_path
+            )
+            self._llrg_executable_path = validated_params.get("llrg_executable_path", llrg_executable_path)
+        else:
+            self._llrg_executable_path = llrg_executable_path
         self._src_fasta_file_path = src_fasta_file_path
         self._dst_fastq_file_prefix = os.path.abspath(dst_fastq_file_prefix)
         self._depth = int(depth) if self._require_integer_depth else depth
@@ -198,22 +234,10 @@ class BaseLLRGAdapter(threading.Thread):
         self._tmp_dir = self._dst_fastq_file_prefix + ".tmp.d"
         self._exception = None
 
-        # Validate input.
-        if not is_trusted:
-            if self._depth <= 0:
-                raise LLRGInitializationException(f"Depth {self._depth} too low")
-            if not file_system.file_exists(self._src_fasta_file_path):
-                raise LLRGInitializationException(f"FASTA {self._src_fasta_file_path} not found!")
-            try:
-                os.makedirs(self._tmp_dir, exist_ok=True)
-            except (OSError, PermissionError, FileNotFoundError) as e:
-                raise LLRGInitializationException("MKTEMP Failed!") from e
-            try:
-                _ = enhanced_which(llrg_executable_path)
-            except FileNotFoundError as e:
-                raise LLRGInitializationException(
-                    f"LLRG Executable {llrg_executable_path} not found or not executable!"
-                ) from e
+        try:
+            os.makedirs(self._tmp_dir, exist_ok=True)
+        except (OSError, PermissionError, FileNotFoundError) as e:
+            raise LLRGInitializationException("MKTEMP Failed!") from e
 
     @property
     def exception(self) -> str:

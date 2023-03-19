@@ -11,7 +11,7 @@ __all__ = (
 import argparse
 import glob
 import os
-from typing import List, Final
+from typing import List, Final, Mapping, Any
 
 from yasim.llrg_adapter import BaseLLRGAdapter, automerge
 
@@ -51,6 +51,10 @@ class PbsimAdapter(BaseLLRGAdapter):
     llrg_name: Final[str] = "pbsim"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
+
+    @staticmethod
+    def validate_params(**kwargs) -> Mapping[str, Any]:
+        return {}
 
     def __init__(
             self,
