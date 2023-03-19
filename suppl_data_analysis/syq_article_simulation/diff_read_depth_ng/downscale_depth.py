@@ -1,6 +1,6 @@
 import sys
 
-from yasim.helper.depth import read_depth, write_depth
+from yasim.helper.depth_io import write_depth, read_depth
 
 if __name__ == "__main__":
     d = read_depth(sys.argv[1])

@@ -1,6 +1,7 @@
 import argparse
 from typing import List
 
+import yasim.helper.depth_io
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from yasim.helper import depth
 
@@ -20,4 +21,4 @@ def main(args: List[str]):
     args = _parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
     dge_data = depth.simulate_depth_gmm_v2(gv=gv, mu=args.mu)
-    depth.write_depth(dge_data, args.out, feature_name="TRANSCRIPT_ID")
+    yasim.helper.depth_io.write_depth(dge_data, args.out, feature_name="TRANSCRIPT_ID")

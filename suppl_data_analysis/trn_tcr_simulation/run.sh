@@ -28,7 +28,8 @@ python -m yasim art \
 python -m yasim_scripts sample_pcg \
     -i ncbi_dataset.tsv \
     -g hg38.ncbiRefSeq.gtf \
-    -o hg38.ncbiRefSeq_subsampled.gtf
+    -o hg38.ncbiRefSeq_subsampled.gtf \
+    --num_genes_to_sample 100
 python -m yasim generate_gene_depth \
     -g hg38.ncbiRefSeq_subsampled.gtf \
     -d 5 \
@@ -39,21 +40,20 @@ python -m yasim generate_isoform_depth \
     -o notcr_isoform_depth.tsv
 python -m yasim_sc generate_barcoded_isoform_replicates \
     -d notcr_isoform_depth.tsv \
-    -b barcode.txt
-
+    -b barcode.txt \
+    -o notcr_isoform_depth_sc.d
+rm -fr notcr_trans.fa.d
 python -m yasim transcribe \
     -f hg38.fa \
     -g hg38.ncbiRefSeq_subsampled.gtf \
     -o notcr_trans.fa
 
-for fn in notcr_isoform_depth.tsv.d/*.tsv; do
-    python -m yasim art \
-        -F notcr_trans.fa.d \
-        -o "${fn}"_sim \
-        -d "${fn}" \
-        -e art_illumina \
-        -j 20
-done
+python -m yasim_sc art \
+    -F notcr_trans.fa.d \
+    -o notcr_trans_sim.d \
+    -d notcr_isoform_depth_sc.d \
+    -e art_illumina \
+    -j 20
 
 mkdir -p trust4_result
 

@@ -11,8 +11,15 @@ logger = get_logger(__name__)
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n', '--num_cells', required=True, help="Number of Cells", nargs='?',
-                        type=int, action='store')
+    parser.add_argument(
+        '-n',
+        '--num_cells',
+        required=True,
+        help="Number of Cells",
+        nargs='?',
+        type=int,
+        action='store'
+    )
     parser.add_argument(
         '-l', '--length',
         required=False,
@@ -22,8 +29,15 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         type=int,
         action='store'
     )
-    parser.add_argument('-o', '--out', required=True, help="Output barcode TXT", nargs='?',
-                        type=str, action='store')
+    parser.add_argument(
+        '-o',
+        '--out',
+        required=True,
+        help="Output barcode TXT",
+        nargs='?',
+        type=str,
+        action='store'
+    )
     return parser.parse_args(args)
 
 

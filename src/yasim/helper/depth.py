@@ -1,35 +1,29 @@
 """
 depth.py -- GEP Datastructure and Utils
 
-Here contains datastructure, generators and I/O utilities for Gene Expression Profile (GEP).
+Here contains generators for Gene Expression Profile (GEP).
 """
 
 __all__ = (
     "GenerationFailureException",
-    "DepthType",
     "simulate_depth_gmm_v2",
     "simulate_gene_level_depth_gmm",
     "simulate_isoform_variance_inside_a_gene",
-    "write_depth",
-    "read_depth",
     "generate_depth_replicates_uniform"
 )
 
 import math
 from random import uniform
-from typing import Dict, List, Literal
+from typing import List
 
 import numpy as np
 
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from yasim.helper.depth_io import DepthType
 from yasim.helper.gmm import GaussianMixture1D
 
-DepthType = Dict[str, float]
-"""DGE type, is transcript_id -> coverage"""
 
 _lh = get_logger(__name__)
 
@@ -148,54 +142,6 @@ def simulate_depth_gmm_v2(
             depth[transcript_id] = data[i]
         i += 1
     return depth
-
-
-def write_depth(
-        depth_data: DepthType,
-        dst_depth_file_path: str,
-        feature_name: Literal["GENE_ID", "TRANSCRIPT_ID"],
-        show_tqdm: bool = True
-):
-    """
-    Write Depth information to file
-
-    :param depth_data: Data in depth.
-    :param dst_depth_file_path: Output TSV path. Can be compressed.
-    :param feature_name: Name of deature. Should be ``GENE_ID`` or ``TRANSCRIPT_ID``.
-    :param show_tqdm: Whether to show a progress bar.
-    """
-    with get_writer(dst_depth_file_path) as writer:
-        writer.write(f"{feature_name}\tDEPTH\n")
-        it = depth_data.items()
-        if show_tqdm:
-            it = tqdm(it, desc=f"Writing to {dst_depth_file_path}")
-        for transcript_id, d in it:
-            writer.write(f"{transcript_id}\t{d}\n")
-
-
-def read_depth(
-        src_depth_file_path: str,
-        show_tqdm: bool = True
-) -> DepthType:
-    """
-    Read depth information from a file.
-
-    :param src_depth_file_path: Path to source depth file. Can be compressed.
-    :param show_tqdm: Whether to show a progress bar.
-    :return: Retrived depth information
-    """
-    retd = {}
-    if show_tqdm:
-        reader = get_tqdm_line_reader(src_depth_file_path)
-    else:
-        reader = get_reader(src_depth_file_path)
-    _ = next(reader)  # Skip line 1
-    for line in reader:
-        line = line.strip()
-        lkv = line.split("\t")
-        retd[lkv[0]] = float(lkv[1])
-    reader.close()
-    return retd
 
 
 def generate_depth_replicates_uniform(
