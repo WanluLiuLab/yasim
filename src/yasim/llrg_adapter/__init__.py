@@ -89,7 +89,7 @@ def autocopy(in_fn: str, out_fn: str) -> None:
             c_len = enhanced_copyfileobj(r1, w1)
     except FileNotFoundError as e:
         raise NoOutputFileException(f"Copy file {in_fn} not found!") from e
-    except (OSError, PermissionError, IOError) as e:
+    except (OSError, IOError) as e:
         raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
     if c_len == 0:
         raise EmptyOutputFileException(f"Copy file {in_fn} empty!")
@@ -107,7 +107,7 @@ def automerge(in_fns: Iterable[str], out_fn: str) -> None:
                     c_len += enhanced_copyfileobj(r1, w1)
             except FileNotFoundError as e:
                 raise NoOutputFileException(f"Copy file {in_fn} not found!") from e
-            except (OSError, PermissionError, IOError) as e:
+            except (OSError, IOError) as e:
                 raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
     if c_len == 0:
         raise EmptyOutputFileException(f"Copy file {in_fn} empty!")
@@ -236,7 +236,7 @@ class BaseLLRGAdapter(threading.Thread):
 
         try:
             os.makedirs(self._tmp_dir, exist_ok=True)
-        except (OSError, PermissionError, FileNotFoundError) as e:
+        except OSError as e:
             raise LLRGInitializationException("MKTEMP Failed!") from e
 
     @property

@@ -70,5 +70,5 @@ def read_depth(
             retd[lkv[0]] = float(lkv[1])
         reader.close()
         return retd
-    except (OSError, KeyError, IndexError, FileNotFoundError) as e:
+    except (OSError, KeyError, IndexError) as e:
         raise DepthParsingException(f"Cannot parse {src_depth_file_path}") from e

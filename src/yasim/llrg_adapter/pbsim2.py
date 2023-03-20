@@ -54,7 +54,7 @@ class Pbsim2Adapter(BaseLLRGAdapter):
             **kwargs
     ) -> Mapping[str, Any]:
         if os.path.exists(hmm_model):
-            hmm_model = hmm_model
+            pass
         elif os.path.exists(os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")):
             hmm_model = os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")
         else:

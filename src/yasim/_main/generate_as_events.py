@@ -54,5 +54,5 @@ def main(args: List[str]):
     gv = GeneViewFactory.from_file(args.gtf)
     logger.info(f"Loaded {gv.number_of_genes} genes with {gv.number_of_transcripts} transcript")
     asm = ASManipulator(gv=gv)
-    asm.run("ce", args.complexity)  # TODO: add more organisms
+    asm.run("ce", args.complexity)
     asm.to_file(args.out)

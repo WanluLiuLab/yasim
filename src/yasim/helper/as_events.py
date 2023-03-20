@@ -183,7 +183,6 @@ class ASManipulator:
             gek = list(gene.iter_transcript_ids())
             while gene.number_of_transcripts > n:
                 self._gv.del_transcript(gek.pop())
-            return
         elif gene.number_of_transcripts < n:
             number_of_fail = 0
             while True:
@@ -194,7 +193,7 @@ class ASManipulator:
                 if number_of_fail > 2 * n:
                     raise ImpossibleToGenerateASEventError("Generation FAILED!")
                 elif gene.number_of_transcripts == n:
-                    return
+                    break
 
     def run(self, organism: str, compl_idx: int) -> None:
         """

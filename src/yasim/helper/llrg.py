@@ -233,7 +233,7 @@ class AssembleSingleEnd(BaseAssembler):
             )) + "\n")
 
             while not self._should_stop:
-                while not len(self._transcript_ids_pending) == 0:
+                while len(self._transcript_ids_pending) != 0:
                     transcript_id = self._transcript_ids_pending.pop(0)
                     this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                     this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
@@ -299,7 +299,7 @@ class AssemblePairEnd(BaseAssembler):
             )) + "\n")
 
             while not self._should_stop:
-                while not len(self._transcript_ids_pending) == 0:
+                while len(self._transcript_ids_pending) != 0:
                     transcript_id = self._transcript_ids_pending.pop(0)
                     this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                     this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
