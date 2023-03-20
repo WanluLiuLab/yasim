@@ -7,7 +7,7 @@ from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 MafRecordType = Tuple[str, str, str, str]
 """Name1, Name2, Alignment1, Alignment2"""
 
-maf_record_regex = re.compile(r"^s +(\S+) +([0-9]+) +([0-9]+) +([+-]) +([0-9]+) +(\S+)$")
+maf_record_regex = re.compile(r"^s +(\S+) +(\d+) +(\d+) +([+-]) +(\d+) +(\S+)$")
 
 
 def maf_parse(maf_path: str) -> Iterable[MafRecordType]:

@@ -12,7 +12,7 @@ from yasim.helper.llrg import enhanced_which, AssembleDumb, AssemblePairEnd, Ass
 from yasim.llrg_adapter import BaseLLRGAdapter, LLRGInitializationException
 
 _lh = get_logger(__name__)
-DepthInfoType = Iterable[Tuple[int, str, str]]
+DepthInfoType = Iterable[Tuple[float, str, str]]
 """
 Depth information used by LLRG frontend interfaces.
 

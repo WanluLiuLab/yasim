@@ -42,7 +42,7 @@ else
 fi
 
 if [ ! -f "${FASTQ_BASE_NAME}".GENE.bam ];then
-    if [ ${IS_GZ} -eq 0 ]; then
+    if [ "${IS_GZ}" -eq 0 ]; then
         readFilesCommand="cat"
     else
         readFilesCommand="zcat"

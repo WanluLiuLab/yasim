@@ -38,7 +38,10 @@ PBSIM3_STRATEGY = ("wgs", "trans")
 
 PACB_SUBREAD_XML_TEMPLATE_FILE_PATH = (
     jinja2.
-    Environment(loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates')).
+    Environment(
+        loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates'),
+        autoescape=True
+    ).
     get_template('pbsim_xml_template.xml')
 )
 """PBSIM3 Subread XML Template."""
@@ -101,7 +104,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             f"{hmm_method.upper()}-{hmm_model}.model"
         )
         if os.path.exists(hmm_model):
-            hmm_model = hmm_model
+            pass
         elif os.path.exists(possible_hmm_model_path):
             hmm_model = possible_hmm_model_path
         else:
@@ -112,11 +115,11 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             try:
                 ccs_executable_path = enhanced_which(ccs_executable_path)
             except FileNotFoundError as e:
-                raise LLRGInitializationException(f"PBCCS at {ccs_executable_path} not found!")
+                raise LLRGInitializationException(f"PBCCS at {ccs_executable_path} not found!") from e
             try:
                 samtools_executable_path = enhanced_which(samtools_executable_path)
             except FileNotFoundError as e:
-                raise LLRGInitializationException(f"SAMTOOLS at {samtools_executable_path} not found!")
+                raise LLRGInitializationException(f"SAMTOOLS at {samtools_executable_path} not found!") from e
         else:
             if ccs_executable_path is not None:
                 _lh.warning("CCS Executable path ignored in CLR mode")
@@ -190,7 +193,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             f"{hmm_method.upper()}-{hmm_model}.model"
         )
         if os.path.exists(hmm_model):
-            hmm_model = hmm_model
+            pass
         elif os.path.exists(possible_hmm_model_path):
             hmm_model = possible_hmm_model_path
         else:
@@ -235,7 +238,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
                         "0",  # Reverse
                         sequence
                     )) + "\n")
-            except (KeyError, OSError, PermissionError, IndexError) as e:
+            except (KeyError, OSError, IndexError) as e:
                 raise LLRGInitializationException(
                     f"Sequence {transcript_id} from file {self._src_fasta_file_path} failed!") from e
 

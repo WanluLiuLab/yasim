@@ -3,19 +3,29 @@ set -ue
 
 axel https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
 axel https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.gz
-
 gunzip ./*.gz
-
-export PYTHONPATH="../../src:../../deps/labw_utils/src:${PYTHONPATH}"
-
 grep -e '^chr7\s' -e '^chr14\s' hg38.ncbiRefSeq.gtf > hg38.ncbiRefSeq_chr7_14.gtf
 
-# TCR
-
 python -m yasim_sc generate_barcode -n 100 -o barcode.txt
-python generate_tcr_depth.py
-python create_tcr_cache.py
-python rearrange_tcr.py
+
+# TCR
+python -m yasim_sctcr generate_tcr_depth \
+    --barcode_path barcode.txt \
+    -o tcr_depth.tsv \
+    -d 400
+python -m yasim_sctcr generate_tcr_cache \
+    --tcr_genelist_path tcr_genelist.json \
+    -o tcr_cache.json \
+    --tcr_aa_table_path IMGT_Protein_Display.json \
+    -f hg38.fa \
+    -g hg38.ncbiRefSeq_chr7_14.gtf
+python -m yasim_sctcr rearrange_tcr \
+    --tcr_genelist_path tcr_genelist.json \
+    --tcr_cache_path tcr_cache.json \
+    --cdr3_deletion_table_path cdr3_deletion_table.json \
+    --cdr3_insertion_table_path cdr3_insertion_table.json \
+    --barcode_path barcode.txt \
+    -o sim_tcr
 python -m labw_utils.bioutils split_fasta sim_tcr.fa
 python -m yasim art \
     -F sim_tcr.fa.d \
@@ -23,6 +33,7 @@ python -m yasim art \
     -d tcr_depth.tsv \
     -e art_illumina\
     -j 20
+# See: sim_tcr.d
 
 # Gene
 python -m yasim_scripts sample_pcg \

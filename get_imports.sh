@@ -4,8 +4,7 @@ set -ue
 git ls-files | \
 grep \.py$ | \
 while read -r fn; do
-    cat "${fn}" | \
-    sed 's;\#.*;;' | \
+    sed 's;\#.*;;' < "${fn}" | \
     sed 's;^[[:blank:]]*;;' | \
     sed 's;[[:blank:]]*$;;' | \
     sed 's;$;'" # ${fn}"';'

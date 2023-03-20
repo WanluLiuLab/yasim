@@ -1,12 +1,6 @@
-import re
-from typing import Tuple, List
+from typing import List
 
-from yasim_scripts.main.extract_quality_from_maf import maf_parse
-
-MafRecordType = Tuple[str, str, str, str]
-"""Name1, Name2, Alignment1, Alignment2"""
-
-maf_record_regex = re.compile(r"^s +(\S+) +([0-9]+) +([0-9]+) +([+-]) +([0-9]+) +(\S+)$")
+from yasim_scripts._main.extract_quality_from_maf import maf_parse
 
 
 def main(args: List[str]):

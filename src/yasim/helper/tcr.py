@@ -305,7 +305,7 @@ class TCell:
             clip_nt(trbv_tt, "trbv", -1)
             clip_nt(traj_tt, "traj", 0)
             clip_nt(trbj_tt, "trbj", 0)
-        except (IndexError, RuntimeError, GenerationFailure) as e:
+        except (IndexError, GenerationFailure) as e:
             raise GenerationFailure from e
 
         tra_cdr3_tt = cdr3_insertion_table.generate_cdr3("A")
@@ -314,7 +314,7 @@ class TCell:
         try:
             tra_cdr3_tt, trav_tt, traj_tt = clip_aa(tra_cdr3_tt, trav_tt, traj_tt)
             trb_cdr3_tt, trbv_tt, trbj_tt = clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
-        except (IndexError, RuntimeError, GenerationFailure) as e:
+        except (IndexError, GenerationFailure) as e:
             raise GenerationFailure from e
 
         return cls(
