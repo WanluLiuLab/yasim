@@ -4,7 +4,7 @@ from yasim import __version__
 
 if __name__ == '__main__':
     setup_frontend(
-        "yasim_scripts._main",
-        "Supplementary scripts to yasim",
+        "yasim_sctcr._main",
+        "YASIM for Single-Cell TCR-Seq Simulation",
         __version__
     )

@@ -25,7 +25,6 @@ if __name__ == '__main__':
         for data in unique_data:
             this_data_str = r"    \wraprowname{%s}" % data.replace("_", "\_")
             all_software_data = df.query(f"Dataset == '{data}'")["_sum"]
-            print(all_software_data)
             all_software_sum = sum(all_software_data)
             all_software_max = max(all_software_data)
             for software in unique_software:
