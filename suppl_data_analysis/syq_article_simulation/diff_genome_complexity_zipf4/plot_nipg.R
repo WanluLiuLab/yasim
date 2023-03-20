@@ -1,14 +1,14 @@
 library("tidyverse")
 library("pheatmap")
 
-fns <- Sys.glob("ce11_as_*.gtf.gz.gene.tsv.xz")
+fns <- Sys.glob("ce11_as_*.gtf.gene.tsv")
 conditions <- fns %>%
     stringr::str_replace("ce11_as_", "") %>%
-    stringr::str_replace(".gtf.gz.gene.tsv.xz", "")
+    stringr::str_replace(".gtf.gene.tsv", "")
 
 fns <- c(
-    "../ce11.ncbiRefSeq.gtf.gz.gene.tsv",
-    "../ce11_as_2.gtf.gz.gene.tsv.xz",
+    "../ce11.ncbiRefSeq.gtf.gene.tsv",
+    "../ce11_as_2.gtf.gene.tsv",
     fns
 )
 
@@ -23,7 +23,7 @@ if (file.exists("all_nipg_data_binned.parquet")) {
 } else {
     all_nipg_data <- list()
 
-        #' Read data
+            #' Read data
     for (i in seq_along(conditions)) {
         all_nipg_data[[conditions[i]]] <-
             readr::read_tsv(
@@ -87,15 +87,15 @@ ggsave("nipg_hist.pdf", g, width = 8, height = 5)
 
 #' Count number of genes and transcripts in each sample
 
-fns <- Sys.glob("ce11_as_*.gtf.gz.transcripts.tsv.xz")
+fns <- Sys.glob("ce11_as_*.gtf.transcripts.tsv")
 
 conditions <- fns %>%
     stringr::str_replace("ce11_as_", "") %>%
-    stringr::str_replace(".gtf.gz.gene.tsv.xz", "")
+    stringr::str_replace(".gtf.gene.tsv", "")
 
 fns <- c(
-    "../ce11.ncbiRefSeq.gtf.gz.transcripts.tsv",
-    "../ce11_as_2.gtf.gz.transcripts.tsv.xz",
+    "../ce11.ncbiRefSeq.gtf.transcripts.tsv",
+    "../ce11_as_2.gtf.transcripts.tsv",
     fns
 )
 
@@ -108,10 +108,10 @@ conditions <- c(
 if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     all_nipg_ngenes_nisoforms <- arrow::read_parquet("all_nipg_ngenes_nisoforms.parquet")
 } else {
-        #' All NIpG Data
+            #' All NIpG Data
     all_data <- NULL
 
-        #' Read data
+            #' Read data
     for (i in seq_along(conditions)) {
         this_data <- readr::read_tsv(
             fns[i],

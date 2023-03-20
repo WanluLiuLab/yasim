@@ -3,13 +3,13 @@ library("ggridges")
 library("arrow")
 
 
-if (file.exists("all_fastq_data_sampled.parquet")){
+if (file.exists("all_fastq_data_sampled.parquet")) {
     all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
-} else{
-    fns <- Sys.glob("ce11_as_2*.fq.gz.stats.d")
+} else {
+    fns <- Sys.glob("ce11_as_2*.fq.stats.d")
     conditions <- fns %>%
         stringr::str_replace("ce11_", "") %>%
-        stringr::str_replace(".fq.gz.stats.d", "")
+        stringr::str_replace(".fq.stats.d", "")
 
     all_data <- NULL
     for (i in seq_along(fns)) {
@@ -97,14 +97,14 @@ g <- ggplot(all_data) +
 ggsave("fastq_qual_all.pdf", g, width = 8, height = 5)
 
 as_ref <- readr::read_tsv(
-    "../ce11_as_2.gtf.gz.transcripts.tsv.xz"
+    "../ce11_as_2.gtf.transcripts.tsv"
 )
 
 all_data_joint <- all_data %>%
     dplyr::mutate(
-        TRANSCRIPT_ID = sapply(strsplit(all_data$SEQID, ":"), function(s){s[1]})
+        TRANSCRIPT_ID = sapply(strsplit(all_data$SEQID, ":"), function(s) { s[1] })
     ) %>%
-    dplyr::inner_join(as_ref, by="TRANSCRIPT_ID") %>%
+    dplyr::inner_join(as_ref, by = "TRANSCRIPT_ID") %>%
     dplyr::mutate(
         READ_COMPLETENESS = LEN / TRANSCRIBED_LENGTH
     )
@@ -130,7 +130,7 @@ g <- ggplot(all_data_joint) +
             y = TRANSCRIBED_LENGTH
         )
     ) +
-    facet_wrap(.~Condition) +
+    facet_wrap(. ~ Condition) +
     theme_bw() +
     ggtitle("Length of all conditions")
 ggsave("fastq_rc_tlen.png", g, width = 20, height = 24)

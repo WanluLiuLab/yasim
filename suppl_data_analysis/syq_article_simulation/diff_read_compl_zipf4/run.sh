@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 set -uex
-# LOG_FILE_NAME="yasim_generate_gene_depth.log" \
-#     python -m yasim generate_gene_depth \
-#     -g ../ce11_as_2.gtf.gz \
-#     -o ce11_as_2_gene_depth_20.tsv.xz \
-#     -d 20
-# LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
-#     python -m yasim generate_isoform_depth \
-#     -g ../ce11_as_2.gtf.gz \
-#     -d ce11_as_2_gene_depth_20.tsv.xz \
-#     -o ce11_as_2_isoform_depth_20.tsv.xz \
-#     --alpha 4
+LOG_FILE_NAME="yasim_generate_gene_depth.log" \
+    python -m yasim generate_gene_depth \
+    -g ../ce11_as_2.gtf \
+    -o ce11_as_2_gene_depth_20.tsv \
+    -d 20
+LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
+    python -m yasim generate_isoform_depth \
+    -g ../ce11_as_2.gtf \
+    -d ce11_as_2_gene_depth_20.tsv \
+    -o ce11_as_2_isoform_depth_20.tsv \
+    --alpha 4
 
 function perform_housekeeping() {
-    gzip -9f "${1}".fq && \
-    cat "${1}".d/*/*.maf | gzip -9f >"${1}".maf.gz && \
-    rm -rf "${1}".d
+    rm -rf "${1}".d && \
+    touch "${1}".finished || return 1
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
@@ -26,7 +25,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -m RSII \
         -M qshmm \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_2_isoform_depth_20.tsv.xz \
+        -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
         --truncate_ratio_3p "${1}" \
@@ -44,7 +43,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -M qshmm \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
-        -d ce11_as_2_isoform_depth_20.tsv.xz \
+        -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
         --truncate_ratio_3p "${1}" \
@@ -61,7 +60,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -M errhmm \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
-        -d ce11_as_2_isoform_depth_20.tsv.xz \
+        -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
         --truncate_ratio_3p "${1}" \
@@ -77,7 +76,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -m SEQUEL \
         -M errhmm \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_2_isoform_depth_20.tsv.xz \
+        -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
         --truncate_ratio_3p "${1}" \
@@ -91,7 +90,7 @@ function perform_pbsim2_simulation() {
         -e ../bin/pbsim2 \
         -m "${3}" \
         -F ../ce11_trans_2.fa.d \
-        -d ce11_as_2_isoform_depth_20.tsv.xz \
+        -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
         --truncate_ratio_3p "${1}" \
