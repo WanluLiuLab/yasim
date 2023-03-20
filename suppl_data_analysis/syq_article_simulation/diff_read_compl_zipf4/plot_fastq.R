@@ -3,7 +3,7 @@ library("ggridges")
 library("arrow")
 
 
-if (file.exists("all_fastq_data_sampled.parquet")) {
+if (file.exists("all_fastq_data_sampled.parquet")){
     all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
 } else{
     fns <- Sys.glob("ce11_as_2*.fq.gz.stats.d")
@@ -124,13 +124,13 @@ g <- ggplot(all_data_joint) +
 ggsave("fastq_rc_all.pdf", g, width = 8, height = 10)
 
 g <- ggplot(all_data_joint) +
-    geom_boxplot(
+    geom_hex(
         aes(
             x = READ_COMPLETENESS,
-            y = Condition
+            y = TRANSCRIBED_LENGTH
         )
     ) +
-    ylab("density") +
+    facet_wrap(.~Condition) +
     theme_bw() +
     ggtitle("Length of all conditions")
-ggsave("fastq_rc_all_box.pdf", g, width = 8, height = 5)
+ggsave("fastq_rc_tlen.png", g, width = 20, height = 24)

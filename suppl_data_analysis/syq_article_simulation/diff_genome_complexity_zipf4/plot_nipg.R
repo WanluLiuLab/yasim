@@ -7,7 +7,7 @@ conditions <- fns %>%
     stringr::str_replace(".gtf.gz.gene.tsv.xz", "")
 
 fns <- c(
-    "../ce11.ncbiRefSeq.gtf.gz.gene.tsv.xz",
+    "../ce11.ncbiRefSeq.gtf.gz.gene.tsv",
     "../ce11_as_2.gtf.gz.gene.tsv.xz",
     fns
 )
@@ -94,7 +94,7 @@ conditions <- fns %>%
     stringr::str_replace(".gtf.gz.gene.tsv.xz", "")
 
 fns <- c(
-    "../ce11.ncbiRefSeq.gtf.gz.transcripts.tsv.xz",
+    "../ce11.ncbiRefSeq.gtf.gz.transcripts.tsv",
     "../ce11_as_2.gtf.gz.transcripts.tsv.xz",
     fns
 )

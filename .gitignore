@@ -453,3 +453,4 @@ core.*
 *.bedgraph
 *.region
 gffcmp*
+*.db
