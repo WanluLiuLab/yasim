@@ -102,22 +102,22 @@ function perform_pbsim2_simulation() {
 }
 
 function perform_simulation() {
-    # perform_pbsim3_RSII_CLR_simulation "${1}"  &
-    # perform_pbsim3_RSII_CCS_simulation "${1}" &
-    # perform_pbsim3_SEQUEL_CLR_simulation "${1}" &
-    # perform_pbsim3_SEQUEL_CCS_simulation "${1}" &
-    for pbsim2_mode in R94; do
+    perform_pbsim3_RSII_CLR_simulation "${1}"  &
+    perform_pbsim3_RSII_CCS_simulation "${1}" &
+    perform_pbsim3_SEQUEL_CLR_simulation "${1}" &
+    perform_pbsim3_SEQUEL_CCS_simulation "${1}" &
+    for pbsim2_mode in R103; do
         perform_pbsim2_simulation "${1}" "${pbsim2_mode}" &
     done
     wait
 }
 
-for gene_complexity_level in 1 3 5 7 9; do
-    generate_as_events "${gene_complexity_level}" &
-done
-wait
+# for gene_complexity_level in 9; do
+#     generate_as_events "${gene_complexity_level}" &
+# done
+# wait
 
-for gene_complexity_level in 1 3 5 7 9; do
+for gene_complexity_level in 1 3 5 7; do
     perform_simulation "${gene_complexity_level}"
 done
 

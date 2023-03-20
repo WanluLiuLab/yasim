@@ -457,3 +457,4 @@ gffcmp*
 *.cluster
 *.json
 *.pgi
+*.db
