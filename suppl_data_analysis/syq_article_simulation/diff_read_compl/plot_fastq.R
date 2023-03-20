@@ -102,7 +102,7 @@ as_ref <- readr::read_tsv(
 
 all_data_joint <- all_data %>%
     dplyr::mutate(
-        TRANSCRIPT_ID = strsplit(.$SEQID, ":")[[1]][1]
+        TRANSCRIPT_ID = sapply(strsplit(all_data$SEQID, ":"), function(s){s[1]})
     ) %>%
     dplyr::inner_join(as_ref, by="TRANSCRIPT_ID") %>%
     dplyr::mutate(
@@ -124,13 +124,14 @@ g <- ggplot(all_data_joint) +
 ggsave("fastq_rc_all.pdf", g, width = 8, height = 10)
 
 g <- ggplot(all_data_joint) +
-    geom_boxplot(
+    geom_point(
         aes(
             x = READ_COMPLETENESS,
-            y = Condition
-        )
+            y = TRANSCRIBED_LENGTH
+        ),
+        alpha=0.2
     ) +
-    ylab("density") +
+    facet_wrap(.~Condition) +
     theme_bw() +
     ggtitle("Length of all conditions")
-ggsave("fastq_rc_all_box.pdf", g, width = 8, height = 5)
+ggsave("fastq_rc_tlen.png", g, width = 16, height = 20)
