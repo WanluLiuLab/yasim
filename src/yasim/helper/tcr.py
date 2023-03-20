@@ -127,7 +127,7 @@ def create_tcr_cache(
             )
             continue
         try:
-            real_aa_seq = tcr_aa_table["human"][gene_name]
+            real_aa_seq = tcr_aa_table[gene_name]
         except KeyError:
             _lh.warning(
                 "Gene %s have no AA sequence!",

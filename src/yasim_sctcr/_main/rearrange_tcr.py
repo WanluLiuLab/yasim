@@ -7,10 +7,7 @@ import os
 from typing import List
 
 from yasim.helper.tcr import rearrange_tcr
-
-_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
-_DEL_TABLE_PATH = os.path.join(_DIR_PATH, 'sample_data', "cdr3_deletion_table.min.json")
-_INS_TABLE_PATH = os.path.join(_DIR_PATH, 'sample_data', "cdr3_insertion_table.min.json")
+from yasim_sctcr._main import get_sample_data_path
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -18,7 +15,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--tcr_genelist_path',
         required=True,
-        help="TCR Gene List JSON",
+        help=f"TCR Gene List JSON. The IMGT version for human is {get_sample_data_path('tcr_gene_list.min.json')}",
         nargs='?',
         type=str,
         action='store'
@@ -34,7 +31,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--cdr3_deletion_table_path',
         required=True,
-        help=f"TCR CDR3 Deletion Table JSON. See examples in {_DEL_TABLE_PATH}",
+        help=f"TCR CDR3 Deletion Table JSON. See examples in {get_sample_data_path('cdr3_deletion_table.min.json')}",
         nargs='?',
         type=str,
         action='store'
@@ -42,7 +39,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--cdr3_insertion_table_path',
         required=True,
-        help=f"TCR CDR3 Insertion Table JSON. See examples in {_INS_TABLE_PATH}",
+        help=f"TCR CDR3 Insertion Table JSON. See examples in {get_sample_data_path('cdr3_insertion_table.min.json')}",
         nargs='?',
         type=str,
         action='store'

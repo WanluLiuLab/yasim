@@ -2,6 +2,7 @@ import argparse
 from typing import List
 
 from yasim.helper.tcr import create_tcr_cache
+from yasim_sctcr._main import get_sample_data_path
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -9,7 +10,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--tcr_genelist_path',
         required=True,
-        help="TCR Gene List JSON",
+        help=f"TCR Gene List JSON. The IMGT version for human is {get_sample_data_path('tcr_gene_list.min.json')}",
         nargs='?',
         type=str,
         action='store'
@@ -35,7 +36,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         '--tcr_aa_table_path',
         required=True,
-        help="TCR AA Table Path",
+        help=f"TCR AA Table Path. The IMGT version for human is {get_sample_data_path('tcr_aa_table.min.json')}",
         nargs='?',
         type=str,
         action='store'
@@ -54,7 +55,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 def main(args: List[str]) -> int:
     args = _parse_args(args)
-    basename = "."
     create_tcr_cache(
         ref_fa_path=args.fasta,
         ref_gtf_path=args.gtf,
