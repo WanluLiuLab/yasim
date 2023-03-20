@@ -28,32 +28,22 @@ cd src || exit 1
 bash run.sh
 cd .. || exit 1
 
-# Read depth
-cd diff_read_depth || exit 1
-bash run.sh
-cd .. || exit 1
-
 # Read accuracy
-cd diff_accuracy || exit 1
+cd diff_accuracy_zipf4 || exit 1
 bash run.sh
 cd .. || exit 1
 
 # Genome Complexity
-cd diff_genome_complexity || exit 1
+cd diff_genome_complexity_zipf4 || exit 1
 bash run.sh
 cd .. || exit 1
 
 # Read Completeness
-cd diff_read_compl || exit 1
+cd diff_read_compl_zipf4 || exit 1
 bash run.sh
 cd .. || exit 1
 
-# Read Length
-cd diff_read_length || exit 1
-bash run.sh
-cd .. || exit 1
-
-# Annotation Completeness
-cd diff_annot_compl || exit 1
+# Read depth
+cd diff_read_depth_ng_zipf33 || exit 1
 bash run.sh
 cd .. || exit 1

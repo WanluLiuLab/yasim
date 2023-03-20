@@ -12,4 +12,4 @@ if __name__ == "__main__":
         k: 0 if v < 0.01 else v
         for k, v in d_mutated.items()
     }
-    write_depth(d_mutated_filtered, sys.argv[2], )
+    write_depth(d_mutated_filtered, sys.argv[2], "TRANSCRIPT_ID")
