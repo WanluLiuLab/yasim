@@ -89,6 +89,9 @@ dependencies:
   - pbccs=6.0.0
   - gffcompare=0.12.6
 
+  - autoconf
+  - automake
+
   - pip
   - setuptools
   - wheel

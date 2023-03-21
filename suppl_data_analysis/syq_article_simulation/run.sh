@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -uex
+set -ue
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 

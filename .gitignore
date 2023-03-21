@@ -464,4 +464,4 @@ gffcmp*
 *.token
 .scannerwork/
 *sonar*
-
+*.finished

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -uex
+set -ue
 
 function generate_as_events(){
      LOG_FILE_NAME="yasim_generate_as_events_${1}.log" \
