@@ -20,10 +20,10 @@ conditions <- c(
 
 if (file.exists("all_nipg_data_binned.parquet")) {
     all_nipg_data_binned <- arrow::read_parquet("all_nipg_data_binned.parquet")
+    all_nipg_data_long <- arrow::read_parquet("all_nipg_data_long.parquet")
 } else {
     all_nipg_data <- list()
-
-            #' Read data
+    all_nipg_data_long <- data.frame()
     for (i in seq_along(conditions)) {
         all_nipg_data[[conditions[i]]] <-
             readr::read_tsv(
@@ -40,6 +40,13 @@ if (file.exists("all_nipg_data_binned.parquet")) {
                 dplyr::select(TRANSCRIPT_NUMBER) %>%
                 unlist() %>%
                 as.vector()
+            all_nipg_data_long <- rbind(
+                all_nipg_data_long,
+                data.frame(
+                    TRANSCRIPT_NUMBER=all_nipg_data[[conditions[i]]],
+                    Condition=conditions[i]
+                )
+            )
     }
 
     n_bins <- 0
@@ -60,6 +67,7 @@ if (file.exists("all_nipg_data_binned.parquet")) {
             dplyr::mutate(!!i := adding_col)
     }
     arrow::write_parquet(all_nipg_data_binned, "all_nipg_data_binned.parquet")
+    arrow::write_parquet(all_nipg_data_long, "all_nipg_data_long.parquet")
 }
 
 pheatmap_data <- all_nipg_data_binned
@@ -69,7 +77,7 @@ pheatmap(
     log(pheatmap_data + 1),
     cluster_rows = FALSE,
     cluster_cols = FALSE,
-    main = "Logged Number of isoforms in a gene accross all conditions",
+    main = "Logged Number of Isoforms in a Gene accross all Conditions",
     filename = "nipg_heatmap.pdf",
     width = 8,
     height = 5
@@ -85,13 +93,20 @@ g <- ggplot(all_nipg_data_binned_long) +
     facet_wrap(. ~ Condition)
 ggsave("nipg_hist.pdf", g, width = 8, height = 5)
 
+# g <- ggplot(all_nipg_data_long, aes(x = TRANSCRIPT_NUMBER, y = Condition)) +
+#     geom_point(position="jitter", alpha=0.2, size=0.2) +
+#     geom_violin(color="red") +
+#     scale_x_continuous("Number of Isoforms Number in a Gene", limits = c(0, 20)) +
+#     theme_bw()
+# ggsave("nipg_violin.pdf", g, width = 8, height = 5)
+
 #' Count number of genes and transcripts in each sample
 
 fns <- Sys.glob("ce11_as_*.gtf.transcripts.tsv")
 
 conditions <- fns %>%
     stringr::str_replace("ce11_as_", "") %>%
-    stringr::str_replace(".gtf.gene.tsv", "")
+    stringr::str_replace(".gtf.transcripts.tsv", "")
 
 fns <- c(
     "../ce11.ncbiRefSeq.gtf.transcripts.tsv",
@@ -146,14 +161,19 @@ if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     arrow::write_parquet(all_nipg_ngenes_nisoforms, "all_nipg_ngenes_nisoforms.parquet")
 }
 
-g <- ggplot(all_nipg_ngenes_nisoforms) +
+g1 <- ggplot(all_nipg_ngenes_nisoforms) +
     geom_bar(aes(y = Condition, x = nGenes), stat = "identity") +
+    scale_x_continuous("Total Number of Genes") +
+    scale_y_discrete("Targeted Complexity") +
     theme_bw()
 
-ggsave("nipg_ngenes.pdf", g, width = 8, height = 5)
-
-g <- ggplot(all_nipg_ngenes_nisoforms) +
+g2 <- ggplot(all_nipg_ngenes_nisoforms) +
     geom_bar(aes(y = Condition, x = nIsoforms), stat = "identity") +
+    scale_x_continuous("Total Number of Isoforms") +
+    scale_y_discrete("") +
     theme_bw()
 
-ggsave("nipg_nisoforms.pdf", g, width = 8, height = 5)
+g <- cowplot::plot_grid(g1, g2, nrow = 1, labels = LETTERS[1:4]) +
+    ggtitle("Total Number of Genes and Isoforms in each Simulation")
+
+ggsave("nipg_ngenes_nisoforms.pdf", g, width = 8, height = 5)

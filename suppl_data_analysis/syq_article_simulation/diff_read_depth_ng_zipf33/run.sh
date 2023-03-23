@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-set -uex
-ln -s
+set -ue
+ln -s ../diff_genome_complexity_zipf4/ce11_as_3.gtf .
+ln -s ../diff_genome_complexity_zipf4/ce11_as_3.gtf.*.tsv .
+ln -s ../diff_genome_complexity_zipf4/ce11_trans_3.fa .
+ln -s ../diff_genome_complexity_zipf4/ce11_trans_3.fa.d .
 
 function generate_depth() {
     LOG_FILE_NAME="yasim_generate_gene_depth_${1}.log" \
@@ -78,11 +81,11 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim2_simulation() {
-    OUTPUT_BASENAME="${1}"_pbsim2_"${3}"
+    OUTPUT_BASENAME="${1}"_pbsim2_"${2}"
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
-        -m "${3}" \
+        -m "${2}" \
         -F ce11_trans_3.fa.d \
         -d "${1}".tsv \
         -o "${OUTPUT_BASENAME}" \
