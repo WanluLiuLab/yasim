@@ -40,13 +40,13 @@ if (file.exists("all_nipg_data_binned.parquet")) {
                 dplyr::select(TRANSCRIPT_NUMBER) %>%
                 unlist() %>%
                 as.vector()
-            all_nipg_data_long <- rbind(
-                all_nipg_data_long,
-                data.frame(
-                    TRANSCRIPT_NUMBER=all_nipg_data[[conditions[i]]],
-                    Condition=conditions[i]
-                )
+        all_nipg_data_long <- rbind(
+            all_nipg_data_long,
+            data.frame(
+                TRANSCRIPT_NUMBER = all_nipg_data[[conditions[i]]],
+                Condition = conditions[i]
             )
+        )
     }
 
     n_bins <- 0
@@ -123,10 +123,10 @@ conditions <- c(
 if (file.exists("all_nipg_ngenes_nisoforms.parquet")) {
     all_nipg_ngenes_nisoforms <- arrow::read_parquet("all_nipg_ngenes_nisoforms.parquet")
 } else {
-            #' All NIpG Data
+                #' All NIpG Data
     all_data <- NULL
 
-            #' Read data
+                #' Read data
     for (i in seq_along(conditions)) {
         this_data <- readr::read_tsv(
             fns[i],

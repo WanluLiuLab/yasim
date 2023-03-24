@@ -11,10 +11,10 @@ all_error <- readr::read_tsv(
     )
 ) %>%
     dplyr::mutate(
-        FILENAME=stringr::str_replace(FILENAME, "ce11_as_2_accu_", "")
+        FILENAME = stringr::str_replace(FILENAME, "ce11_as_2_accu_", "")
     ) %>%
     dplyr::mutate(
-        FILENAME=stringr::str_replace(FILENAME, ".maf", "")
+        FILENAME = stringr::str_replace(FILENAME, ".maf", "")
     ) %>%
     tidyr::gather(
         key = "EventType",
@@ -22,7 +22,7 @@ all_error <- readr::read_tsv(
         -FILENAME
     ) %>%
     dplyr::mutate(
-        EventType=factor(EventType, levels=c("DELETION", "INSERTION", "SUBSTITUTION", "MATCH"))
+        EventType = factor(EventType, levels = c("DELETION", "INSERTION", "SUBSTITUTION", "MATCH"))
     )
 
 g <- ggplot(all_error) +

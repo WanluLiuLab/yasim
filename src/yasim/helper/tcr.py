@@ -275,7 +275,7 @@ class TCell:
                 f_idx = int(0.5 * len(trj_tt))
             tr_cdr3_tt = trv_tt[- c_idx - 1: -1] + tr_cdr3_tt + trj_tt[0: f_idx + 1]
             trv_tt = trv_tt[0: - c_idx - 1]
-            trj_tt = trj_tt[f_idx:]
+            trj_tt = trj_tt[f_idx + 1:]
             if len(trv_tt) * len(trj_tt) * len(tr_cdr3_tt) == 0:
                 raise GenerationFailure
             return tr_cdr3_tt, trv_tt, trj_tt
@@ -374,7 +374,7 @@ class TCell:
                 list(zip(*self._tra_cdr3_tt))[0],
                 list(zip(*self._traj_tt))[0],
             )
-        )
+        ).replace("-", "")
 
     @property
     def beta_nt(self) -> str:
@@ -384,7 +384,7 @@ class TCell:
                 list(zip(*self._trb_cdr3_tt))[0],
                 list(zip(*self._trbj_tt))[0],
             )
-        )
+        ).replace("-", "")
 
     @property
     def cdr3_aa(self) -> Tuple[str, str]:

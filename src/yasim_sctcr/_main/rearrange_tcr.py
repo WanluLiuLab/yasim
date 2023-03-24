@@ -3,7 +3,6 @@ __all__ = (
 )
 
 import argparse
-import os
 from typing import List
 
 from yasim.helper.tcr import rearrange_tcr

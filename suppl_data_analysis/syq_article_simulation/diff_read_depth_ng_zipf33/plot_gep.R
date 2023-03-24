@@ -131,7 +131,7 @@ g <- ggplot(all_variation_data, aes(x = abs(log10(var)))) +
     geom_histogram() +
     scale_x_continuous("Variance (Log 10 Fold Change)") +
     ggtitle("Distribution of Variation Inside a Gene") +
-    facet_wrap(. ~ Condition, scales="free_y") +
+    facet_wrap(. ~ Condition, scales = "free_y") +
     theme_bw()
 
 ggsave("gep_var.pdf", g, width = 15, height = 12)
