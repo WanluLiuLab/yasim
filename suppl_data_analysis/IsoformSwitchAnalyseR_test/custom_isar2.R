@@ -1,11 +1,68 @@
 library(tidyverse)
 library(DESeq2)
 
-full_df <- arrow::read_parquet("dge_fq_stats_isoform_level.parquet")
-exp_design <- arrow::read_parquet("dge_experiment_design.parquet") %>%
-    dplyr::filter(DGEID=="dge1")
+library(parallel)
+
+cl <- parallel::makeCluster(parallel::detectCores())
+
+fine2a <- readr::read_tsv(
+    "FINE2a.txt",
+    comment = "#"
+) %>%
+    dplyr::transmute(
+        TRANSCRIPT_ID = Geneid,
+        FINE2a=FINE2a.bam
+    )
+
+fine2b <- readr::read_tsv(
+    "FINE2b.txt",
+    comment = "#"
+) %>%
+    dplyr::transmute(
+        TRANSCRIPT_ID = Geneid,
+        FINE2b=FINE2b.bam
+    )
+
+tesr7a <- readr::read_tsv(
+    "TesR7A.txt",
+    comment = "#"
+) %>%
+    dplyr::transmute(
+        TRANSCRIPT_ID = Geneid,
+        TesR7A=TesR7A.bam
+    )
+
+tesr7b <- readr::read_tsv(
+    "TesR7B.txt",
+    comment = "#"
+) %>%
+    dplyr::transmute(
+        TRANSCRIPT_ID = Geneid,
+        TesR7B=TesR7B.bam
+    )
+
+full_df <- fine2a %>%
+    dplyr::inner_join(
+            fine2b,
+        by="TRANSCRIPT_ID"
+    ) %>%
+        dplyr::inner_join(
+            tesr7a,
+        by="TRANSCRIPT_ID"
+    ) %>%
+        dplyr::inner_join(
+            tesr7b,
+        by="TRANSCRIPT_ID"
+    )
+arrow::write_parquet(full_df, "real_data.parquet")
+full_df <- arrow::read_parquet("real_data.parquet")
+
+exp_design <- data.frame(
+    condition=c("FINE2a", "FINE2b", "TesR7A", "TesR7B"),
+    DIUID = c("FINE", "FINE", "TesR", "TesR")
+)
 reference_transcripts_data <- readr::read_tsv(
-    "ce11.ncbiRefSeq_as.chr1.gtf.transcripts.tsv",
+    "Homo_sapiens.GRCh38.105.gtf.transcripts.tsv",
     col_types = c(
         TRANSCRIPT_ID = col_character(),
         GENE_ID = col_character(),
@@ -15,26 +72,10 @@ reference_transcripts_data <- readr::read_tsv(
     )
 )
 
-full_df <- data.frame(
-    TRANSCRIPT_ID = c("G1.1", "G1.2", "G2.1", "G2.2"),
-    diu1_1=c(1, 5, 4, 4),
-    diu1_2=c(2, 4, 4, 4),
-    diu2_1 = c(4, 1, 16, 16),
-    diu2_2 = c(5, 2, 16, 16)
-)
-exp_design <- data.frame(
-    condition=c("diu1_1", "diu1_2", "diu2_1", "diu2_2"),
-    DIUID = c("diu1", "diu1", "diu2", "diu2")
-)
-reference_transcripts_data <- data.frame(
-    TRANSCRIPT_ID = c("G1.1", "G1.2", "G2.1", "G2.2"),
-    GENE_ID = c("G1", "G1", "G2", "G2")
-)
-
 # cnames <- grep("dge1", full_df %>% colnames(), value = TRUE)
 cnames <- full_df %>% colnames()
-cnames1 <- grep("diu1", cnames, value = TRUE)
-cnames2 <- grep("diu2", cnames, value = TRUE)
+cnames1 <- grep("FINE", cnames, value = TRUE)
+cnames2 <- grep("TesR", cnames, value = TRUE)
 
 full_df <- full_df %>%
     # dplyr::select(tidyselect::contains("dge1"), TRANSCRIPT_ID) %>%
@@ -53,17 +94,27 @@ gene_transcript_df_detected <- full_df %>%
     dplyr::select(TRANSCRIPT_ID, GENE_ID)
 
 gene_transcript_table <- list()
-for (gene_id in unique(gene_transcript_df_detected$GENE_ID)){
-    this_transcript_ids <- gene_transcript_df_detected %>%
-        dplyr::filter(GENE_ID == gene_id) %>%
-        dplyr::select(TRANSCRIPT_ID) %>%
-        unlist() %>%
-        as.character()
-    if (length(this_transcript_ids) >= 2){
-        gene_transcript_table[[gene_id]] <- this_transcript_ids
-    }
-    rm(gene_id, this_transcript_ids)
-}
+clusterExport(cl, varlist = ls())
+
+retl <- parSapply(
+        cl,
+        unique(gene_transcript_df_detected$GENE_ID),
+        function(gene_id){
+            library(tidyverse)
+            this_gene_transcript_table <- list()
+            this_transcript_ids <- gene_transcript_df_detected %>%
+                dplyr::filter(GENE_ID == gene_id) %>%
+                dplyr::select(TRANSCRIPT_ID) %>%
+                unlist() %>%
+                as.character()
+            if (length(this_transcript_ids) >= 2){
+                this_gene_transcript_table[[gene_id]] <- this_transcript_ids
+            }
+            rm(gene_id, this_transcript_ids)
+            this_gene_transcript_table
+        }
+    )
+gene_transcript_table <- Reduce(c, retl)
 
 rm(gene_transcript_df_detected)
 

@@ -25,6 +25,7 @@ dependencies:
   - r-dplyr=1.0.5
   - r-tidyr=1.1.3
   - r-readr=1.4.0
+  - r-argparser=0.7.1
   - icu=64
 
 # yasim_dev_isoformswitchanalyzer_syq
