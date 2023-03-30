@@ -33,28 +33,28 @@ read_fc <- function(fname){
 }
 
 fine2a <- read_fc(
-    "FINE2a.fastq.gz.sam.bam.chr21.bam.fC.txt"
+    "FINE2a.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
         FINE2a=NumReads
     )
 
 fine2b <- read_fc(
-    "FINE2b.fastq.gz.sam.bam.chr21.bam.fC.txt"
+    "FINE2b.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
         FINE2b=NumReads
     )
 
 tesr7a <- read_fc(
-    "TesR7A.fastq.gz.sam.bam.chr21.bam.fC.txt"
+    "TesR7A.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
         TesR7A=NumReads
     )
 
 tesr7b <- read_fc(
-    "TesR7B.fastq.gz.sam.bam.chr21.bam.fC.txt"
+    "TesR7B.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
         TesR7B=NumReads
@@ -88,7 +88,7 @@ aSwitchList <- IsoformSwitchAnalyzeR::importRdata(
     showProgress = TRUE,
     isoformCountMatrix = full_df_isar,
     designMatrix = exp_design,
-    isoformExonAnnoation = "hg38.ncbiRefSeq.chr21.gtf",
+    isoformExonAnnoation = "hg38.ncbiRefSeq.gtf",
     ignoreAfterPeriod = FALSE
 )
 

@@ -275,10 +275,22 @@ class TCell:
                 f_idx = int(0.5 * len(trj_tt))
             tr_cdr3_tt = trv_tt[- c_idx - 1: -1] + tr_cdr3_tt + trj_tt[0: f_idx + 1]
             trv_tt = trv_tt[0: - c_idx - 1]
-            trj_tt = trj_tt[f_idx + 1:]
+            trj_tt = trj_tt[f_idx + 2:]
             if len(trv_tt) * len(trj_tt) * len(tr_cdr3_tt) == 0:
                 raise GenerationFailure
             return tr_cdr3_tt, trv_tt, trj_tt
+
+        def ensure_can_translate(
+                tt: TCRTranslationTableType
+        ) -> TCRTranslationTableType:
+            ret_tt = []
+            for tt_a in tt:
+                if "-" in  tt_a[0] or tt_a[1] in ("*", "-") or tt_a[2] in ("*", "-"):
+                    continue
+                ret_tt.append(tt_a)
+            return ret_tt
+
+
 
         (trbv_name, trbv_tt), (trbj_name, trbj_tt) = choose_name("trbv_names"), choose_name("trbj_names")
         (traj_name, traj_tt), (trav_name, trav_tt) = choose_name("traj_names"), choose_name("trav_names")
@@ -316,6 +328,16 @@ class TCell:
             trb_cdr3_tt, trbv_tt, trbj_tt = clip_aa(trb_cdr3_tt, trbv_tt, trbj_tt)
         except (IndexError, GenerationFailure) as e:
             raise GenerationFailure from e
+
+        tra_cdr3_tt = ensure_can_translate(tra_cdr3_tt)
+        trav_tt = ensure_can_translate(trav_tt)
+        traj_tt = ensure_can_translate(traj_tt)
+        trb_cdr3_tt = ensure_can_translate(trb_cdr3_tt)
+        trbv_tt = ensure_can_translate(trbv_tt)
+        trbj_tt = ensure_can_translate(trbj_tt)
+
+        if len(tra_cdr3_tt) > 15 or len(trb_cdr3_tt) > 15:
+            raise GenerationFailure
 
         return cls(
             cell_barcode=barcode,
@@ -374,7 +396,7 @@ class TCell:
                 list(zip(*self._tra_cdr3_tt))[0],
                 list(zip(*self._traj_tt))[0],
             )
-        ).replace("-", "")
+        )
 
     @property
     def beta_nt(self) -> str:
@@ -384,7 +406,27 @@ class TCell:
                 list(zip(*self._trb_cdr3_tt))[0],
                 list(zip(*self._trbj_tt))[0],
             )
-        ).replace("-", "")
+        )
+
+    @property
+    def alpha_aa(self) -> str:
+        return "".join(
+            itertools.chain(
+                list(zip(*self._trav_tt))[1],
+                list(zip(*self._tra_cdr3_tt))[1],
+                list(zip(*self._traj_tt))[1],
+            )
+        )
+
+    @property
+    def beta_aa(self) -> str:
+        return "".join(
+            itertools.chain(
+                list(zip(*self._trbv_tt))[1],
+                list(zip(*self._trb_cdr3_tt))[1],
+                list(zip(*self._trbj_tt))[1],
+            )
+        )
 
     @property
     def cdr3_aa(self) -> Tuple[str, str]:
@@ -399,6 +441,42 @@ class TCell:
             "".join(list(zip(*self._tra_cdr3_tt))[0]),
             "".join(list(zip(*self._trb_cdr3_tt))[0])
         )
+    #
+    # @property
+    # def traj_aa(self) -> str:
+    #     return "".join(list(zip(*self._traj_tt))[1])
+    #
+    #
+    # @property
+    # def traj_nt(self) -> str:
+    #     return "".join(list(zip(*self._traj_tt))[0])
+    #
+    # @property
+    # def trav_aa(self) -> str:
+    #     return "".join(list(zip(*self._trav_tt))[1])
+    #
+    #
+    # @property
+    # def trav_nt(self) -> str:
+    #     return "".join(list(zip(*self._trav_tt))[0])
+    #
+    # @property
+    # def trbj_aa(self) -> str:
+    #     return "".join(list(zip(*self._trbj_tt))[1])
+    #
+    #
+    # @property
+    # def trbj_nt(self) -> str:
+    #     return "".join(list(zip(*self._trbj_tt))[0])
+    #
+    # @property
+    # def trbv_aa(self) -> str:
+    #     return "".join(list(zip(*self._trbv_tt))[1])
+    #
+    #
+    # @property
+    # def trbv_nt(self) -> str:
+    #     return "".join(list(zip(*self._trbv_tt))[0])
 
 
 def rearrange_tcr(
@@ -436,7 +514,19 @@ def rearrange_tcr(
                     "ACDR3_AA",
                     "BCDR3_AA",
                     "ACDR3_NT",
-                    "BCDR3_NT"
+                    "BCDR3_NT",
+                    "ALPHA_AA",
+                    "BETA_AA",
+                    "ALPHA_NT",
+                    "BETA_NT"
+                    # "TRAV_REMAINS_AA",
+                    # "TRAV_REMAINS_NT",
+                    # "TRAJ_REMAINS_AA",
+                    # "TRAJ_REMAINS_NT",
+                    # "TRBV_REMAINS_AA",
+                    # "TRBV_REMAINS_NT",
+                    # "TRBJ_REMAINS_AA",
+                    # "TRBJ_REMAINS_NT",
                 ],
                 tac=TableAppenderConfig(buffer_size=1024)
         ) as appender:
@@ -463,7 +553,19 @@ def rearrange_tcr(
                     *cell.alpha_names,
                     *cell.beta_names,
                     *cell.cdr3_aa,
-                    *cell.cdr3_nt
+                    *cell.cdr3_nt,
+                    cell.alpha_aa,
+                    cell.beta_aa,
+                    cell.alpha_nt,
+                    cell.beta_nt
+                    # cell.trav_aa,
+                    # cell.trav_nt,
+                    # cell.traj_aa,
+                    # cell.traj_nt,
+                    # cell.trbv_aa,
+                    # cell.trbv_nt,
+                    # cell.trbj_aa,
+                    # cell.trbj_nt,
                 ])
                 with get_writer(os.path.join(output_base_path + ".json.d", cell.cell_uuid + ".json")) as writer:
                     json.dump(cell.to_dict(), writer)

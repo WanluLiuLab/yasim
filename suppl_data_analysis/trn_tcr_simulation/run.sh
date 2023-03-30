@@ -19,6 +19,7 @@ python -m yasim_sctcr generate_tcr_cache \
     --tcr_aa_table_path IMGT_Protein_Display.json \
     -f hg38.fa \
     -g hg38.ncbiRefSeq_chr7_14.gtf
+rm -rf sim_tcr.fa.d sim_tcr.d sim_tcr.json.d
 python -m yasim_sctcr rearrange_tcr \
     --tcr_genelist_path tcr_genelist.json \
     --tcr_cache_path tcr_cache.json \
@@ -29,9 +30,35 @@ python -m yasim_sctcr rearrange_tcr \
 python -m labw_utils.bioutils split_fasta sim_tcr.fa
 python -m yasim art \
     -F sim_tcr.fa.d \
-    -o sim_tcr  \
+    -o sim_tcr_50 \
+    --sequencer_name GA2 \
+    --read_length 50 \
     -d tcr_depth.tsv \
-    -e art_illumina\
+    -e art_illumina \
+    -j 20
+python -m yasim art \
+    -F sim_tcr.fa.d \
+    -o sim_tcr_100 \
+    --sequencer_name HS20 \
+    --read_length 100 \
+    -d tcr_depth.tsv \
+    -e art_illumina \
+    -j 20
+python -m yasim art \
+    -F sim_tcr.fa.d \
+    -o sim_tcr_150 \
+    --sequencer_name HS25 \
+    --read_length 150 \
+    -d tcr_depth.tsv \
+    -e art_illumina \
+    -j 20
+python -m yasim art \
+    -F sim_tcr.fa.d \
+    -o sim_tcr_250 \
+    --sequencer_name MSv3 \
+    --read_length 250 \
+    -d tcr_depth.tsv \
+    -e art_illumina \
     -j 20
 # See: sim_tcr.d
 
