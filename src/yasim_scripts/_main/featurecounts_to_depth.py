@@ -49,6 +49,9 @@ def main(args: List[str]) -> int:
         comment="#"
     )
     for datum in fc.itertuples(index=False):
-        depth[datum[0]] = datum[-1]
+        real_depth = datum[-1] # round(datum[-1] / datum[5], 2)
+        if real_depth < 0.01:
+            continue
+        depth[datum[0]] = real_depth
     write_depth(depth, args.out, args.feature_name)
     return 0

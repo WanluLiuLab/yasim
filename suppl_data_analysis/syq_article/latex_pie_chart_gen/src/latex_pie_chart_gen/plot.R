@@ -1,13 +1,20 @@
+
+library(argparser)
+
+p <- argparser::arg_parser("")
+p <- argparser::add_argument(p, "--src_data_csv_file_path", "")
+p <- argparser::add_argument(p, "--dst_fig_dir_path", "")
+argv <- argparser::parse_args(p)
+
 library(tidyverse)
 library(ggpubr)
 library(parallel)
-
 cl <- parallel::makeCluster(spec = 8)
 
-dir.create("fig", showWarnings = FALSE)
+dir.create(argv$dst_fig_dir_path, showWarnings = FALSE)
 
 data <- readr::read_csv(
-    "data.csv",
+    argv$src_data_csv_file_path,
     col_types = c(
         Software = col_character(),
         Dataset = col_character(),
@@ -17,7 +24,10 @@ data <- readr::read_csv(
 
 data <- data %>%
     dplyr::mutate(
-        fig_filename = sprintf("fig/%s-%s.pdf", Software, Dataset)
+        fig_filename = file.path(
+            argv$dst_fig_dir_path,
+            sprintf("%s-%s.pdf", Software, Dataset)
+        )
     )
 
 data_long <- data %>%
@@ -48,5 +58,4 @@ parLapply(cl, unique(data_long$fig_filename), function(fn) {
     ggplot2::ggsave(fn, g, width = 5, height = 5)
 })
 
-write("", "plot.timestamp")
 stopCluster(cl)

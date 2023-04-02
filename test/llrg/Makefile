@@ -1,8 +1,22 @@
 export PYTHONPATH := ../../src:../../deps/labw_utils/src
 
+.PHONY: all
+all: pbsim3_genome_mode \
+	pbsim3_trans_mode \
+	pbsim3_ccs_mode \
+	pbsim3_low_accuracy_mode \
+	pbsim3_errhmm_mode \
+	dwgsim_mode \
+	art_mode \
+	art_pe_mode \
+	pbsim_ccs_mode \
+	pbsim_clr_mode
+
+.PHONY: distclean
 distclean: clean
 	rm -rf chrM.trans.fa chrM.trans.fa.d chrM.trans.fa.stats depth.tsv depth_gene.tsv
 
+.PHONY: clean
 clean:
 	rm -rf pbsim* art* dwgsim* *.log
 
@@ -132,14 +146,3 @@ pbsim_ccs_mode: chrM.trans.fa depth.tsv
 		--ccs \
 		-j 40
 	touch pbsim_ccs_mode
-
-all: pbsim3_genome_mode \
-	pbsim3_trans_mode \
-	pbsim3_ccs_mode \
-	pbsim3_low_accuracy_mode \
-	pbsim3_errhmm_mode \
-	dwgsim_mode \
-	art_mode \
-	art_pe_mode \
-	pbsim_ccs_mode \
-	pbsim_clr_mode

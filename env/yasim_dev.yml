@@ -70,6 +70,7 @@ dependencies:
   - r-lintr
   - r-formatr
   - r-argparse=2.1.5
+  - r-argparser=0.7.1
 
   # TGS utils
   - minimap2=2.24

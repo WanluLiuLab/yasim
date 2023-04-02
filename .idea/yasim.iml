@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1/common/src" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/deps/labw_utils/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/deps/pbcore" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/latex_pie_chart_gen/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/hg38.chr1.transcripts.d" />
       <excludeFolder url="file://$MODULE_DIR$/src/build" />
@@ -1854,7 +1855,6 @@
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/art_pe_mode.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/pbsim_ccs_mode.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/pbsim_clr_mode.d" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/latex_test/fig" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/notcr_isoform_depth_sc.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/notcr_trans_sim.d" />
       <excludeFolder url="file://$MODULE_DIR$/.scannerwork" />
@@ -1863,6 +1863,10 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/sim_tcr_100.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/sim_tcr_150.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/trn_tcr_simulation/sim_tcr_250.d" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/latex_pie_chart_gen/fig" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/latex_pie_chart_gen/sqanti" />
+      <excludeFolder url="file://$MODULE_DIR$/makefile_test_data" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/latex_pie_chart_gen/tmp" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

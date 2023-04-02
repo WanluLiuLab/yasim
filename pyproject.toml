@@ -10,6 +10,7 @@ description = "yasim -- Yet Another SIMulator for Alternative Splicing and Diffe
 authors = [
     { name = "YU Zhejian", email = "Zhejian.19@intl.zju.edu.cn" },
     { name = "SU Yaqi", email = "Yaqi.19@intl.zju.edu.cn" },
+    { name = "YUAN Ruihong", email = "Ruihong.19@intl.zju.edu.cn" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -26,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: R",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
