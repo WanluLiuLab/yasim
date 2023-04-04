@@ -8,6 +8,7 @@ import glob
 import os
 import shutil
 import sys
+from collections import defaultdict
 
 import tomli
 
@@ -16,9 +17,39 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
 # Enable scan of packages in src which is not installed.
-sys.path.insert(0, os.path.join(ROOT_DIR, 'src'))
+sys.path.insert(0, os.path.join(ROOT_DIR, 'tutorial'))
 
 import yasim
+
+from labw_utils.commonutils import libfrontend
+
+
+def generate_cli_docs(
+        config_toml_file_path: str,
+        dest_dir_path: str
+):
+    os.makedirs(dest_dir_path, exist_ok=True)
+    with open(config_toml_file_path, "rb") as toml_reader:
+        config_toml = tomli.load(toml_reader)
+
+    arg_parsers = defaultdict(lambda: [])
+    for main_module in config_toml["names"]:
+        for subcommand in libfrontend.get_subcommands(main_module):
+            parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
+            if parser is not None:
+                with open(os.path.join(dest_dir_path, f"{main_module}.{subcommand}.txt"), "w") as writer:
+                    writer.write(parser.format_help())
+                arg_parsers[main_module].append(subcommand)
+    with open(os.path.join(dest_dir_path, "index.md"), "w") as index_writer:
+        index_writer.write("# Command-Line Interfaces\n\n")
+        for main_module, subcommands in arg_parsers.items():
+            main_module_correct_name = main_module.replace("._main", "").replace(".main", "")
+            index_writer.write(f"## `{main_module_correct_name}`\n\n")
+            for subcommand in subcommands:
+                index_writer.write(f"### `{subcommand}`\n\n")
+                index_writer.write(
+                    "```{literalinclude} " + f"{main_module}.{subcommand}.txt" + "\n:language: text\n```\n\n"
+                )
 
 
 def scan_dir(path_to_scan: str):
@@ -86,7 +117,7 @@ source_suffix = {
 }
 
 nb_custom_formats = {
-    ".ipynb.py": ["jupytext.reads", {"fmt": "py:percent"}]
+    ".ipynb.md": ["jupytext.reads", {"fmt": "md:myst"}]
 }
 
 # Insert both docstring of the class and constructor.
@@ -106,3 +137,9 @@ intersphinx_mapping = {
 nb_execution_timeout = 1200
 nb_execution_mode = "cache"
 nb_merge_streams = True
+nb_execution_allow_errors = True
+
+generate_cli_docs(
+    os.path.join(THIS_DIR, "cli_docs.toml"),
+    os.path.join(THIS_DIR, "_cli_docs")
+)

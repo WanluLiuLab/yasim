@@ -26,3 +26,7 @@ serve-doc:
 .PHONY: pytype
 pytype:
 	 pytype --config=pytype.cfg src/labw_utils
+
+.PHONY: test
+test:
+	$(MAKE) -c test

@@ -207,8 +207,15 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             self._input_path = os.path.join(
                 self._tmp_dir, "transcript.tsv"
             )
+            strategy_params = [
+                "--transcript", self._input_path
+            ]
         else:
             self._input_path = self._src_fasta_file_path
+            strategy_params = [
+                "--depth", str(depth),
+                "--genome", self._input_path
+            ]
         self._cmd = [
             llrg_executable_path,
             "--strategy", self._strategy,
@@ -216,7 +223,7 @@ class Pbsim3Adapter(BaseLLRGAdapter):
             f"--{hmm_method}", hmm_model,
             "--prefix", os.path.join(self._tmp_dir, "tmp"),
             "--id-prefix", f"movie{uuid.uuid4()}",
-            "--transcript" if self._strategy == "trans" else "--genome", self._input_path,
+            *strategy_params,
             "--pass-num", str(self._ccs_pass),
             *other_args
         ]

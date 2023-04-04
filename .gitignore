@@ -465,6 +465,6 @@ gffcmp*
 .scannerwork/
 *sonar*
 *.finished
-
+*.bak
 *_idx/
 makefile_test_data/

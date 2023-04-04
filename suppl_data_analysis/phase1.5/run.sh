@@ -25,7 +25,7 @@ python -m yasim transcribe \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.gtf \
     -o ce11_trans.chr1.fa
-python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.chr1.gtf \
+python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.chr1.gtf
 python -m yasim generate_as_events \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.gtf \

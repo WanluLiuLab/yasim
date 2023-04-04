@@ -1,6 +1,6 @@
 # Welcome to `yasim` Documentation
 
-This contains documentation for Users and Developers.
+This contains documentation for YASIM Users.
 
 ```{toctree}
 :caption: 'Contents:'
@@ -8,8 +8,11 @@ This contains documentation for Users and Developers.
 :maxdepth: 2
 
 _root/Readme
-_root/Copying
+tutorial/index.ipynb.md
+tutorial_llrg/index.ipynb.md
+_cli_docs/index
 apidoc_index
+_root/Copying
 license/index
 ```
 

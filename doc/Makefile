@@ -27,7 +27,7 @@ SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
 
 .PHONY: all
 
-all: pdf html
+all: html
 
 .PHONY: apidoc
 apidoc:
@@ -37,10 +37,8 @@ apidoc:
 html:
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
-pdf: apidoc
-	sphinx-build -M latexpdf $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
-
 clean:
 	rm -rf $(BUILD_DIR)
+	$(MAKE) -C tutorial clean
 
 distclean:

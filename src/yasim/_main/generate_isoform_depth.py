@@ -1,29 +1,60 @@
+"""
+generate_isoform_depth.py -- Generate Isoform-Level Depth using YASIM V3 API.
+"""
+
+__all__ = (
+    "main",
+    "create_parser"
+)
+
 import argparse
 from typing import List
 
 import yasim.helper.depth_io
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from yasim._main import patch_frontend_argument_parser
 from yasim.helper import depth
 
 _lh = get_logger(__name__)
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--gtf', required=True, help="Input GTF format", nargs='?',
-                        type=str, action='store')
-    parser.add_argument('-o', '--out', required=True, help="Output TSV", nargs='?',
-                        type=str, action='store')
-    parser.add_argument('-d', '--depth', required=False, help="Input Gene-Level Expression Abundance", nargs='?',
-                        type=str, action='store', default=100)
-    parser.add_argument('--low_cutoff', required=False, help="Depth lower than this value would be 0.", nargs='?',
-                        type=float, action='store', default=0.01)
-    parser.add_argument('--alpha', required=False, help="Zipf's Coefficient, larger for larger differences", nargs='?',
-                        type=int, action='store', default=4)
-    return parser.parse_args(args)
+
+
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim generate_isoform_depth", description=__doc__.splitlines()[1])
+    parser = patch_frontend_argument_parser(parser, "-g")
+    parser.add_argument(
+        '-o',
+        '--out',
+        required=True,
+        help="Path to output Isoform-Level Depth TSV. Can be compressed.",
+        nargs='?',
+        type=str,
+        action='store'
+    )
+    parser.add_argument(
+        '-d',
+        '--depth',
+        required=True,
+        help="Path to input Gene-Level Depth TSV. Can be compressed.",
+        nargs='?',
+        type=str,
+        action='store'
+    )
+    parser = patch_frontend_argument_parser(parser, "--low_cutoff")
+    parser.add_argument(
+        '--alpha',
+        required=False,
+        help="Zipf's Coefficient, larger for larger differences",
+        nargs='?',
+        type=int,
+        action='store',
+        default=4
+    )
+    return parser
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
     gene_level_depth = yasim.helper.depth_io.read_depth(args.depth)
     transcript_level_depth = {}

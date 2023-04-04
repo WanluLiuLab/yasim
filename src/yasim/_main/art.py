@@ -1,20 +1,22 @@
+"""
+art.py -- LLRG adapter for ART, a NGS DNA-Seq simulator
+"""
+
 __all__ = (
     "main",
+    "create_parser"
 )
 
 import argparse
 from typing import List
 
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.helper import llrg
+from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.llrg_adapter import art
 
-_lh = get_logger(__name__)
 
-
-def main(args: List[str]) -> int:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim art", description=__doc__.splitlines()[1])
     parser = llrg.patch_frontend_parser_public(
         parser,
         llrg_name="art",
@@ -22,7 +24,11 @@ def main(args: List[str]) -> int:
     )
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = art.patch_frontend_parser(parser)
-    args, other_args = parser.parse_known_args(args)
+    return parser
+
+
+def main(args: List[str]) -> int:
+    args, other_args = create_parser().parse_known_args(args)
 
     return bulk_rna_seq_frontend(
         transcriptome_fasta_dir=args.fastas,

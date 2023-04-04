@@ -1,13 +1,22 @@
+"""
+pbsim2.py -- LLRG adapter for PBSIM v2, a TGS DNA-Seq simulator
+"""
+
+__all__ = (
+    "main",
+    "create_parser"
+)
+
 import argparse
 from typing import List
 
-from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.helper import llrg
+from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.llrg_adapter import pbsim2
 
 
-def main(args: List[str]):
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim pbsim2", description=__doc__.splitlines()[1])
     parser = llrg.patch_frontend_parser_public(
         parser,
         llrg_name="pbsim2",
@@ -16,7 +25,11 @@ def main(args: List[str]):
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = llrg.patch_frontend_parser_tgs(parser)
     parser = pbsim2.patch_frontend_parser(parser)
-    args, other_args = parser.parse_known_args(args)
+    return parser
+
+
+def main(args: List[str]):
+    args, other_args = create_parser().parse_known_args(args)
     return bulk_rna_seq_frontend(
         transcriptome_fasta_dir=args.fastas,
         output_fastq_prefix=args.out,

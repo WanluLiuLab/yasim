@@ -5,6 +5,7 @@ SOURCES=$(
     git ls-files |\
     grep -v '.maint' |\
     grep -v '.idea/' |\
+    while read -r line; do if [ -e "${line}" ]; then echo "${line}"; fi; done |\
     xargs
 )
 

@@ -2,3 +2,4 @@
 !/_static/*
 /activate.sh
 /proc_profiler_*/
+*.ipynb
