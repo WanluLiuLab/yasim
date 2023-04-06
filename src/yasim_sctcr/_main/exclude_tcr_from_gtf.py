@@ -1,3 +1,9 @@
+"""
+exclude_tcr_from_gtf.py -- Filter out gene names started with TR.
+
+For GENCODE Reference Only.
+"""
+
 from typing import List
 
 from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter

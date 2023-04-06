@@ -5,12 +5,14 @@ Configuration file for the Sphinx documentation builder.
 # pylint: disable=wrong-import-position, invalid-name
 
 import glob
+import io
 import os
 import shutil
 import sys
 from collections import defaultdict
 
 import tomli
+from docutils.core import publish_string
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -36,10 +38,21 @@ def generate_cli_docs(
     for main_module in config_toml["names"]:
         for subcommand in libfrontend.get_subcommands(main_module):
             parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
+            this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.txt")
             if parser is not None:
-                with open(os.path.join(dest_dir_path, f"{main_module}.{subcommand}.txt"), "w") as writer:
+                with open(this_help_path, "w") as writer:
                     writer.write(parser.format_help())
                 arg_parsers[main_module].append(subcommand)
+            else:
+                doc = libfrontend.get_doc_from_subcommand(main_module, subcommand)
+                if doc is None:
+                    continue
+                else:
+                    # doc_sio = io.StringIO(doc)
+                    with open(this_help_path, "w") as writer:
+                        writer.write(doc)
+                    arg_parsers[main_module].append(subcommand)
+
     with open(os.path.join(dest_dir_path, "index.md"), "w") as index_writer:
         index_writer.write("# Command-Line Interfaces\n\n")
         for main_module, subcommands in arg_parsers.items():

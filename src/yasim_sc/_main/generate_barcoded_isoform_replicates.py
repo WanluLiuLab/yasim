@@ -1,31 +1,28 @@
+"""
+generate_barcoded_isoform_replicates.py -- Generate Technical Replicates using YASIM V3 API with barcodes.
+"""
+
+__all__ = (
+    "main",
+    "create_parser"
+)
+
 import argparse
 import os
 from typing import List
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper import depth, depth_io
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-d',
-        '--depth',
-        required=True,
-        help="Depth TSV",
-        nargs='?',
-        type=str,
-        action='store'
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m yasim_sc generate_barcoded_isoform_replicates",
+        description=__doc__.splitlines()[1]
     )
-    parser.add_argument(
-        '-b',
-        '--barcodes',
-        required=True,
-        help="Barcode TXT",
-        nargs='?',
-        type=str,
-        action='store'
-    )
+    parser = patch_frontend_argument_parser(parser, "-d")
+    parser = patch_frontend_argument_parser(parser, "-b")
     parser.add_argument(
         '-r',
         '--range',
@@ -45,11 +42,11 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         type=str,
         action='store'
     )
-    return parser.parse_args(args)
+    return parser
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     depth_data = depth_io.read_depth(args.depth)
     for barcode in get_tqdm_line_reader(args.barcodes):
         depth_io.write_depth(

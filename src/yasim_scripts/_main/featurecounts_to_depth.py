@@ -1,3 +1,12 @@
+"""
+featurecounts_to_depth.py -- Convert FeatureCounts Output for NGS and TGS to YASIM input depth.
+"""
+
+__all__ = (
+    "main",
+    "create_parser"
+)
+
 import argparse
 from typing import List
 
@@ -6,14 +15,25 @@ import pandas as pd
 from yasim.helper.depth_io import write_depth
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim_scripts featurecounts_to_depth",
+                                     description=__doc__.splitlines()[1])
     parser.add_argument(
         '-i',
-        '--fc_tsv',
+        '--input',
         required=True,
-        help="featureCounts output TSV",
+        help="Path to featureCounts/Salmon output TSV",
         nargs='?',
+        type=str,
+        action='store'
+    )
+    parser.add_argument(
+        '--software',
+        required=False,
+        help="name of quantification software",
+        nargs='?',
+        choices=("featureCounts", "Salmon"),
+        default="featureCounts",
         type=str,
         action='store'
     )
@@ -21,7 +41,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         '-o',
         '--out',
         required=True,
-        help="Output TSV",
+        help="Path to output TSV",
         nargs='?',
         type=str,
         action='store'
@@ -37,19 +57,53 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         type=str,
         action='store'
     )
-    return parser.parse_args(args)
+    ngs_tgs_meg = parser.add_mutually_exclusive_group()
+    ngs_tgs_meg.add_argument(
+        '--read_length',
+        required=False,
+        help="[For NGS Only] Read length",
+        nargs='?',
+        type=int,
+        default=None,
+        action='store'
+    )
+    ngs_tgs_meg.add_argument(
+        '--read_completeness',
+        required=False,
+        help="[For TGS Only] Mean read completeness",
+        nargs='?',
+        type=float,
+        default=None,
+        action='store'
+    )
+    return parser
 
 
 def main(args: List[str]) -> int:
     depth = {}
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     fc = pd.read_table(
-        args.fc_tsv,
+        args.input,
         sep="\t",
         comment="#"
     )
+    if args.read_length is not None:
+        if args.software == "featureCounts":
+            def get_read_depth(_datum):
+                return _datum[-1] * args.read_length / _datum[5]
+        else:
+            def get_read_depth(_datum):
+                return _datum.NumReads * args.read_length / _datum.Length
+    elif args.read_completeness is not None:
+        def get_read_depth(_datum):
+            return _datum[-1] * args.read_completeness
+    else:
+        def get_read_depth(_datum):
+            return _datum[-1]
+
     for datum in fc.itertuples(index=False):
-        real_depth = datum[-1] # round(datum[-1] / datum[5], 2)
+        real_depth = get_read_depth(datum)
+        print(real_depth, datum)
         if real_depth < 0.01:
             continue
         depth[datum[0]] = real_depth

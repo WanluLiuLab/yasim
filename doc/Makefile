@@ -33,8 +33,9 @@ all: html
 apidoc:
 	rm -rf $(CURDIR)/_apidoc
 	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim_scripts
 
-html:
+html: apidoc
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
 clean:

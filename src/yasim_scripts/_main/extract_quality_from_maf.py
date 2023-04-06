@@ -1,41 +1,22 @@
-import re
-import sys
-from typing import Tuple, Iterable, List
+"""
+extract_quality_from_maf.py -- Extract per-base alignment status from MAF files.
 
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+This script extracts per-base alignment status from MAF files into a TSV file of one line,
+which have 4 fields for Insertion, Deletion, Match and Substitution.
 
-MafRecordType = Tuple[str, str, str, str]
-"""Name1, Name2, Alignment1, Alignment2"""
+Synopsis: python -m yasim_scrips extract_quality_from_maf [MAF1] [[MAF2]...]
 
-maf_record_regex = re.compile(r"^s +(\S+) +(\d+) +(\d+) +([+-]) +(\d+) +(\S+)$")
+Arguments:
+    [MAF1] [[MAF2]...] path to MAF files produced by PBSIM3 or LAST aligner.
+"""
 
+__all__ = (
+    "main",
+)
 
-def maf_parse(maf_path: str) -> Iterable[MafRecordType]:
-    num_error = 0
-    num_record = 0
-    with get_tqdm_line_reader(maf_path) as reader:
-        while True:
-            line1 = reader.readline()
-            if line1 == "":
-                break
-            if not line1.startswith("s"):
-                continue
-            else:
-                line2 = reader.readline().rstrip("\n")
-                line1 = line1.rstrip("\n")
-            lm1 = maf_record_regex.match(line1)
-            lm2 = maf_record_regex.match(line2)
-            if lm1 is None or lm2 is None:
-                num_error += 1
-                continue
-            g1 = lm1.groups()
-            g2 = lm2.groups()
-            yield g1[0], g2[0], g1[5], g2[5]
-            num_record += 1
-    print(
-        f"Finished with {num_error} errors and {num_record} records",
-        file=sys.stderr
-    )
+from typing import List
+
+from yasim_scripts.helper.maf_parser import maf_parse
 
 
 def main(args: List[str]):

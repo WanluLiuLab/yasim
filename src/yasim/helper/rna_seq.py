@@ -1,7 +1,7 @@
 import glob
 import os
 from collections import defaultdict
-from typing import Iterable, Tuple, Mapping, Any, Type, Optional, Dict
+from typing import Iterable, Tuple, Mapping, Any, Type, Optional, Dict, List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io import file_system
@@ -12,30 +12,6 @@ from yasim.helper.llrg import enhanced_which, AssembleDumb, AssemblePairEnd, Ass
 from yasim.llrg_adapter import BaseLLRGAdapter, LLRGInitializationException
 
 _lh = get_logger(__name__)
-DepthInfoType = Iterable[Tuple[float, str, str]]
-"""
-Depth information used by LLRG frontend interfaces.
-
-They are: [depth, transcript_id, filename]
-"""
-
-
-def pair_depth_info_with_transcriptome_fasta_filename(
-        input_transcriptome_fasta_dir: str,
-        depth: DepthType
-) -> DepthInfoType:
-    """
-    Glob and parse a filename line ``base_dir/1/transcript_id.fasta``.
-    """
-    for transcript_id, transcript_depth in depth.items():
-        filename = os.path.join(input_transcriptome_fasta_dir, transcript_id + ".fa")
-        if not file_system.file_exists(filename):
-            _lh.warning("FASTA of Isoform %s not exist!", transcript_id)
-            continue
-        if transcript_depth <= 0:
-            _lh.warning("Depth of Isoform %s too low!", transcript_id)
-            continue
-        yield transcript_depth, transcript_id, filename
 
 
 def validate_adapter_args(
@@ -76,7 +52,6 @@ def run_rna_seq(
         not_perform_assemble: bool,
         show_tqdm: bool
 ):
-
     _lh.info("Creating multiprocessing pool and assembler...")
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
@@ -86,8 +61,22 @@ def run_rna_seq(
         delete_after_finish=False,
         show_tqdm=show_tqdm
     )
+    depth_info: List[Tuple[float, str, str]] = []
+    """
+    Depth information used by LLRG frontend interfaces.
+    
+    They are: [depth, transcript_id, filename]
+    """
 
-    depth_info = list(pair_depth_info_with_transcriptome_fasta_filename(transcriptome_fasta_dir, depth_data))
+    for transcript_id, transcript_depth in depth_data.items():
+        filename = os.path.join(transcriptome_fasta_dir, transcript_id + ".fa")
+        if not file_system.file_exists(filename):
+            _lh.warning("FASTA of Isoform %s not exist!", transcript_id)
+            continue
+        if transcript_depth <= 0:
+            _lh.warning("Depth of Isoform %s too low!", transcript_id)
+            continue
+        depth_info.append((transcript_depth, transcript_id, filename))
 
     # Get assembler arguments
     assembler_full_args = {

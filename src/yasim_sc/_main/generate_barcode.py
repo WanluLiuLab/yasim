@@ -1,6 +1,15 @@
+"""
+generate_barcode.py -- Generate barcodes with give length and number.
+"""
+
+__all__ = (
+    "create_parser",
+    "main"
+)
+
 import argparse
 import random
-from typing import List, Set
+from typing import List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -9,8 +18,8 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 logger = get_logger(__name__)
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim_sc generate_barcode", description=__doc__.splitlines()[1])
     parser.add_argument(
         '-n',
         '--num_cells',
@@ -33,28 +42,25 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         '-o',
         '--out',
         required=True,
-        help="Output barcode TXT",
+        help="Output path to barcode TXT",
         nargs='?',
         type=str,
         action='store'
     )
-    return parser.parse_args(args)
+    return parser
 
 
-class BarcodeGenerator:
-    _generated_barcodes: Set[str] = set()
-
-    @staticmethod
-    def generate(barcode_length: int) -> str:
-        while True:
-            new_barcode = "".join(map(lambda _: random.choice("ATCG"), range(barcode_length)))
-            if new_barcode not in BarcodeGenerator._generated_barcodes:
-                BarcodeGenerator._generated_barcodes.add(new_barcode)
-                return new_barcode
+def generate(barcode_length: int) -> str:
+    _generated_barcodes = set()
+    while True:
+        new_barcode = "".join(map(lambda _: random.choice("ATCG"), range(barcode_length)))
+        if new_barcode not in _generated_barcodes:
+            _generated_barcodes.add(new_barcode)
+            return new_barcode
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     with get_writer(args.out) as writer:
         for _ in tqdm(range(args.num_cells), desc="Generating"):
-            writer.write(BarcodeGenerator.generate(args.length) + "\n")
+            writer.write(generate(args.length) + "\n")

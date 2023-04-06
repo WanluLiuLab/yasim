@@ -1,21 +1,14 @@
 import copy
 import itertools
 import json
-import os
 import random
 from typing import List, Tuple, Dict, Mapping, Any
 
 import numpy as np
 
 from labw_utils.bioutils.algorithm.alignment import SmithWatermanAligner
-from labw_utils.bioutils.algorithm.sequence import translate_cdna, is_valid_chrname, TRANSL_TABLES, TRANSL_TABLES_NT
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-from labw_utils.commonutils.appender import load_table_appender_class
-from labw_utils.commonutils.appender.typing import TableAppenderConfig
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_reader, get_writer
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.bioutils.algorithm.sequence import translate_cdna, TRANSL_TABLES, TRANSL_TABLES_NT
+from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 TCRTranslationTableType = List[Tuple[str, str, str, str]]
@@ -77,70 +70,6 @@ def align(ref_nt_seq: str, imgt_aa_seq: str) -> TCRTranslationTableType:
     if nt_p < len(ref_nt_seq):
         translation_table.append((ref_nt_seq[nt_p:], "-", "-", "X"))
     return translation_table
-
-
-def create_tcr_cache(
-        ref_fa_path: str,
-        ref_gtf_path: str,
-        tcr_genelist_path: str,
-        tcr_aa_table_path: str,
-        tcr_cache_path: str
-):
-    with get_reader(tcr_genelist_path) as reader:
-        tcr_genelist = json.load(reader)
-    with get_reader(tcr_aa_table_path) as reader:
-        tcr_aa_table = json.load(reader)
-    ref_fasta_view = FastaViewFactory(
-        ref_fa_path,
-        show_tqdm=True,
-        read_into_memory=False
-    )
-    ref_gene_view = GeneViewFactory.from_file(ref_gtf_path)
-    tcrs = {}
-    for gene_name in tqdm(
-            list(itertools.chain(*tcr_genelist.values())),
-            desc="Generating TCR Cache"
-    ):
-        try:
-            gene = ref_gene_view.get_gene(gene_name)
-        except KeyError:
-            _lh.warning("Gene %s not found!", gene_name)
-            continue
-        valid_transcript = []
-        for transcript in gene.iter_transcripts():
-            if not is_valid_chrname(transcript.seqname):
-                continue
-            valid_transcript.append(transcript)
-        if len(valid_transcript) != 1:
-            _lh.warning(
-                "Gene %s have %d != 1 valid transcript (%s)!",
-                gene_name,
-                len(valid_transcript),
-                str(list(map(lambda x: x.transcript_id, valid_transcript)))
-            )
-            continue
-        real_nt_seq = valid_transcript[0].cdna_sequence(ref_fasta_view.sequence)
-        if real_nt_seq == "":
-            _lh.warning(
-                "Gene %s have no NT sequence!",
-                gene_name
-            )
-            continue
-        try:
-            real_aa_seq = tcr_aa_table[gene_name]
-        except KeyError:
-            _lh.warning(
-                "Gene %s have no AA sequence!",
-                gene_name
-            )
-            continue
-        tcrs[gene_name] = align(ref_nt_seq=real_nt_seq, imgt_aa_seq=real_aa_seq)
-    with get_writer(tcr_cache_path) as writer:
-        json.dump(tcrs, writer)
-
-    with get_writer(tcr_cache_path + ".fa") as writer:
-        for tcr_name, tcr_tt in tcrs.items():
-            writer.write(f">{tcr_name}\n{''.join(list(zip(*tcr_tt))[0])}\n")
 
 
 class GenerationFailure(RuntimeError):
@@ -479,94 +408,3 @@ class TCell:
     #     return "".join(list(zip(*self._trbv_tt))[0])
 
 
-def rearrange_tcr(
-        barcode_path: str,
-        tcr_cache_path: str,
-        tcr_genelist_path: str,
-        output_base_path: str,
-        cdr3_deletion_table_path: str,
-        cdr3_insertion_table_path: str
-):
-    n_failure = 0
-    with get_reader(tcr_genelist_path) as reader:
-        tcr_genelist = json.load(reader)
-    with get_reader(cdr3_deletion_table_path) as reader:
-        cdr3_deletion_table = json.load(reader)
-    with get_reader(tcr_cache_path) as reader:
-        tcr_cache: Dict[str, TCRTranslationTableType] = json.load(reader)
-    cdr3_insertion_table = Cdr3InsertionTable(cdr3_insertion_table_path)
-    cdr3_deletion_table = {
-        k: {
-            int(_k): _v
-            for _k, _v in v.items()
-        }
-        for k, v in cdr3_deletion_table.items()
-    }
-    with get_writer(output_base_path + ".fa") as fasta_writer:
-        with load_table_appender_class("TSVTableAppender")(
-                filename=output_base_path + ".stats",
-                header=[
-                    "UUID",
-                    "TRAV",
-                    "TRAJ",
-                    "TRBV",
-                    "TRBJ",
-                    "ACDR3_AA",
-                    "BCDR3_AA",
-                    "ACDR3_NT",
-                    "BCDR3_NT",
-                    "ALPHA_AA",
-                    "BETA_AA",
-                    "ALPHA_NT",
-                    "BETA_NT"
-                    # "TRAV_REMAINS_AA",
-                    # "TRAV_REMAINS_NT",
-                    # "TRAJ_REMAINS_AA",
-                    # "TRAJ_REMAINS_NT",
-                    # "TRBV_REMAINS_AA",
-                    # "TRBV_REMAINS_NT",
-                    # "TRBJ_REMAINS_AA",
-                    # "TRBJ_REMAINS_NT",
-                ],
-                tac=TableAppenderConfig(buffer_size=1024)
-        ) as appender:
-            for barcode in get_tqdm_line_reader(barcode_path):
-                while True:
-                    try:
-                        cell = TCell.from_gene_names(
-                            tcr_genelist=tcr_genelist,
-                            cdr3_deletion_table=cdr3_deletion_table,
-                            cdr3_insertion_table=cdr3_insertion_table,
-                            tcr_cache=tcr_cache,
-                            barcode=barcode
-                        )
-                    except GenerationFailure:
-                        n_failure += 1
-                        continue
-                    else:
-                        break
-                fasta_writer.write(
-                    cell.to_fasta_record() + "\n"
-                )
-                appender.append([
-                    cell.cell_uuid,
-                    *cell.alpha_names,
-                    *cell.beta_names,
-                    *cell.cdr3_aa,
-                    *cell.cdr3_nt,
-                    cell.alpha_aa,
-                    cell.beta_aa,
-                    cell.alpha_nt,
-                    cell.beta_nt
-                    # cell.trav_aa,
-                    # cell.trav_nt,
-                    # cell.traj_aa,
-                    # cell.traj_nt,
-                    # cell.trbv_aa,
-                    # cell.trbv_nt,
-                    # cell.trbj_aa,
-                    # cell.trbj_nt,
-                ])
-                with get_writer(os.path.join(output_base_path + ".json.d", cell.cell_uuid + ".json")) as writer:
-                    json.dump(cell.to_dict(), writer)
-    _lh.info("Finished with %d failures", n_failure)

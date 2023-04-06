@@ -1,18 +1,27 @@
+"""
+sample_pcg.py -- Sample Protein-Coding genes for scRNA-Seq Simulation
+"""
+
+__all__ = (
+    "main",
+    "create_parser"
+)
+
 import argparse
 import random
 from typing import List
 
 import pandas as pd
 
-from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname
+from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python -m yasim_scripts sample_pcg", description=__doc__.splitlines()[1])
     parser.add_argument(
         '-i',
         '--ncbi_dataset',
@@ -26,7 +35,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         '-g',
         '--gtf',
         required=True,
-        help="GTF to be sampled from",
+        help="Path to genome annotation in GTF format to be sampled from",
         nargs='?',
         type=str,
         action='store'
@@ -35,7 +44,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         '-o',
         '--out',
         required=True,
-        help="Output GTF",
+        help="Path to output GTF",
         nargs='?',
         type=str,
         action='store'
@@ -58,11 +67,11 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         default="gene_id",
         action='store'
     )
-    return parser.parse_args(args)
+    return parser
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     df = pd.read_table(args.ncbi_dataset)
     pcg_df = (
         df.

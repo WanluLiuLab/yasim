@@ -10,7 +10,7 @@ python -m yasim_sc generate_barcode -n 100 -o barcode.txt
 
 # TCR
 python -m yasim_sctcr generate_tcr_depth \
-    --barcode_path barcode.txt \
+    -b barcode.txt \
     -o tcr_depth.tsv \
     -d 400
 python -m yasim_sctcr generate_tcr_cache \

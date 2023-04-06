@@ -1,7 +1,5 @@
 """
-yasim -- Yet Another SIMulator for Alternative Splicing and Differentially Expressed Gene
-
-This is an alternative splicing simulator, with interesting functions like DEG simulation.
+yasim -- Yet Another SIMulator for Alternative Splicing and Realistic Gene Expression Profile
 """
 
 __version__ = "3.1.4"

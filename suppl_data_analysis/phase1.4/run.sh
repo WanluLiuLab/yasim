@@ -9,7 +9,7 @@ grep '^chr1\s' hg38.ncbiRefSeq.gtf > hg38.ncbiRefSeq.chr1.gtf
 head hg38.fa -n "$(($(cat -n hg38.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  hg38.chr1.fa
 python -m labw_utils.bioutils transcribe -g hg38.ncbiRefSeq.chr1.gtf -f hg38.chr1.fa -o hg38_trans.fa
 
-shuf < hg38_trans.fa | python -m yasim_scripts filter_pbsim_reference | head -n 4000 > hg38_trans.filtered.fa
+shuf < hg38_trans.fa | python filter_pbsim_reference.py | head -n 4000 > hg38_trans.filtered.fa
 
 function perform_pbsim2_length() {
     mkdir -p pbsim2_length_"${1}"

@@ -13,7 +13,9 @@ kernelspec:
 
 # YASIM Tutorial
 
-This is the tutorial documentation for YASIM. In this documentation, you would generate NGS and TGS RNA-Seq reads from CE11 reference genome with Alternative Splicing (AS) events., quantify them using `salmon` and compare them with ground-truth data.
+This is the tutorial documentation for YASIM. In this documentation, you would generate Next-Generation Sequencing (NGS) and Third-generation Sequencing (TGS) RNA-Seq reads from _C. Elegans_ (worm) reference genome with Alternative Splicing (AS) events, quantify them on an isoform level using Salmon and compare them with ground-truth data.
+
+This tutorial assumes basic understandings on RNA-Seq, Shell scripting and Python programming with Pandas and Seaborn.
 
 **How to read this documentation**: Code block without leading `!` are Python code blocks. For example:
 
@@ -44,13 +46,14 @@ Here would list version information of each component used in this tutorial for 
 ```{code-cell}
 import sys
 import itertools
+
 import numpy as np
 import pandas as pd
 try:
     import pyarrow as pa
     CSV_ENGINE = "pyarrow"
 except ImportError:
-    CSV_ENGINE = "python"
+    CSV_ENGINE = "c"
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -68,6 +71,8 @@ print("labw_utils version: " + labw_utils.__version__)
 
 ### Shell and Bioinformatics Utilities
 
+Here we would assume that PBSIM3 is installed at `/home/yuzj/bin/pbsim3`.
+
 ```{code-cell}
 !bash --version | head -n 1
 !grep --version | head -n 1
@@ -83,7 +88,7 @@ print("labw_utils version: " + labw_utils.__version__)
 Inside the example, chromosome 1 of _C. Elegans_ reference genome sequence (in FASTA format) and annotation (in GTF format) from UCSC is used.
 
 ```{warning}
-This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT stable and is to be removed. You shold use **UNSORTED** UCSC references for compatibility.
+This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT stable and is to be deprecated. You shold use **UNSORTED** UCSC references for compatibility. Reference genome annotation from NCBI RefSeq official website (i.e., <https://www.ncbi.nlm.nih.gov/genome/?term=txid6239[orgn]>) is explicitly incompatible, and those from Ensembl may experience bugs.
 ```
 
 Get first chromosome of CE11 reference genome sequence and annotation from UCSC.
@@ -117,7 +122,7 @@ The help message is as follows:
 !python -m yasim generate_as_events --help
 ```
 
-Example (Some warnings generated during parsing of GTF was filtered out):
+Example (Some warnings generated during GTF parsing was filtered out):
 
 ```{code-cell}
 !if [ ! -f ce11.ncbiRefSeq.chr1.as.gtf ]; then \
@@ -139,7 +144,7 @@ Generates:
 
 +++
 
-Before proceeding, it would be desired to see difference between generated GTF and reference GTF. We would use `GeneView` in `labw_utils` to read them into current Python environment:
+Before proceeding, it would be desired to see difference between generated GTF and reference GTF. We would use `GeneView` class in `labw_utils` to read them into current Python environment:
 
 ```{code-cell}
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
@@ -161,7 +166,7 @@ num_new_isoforms = as_gtf.number_of_transcripts + ref_gtf.number_of_transcripts 
 print(f"Generated {num_new_isoforms} new isoforms")
 ```
 
-Now we would plot the distribution of number of isoforms per gene (NIpG) for each GTF.
+Now we would plot the distribution of Number of Isoforms per Gene (NIpG) for each GTF.
 
 ```{code-cell}
 as_nipg = [gene.number_of_transcripts for gene in as_gtf.iter_genes()]
@@ -174,7 +179,7 @@ axs[0].set_title("Reference GTF")
 axs[1].set_title("Generated GTF")
 ```
 
-It is clear that the generated GTF is more complex in terms of NIpG. That would confuse the aligner and the quantifier.
+It is clear that the generated GTF is more complex in terms of NIpG.
 
 +++
 
@@ -183,7 +188,7 @@ It is clear that the generated GTF is more complex in terms of NIpG. That would 
 This step would generate base gene expression level in coverage for each gene over some GTF.
 
 ```{note}
-The YASIM V3 and V2 API differes in depth generation. In YASIM V2, we generate isoforms regardless of base expression level of genes. In YASIM V3, however, we first assign base level of each gene and then generate isoform-level abundance upon them.
+The YASIM V3 and V2 API differes in depth generation. In YASIM V2, we generate isoforms regardless of base expression level of genes. In YASIM V3, however, we first assign base level of each gene and then generate isoform-level abundance upon them. The YASIM V2 API also does not allow zeros to be present.
 
 The YASIM V2 API was preserved. You can access it through `generate_depth_v2`.
 ```
@@ -273,14 +278,10 @@ Generates:
 ## Transcribe GTF to FASTA: `transcribe`
 
 ```{warning}
-The `yasim transcribe` function would be deprecated. Use `labw_utils.bioutils transcribe` instead.
+The `yasim transcribe` module was be deprecated. Use `labw_utils.bioutils transcribe` instead.
 ```
 
-This step would transcribe the input genome GTF and genome FASTA into **stranded** transcriptome FASTA.
-
-This step is designed to be general-purposed. It can be applied on any matching GTF and FASTA.
-
-This step should generate similar output with `bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]`
+This step would transcribe the input genome GTF and genome FASTA into **stranded** transcriptome FASTA. It is designed to be general-purposed, i.e., can be applied on any matching GTF and FASTA. It should generate similar output with `bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]`
 
 ```{note}
 Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while YASIM transcribed cDNA includes all transcripts inside provided GTF.
@@ -310,15 +311,15 @@ Generates:
 - `ce11_transcripts.fa`, the generated cDNA sequence FASTA.
 - `ce11_transcripts.fa.d`, the directory where every cDNA is stored as separate FASTA.
 - `ce11_transcripts.fa.stats`, a TSV file with following columns:
-  - `TRANSCRIPT_ID`: The `transcript_id` field in GTF.
-  - `GENE_ID`: The `gene_id` field in GTF.
-  - `SEQNAME`: Chromosome or Contig name.
-  - `START`: Start position. 1-based inclusive.
-  - `END`: End position. 1-based inclusive.
-  - `STRAND`: The `strand` field in GTF.
+  - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
+  - `GENE_ID`, the `gene_id` field in GTF.
+  - `SEQNAME`, chromosome or contig name.
+  - `START`, the `start` field in GTF, 1-based inclusive.
+  - `END`, the `end` field in GTF, 1-based inclusive.
+  - `STRAND`, the `strand` field in GTF.
   - `ABSOLUTE_LENGTH`, is `START` - `END` + 1.
   - `TRANSCRIBED_LENGTH`, length of the cDNA without introns and UTRs.
-  - `GC`: GC content of the cDNA in percentage.
+  - `GC`, GC content of the cDNA in percentage.
 
 Following is an example of `ce11_transcripts.fa.stats`:
 
@@ -400,9 +401,9 @@ art_mode_fq_stats.head()
 The official build of PBSIM, PBSIM2 and PBSIM3 shares a common executable anme (`pbsim`) but with different argument layout. For convenience, I renamed executable of PBSIM2 to `pbsim2` and PBSIM3 to `pbsim3`. If you do not use this in your computer, please use the `-e` option.
 ```
 
-`pbsim3` is a general-purposed TGS DNA- and RNA-Seq simulator that supports multiple PacBio and Oxford Nanopore sequencers. It can generate Circular Consensus Sequence (CCS/HiFi) data.
+`pbsim3` is a general-purposed TGS DNA- and RNA-Seq simulator that supports multiple PacBio and Oxford Nanopore sequencers. It can generate Circular Consensus Sequence (CCS)/HiFi data.
 
-Compared to NGS simulators, TGS simulators have `truncate_ratio_3p` and `truncate_ratio_5p`. These two parameters are used to set hard limits at two sides that allows simulation of incomplete reads.
+Compared to NGS simulators, TGS simulators have `truncate_ratio_3p` and `truncate_ratio_5p`. These two parameters are used to set hard limits at two sides that allows simulation of incomplete reads due to reasons like 3' truncation.
 
 The help message is as follows:
 
@@ -450,7 +451,7 @@ This generates:
     - `GC`, per-read GC content in absolute value.
     - `LEN`, actual read length.
     - `MEANQUAL`, mean sequencing quality using Phread33 score.
-  - `extension_stat.tsv`, mean base quality of bases on each read from 5' to 3', mainly for NGS.
+  - `extension_stat.tsv`, mean per-base quality of bases on each read from 5' to 3', mainly for NGS.
     - `POS`, position of each base on every transcript from 5' to 3'. If not present, would be omitted.
     - `QUAL`, mean sequencing quality using Phread33 score.
 
@@ -464,13 +465,19 @@ pbsim3_mode_all_qc = pd.read_table(os.path.join("pbsim3_mode.fq.stats.d", "all.t
 pbsim3_mode_all_qc.head()
 ```
 
-For example, following plots read length distribution:
+For example, the read length distribution:
 
 ```{code-cell}
 sns.histplot(pbsim3_mode_all_qc, x="LEN")
 ```
 
-Example of `extension_stat.tsv`:
+For example, the GC distribution:
+
+```{code-cell}
+sns.histplot(pbsim3_mode_all_qc, x="GC")
+```
+
+`extension_stat.tsv` may indicate whether clipping of terminal low-quality regions in NGS reads using [CutAdapt](https://cutadapt.readthedocs.io/en/stable) or [Trimmomatic](www.usadellab.org/cms/?page=trimmomatic) are required. For example:
 
 ```{code-cell}
 art_mode_extension_qc = pd.read_table(os.path.join("art_mode_1.fq.stats.d", "extension_stat.tsv"), engine=CSV_ENGINE)
@@ -480,17 +487,19 @@ art_mode_extension_qc = pd.read_table(os.path.join("art_mode_1.fq.stats.d", "ext
 art_mode_extension_qc.head()
 ```
 
+Following is a plot of mean per-base quality of all reads from 5' end to 3' end:
+
 ```{code-cell}
 sns.lineplot(art_mode_extension_qc, x="POS", y="QUAL")
 ```
 
-Which can be seen as suggestion of trimming leading and trailing bases.
+Which can be seen as suggestion of trimming leading and trailing bases. This is not done in this example due to time limit.
 
 +++
 
-## `salmon` Quasi Alignment and Quantification
+## Salmon Quasi Alignment and Quantification
 
-`salmon` is used to align and quantify reads mapped to transcriptome. Here we would make `salmon` align to cDNA of ground truth GTF and see whether the quantification is accurate.
+Salmon is used to precisely align and quantify reads mapped to transcriptome on an isoform-specific manner. Here we would make Salmon align to cDNA of ground truth GTF and see whether the quantification is accurate.
 
 ```{code-cell}
 !if [ ! -d SALMON_IDX ]; then \
@@ -524,18 +533,16 @@ def calculate_tpm(n_reads: pd.Series, transcribed_length: pd.Series) -> pd.Serie
     rpk = 1E3 * n_reads / transcribed_length
     return 1E6 * rpk / rpk.sum()
 
-ngs_salmon_data = (
-    pd.read_table(os.path.join("art_mode_salmon", "quant.sf"), comment="#")
+def read_salmon(file_path: str) -> pd.DataFrame:
+    return (
+    pd.read_table(file_path, comment="#")
     [["Name", "NumReads"]].
     rename(columns={"Name": "TRANSCRIPT_ID", "NumReads": "REAL_N_OF_READS"}).
     set_index('TRANSCRIPT_ID')
 )
-tgs_salmon_data = (
-    pd.read_table(os.path.join("pbsim3_mode_salmon", "quant.sf"), comment="#")
-    [["Name", "NumReads"]].
-    rename(columns={"Name": "TRANSCRIPT_ID", "NumReads": "REAL_N_OF_READS"}).
-    set_index('TRANSCRIPT_ID')
-)
+
+ngs_salmon_data = read_salmon(os.path.join("art_mode_salmon", "quant.sf"))
+tgs_salmon_data = read_salmon(os.path.join("pbsim3_mode_salmon", "quant.sf"))
 
 ngs_df = (
     pd.read_table("art_mode.fq.stats", engine=CSV_ENGINE).
@@ -552,6 +559,7 @@ tgs_df = (
 ngs_df["GENERATION"] = "NGS"
 tgs_df["GENERATION"] = "TGS"
 
+# Calculate TPM for NGS and TGS data.
 for df in (ngs_df, tgs_df):
     df["TPM_SIM"] = calculate_tpm(
         df["SIMULATED_N_OF_READS"],
@@ -561,9 +569,11 @@ for df in (ngs_df, tgs_df):
         df["REAL_N_OF_READS"],
         df["TRANSCRIBED_LENGTH"]
     )
+# Merge and filter low-expression isoforms.
 ngs_tgs_merged_df = pd.concat((ngs_df, tgs_df)).query(
     "TPM_SIM > 10 & TPM_REAL > 10 & TPM_SIM < 3000 & TPM_REAL < 3000"
 )
+# Calculate Log 2 Fold Change (L2FC).
 ngs_tgs_merged_df["TPM_L2FC"] = np.log2(
     ngs_tgs_merged_df["TPM_SIM"] / ngs_tgs_merged_df["TPM_REAL"]
 )
@@ -572,6 +582,7 @@ ngs_tgs_merged_df["TPM_L2FC"] = np.log2(
 Plotting simulated (`TPM_SIM`) vs. actual (`TPM_REAL`) data.
 
 ```{code-cell}
+# Getting axis limits.
 xylim = max(ngs_tgs_merged_df["TPM_SIM"].max(), ngs_tgs_merged_df["TPM_REAL"].max())
 g = sns.FacetGrid(
     ngs_tgs_merged_df,
@@ -599,3 +610,11 @@ g.map(sns.scatterplot, "TPM_L2FC",  "TPM_SIM" , alpha=0.4)
 ```
 
 From above plot, it is evident that in more complex genomes, TGS data could outperform NGS ones.
+
++++
+
+List of files:
+
+```{code-cell}
+!ls -lFh
+```
