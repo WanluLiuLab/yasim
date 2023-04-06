@@ -20,8 +20,10 @@ from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""
 
+
 class DepthParsingException(RuntimeError):
     ...
+
 
 def write_depth(
         depth_data: DepthType,

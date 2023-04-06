@@ -16,12 +16,12 @@ from labw_utils.commonutils.appender.typing import TableAppenderConfig
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.tcr import TCRTranslationTableType, Cdr3InsertionTable, TCell, GenerationFailure
 from yasim_sctcr._main import get_sample_data_path
 
 _lh = get_logger(__name__)
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(

@@ -10,9 +10,8 @@ __all__ = (
 import argparse
 from typing import List
 
-import yasim.helper.depth_io
-from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper import depth, depth_io
+from yasim.helper.frontend import patch_frontend_argument_parser
 
 
 def create_parser() -> argparse.ArgumentParser:

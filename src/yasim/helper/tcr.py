@@ -214,12 +214,10 @@ class TCell:
         ) -> TCRTranslationTableType:
             ret_tt = []
             for tt_a in tt:
-                if "-" in  tt_a[0] or tt_a[1] in ("*", "-") or tt_a[2] in ("*", "-"):
+                if "-" in tt_a[0] or tt_a[1] in ("*", "-") or tt_a[2] in ("*", "-"):
                     continue
                 ret_tt.append(tt_a)
             return ret_tt
-
-
 
         (trbv_name, trbv_tt), (trbj_name, trbj_tt) = choose_name("trbv_names"), choose_name("trbj_names")
         (traj_name, traj_tt), (trav_name, trav_tt) = choose_name("traj_names"), choose_name("trav_names")
@@ -406,5 +404,3 @@ class TCell:
     # @property
     # def trbv_nt(self) -> str:
     #     return "".join(list(zip(*self._trbv_tt))[0])
-
-

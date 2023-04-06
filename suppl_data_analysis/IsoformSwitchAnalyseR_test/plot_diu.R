@@ -3,15 +3,15 @@ library(IsoformSwitchAnalyzeR)
 library(tidyverse)
 
 isar_count_matrix <- data.frame(
-    isoform_id=c("F1.2", "F1.1", "F2.2", "F2.1", "F3.1", "F3.2"),
-    S1.1=c(1, 4, 4, 70, 1001, 32),
-    S2.1=c(1, 4, 70, 4, 20, 3443),
-    S1.2=c(2, 3, 5, 70, 12, 1324),
-    S2.2=c(2, 3, 71, 5, 432, 4)
+    isoform_id = c("F1.2", "F1.1", "F2.2", "F2.1", "F3.1", "F3.2"),
+    S1.1 = c(1, 4, 4, 70, 1001, 32),
+    S2.1 = c(1, 4, 70, 4, 20, 3443),
+    S1.2 = c(2, 3, 5, 70, 12, 1324),
+    S2.2 = c(2, 3, 71, 5, 432, 4)
 )
 isar_design_matrix <- data.frame(
-    sampleID=c("S1.1", "S2.1", "S1.2", "S2.2"),
-    condition=c("S1", "S2", "S1", "S2")
+    sampleID = c("S1.1", "S2.1", "S1.2", "S2.2"),
+    condition = c("S1", "S2", "S1", "S2")
 )
 
 

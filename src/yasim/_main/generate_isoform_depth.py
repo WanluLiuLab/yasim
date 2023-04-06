@@ -13,8 +13,8 @@ from typing import List
 import yasim.helper.depth_io
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper import depth
+from yasim.helper.frontend import patch_frontend_argument_parser
 
 _lh = get_logger(__name__)
 

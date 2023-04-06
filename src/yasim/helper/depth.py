@@ -24,7 +24,6 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth_io import DepthType
 from yasim.helper.gmm import GaussianMixture1D
 
-
 _lh = get_logger(__name__)
 
 

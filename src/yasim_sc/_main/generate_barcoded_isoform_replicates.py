@@ -12,8 +12,8 @@ import os
 from typing import List
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
-from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper import depth, depth_io
+from yasim.helper.frontend import patch_frontend_argument_parser
 
 
 def create_parser() -> argparse.ArgumentParser:

@@ -5,7 +5,7 @@ library(IsoformSwitchAnalyzeR)
 library(parallel)
 
 
-read_fc <- function(fname){
+read_fc <- function(fname) {
     readr::read_tsv(
         fname,
         col_types = cols(
@@ -36,50 +36,52 @@ fine2a <- read_fc(
     "FINE2a.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
-        FINE2a=NumReads
+        FINE2a = NumReads
     )
 
 fine2b <- read_fc(
     "FINE2b.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
-        FINE2b=NumReads
+        FINE2b = NumReads
     )
 
 tesr7a <- read_fc(
     "TesR7A.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
-        TesR7A=NumReads
+        TesR7A = NumReads
     )
 
 tesr7b <- read_fc(
     "TesR7B.fastq.gz.sam.bam.fC.txt"
 ) %>%
     dplyr::rename(
-        TesR7B=NumReads
+        TesR7B = NumReads
     )
 
 full_df <- fine2a %>%
     dplyr::inner_join(
-            fine2b,
-        by="TRANSCRIPT_ID"
+        fine2b,
+        by = "TRANSCRIPT_ID"
     ) %>%
-        dplyr::inner_join(
-            tesr7a,
-        by="TRANSCRIPT_ID"
+    dplyr::inner_join(
+        tesr7a,
+        by = "TRANSCRIPT_ID"
     ) %>%
-        dplyr::inner_join(
-            tesr7b,
-        by="TRANSCRIPT_ID"
+    dplyr::inner_join(
+        tesr7b,
+        by = "TRANSCRIPT_ID"
     )
 
 exp_design <- data.frame(
-    sampleID=c("FINE2a", "FINE2b", "TesR7A", "TesR7B"),
+    sampleID = c("FINE2a", "FINE2b", "TesR7A", "TesR7B"),
     condition = c("FINE", "FINE", "TesR", "TesR")
 )
 
-full_df_isar <- full_df %>% as.data.frame() %>% dplyr::rename(isoform_id=TRANSCRIPT_ID)
+full_df_isar <- full_df %>%
+    as.data.frame() %>%
+    dplyr::rename(isoform_id = TRANSCRIPT_ID)
 
 
 ### Create switchAnalyzeRlist
