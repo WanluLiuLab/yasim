@@ -16,7 +16,7 @@ count_new = []
 
 while len(count_new) < len(count_extracted):
     n = int(lognorm.rvs(f, loc=loc, scale=scale, size=1))
-    if n >= 1 and n < 26:
+    if 1 <= n < 26:
         count_new.append(n)
 
 fig, ax = plt.subplots(1, 1)

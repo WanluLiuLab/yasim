@@ -22,7 +22,7 @@ import pysam
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
-from labw_utils.commonutils.shell_utils import wc_c
+from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.llrg import enhanced_which
 from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, automerge, LLRGInitializationException, \

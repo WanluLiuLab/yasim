@@ -41,5 +41,6 @@ html: apidoc
 clean:
 	rm -rf $(BUILD_DIR)
 	$(MAKE) -C tutorial clean
+	$(MAKE) -C tutorial_llrg clean
 
 distclean:

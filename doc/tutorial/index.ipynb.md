@@ -147,7 +147,7 @@ Generates:
 Before proceeding, it would be desired to see difference between generated GTF and reference GTF. We would use `GeneView` class in `labw_utils` to read them into current Python environment:
 
 ```{code-cell}
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 
 as_gtf = GeneViewFactory.from_file("ce11.ncbiRefSeq.chr1.as.gtf")
 ref_gtf = GeneViewFactory.from_file("ce11.ncbiRefSeq.chr1.gtf")
@@ -440,12 +440,12 @@ Generated files similar to NGS, so omitted.
 Using utilities bundled in `labw_utils`, it is easy to perform quality control on reads you just generated without the need of installation of additional software! Look at following example:
 
 ```{code-cell}
-!python -m labw_utils.bioutils describe_fastq *.fq
+!python -m labw_utils.bioutils describe_fastq pbsim3_mode.fq art_mode_1.fq
 ```
 
 This generates:
 
-- `pbsim3_mode.fq.stats.d` \& `art_mode_1.fq.stats.d` \& `art_mode_2.fq.stats.d`, the directory where quality control files are located. They are:
+- `pbsim3_mode.fq.stats.d` \& `art_mode_1.fq.stats.d`, the directory where quality control files are located. They are:
   - `all.tsv`, the per-read quality control file, with following columns:
     - `SEQID`, the FASTQ read ID.
     - `GC`, per-read GC content in absolute value.
@@ -506,7 +506,8 @@ Salmon is used to precisely align and quantify reads mapped to transcriptome on 
     salmon index \
         -i SALMON_IDX \
         -p 40 \
-        -t ce11_trans_as.fa; \
+        -t ce11_trans_as.fa \
+        &> salmon_index.log; \
 else \
     echo "SALMON_IDX already exists."; \
 fi
@@ -617,4 +618,8 @@ List of files:
 
 ```{code-cell}
 !ls -lFh
+```
+
+```{code-cell}
+
 ```

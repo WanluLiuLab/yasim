@@ -5,14 +5,12 @@ Configuration file for the Sphinx documentation builder.
 # pylint: disable=wrong-import-position, invalid-name
 
 import glob
-import io
 import os
 import shutil
 import sys
 from collections import defaultdict
 
 import tomli
-from docutils.core import publish_string
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))

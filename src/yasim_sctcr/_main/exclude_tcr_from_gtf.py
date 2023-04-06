@@ -6,12 +6,12 @@ For GENCODE Reference Only.
 
 from typing import List
 
-from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter
+from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
 
 
 def main(args: List[str]):
     for arg in args:
-        with GtfWriter(arg + ".tcr_filtered.gtf") as writer:
+        with GtfIteratorWriter(arg + ".tcr_filtered.gtf") as writer:
             for record in GtfIterator(arg, show_tqdm=True):
-                if not record.attribute.get("gene_name", "TRBV").startswith("TR"):
+                if not record.attribute_get("gene_name", "TRBV").startswith("TR"):
                     writer.write_feature(record)

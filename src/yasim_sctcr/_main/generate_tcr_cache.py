@@ -14,7 +14,7 @@ from typing import List
 
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger

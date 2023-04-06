@@ -14,7 +14,7 @@ from typing import List
 import pandas as pd
 
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname
-from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter
+from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
@@ -86,7 +86,7 @@ def main(args: List[str]):
     nr = 0
     nw = 0
     with GtfIterator(args.gtf) as gtfi, \
-            GtfWriter(args.out) as gtfw:
+            GtfIteratorWriter(args.out) as gtfw:
         for gtf_record in gtfi:
             nr += 1
             gene_id = gtf_record.attribute.get(args.gene_name_attribute)
@@ -96,7 +96,7 @@ def main(args: List[str]):
                     and is_valid_chrname(gtf_record.seqname)
             ):
                 nw += 1
-                gtfw.write_feature(gtf_record)
+                gtfw.write(gtf_record)
     _lh.info(
         "Filtered %d gtf records out of %d (%.2f%%)",
         nw, nr, nw / nr * 100

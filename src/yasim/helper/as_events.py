@@ -18,8 +18,8 @@ from typing import List, Callable, Iterable
 import numpy as np
 from scipy.stats import lognorm
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewType
-from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 

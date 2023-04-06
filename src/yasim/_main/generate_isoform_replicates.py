@@ -12,7 +12,7 @@ from typing import List
 
 import yasim.helper.depth_io
 from yasim.helper.frontend import patch_frontend_argument_parser
-from yasim.helper import depth
+from yasim.helper import depth, depth_io
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -46,9 +46,9 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
-    depth_data = yasim.helper.depth_io.read_depth(args.depth)
+    depth_data = depth_io.read_depth(args.depth)
     for i in range(args.num_replicates):
-        yasim.helper.depth_io.write_depth(depth.generate_depth_replicates_uniform(
+        depth_io.write_depth(depth.generate_depth_replicates_uniform(
             depth_data,
             args.range
-        ), f"{args.depth}.{i}", )
+        ), f"{args.depth}.{i}", "TRANSCRIPT_ID")

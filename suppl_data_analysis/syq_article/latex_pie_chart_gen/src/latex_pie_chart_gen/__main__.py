@@ -140,18 +140,14 @@ def compile_latex(
     _lh.info("COMPILE_LATEX: FIN")
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
+if __name__ == "__main__":
+    _lh.info("latex_pie_chart_gen -- Generate pie chart table")
+    _lh.info("args: %s", " ".join(sys.argv))
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--data_csv_file_path")
     parser.add_argument("-o", "--out_pdf_file_path")
     parser.add_argument("-t", "--tmp_dir_path", default=os.path.abspath("tmp"))
-    return parser.parse_args(args)
-
-
-if __name__ == "__main__":
-    _lh.info("latex_pie_chart_gen -- Generate pie chart table")
-    _lh.info("args: %s", " ".join(sys.argv))
-    args = _parse_args(sys.argv[1:])
+    args = parser.parse_args(sys.argv[1:])
 
     _lh.info("Preparing...")
     data_csv_file_path = os.path.abspath(args.data_csv_file_path)

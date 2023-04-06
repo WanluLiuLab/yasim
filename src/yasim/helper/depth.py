@@ -18,7 +18,7 @@ from typing import List
 
 import numpy as np
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewType
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth_io import DepthType
