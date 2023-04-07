@@ -280,12 +280,20 @@ class TCell:
             trbv_name=trbv_name
         )
 
-    def to_fasta_record(self) -> str:
+    def to_nt_fasta_record(self) -> str:
         return "\n".join((
             f">{self._cell_barcode}:A",
             self.alpha_nt,
             f">{self._cell_barcode}:B",
             self.beta_nt
+        ))
+
+    def to_aa_fasta_record(self) -> str:
+        return "\n".join((
+            f">{self._cell_barcode}:A",
+            self.alpha_aa,
+            f">{self._cell_barcode}:B",
+            self.beta_aa
         ))
 
     def to_dict(self) -> Mapping[str, Any]:
@@ -368,39 +376,3 @@ class TCell:
             "".join(list(zip(*self._tra_cdr3_tt))[0]),
             "".join(list(zip(*self._trb_cdr3_tt))[0])
         )
-    #
-    # @property
-    # def traj_aa(self) -> str:
-    #     return "".join(list(zip(*self._traj_tt))[1])
-    #
-    #
-    # @property
-    # def traj_nt(self) -> str:
-    #     return "".join(list(zip(*self._traj_tt))[0])
-    #
-    # @property
-    # def trav_aa(self) -> str:
-    #     return "".join(list(zip(*self._trav_tt))[1])
-    #
-    #
-    # @property
-    # def trav_nt(self) -> str:
-    #     return "".join(list(zip(*self._trav_tt))[0])
-    #
-    # @property
-    # def trbj_aa(self) -> str:
-    #     return "".join(list(zip(*self._trbj_tt))[1])
-    #
-    #
-    # @property
-    # def trbj_nt(self) -> str:
-    #     return "".join(list(zip(*self._trbj_tt))[0])
-    #
-    # @property
-    # def trbv_aa(self) -> str:
-    #     return "".join(list(zip(*self._trbv_tt))[1])
-    #
-    #
-    # @property
-    # def trbv_nt(self) -> str:
-    #     return "".join(list(zip(*self._trbv_tt))[0])

@@ -108,7 +108,8 @@ def rearrange_tcr(
         }
         for k, v in cdr3_deletion_table.items()
     }
-    with get_writer(output_base_path + ".fa") as fasta_writer:
+    with get_writer(output_base_path + ".nt.fa") as nt_fasta_writer, \
+            get_writer(output_base_path + ".aa.fa") as aa_fasta_writer:
         with load_table_appender_class("TSVTableAppender")(
                 filename=output_base_path + ".stats",
                 header=[
@@ -125,14 +126,6 @@ def rearrange_tcr(
                     "BETA_AA",
                     "ALPHA_NT",
                     "BETA_NT"
-                    # "TRAV_REMAINS_AA",
-                    # "TRAV_REMAINS_NT",
-                    # "TRAJ_REMAINS_AA",
-                    # "TRAJ_REMAINS_NT",
-                    # "TRBV_REMAINS_AA",
-                    # "TRBV_REMAINS_NT",
-                    # "TRBJ_REMAINS_AA",
-                    # "TRBJ_REMAINS_NT",
                 ],
                 tac=TableAppenderConfig(buffer_size=1024)
         ) as appender:
@@ -151,8 +144,11 @@ def rearrange_tcr(
                         continue
                     else:
                         break
-                fasta_writer.write(
-                    cell.to_fasta_record() + "\n"
+                nt_fasta_writer.write(
+                    cell.to_nt_fasta_record() + "\n"
+                )
+                aa_fasta_writer.write(
+                    cell.to_aa_fasta_record() + "\n"
                 )
                 appender.append([
                     cell.cell_uuid,
@@ -164,14 +160,6 @@ def rearrange_tcr(
                     cell.beta_aa,
                     cell.alpha_nt,
                     cell.beta_nt
-                    # cell.trav_aa,
-                    # cell.trav_nt,
-                    # cell.traj_aa,
-                    # cell.traj_nt,
-                    # cell.trbv_aa,
-                    # cell.trbv_nt,
-                    # cell.trbj_aa,
-                    # cell.trbj_nt,
                 ])
                 with get_writer(os.path.join(output_base_path + ".json.d", cell.cell_uuid + ".json")) as writer:
                     json.dump(cell.to_dict(), writer)

@@ -25,11 +25,11 @@ python -m yasim_sctcr rearrange_tcr \
     --tcr_cache_path tcr_cache.json \
     --cdr3_deletion_table_path cdr3_deletion_table.json \
     --cdr3_insertion_table_path cdr3_insertion_table.json \
-    --barcode_path barcode.txt \
+    -b barcode.txt \
     -o sim_tcr
-python -m labw_utils.bioutils split_fasta sim_tcr.fa
+python -m labw_utils.bioutils split_fasta sim_tcr.nt.fa
 python -m yasim art \
-    -F sim_tcr.fa.d \
+    -F sim_tcr.nt.fa.d \
     -o sim_tcr_50 \
     --sequencer_name GA2 \
     --read_length 50 \
@@ -37,7 +37,7 @@ python -m yasim art \
     -e art_illumina \
     -j 20
 python -m yasim art \
-    -F sim_tcr.fa.d \
+    -F sim_tcr.nt.fa.d \
     -o sim_tcr_100 \
     --sequencer_name HS20 \
     --read_length 100 \
@@ -45,7 +45,7 @@ python -m yasim art \
     -e art_illumina \
     -j 20
 python -m yasim art \
-    -F sim_tcr.fa.d \
+    -F sim_tcr.nt.fa.d \
     -o sim_tcr_150 \
     --sequencer_name HS25 \
     --read_length 150 \
@@ -53,7 +53,7 @@ python -m yasim art \
     -e art_illumina \
     -j 20
 python -m yasim art \
-    -F sim_tcr.fa.d \
+    -F sim_tcr.nt.fa.d \
     -o sim_tcr_250 \
     --sequencer_name MSv3 \
     --read_length 250 \
