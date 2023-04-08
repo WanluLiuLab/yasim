@@ -22,7 +22,7 @@ import shutil
 import threading
 import time
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Callable
+from typing import Tuple, List, Callable, Optional
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
@@ -377,13 +377,13 @@ def generate_callback(
 def patch_frontend_parser_public(
         parser: argparse.ArgumentParser,
         llrg_name: str,
-        default_llrg_executable_name: str
+        default_llrg_executable_name: Optional[str] = None
 ) -> argparse.ArgumentParser:
     """
     Patch argument parser with commonly-used options.
 
     :param llrg_name: Name of LLRG.
-    :param default_llrg_executable_name: Default LLRG Executable Name.
+    :param default_llrg_executable_name: Default LLRG Executable Name. None if is function-based.
     :param parser: Source parser.
     :return: Patched parser.
     """
@@ -414,16 +414,17 @@ def patch_frontend_parser_public(
         action='store',
         default=None
     )
-    parser.add_argument(
-        '-e',
-        '--llrg_executable_path',
-        required=False,
-        help=f"Executable name or absolute path of {llrg_name}",
-        nargs='?',
-        type=str,
-        action='store',
-        default=default_llrg_executable_name
-    )
+    if default_llrg_executable_name is not None:
+        parser.add_argument(
+            '-e',
+            '--llrg_executable_path',
+            required=False,
+            help=f"Executable name or absolute path of {llrg_name}",
+            nargs='?',
+            type=str,
+            action='store',
+            default=default_llrg_executable_name
+        )
     return parser
 
 

@@ -13,7 +13,7 @@ import glob
 import os
 from typing import List, Final, Mapping, Any
 
-from yasim.llrg_adapter import BaseLLRGAdapter, automerge, LLRGInitializationException
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge, LLRGInitializationException
 
 PBSIM2_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
@@ -29,7 +29,7 @@ Possible PBSIM2 models.
 """
 
 
-class Pbsim2Adapter(BaseLLRGAdapter):
+class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper of PBSIM2.
 

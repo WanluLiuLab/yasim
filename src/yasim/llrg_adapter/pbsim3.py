@@ -25,7 +25,7 @@ from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from yasim.helper.llrg import enhanced_which
-from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, automerge, LLRGInitializationException, \
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge, LLRGInitializationException, \
     NoOutputFileException, EmptyOutputFileException, LLRGFailException
 
 PBSIM3_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
@@ -59,7 +59,7 @@ PBSIM3_ERRHMM_POSSIBLE_MODELS = [
 _lh = get_logger(__name__)
 
 
-class Pbsim3Adapter(BaseLLRGAdapter):
+class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper of PBSIM3.
 

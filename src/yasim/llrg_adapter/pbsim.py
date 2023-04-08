@@ -13,7 +13,7 @@ import glob
 import os
 from typing import List, Final, Mapping, Any
 
-from yasim.llrg_adapter import BaseLLRGAdapter, automerge
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge
 
 PBSIM_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim_dist")
 """
@@ -21,7 +21,7 @@ Where pbsim stores its models
 """
 
 
-class PbsimAdapter(BaseLLRGAdapter):
+class PbsimAdapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper of PBSIM.
 

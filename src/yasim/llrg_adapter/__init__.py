@@ -3,14 +3,27 @@ yasim.llrg_adapter -- Adapters for LLRGs
 
 Here contains LLRG adapters that should have been used in DNA-Seq.
 """
-
 from __future__ import annotations
+
+__all__ = (
+    "BaseLLRGAdapter",
+    "BaseFunctionBasedLLRGAdapter",
+    "BaseProcessBasedLLRGAdapter",
+    "EmptyOutputFileException",
+    "LLRGInitializationException",
+    "LLRGFailException",
+    "NoOutputFileException",
+    "LLRGException",
+    "autocopy",
+    "automerge",
+    "enhanced_copyfileobj"
+)
 
 import logging
 import os.path
 import subprocess
 import threading
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Union, List, IO, Optional, Iterable, Mapping, Any
 
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer, file_system
@@ -124,28 +137,19 @@ class BaseLLRGAdapter(threading.Thread):
     It performs following operations:
 
     - Assemble the command that calls LLRG.
-    - Execute the command using :py:mod:`subprocess`.
+    - Call LLRG, see subclasses.
     - Move generated files to ``_dst_fastq_file_prefix``.
     """
 
     _src_fasta_file_path: str
     _dst_fastq_file_prefix: str
     _depth: Union[int, float]
-    _llrg_executable_path: str
 
     # Following fields are left for LLRGs.
 
     _lh: logging.Logger
     """
     Class logger handler
-    """
-
-    _cmd: Optional[List[str]]
-    """Assembled Commandline"""
-
-    _tmp_dir: str
-    """
-    Simulator-based temp directory name.
     """
 
     _exception: Optional[LLRGException]
@@ -158,14 +162,10 @@ class BaseLLRGAdapter(threading.Thread):
     _require_integer_depth: bool
     """Class attribute, indicating whether the depth should be converted to integer. Should be Final."""
 
-    _capture_stdout: bool
-    """Whether this simulator pours data into stdout. Should be Final."""
-
     @staticmethod
     def validate_base_params(
             depth: Union[int, float],
             src_fasta_file_path: str,
-            llrg_executable_path: str,
             **kwargs
     ) -> Mapping[str, Any]:
         _ = kwargs
@@ -173,13 +173,7 @@ class BaseLLRGAdapter(threading.Thread):
             raise LLRGInitializationException(f"Depth {depth} too low")
         if not file_system.file_exists(src_fasta_file_path):
             raise LLRGInitializationException(f"FASTA {src_fasta_file_path} not found!")
-        try:
-            llrg_executable_path = enhanced_which(llrg_executable_path)
-        except FileNotFoundError as e:
-            raise LLRGInitializationException(
-                f"LLRG Executable {llrg_executable_path} not found or not executable!"
-            ) from e
-        return {"llrg_executable_path": llrg_executable_path}
+        return {}
 
     @staticmethod
     @abstractmethod
@@ -191,7 +185,6 @@ class BaseLLRGAdapter(threading.Thread):
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
-            llrg_executable_path: str,
             is_trusted: bool,
             **kwargs
     ):
@@ -201,7 +194,6 @@ class BaseLLRGAdapter(threading.Thread):
         :param src_fasta_file_path: Path of source FASTA.
         :param dst_fastq_file_prefix: Prefix od destination FASTQ.
         :param depth: Targeted sequencing depth. Would NOT be related to actual sequencing depth!
-        :param llrg_executable_path: Path to LLRG Executable.
         :param kwargs: Other miscellaneous arguments.
         :param is_trusted: Whether to skip input validation test.
         :raise LLRGInitializationException: On error.
@@ -214,30 +206,17 @@ class BaseLLRGAdapter(threading.Thread):
             raise TypeError
         if not hasattr(self, "_require_integer_depth"):
             raise TypeError
-        if not hasattr(self, "_capture_stdout"):
-            raise TypeError
 
         if not is_trusted:
-            validated_params = BaseLLRGAdapter.validate_base_params(
+            BaseLLRGAdapter.validate_base_params(
                 src_fasta_file_path=src_fasta_file_path,
-                depth=depth,
-                llrg_executable_path=llrg_executable_path
+                depth=depth
             )
-            self._llrg_executable_path = validated_params.get("llrg_executable_path", llrg_executable_path)
-        else:
-            self._llrg_executable_path = llrg_executable_path
         self._src_fasta_file_path = src_fasta_file_path
         self._dst_fastq_file_prefix = os.path.abspath(dst_fastq_file_prefix)
         self._depth = int(depth) if self._require_integer_depth else depth
         self._lh = get_logger(__name__)
-        self._cmd = None
-        self._tmp_dir = self._dst_fastq_file_prefix + ".tmp.d"
         self._exception = None
-
-        try:
-            os.makedirs(self._tmp_dir, exist_ok=True)
-        except OSError as e:
-            raise LLRGInitializationException("MKTEMP Failed!") from e
 
     @property
     def exception(self) -> str:
@@ -285,41 +264,18 @@ class BaseLLRGAdapter(threading.Thread):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def _run_llrg_hook(self) -> None:
         """
         Execute LLRG as a process
 
         :raise LLRGFailException: On running failures.
         """
-        subprocess_log_file_path = os.path.join(self._tmp_dir, "llrg.log")
-        dst_fastq_file_path = self._dst_fastq_file_prefix + ".fq"
-        if self._capture_stdout:
-            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler, \
-                    get_writer(dst_fastq_file_path, is_binary=True) as stdout_handler:
-                retv = self._exec_subprocess(
-                    self._cmd,
-                    stdin=subprocess.DEVNULL,
-                    stdout=stdout_handler,
-                    stderr=subprocess_log_handler
-                )
-            if wc_c(dst_fastq_file_path) < 2:
-                raise EmptyOutputFileException(f"Output {dst_fastq_file_path} empty!")
-        else:
-            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler:
-                retv = self._exec_subprocess(
-                    self._cmd,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess_log_handler,
-                    stderr=subprocess_log_handler
-                )
-        if retv != 0:
-            raise LLRGFailException(f"Return value LLRG ({retv}) != 0")
+        raise NotImplementedError
 
     def run(self) -> None:
         """Execute LLRG"""
         try:
-            if self._cmd is None:
-                raise LLRGInitializationException("Commandline Assembly Failed!")
             self._pre_execution_hook()
         except LLRGException as e:
             self._lh.warning("Exception %s caught at pre-execution time", str(e))
@@ -337,36 +293,6 @@ class BaseLLRGAdapter(threading.Thread):
             self._lh.warning("Exception %s caught at post-execution hook", str(e))
             self._exception = e
             return
-
-    def _exec_subprocess(
-            self,
-            cmd: List[str],
-            stdin: Union[IO, int],
-            stdout: Union[IO, int],
-            stderr: Union[IO, int]
-    ) -> int:
-        """
-        Wrapper of :py:class:`subprocess.Popen` with logs.
-        Will not raise exception if error occurs.
-
-        :param cmd: Commandline arguments.
-        :param stdin: File descriptor for STDIN.
-        :param stdout: File descriptor for STDOUT.
-        :param stderr: File descriptor for STDERR.
-        :return: Return value of the process.
-        """
-        self._lh.debug(f"Subprocess {' '.join(cmd)} START")
-        retv = subprocess.Popen(
-            cmd,
-            stdin=stdin,
-            stdout=stdout,
-            stderr=stderr
-        ).wait()
-        if retv == 0:
-            self._lh.debug(f"Subprocess {' '.join(cmd)} FIN")
-        else:
-            self._lh.warning(f"Subprocess {' '.join(cmd)} ERR={retv}")
-        return retv
 
     def __repr__(self) -> str:
         return f"LLRG {self.llrg_name}: {self._src_fasta_file_path} -> {self._dst_fastq_file_prefix} [{self._depth}]"
@@ -413,3 +339,179 @@ class BaseLLRGAdapter(threading.Thread):
         Whether this simulator is pair-end.
         """
         raise NotImplementedError
+
+
+class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
+    """
+    LLRG adapters that executes a process using :py:mod:`subprocess`.
+    """
+
+    _llrg_executable_path: str
+
+    # Following fields are left for LLRGs.
+
+    _cmd: Optional[List[str]]
+    """Assembled Commandline"""
+
+    _tmp_dir: str
+    """
+    Simulator-based temp directory name.
+    """
+
+    _capture_stdout: bool
+    """Whether this simulator pours data into stdout. Should be Final."""
+
+    @staticmethod
+    def validate_process_based_params(
+            llrg_executable_path: str,
+            **kwargs
+    ) -> Mapping[str, Any]:
+        _ = kwargs
+        try:
+            llrg_executable_path = enhanced_which(llrg_executable_path)
+        except FileNotFoundError as e:
+            raise LLRGInitializationException(
+                f"LLRG Executable {llrg_executable_path} not found or not executable!"
+            ) from e
+        return {"llrg_executable_path": llrg_executable_path}
+
+    def __init__(
+            self,
+            src_fasta_file_path: str,
+            dst_fastq_file_prefix: str,
+            depth: Union[int, float],
+            llrg_executable_path: str,
+            is_trusted: bool,
+            **kwargs
+    ):
+        """
+        Initializer.
+
+        :param src_fasta_file_path: Path of source FASTA.
+        :param dst_fastq_file_prefix: Prefix od destination FASTQ.
+        :param depth: Targeted sequencing depth. Would NOT be related to actual sequencing depth!
+        :param llrg_executable_path: Path to LLRG Executable.
+        :param kwargs: Other miscellaneous arguments.
+        :param is_trusted: Whether to skip input validation test.
+        :raise LLRGInitializationException: On error.
+        """
+        # To developers: This function should raise LLRGInitializationException only!
+        super(BaseProcessBasedLLRGAdapter, self).__init__(
+            src_fasta_file_path=src_fasta_file_path,
+            dst_fastq_file_prefix=dst_fastq_file_prefix,
+            depth=depth,
+            is_trusted=is_trusted,
+            **kwargs
+        )
+
+        if not is_trusted:
+            validated_params = BaseProcessBasedLLRGAdapter.validate_process_based_params(
+                llrg_executable_path=llrg_executable_path
+            )
+            self._llrg_executable_path = validated_params.get("llrg_executable_path", llrg_executable_path)
+        else:
+            self._llrg_executable_path = llrg_executable_path
+        self._cmd = None
+        self._tmp_dir = self._dst_fastq_file_prefix + ".tmp.d"
+
+        try:
+            os.makedirs(self._tmp_dir, exist_ok=True)
+        except OSError as e:
+            raise LLRGInitializationException("MKTEMP Failed!") from e
+
+    def _run_llrg_hook(self) -> None:
+        """
+        Execute LLRG as a process
+
+        :raise LLRGFailException: On running failures.
+        """
+        if self._cmd is None:
+            raise LLRGInitializationException("Commandline Assembly Failed!")
+        subprocess_log_file_path = os.path.join(self._tmp_dir, "llrg.log")
+        dst_fastq_file_path = self._dst_fastq_file_prefix + ".fq"
+        if self._capture_stdout:
+            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler, \
+                    get_writer(dst_fastq_file_path, is_binary=True) as stdout_handler:
+                retv = self._exec_subprocess(
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=stdout_handler,
+                    stderr=subprocess_log_handler
+                )
+            if wc_c(dst_fastq_file_path) < 2:
+                raise EmptyOutputFileException(f"Output {dst_fastq_file_path} empty!")
+        else:
+            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler:
+                retv = self._exec_subprocess(
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess_log_handler,
+                    stderr=subprocess_log_handler
+                )
+        if retv != 0:
+            raise LLRGFailException(f"Return value LLRG ({retv}) != 0")
+
+    def _exec_subprocess(
+            self,
+            cmd: List[str],
+            stdin: Union[IO, int],
+            stdout: Union[IO, int],
+            stderr: Union[IO, int]
+    ) -> int:
+        """
+        Wrapper of :py:class:`subprocess.Popen` with logs.
+        Will not raise exception if error occurs.
+
+        :param cmd: Commandline arguments.
+        :param stdin: File descriptor for STDIN.
+        :param stdout: File descriptor for STDOUT.
+        :param stderr: File descriptor for STDERR.
+        :return: Return value of the process.
+        """
+        self._lh.debug(f"Subprocess {' '.join(cmd)} START")
+        retv = subprocess.Popen(
+            cmd,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr
+        ).wait()
+        if retv == 0:
+            self._lh.debug(f"Subprocess {' '.join(cmd)} FIN")
+        else:
+            self._lh.warning(f"Subprocess {' '.join(cmd)} ERR={retv}")
+        return retv
+
+
+class BaseFunctionBasedLLRGAdapter(BaseLLRGAdapter, ABC):
+    """
+    LLRG adapters that executes a function.
+    """
+
+    @abstractmethod
+    def llrg_func(self):
+        """
+        Function that ivokes LLRG and should be overwritten.
+
+        :raises LLRGFailException: on error.
+        """
+        raise NotImplementedError
+
+    def _run_llrg_hook(self) -> None:
+        """
+        Execute LLRG as a function
+
+        :raise LLRGFailException: On running failures.
+        """
+        if self.is_pair_end:
+            dst_fastq_file_path1 = self._dst_fastq_file_prefix + ".fq"
+            dst_fastq_file_path2 = self._dst_fastq_file_prefix + ".fq"
+            self.llrg_func()
+            if wc_c(dst_fastq_file_path1) + wc_c(dst_fastq_file_path2) < 2:
+                raise EmptyOutputFileException(
+                    f"Output {dst_fastq_file_path1} & {dst_fastq_file_path2} empty!"
+                )
+        else:
+            dst_fastq_file_path = self._dst_fastq_file_prefix + ".fq"
+            self.llrg_func()
+            if wc_c(dst_fastq_file_path) < 2:
+                raise EmptyOutputFileException(f"Output {dst_fastq_file_path} empty!")

@@ -10,10 +10,10 @@ import os
 from typing import List, Union, Final, Mapping, Any
 
 from labw_utils.commonutils.io import file_system
-from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, NoOutputFileException
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, NoOutputFileException
 
 
-class DwgsimAdapter(BaseLLRGAdapter):
+class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper of DWGSIM.
 

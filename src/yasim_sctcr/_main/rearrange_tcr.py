@@ -11,8 +11,7 @@ import json
 import os
 from typing import List, Dict
 
-from labw_utils.commonutils.appender import load_table_appender_class
-from labw_utils.commonutils.appender.typing import TableAppenderConfig
+from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger

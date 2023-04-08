@@ -9,7 +9,7 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from yasim.helper.depth_io import DepthType, read_depth, DepthParsingException
 from yasim.helper.llrg import enhanced_which, AssembleDumb, AssemblePairEnd, AssembleSingleEnd, generate_callback
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGInitializationException
+from yasim.llrg_adapter import LLRGInitializationException, BaseLLRGAdapter
 
 _lh = get_logger(__name__)
 
@@ -17,15 +17,16 @@ _lh = get_logger(__name__)
 def validate_adapter_args(
         adapter_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
-        llrg_executable_path: str,
+        llrg_executable_path: Optional[str] = None
 ) -> Optional[Mapping[str, Any]]:
     _lh.info("Validating LLRG Adapter parameters...")
     # Validate LLRG Adapter Params
-    try:
-        llrg_executable_path = enhanced_which(llrg_executable_path)
-    except FileNotFoundError:
-        _lh.error("LLRG not found at %s", llrg_executable_path)
-        return None
+    if llrg_executable_path is not None:
+        try:
+            llrg_executable_path = enhanced_which(llrg_executable_path)
+        except FileNotFoundError:
+            _lh.error("LLRG not found at %s", llrg_executable_path)
+            return None
     adapter_args = dict(adapter_args)
     try:
         adapter_args_update = adapter_class.validate_params(
@@ -48,9 +49,9 @@ def run_rna_seq(
         assembler_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
         is_pair_end: bool,
-        llrg_executable_path: str,
-        not_perform_assemble: bool,
-        show_tqdm: bool
+        llrg_executable_path: Optional[str] = None,
+        not_perform_assemble: bool = False,
+        show_tqdm: bool = True
 ):
     _lh.info("Creating multiprocessing pool and assembler...")
     output_fastq_dir = output_fastq_prefix + ".d"
@@ -98,13 +99,16 @@ def run_rna_seq(
     assembler.start()
 
     _lh.info("Starting simulation and assembly...")
-    for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
+    for transcript_depth, transcript_id, transcript_filename in tqdm(
+            iterable=depth_info,
+            desc="Submitting jobs..."
+    ):
         try:
             sim_thread = adapter_class(
                 src_fasta_file_path=transcript_filename,
                 dst_fastq_file_prefix=os.path.join(output_fastq_dir, transcript_id),
                 depth=transcript_depth,
-                llrg_executable_path=llrg_executable_path,
+                llrg_executable_path=llrg_executable_path,  # TODO: Fix this.
                 is_trusted=True,
                 **adapter_args
             )
@@ -139,8 +143,8 @@ def bulk_rna_seq_frontend(
         assembler_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
         is_pair_end: bool,
-        llrg_executable_path: str,
-        not_perform_assemble: bool
+        llrg_executable_path: Optional[str] = None,
+        not_perform_assemble: bool = False
 ) -> int:
     """
     :return: Exit Value
@@ -187,8 +191,8 @@ def sc_rna_seq_frontend(
         assembler_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
         is_pair_end: bool,
-        llrg_executable_path: str,
-        not_perform_assemble: bool
+        llrg_executable_path: Optional[str] = None,
+        not_perform_assemble: bool = False
 ) -> int:
     """
     :return: Exit Value

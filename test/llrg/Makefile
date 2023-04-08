@@ -10,7 +10,8 @@ all: pbsim3_genome_mode \
 	art_mode \
 	art_pe_mode \
 	pbsim_ccs_mode \
-	pbsim_clr_mode
+	pbsim_clr_mode \
+	dtgs_mode
 
 .PHONY: distclean
 distclean: clean
@@ -18,7 +19,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf pbsim* art* dwgsim* *.log
+	rm -rf *mode*
 
 
 chrM.trans.fa: ../chrM.fa ../ce11.ncbiRefSeq.chrM.gtf
@@ -146,3 +147,11 @@ pbsim_ccs_mode: chrM.trans.fa depth.tsv
 		--ccs \
 		-j 40
 	touch pbsim_ccs_mode
+
+dtgs_mode: chrM.trans.fa depth.tsv
+	python -m yasim dtgs \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o dtgs_mode \
+		-j 40
+	touch dtgs_mode

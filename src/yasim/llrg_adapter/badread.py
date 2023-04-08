@@ -11,13 +11,13 @@ __all__ = (
 import argparse
 from typing import List, Final, Mapping, Any
 
-from yasim.llrg_adapter import BaseLLRGAdapter, LLRGInitializationException
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, LLRGInitializationException
 
 ALL_POSSIBLE_BADREAD_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
 """All possible badread model names"""
 
 
-class BadReadAdapter(BaseLLRGAdapter):
+class BadReadAdapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper for BadRead
 

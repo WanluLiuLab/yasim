@@ -13,7 +13,7 @@ import os
 from typing import Dict, List, Tuple, Union, Final, Any, Mapping
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from yasim.llrg_adapter import BaseLLRGAdapter, autocopy, LLRGInitializationException
+from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
     "GA1": ("GenomeAnalyzer I", [36, 44]),
@@ -32,7 +32,7 @@ AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
 _lh = get_logger(__name__)
 
 
-class ArtAdapter(BaseLLRGAdapter):
+class ArtAdapter(BaseProcessBasedLLRGAdapter):
     """
     Wrapper of ART.
 
