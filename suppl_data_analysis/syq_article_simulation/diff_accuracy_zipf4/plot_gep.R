@@ -2,13 +2,13 @@ library("tidyverse")
 library("pheatmap")
 library("ggridges")
 
-fns <- Sys.glob("ce11_as_3_isoform_depth_*.fq.stats")
+fns <- Sys.glob("ce11_as_2_accu_*.fq.stats")
 conditions <- fns %>%
-    stringr::str_replace("ce11_as_3_isoform_depth_", "") %>%
+    stringr::str_replace("ce11_as_2_accu_", "") %>%
     stringr::str_replace(".fq.stats", "")
 
 gene_id_transcript_id <- readr::read_tsv(
-    "ce11_as_3.gtf.transcripts.tsv",
+    "../ce11_as_2.gtf.transcripts.tsv",
     show_col_types = FALSE,
     col_types = c(
         TRANSCRIPT_ID = col_character(),
@@ -163,7 +163,7 @@ g <- ggplot(all_variation_data, aes(x = abs(log10(var)))) +
     geom_histogram() +
     xlab("Variance (Log 10 Fold Change)") +
     ggtitle("Distribution of Variation Inside a Gene") +
-    facet_wrap(. ~ Condition, scales = "free_y") +
+    facet_wrap(. ~ Condition, scales="free_y") +
     theme_bw()
 
 ggsave("gep_var.pdf", g, width = 15, height = 12)
