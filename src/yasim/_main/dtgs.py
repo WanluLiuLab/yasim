@@ -1,5 +1,5 @@
 """
-dwgsim.py -- LLRG adapter for DWGSIM, a NGS DNA-Seq simulator
+dtgs.py -- LLRG adapter for dTGS simulator (Dumb Third-Generation Sequencing Simulator).
 """
 
 __all__ = (

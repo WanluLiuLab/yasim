@@ -349,6 +349,12 @@ axs[0].set_title("CCS mode")
 axs[1].set_title("CLR mode")
 ```
 
+## dTGS
+
+dTGS (Dumb TGS) is a TGS simulator that outputs all given contig with given depth times without any error (Phread33 score `K`, the highest one). It is ultra-fast and accurate but without biological meanings.
+
++++
+
 ## Appendices
 
 +++
