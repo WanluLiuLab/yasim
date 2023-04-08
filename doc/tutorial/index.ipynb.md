@@ -49,11 +49,6 @@ import itertools
 
 import numpy as np
 import pandas as pd
-try:
-    import pyarrow as pa
-    CSV_ENGINE = "pyarrow"
-except ImportError:
-    CSV_ENGINE = "c"
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -226,7 +221,7 @@ Generates:
 Before proceed into next step, let's have a look at generated coverage file:
 
 ```{code-cell}
-ce11_gene_depth = pd.read_table("ce11_gene_depth.tsv", engine=CSV_ENGINE)
+ce11_gene_depth = pd.read_table("ce11_gene_depth.tsv")
 ```
 
 ```{code-cell}
@@ -324,7 +319,7 @@ Generates:
 Following is an example of `ce11_transcripts.fa.stats`:
 
 ```{code-cell}
-cdna_stats = pd.read_table("ce11_trans_as.fa.stats", engine=CSV_ENGINE)
+cdna_stats = pd.read_table("ce11_trans_as.fa.stats")
 cdna_stats.head()
 ```
 
@@ -388,7 +383,7 @@ If the LLRG failed on some isoform, it would **NOT** appear in output FASTQ or i
 Example of `art_mode.fq.stats`:
 
 ```{code-cell}
-art_mode_fq_stats = pd.read_table("art_mode.fq.stats", engine=CSV_ENGINE)
+art_mode_fq_stats = pd.read_table("art_mode.fq.stats")
 ```
 
 ```{code-cell}
@@ -458,7 +453,7 @@ This generates:
 Example using `all.tsv`:
 
 ```{code-cell}
-pbsim3_mode_all_qc = pd.read_table(os.path.join("pbsim3_mode.fq.stats.d", "all.tsv"), engine=CSV_ENGINE)
+pbsim3_mode_all_qc = pd.read_table(os.path.join("pbsim3_mode.fq.stats.d", "all.tsv"))
 ```
 
 ```{code-cell}
@@ -480,7 +475,7 @@ sns.histplot(pbsim3_mode_all_qc, x="GC")
 `extension_stat.tsv` may indicate whether clipping of terminal low-quality regions in NGS reads using [CutAdapt](https://cutadapt.readthedocs.io/en/stable) or [Trimmomatic](www.usadellab.org/cms/?page=trimmomatic) are required. For example:
 
 ```{code-cell}
-art_mode_extension_qc = pd.read_table(os.path.join("art_mode_1.fq.stats.d", "extension_stat.tsv"), engine=CSV_ENGINE)
+art_mode_extension_qc = pd.read_table(os.path.join("art_mode_1.fq.stats.d", "extension_stat.tsv"))
 ```
 
 ```{code-cell}
@@ -546,13 +541,13 @@ ngs_salmon_data = read_salmon(os.path.join("art_mode_salmon", "quant.sf"))
 tgs_salmon_data = read_salmon(os.path.join("pbsim3_mode_salmon", "quant.sf"))
 
 ngs_df = (
-    pd.read_table("art_mode.fq.stats", engine=CSV_ENGINE).
+    pd.read_table("art_mode.fq.stats").
     join(ngs_salmon_data, on="TRANSCRIPT_ID").
     fillna(0)
     [["TRANSCRIPT_ID", "SIMULATED_N_OF_READS", "REAL_N_OF_READS", "TRANSCRIBED_LENGTH"]]
 )
 tgs_df = (
-    pd.read_table("pbsim3_mode.fq.stats", engine=CSV_ENGINE).
+    pd.read_table("pbsim3_mode.fq.stats").
     join(tgs_salmon_data, on="TRANSCRIPT_ID").
     fillna(0)
     [["TRANSCRIPT_ID", "SIMULATED_N_OF_READS", "REAL_N_OF_READS", "TRANSCRIBED_LENGTH"]]

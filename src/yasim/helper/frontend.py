@@ -39,4 +39,4 @@ FrontendOptSpecs.add(FrontendOptSpec(
 
 
 def patch_frontend_argument_parser(parser: argparse.ArgumentParser, argname: str) -> argparse.ArgumentParser:
-    return FrontendOptSpecs.patch(argname, parser)
+    return FrontendOptSpecs.patch(parser, argname)

@@ -16,9 +16,6 @@ import time
 import uuid
 from typing import Final, List, Mapping, Any, Optional
 
-import jinja2
-import pysam
-
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -27,6 +24,22 @@ from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from yasim.helper.llrg import enhanced_which
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge, LLRGInitializationException, \
     NoOutputFileException, EmptyOutputFileException, LLRGFailException
+
+_lh = get_logger(__name__)
+
+# FIXME: Implement following feature
+try:
+    import jinja2
+except ImportError:
+    _lh.warning("Jinja2 failed to import. CCS generation will be BAM-based instead of XML-based.")
+    jinja2 = None
+
+try:    
+    import pysam
+except ImportError:
+    _lh.warning("PySam failed to import. CCS generation early-fail will be disabled.")
+    pysam = None
+
 
 PBSIM3_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
 """

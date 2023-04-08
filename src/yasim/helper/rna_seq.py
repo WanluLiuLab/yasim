@@ -1,6 +1,7 @@
 import glob
 import os
 from collections import defaultdict
+import sys
 from typing import Tuple, Mapping, Any, Type, Optional, Dict, List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
@@ -18,7 +19,7 @@ def validate_adapter_args(
         adapter_args: Mapping[str, Any],
         adapter_class: Type[BaseLLRGAdapter],
         llrg_executable_path: Optional[str] = None
-) -> Optional[Mapping[str, Any]]:
+) -> Mapping[str, Any]:
     _lh.info("Validating LLRG Adapter parameters...")
     # Validate LLRG Adapter Params
     if llrg_executable_path is not None:
@@ -26,7 +27,7 @@ def validate_adapter_args(
             llrg_executable_path = enhanced_which(llrg_executable_path)
         except FileNotFoundError:
             _lh.error("LLRG not found at %s", llrg_executable_path)
-            return None
+            sys.exit(1)
     adapter_args = dict(adapter_args)
     try:
         adapter_args_update = adapter_class.validate_params(
@@ -34,7 +35,7 @@ def validate_adapter_args(
         )
     except LLRGInitializationException as e:
         _lh.error("Exception %s caught at validating LLRG adapter arguments.", str(e))
-        return None
+        sys.exit(1)
     adapter_args.update(adapter_args_update)
     return adapter_args
 
@@ -154,8 +155,6 @@ def bulk_rna_seq_frontend(
         adapter_class=adapter_class,
         llrg_executable_path=llrg_executable_path
     )
-    if adapter_args is None:
-        return 1
     try:
         depth_data = read_depth(depth_file_path)
     except DepthParsingException:
@@ -202,8 +201,6 @@ def sc_rna_seq_frontend(
         adapter_class=adapter_class,
         llrg_executable_path=llrg_executable_path
     )
-    if adapter_args is None:
-        return 1
 
     barcode_depth_data_dict: Dict[str, DepthType] = {}
     for depth_file_path in tqdm(glob.glob(os.path.join(depth_dir_path, "*")), desc="Validating depth input"):

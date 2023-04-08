@@ -2,10 +2,18 @@
 plot_utils.py -- Utility functions in GMM fitting process.
 """
 
-import matplotlib
 import numpy as np
-from matplotlib import pyplot as plt
 from numpy import typing as npt
+
+from labw_utils import UnmetDependenciesError
+
+try:
+
+    import matplotlib
+    from matplotlib import pyplot as plt
+except ImportError as e:
+    raise UnmetDependenciesError("matplotlib") from e
+
 
 matplotlib.use('qtagg')
 
