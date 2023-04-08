@@ -1,5 +1,6 @@
 library("tidyverse")
 library("pheatmap")
+library("ggridges")
 
 fns <- Sys.glob("ce11_as_*.gtf.gene.tsv")
 conditions <- fns %>%
@@ -92,6 +93,40 @@ g <- ggplot(all_nipg_data_binned_long) +
     theme_bw() +
     facet_wrap(. ~ Condition)
 ggsave("nipg_hist.pdf", g, width = 8, height = 5)
+
+g <- ggplot(all_nipg_data_long, aes(x = TRANSCRIPT_NUMBER, y = Condition)) +
+    geom_boxplot() +
+    stat_summary(fun.x="mean",color="red", shape=13) +
+    scale_x_continuous("Number of Isoforms in a Gene", limits = c(0, 20)) +
+    theme_bw()
+ggsave("nipg_hist2.pdf", g, width = 8, height = 5)
+
+# g <- ggplot(all_nipg_data_binned_long) +
+#     geom_bar(aes(x = x, y = Count), stat = "identity") +
+#     theme_bw() +
+#     facet_grid(Condition~., scale = "free_y")
+# ggsave("nipg_hist3.pdf", g, width = 8, height = 5)
+
+dir.create("nipg_hist4")
+
+for (n in unique(all_nipg_data_binned_long$Condition)){
+    this_nipg_data_binned_long <- all_nipg_data_binned_long %>%
+        dplyr::filter(Condition==n)
+    this_all_nipg_data_long <- all_nipg_data_long %>%
+        dplyr::filter(Condition==n)
+    mean_bar <- mean(this_all_nipg_data_long$TRANSCRIPT_NUMBER)
+    g <- ggplot(this_nipg_data_binned_long) +
+        geom_bar(aes(x = x, y = Count), stat = "identity") +
+        geom_vline(xintercept=mean_bar, color="red") +
+        scale_x_continuous("Number of Isoforms in a Gene", limits = c(0, 20)) +
+        theme_bw()
+    ggsave(file.path("nipg_hist4", sprintf("%s.pdf", n)), g, width = 15, height = 3)
+}
+
+all_nipg_data_long %>%
+    dplyr::group_by(Condition) %>%
+    dplyr::summarise(TRANSCRIPT_NUMBER=mean(TRANSCRIPT_NUMBER)) %>%
+    print()
 
 # g <- ggplot(all_nipg_data_long, aes(x = TRANSCRIPT_NUMBER, y = Condition)) +
 #     geom_point(position="jitter", alpha=0.2, size=0.2) +

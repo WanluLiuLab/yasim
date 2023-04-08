@@ -2,13 +2,13 @@ library("tidyverse")
 library("pheatmap")
 library("ggridges")
 
-fns <- Sys.glob("ce11_as_3_isoform_depth_*.fq.stats")
+fns <- Sys.glob("ce11_as_2_accu_*.fq.stats")
 conditions <- fns %>%
-    stringr::str_replace("ce11_as_3_isoform_depth_", "") %>%
+    stringr::str_replace("ce11_as_2_accu_", "") %>%
     stringr::str_replace(".fq.stats", "")
 
 gene_id_transcript_id <- readr::read_tsv(
-    "ce11_as_3.gtf.transcripts.tsv",
+    "../ce11_as_2.gtf.transcripts.tsv",
     show_col_types = FALSE,
     col_types = c(
         TRANSCRIPT_ID = col_character(),
