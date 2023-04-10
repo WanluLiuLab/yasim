@@ -7,21 +7,17 @@ Configuration file for the Sphinx documentation builder.
 import glob
 import os
 import shutil
-import sys
 from collections import defaultdict
 
 import tomli
 
+import yasim
+from labw_utils.commonutils import libfrontend
+from labw_utils.devutils.sphinx_helper import convert_ipynb_to_myst
+
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
-
-# Enable scan of packages in src which is not installed.
-sys.path.insert(0, os.path.join(ROOT_DIR, 'tutorial'))
-
-import yasim
-
-from labw_utils.commonutils import libfrontend
 
 
 def generate_cli_docs(
@@ -89,6 +85,7 @@ def copy_doc_files(from_path: str, to_path: str):
 
 
 copy_doc_files(os.path.join(ROOT_DIR, '*.md'), os.path.join(THIS_DIR, "_root"))
+convert_ipynb_to_myst(THIS_DIR)
 
 # -- Project information -----------------------------------------------------
 
@@ -110,7 +107,8 @@ extensions = [
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',
-    'sphinx_copybutton'
+    'sphinx_copybutton',
+    "*.ipynb"
 ]
 myst_enable_extensions = ["deflist", "dollarmath"]
 exclude_patterns = [

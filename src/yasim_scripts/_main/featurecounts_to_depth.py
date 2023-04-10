@@ -16,8 +16,10 @@ from yasim.helper.depth_io import write_depth
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m yasim_scripts featurecounts_to_depth",
-                                     description=__doc__.splitlines()[1])
+    parser = argparse.ArgumentParser(
+        prog="python -m yasim_scripts featurecounts_to_depth",
+        description=__doc__.splitlines()[1]
+    )
     parser.add_argument(
         '-i',
         '--input',

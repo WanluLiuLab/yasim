@@ -8,9 +8,9 @@ YASIM is a read simulator for Next- and Third-Generation bulk RNA Sequencing wit
 
 ## Installation
 
-### Using pre-built Library from PYPA
+### Using pre-built Library from PYPI
 
-You need Python interpreter (CPython implementation) >= 3.7 (recommended 3.8) and latest [`pip`](https://pip.pypa.io/) to install this software from PYPA. Command:
+You need Python interpreter (CPython implementation) >= 3.8 (recommended 3.8) and latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
 
 ```shell
 pip install yasim==1.0.0
@@ -45,7 +45,7 @@ For TGS LLRGs:
   - Y. Ono, K. Asai, and M. Hamada, "PBSIM2: A simulator for long-read sequencers with a novel generative model of quality scores," _Bioinformatics (Oxford, England)_, vol. 37, no. 5, pp. 589–595, May 5, 2021, Number: 5, ISSN: 1367-4811. DOI: [10.1093/bioinformatics/btaa835](https://doi.org/10.1093/bioinformatics/btaa835)
 - `pbsim3`, which simulates PacBio RS II and Sequel model, with CCS support.
   - Official site: [GitHub](https://github.com/yukiteruono/pbsim3)
-  -  Y. Ono, M. Hamada, and K. Asai, "Pbsim3: A simulator for all types of pacbio and ont long reads.," _NAR genomics and bioinformatics_, vol. 4, lqac092, 4 Dec. 2022, ISSN: 2631-9268. DOI: [10.1093/nargab/lqac092](https://doi.org/10.1093/nargab/lqac092)
+  - Y. Ono, M. Hamada, and K. Asai, "Pbsim3: A simulator for all types of pacbio and ont long reads.," _NAR genomics and bioinformatics_, vol. 4, lqac092, 4 Dec. 2022, ISSN: 2631-9268. DOI: [10.1093/nargab/lqac092](https://doi.org/10.1093/nargab/lqac092)
 - `badread`, which simulates arbitrary PacBio and ONT models.
   - Official site: [GitHub](https://github.com/rrwick/Badread)
   - Other installation sources: [Conda](https://anaconda.org/bioconda/badread)

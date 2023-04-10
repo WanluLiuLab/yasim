@@ -12,7 +12,7 @@ from typing import List
 
 from yasim.helper import llrg
 from yasim.helper.rna_seq import bulk_rna_seq_frontend
-from yasim.llrg_adapter import dwgsim, dtgs
+from yasim.llrg_adapter import dtgs
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -22,6 +22,7 @@ def create_parser() -> argparse.ArgumentParser:
         llrg_name="dtgs"
     )
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
+    parser = llrg.patch_frontend_parser_tgs(parser)
     return parser
 
 
@@ -36,7 +37,10 @@ def main(args: List[str]):
         adapter_args={
             "other_args": other_args
         },
-        assembler_args={},
+        assembler_args={
+            "truncate_ratio_3p": args.truncate_ratio_3p,
+            "truncate_ratio_5p": args.truncate_ratio_5p
+        },
         adapter_class=dtgs.DTGSAdapter,
         is_pair_end=False,
         not_perform_assemble=False

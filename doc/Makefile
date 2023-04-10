@@ -44,3 +44,7 @@ clean:
 	$(MAKE) -C tutorial_llrg clean
 
 distclean:
+
+docker:
+	docker build . -t yasim_doc:latest
+	docker save yasim_doc:latest > yasim_doc_latest.tar
