@@ -8,7 +8,7 @@ gunzip ./*.gz
 # Generate AS events with different complexity level (defaults 2)
 python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.gtf
 
-function generate_as_events(){
+function generate_as_events() {
     python -m yasim generate_as_events \
         -f ce11.fa -g ce11.ncbiRefSeq.gtf \
         -o ce11_as_"${1}".gtf \

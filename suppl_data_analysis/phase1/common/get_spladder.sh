@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
+eval "$(conda 'shell.bash' 'hook' 2>/dev/null)"
 conda activate yasim_c_elegans_as_depth_analysis
 set -vueo pipefail
 

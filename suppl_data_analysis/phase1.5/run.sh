@@ -4,18 +4,18 @@ axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefS
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 gunzip ./*.gz
 
-grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
-head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa
+grep -i '^chrI\s' <ce11.ncbiRefSeq.gtf >ce11.ncbiRefSeq.chr1.gtf
+head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1) - 1))" >ce11.chr1.fa
 
 rm -f ce11.ncbiRefSeq.gtf ce11.fa
 
-if ! mamba env list | grep ^yasim-pbsim1 &>> /dev/null; then
+if ! mamba env list | grep ^yasim-pbsim1 &>>/dev/null; then
     mamba create -y -n yasim-pbsim1 -c bioconda pbsim=1.0.3
 fi
-if ! mamba env list | grep ^yasim-pbsim2 &>> /dev/null; then
+if ! mamba env list | grep ^yasim-pbsim2 &>>/dev/null; then
     mamba create -y -n yasim-pbsim2 -c bioconda pbsim2=2.0.1
 fi
-if ! mamba env list | grep ^yasim-badread &>> /dev/null; then
+if ! mamba env list | grep ^yasim-badread &>>/dev/null; then
     mamba create -y -n yasim-badread -c bioconda badread=0.2.0 python-edlib
 fi
 
@@ -55,13 +55,12 @@ for dge in dge1 dge2; do
 done
 
 function perform_housekeeping() {
-    gzip -9f "${1}".fq && \
-    cat "${1}".d/*/*.maf | gzip -9f >"${1}".maf.gz && \
-    rm -rf "${1}".d
+    gzip -9f "${1}".fq &&
+        cat "${1}".d/*/*.maf | gzip -9f >"${1}".maf.gz &&
+        rm -rf "${1}".d
 }
 
-
-function simulate(){
+function simulate() {
     python -m yasim pbsim \
         -d "${1}" \
         -F ce11_trans_as.chr1.fa.d \
@@ -79,11 +78,11 @@ function simulate(){
 
     for pbsim2_models in R95 P6C4; do
         python -m yasim pbsim2 \
-        -d "${1}" \
-        -F ce11_trans_as.chr1.fa.d \
-        -e pbsim2 \
-        -o ce11_pbsim2_"${pbsim2_models}"_"${2}" \
-        -m "${pbsim2_models}"
+            -d "${1}" \
+            -F ce11_trans_as.chr1.fa.d \
+            -e pbsim2 \
+            -o ce11_pbsim2_"${pbsim2_models}"_"${2}" \
+            -m "${pbsim2_models}"
         perform_housekeeping ce11_pbsim2_"${pbsim2_models}"_clr_"${2}"
     done
 
@@ -114,8 +113,8 @@ for dge in dge1 dge2; do
     for diu in diu1 diu2; do
         for rep in 0 1; do
             simulate \
-            ce11_depth_"${dge}"_"${diu}".chr1.tsv."${rep}" \
-            "${dge}"_"${diu}"_"${rep}" &
+                ce11_depth_"${dge}"_"${diu}".chr1.tsv."${rep}" \
+                "${dge}"_"${diu}"_"${rep}" &
         done
     done
 done
@@ -125,20 +124,20 @@ mkdir -p lastdb
 lastdb -P40 lastdb/ce11_trans.chr1 ce11_trans.chr1.fa
 
 for fn in *.fq.gz; do
-    minimap2 -x splice -a -t 50 ce11.chr1.fa "${fn}" > "${fn}".sam
+    minimap2 -x splice -a -t 50 ce11.chr1.fa "${fn}" >"${fn}".sam
     samtools sort "${fn}".sam -@ 50 -o "${fn}".bam
     samtools index "${fn}".bam
     rm -f "${fn}".sam
-    minimap2 -a -t 50 ce11_trans.chr1.fa "${fn}" > "${fn/.fq/_trans.fq}".sam
+    minimap2 -a -t 50 ce11_trans.chr1.fa "${fn}" >"${fn/.fq/_trans.fq}".sam
     samtools sort "${fn/.fq/_trans.fq}".sam -@ 50 -o "${fn/.fq/_trans.fq}".bam
     samtools index "${fn/.fq/_trans.fq}".bam
     rm -f "${fn/.fq/_trans.fq}".sam
-    last-train -Qfastx -P40 lastdb/ce11_trans.chr1 "${fn}" > "${fn}"_trans.train
+    last-train -Qfastx -P40 lastdb/ce11_trans.chr1 "${fn}" >"${fn}"_trans.train
     lastal -P40 -Qfastx -m100 -j7 \
-    -p "${fn}"_trans.train \
-    lastdb/ce11_trans.chr1 "${fn}" |\
-    last-map-probs /dev/stdin | \
-    pigz -9 > "${fn}"_trans.maf
+        -p "${fn}"_trans.train \
+        lastdb/ce11_trans.chr1 "${fn}" |
+        last-map-probs /dev/stdin |
+        pigz -9 >"${fn}"_trans.maf
 done
 
 for fn in *.fq.gz; do
@@ -165,8 +164,7 @@ for fn in *.stringtie.gtf; do
 done
 wait
 
-
-find ./*.stringtie.gtf > stringtie-mergelist.txt
+find ./*.stringtie.gtf >stringtie-mergelist.txt
 stringtie --merge -G ce11.ncbiRefSeq.chr1.gtf -p 40 -o stringtie_merged.gtf stringtie-mergelist.txt
 python -m labw_utils.bioutils describe_gtf stringtie_merged.gtf
 python -m labw_utils.bioutils transcribe -g stringtie_merged.gtf -f ce11.chr1.fa -o ce11_trans_stringtie.fa
@@ -207,17 +205,17 @@ wait
 
 find . | grep .fq.gz.bam$ | grep trans | while read -r fn; do
     {
-        printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
-        samtools depth -aa "${fn}" >> "${fn}".depth.tsv
+        printf "REFERENCE_NAME\tPOS\tNUM_READS\n" >"${fn}".depth.tsv
+        samtools depth -aa "${fn}" >>"${fn}".depth.tsv
         Rscript R/transform_depth_results.R "${fn}".depth.tsv "${fn}".depth.mean.tsv
     } &
 done
 wait
 
-printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" > all_last_mapq.tsv
+printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" >all_last_mapq.tsv
 for fn in *.maf.gz; do
-    python -m yasim_scripts extract_read_length_from_maf_yasim "${fn}" > "${fn}".rlen.tsv &
-    python -m yasim_scripts extract_quality_from_maf "${fn}" >> all_last_mapq.tsv
+    python -m yasim_scripts extract_read_length_from_maf_yasim "${fn}" >"${fn}".rlen.tsv &
+    python -m yasim_scripts extract_quality_from_maf "${fn}" >>all_last_mapq.tsv
 done
 wait
 

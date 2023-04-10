@@ -10,13 +10,14 @@ __all__ = (
 import argparse
 from typing import List
 
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper import llrg
 from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.llrg_adapter import art
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m yasim art", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim art", description=__doc__.splitlines()[1])
     parser = llrg.patch_frontend_parser_public(
         parser,
         llrg_name="art",

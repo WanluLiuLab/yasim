@@ -6,9 +6,8 @@ axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefS
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 gunzip ./*.gz
 
-
-grep -i '^chrI\s' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
-head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" > ce11.chr1.fa
+grep -i '^chrI\s' ce11.ncbiRefSeq.gtf >ce11.ncbiRefSeq.chr1.gtf
+head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1) - 1))" >ce11.chr1.fa
 samtools faidx ce11.chr1.fa
 
 python -m labw_utils.bioutils transcribe \
@@ -70,7 +69,7 @@ isoseq3 collapse \
     --log-file isoseq3_collapse.log \
     aln.bam out.ccs.bam collapse.gff
 Rscript get_express_gtf.R -s ce11_ccs.fq.stats -g ce11.ncbiRefSeq_as.chr1.gtf -o ce11.ncbiRefSeq_as.chr1.expressed.gtf
-gffcompare collapse.gff -r  ce11.ncbiRefSeq_as.chr1.expressed.gtf -o gffcmp
+gffcompare collapse.gff -r ce11.ncbiRefSeq_as.chr1.expressed.gtf -o gffcmp
 pigeon sort ce11.ncbiRefSeq.chr1.gtf -o ce11.ncbiRefSeq.chr1.pigeon_sorted.gtf
 pigeon index ce11.ncbiRefSeq.chr1.pigeon_sorted.gtf
 

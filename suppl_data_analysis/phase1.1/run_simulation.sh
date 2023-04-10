@@ -4,13 +4,13 @@ axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefS
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 gunzip ./*.gz
 
-if ! mamba env list | grep ^yasim-pbsim1 &>> /dev/null; then
+if ! mamba env list | grep ^yasim-pbsim1 &>>/dev/null; then
     mamba create -y -n yasim-pbsim1 -c bioconda pbsim=1.0.3
 fi
-if ! mamba env list | grep ^yasim-pbsim2 &>> /dev/null; then
+if ! mamba env list | grep ^yasim-pbsim2 &>>/dev/null; then
     mamba create -y -n yasim-pbsim2 -c bioconda pbsim2=2.0.1
 fi
-if ! mamba env list | grep ^yasim-badread &>> /dev/null; then
+if ! mamba env list | grep ^yasim-badread &>>/dev/null; then
     mamba create -y -n yasim-badread -c bioconda badread=0.2.0 python-edlib
 fi
 
@@ -45,11 +45,11 @@ PYTHONPATH=../../src python -m yasim transcribe -f ce11.fa -g ce11.ncbiRefSeq.gt
 python -m labw_utils.bioutils get_gtf_statistics -g ce11.ncbiRefSeq.gtf -o ce11.ncbiRefSeq.gtf
 
 for fn in *.fq; do
-    minimap2 -x splice -a -t 50 ce11.fa "${fn}" > "${fn}".sam
+    minimap2 -x splice -a -t 50 ce11.fa "${fn}" >"${fn}".sam
     samtools sort "${fn}".sam -@ 50 -o "${fn}".bam
     samtools index "${fn}".bam
     rm -f "${fn}".sam
-    minimap2 -a -t 50 ce11_trans.fa "${fn}" > "${fn/.fq/_trans.fq}".sam
+    minimap2 -a -t 50 ce11_trans.fa "${fn}" >"${fn/.fq/_trans.fq}".sam
     samtools sort "${fn/.fq/_trans.fq}".sam -@ 50 -o "${fn/.fq/_trans.fq}".bam
     samtools index "${fn/.fq/_trans.fq}".bam
     rm -f "${fn/.fq/_trans.fq}".sam
@@ -67,8 +67,8 @@ find . | grep .fq.bam$ | grep -v trans | while read -r fn; do
 done
 
 find . | grep .fq.bam$ | grep trans | while read -r fn; do
-    printf "REFERENCE_NAME\tPOS\tNUM_READS\n" > "${fn}".depth.tsv
-    samtools depth -aa "${fn}" >> "${fn}".depth.tsv
+    printf "REFERENCE_NAME\tPOS\tNUM_READS\n" >"${fn}".depth.tsv
+    samtools depth -aa "${fn}" >>"${fn}".depth.tsv
     Rscript R/transform_depth_results.R "${fn}".depth.tsv "${fn}".depth.mean.tsv
 done
 

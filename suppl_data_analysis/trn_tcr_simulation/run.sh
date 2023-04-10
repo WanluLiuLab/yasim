@@ -4,7 +4,7 @@ set -ue
 axel https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz
 axel https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.gz
 gunzip ./*.gz
-grep -e '^chr7\s' -e '^chr14\s' hg38.ncbiRefSeq.gtf > hg38.ncbiRefSeq_chr7_14.gtf
+grep -e '^chr7\s' -e '^chr14\s' hg38.ncbiRefSeq.gtf >hg38.ncbiRefSeq_chr7_14.gtf
 
 python -m yasim_sc generate_barcode -n 100 -o barcode.txt
 

@@ -10,12 +10,13 @@ __all__ = (
 import argparse
 from typing import List
 
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper import depth, depth_io
 from yasim.helper.frontend import patch_frontend_argument_parser
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m yasim generate_isoform_replicates",
         description=__doc__.splitlines()[1]
     )

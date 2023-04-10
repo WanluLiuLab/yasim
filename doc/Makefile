@@ -1,50 +1,48 @@
-#!/usr/bin/env make
-#===============================================================================
-# Copyright (C) 2021-2022. tetgs authors
-#
-# This file is a part of tetgs, which is licensed under MIT,
-# a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-# NAME: Makefile -- Makefile of building sphinx documentations
-#
-# VERSION HISTORY:
-# 2021-08-20 0.1  : Purposed and added by YU Zhejian.
-#
-#===============================================================================
-
 SPHINX_OPTS := -j auto
 
-SPHINX_APIDOC_ARGS := --separate \
-	--no-toc \
-	--module-first \
-	--maxdepth 2 \
-	--force \
-	--output-dir $(CURDIR)/_apidoc \
-	--doc-project 'API Docs'
+#SPHINX_APIDOC_ARGS := --separate \
+#	--no-toc \
+#	--module-first \
+#	--maxdepth 2 \
+#	--force \
+#	--output-dir $(CURDIR)/_apidoc \
+#	--doc-project 'API Docs'
 
 BUILD_DIR := $(CURDIR)/_build
-SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
+# SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
 
 .PHONY: all
-
 all: html
 
-.PHONY: apidoc
-apidoc:
-	rm -rf $(CURDIR)/_apidoc
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim
-	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/yasim_scripts
+#.PHONY: apidoc
+#apidoc:
+#	rm -rf $(CURDIR)/_apidoc
+#	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/labw_utils
 
-html: apidoc
+.PHONY: preconfigure
+preconfigure: src
+	python preconfigure.py
+
+.PHONY: src
+src:
+	$(MAKE) -C src
+
+.PHONY: html
+html: src preconfigure # apidoc  refs.bibtex.bib
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
+#refs.bibtex.bib: refs.bib
+#	biber --tool \
+#		--configfile=biberConf.xml \
+#		--output-file refs.bibtex.bib \
+#		--output-legacy-date \
+#		--output-field-replace=location:address,journaltitle:journal \
+#		refs.bib
+
+.PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
-	$(MAKE) -C tutorial clean
-	$(MAKE) -C tutorial_llrg clean
+	$(MAKE) -C src clean
 
-distclean:
-
-docker:
-	docker build . -t yasim_doc:latest
-	docker save yasim_doc:latest > yasim_doc_latest.tar
+.PHONY: distclean
+distclean: clean

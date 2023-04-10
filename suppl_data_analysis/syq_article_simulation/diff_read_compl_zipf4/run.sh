@@ -13,8 +13,8 @@ LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
     --alpha 4
 
 function perform_housekeeping() {
-    rm -rf "${1}".d && \
-    touch "${1}".finished || return 1
+    rm -rf "${1}".d &&
+        touch "${1}".finished || return 1
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
@@ -32,7 +32,6 @@ function perform_pbsim3_RSII_CLR_simulation() {
         --truncate_ratio_5p "${2}" || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
-
 
 function perform_pbsim3_RSII_CCS_simulation() {
     OUTPUT_BASENAME=ce11_as_2_rcompl_"${1}"_"${2}"_pbsim3_RSII_CCS
@@ -108,7 +107,6 @@ function perform_simulation() {
     done
     wait
 }
-
 
 perform_simulation 0.0 0.4
 perform_simulation 0.2 0.2

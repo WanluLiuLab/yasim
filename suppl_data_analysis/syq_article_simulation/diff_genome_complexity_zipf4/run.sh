@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -ue
 
-function generate_as_events(){
-     LOG_FILE_NAME="yasim_generate_as_events_${1}.log" \
-         python -m yasim generate_as_events \
-         -f ../ce11.fa \
-         -g ../ce11.ncbiRefSeq.gtf \
-         -o ce11_as_"${1}".gtf \
-         --complexity "${1}"
+function generate_as_events() {
+    LOG_FILE_NAME="yasim_generate_as_events_${1}.log" \
+        python -m yasim generate_as_events \
+        -f ../ce11.fa \
+        -g ../ce11.ncbiRefSeq.gtf \
+        -o ce11_as_"${1}".gtf \
+        --complexity "${1}"
     python -m labw_utils.bioutils describe_gtf ce11_as_"${1}".gtf
 
     LOG_FILE_NAME="yasim_transcribe_${1}.log" \
@@ -29,8 +29,8 @@ function generate_as_events(){
 }
 
 function perform_housekeeping() {
-    rm -rf "${1}".d && \
-    touch "${1}".finished || return 1
+    rm -rf "${1}".d &&
+        touch "${1}".finished || return 1
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
@@ -101,7 +101,7 @@ function perform_pbsim2_simulation() {
 }
 
 function perform_simulation() {
-    perform_pbsim3_RSII_CLR_simulation "${1}"  &
+    perform_pbsim3_RSII_CLR_simulation "${1}" &
     perform_pbsim3_RSII_CCS_simulation "${1}" &
     perform_pbsim3_SEQUEL_CLR_simulation "${1}" &
     perform_pbsim3_SEQUEL_CCS_simulation "${1}" &
@@ -119,4 +119,3 @@ wait
 for gene_complexity_level in 1 3 5 7 9; do
     perform_simulation "${gene_complexity_level}"
 done
-

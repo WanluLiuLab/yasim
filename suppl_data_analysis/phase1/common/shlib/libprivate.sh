@@ -61,7 +61,7 @@ Where:
         "-x")
             builtin set -x
             ;;
-        "-V"|"--verbose")
+        "-V" | "--verbose")
             builtin set -v
             ;;
         *)

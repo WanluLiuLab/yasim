@@ -12,12 +12,13 @@ import os
 from typing import List
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper import depth, depth_io
 from yasim.helper.frontend import patch_frontend_argument_parser
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m yasim_sc generate_barcoded_isoform_replicates",
         description=__doc__.splitlines()[1]
     )

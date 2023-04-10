@@ -8,13 +8,12 @@ This contains documentation for YASIM Users.
 :maxdepth: 2
 
 _root/Readme
-tutorial/index.ipynb.md
-tutorial_llrg/index.ipynb.md
-tutorial_sctcr/index.ipynb.md
+src/tutorial/index.ipynb.md
+% src/tutorial_llrg/index.ipynb.md
+% src/tutorial_sctcr/index.ipynb.md
 _cli_docs/index
-apidoc_index
 _root/Copying
-license/index
+src/license/index
 ```
 
 - {ref}`genindex`

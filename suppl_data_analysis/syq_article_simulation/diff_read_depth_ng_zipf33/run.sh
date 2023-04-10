@@ -22,8 +22,8 @@ function generate_depth() {
 }
 
 function perform_housekeeping() {
-    rm -rf "${1}".d && \
-    touch "${1}".finished || return 1
+    rm -rf "${1}".d &&
+        touch "${1}".finished || return 1
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
@@ -103,18 +103,17 @@ function perform_simulation() {
     done
 }
 
- generate_depth 100
+generate_depth 100
 
- for mean_depth in 10 25 40 55 70; do
-     python downscale_depth.py \
-         ce11_as_3_isoform_depth_100.tsv \
-         ce11_as_3_isoform_depth_"${mean_depth}".tsv \
-         "0.${mean_depth}" &
- done
- wait
+for mean_depth in 10 25 40 55 70; do
+    python downscale_depth.py \
+        ce11_as_3_isoform_depth_100.tsv \
+        ce11_as_3_isoform_depth_"${mean_depth}".tsv \
+        "0.${mean_depth}" &
+done
+wait
 
 for mean_depth in 10 25 40 55 70; do
     perform_simulation ce11_as_3_isoform_depth_"${mean_depth}"
 done
 wait
-

@@ -10,6 +10,7 @@ __all__ = (
 import argparse
 from typing import List
 
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper import llrg
 from yasim.helper.rna_seq import sc_rna_seq_frontend
@@ -19,7 +20,7 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m yasim_sc art", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim_sc art", description=__doc__.splitlines()[1])
     parser = llrg.patch_frontend_parser_public(
         parser,
         llrg_name="art",

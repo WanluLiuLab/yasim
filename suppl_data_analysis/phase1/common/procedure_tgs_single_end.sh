@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-eval "$(conda 'shell.bash' 'hook' 2> /dev/null)"
+eval "$(conda 'shell.bash' 'hook' 2>/dev/null)"
 conda activate yasim_c_elegans_as_depth_analysis
 set -ueo pipefail
 
@@ -21,11 +21,11 @@ else
     errh "No FASTQ found!"
 fi
 
-[ ! -f "${FASTQ_BASE_NAME}".GENE.bam ] && minimap2 -t "${THREAD_NUM}" -a -x splice "${GENE_REFERENCE}" "${FASTQ_NAME}" | \
-samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".GENE.bam
+[ ! -f "${FASTQ_BASE_NAME}".GENE.bam ] && minimap2 -t "${THREAD_NUM}" -a -x splice "${GENE_REFERENCE}" "${FASTQ_NAME}" |
+    samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".GENE.bam
 
-[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam ] && minimap2 -t "${THREAD_NUM}" -a "${TRANSCRIPT_REFERENCE}" "${FASTQ_NAME}" | \
-samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".TRANS.bam
+[ ! -f "${FASTQ_BASE_NAME}".TRANS.bam ] && minimap2 -t "${THREAD_NUM}" -a "${TRANSCRIPT_REFERENCE}" "${FASTQ_NAME}" |
+    samtools sort - -@ "${THREAD_NUM}" -o "${FASTQ_BASE_NAME}".TRANS.bam
 
 # shellcheck disable=SC2034
 STRINGTIE_OPTS="-L"

@@ -33,11 +33,11 @@ Download of real statistical data:
 
 Following code retrieves reference genome sequence and annotations used in this example. Since TCRs are only located at chromosome 14 and 7, only those 2 references are used.
 
-```{code-cell} ipython2
+```{code-cell}
 import pandas as pd
 ```
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f hg38.ncbiRefSeq_chr7_14.gtf ]; then \
     axel https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz; \
     gzip -dcf hg38.ncbiRefSeq.gtf.gz | grep -e '^chr7\s' -e '^chr14\s' > hg38.ncbiRefSeq_chr7_14.gtf; \
@@ -56,7 +56,7 @@ fi
 
 Generate barcodes for 10 cells.
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f barcode.txt ]; then \
     python -m yasim_sc generate_barcode -n 10 -o barcode.txt; \
 else \
@@ -66,13 +66,13 @@ fi
 
 The generated barcode file is as follows:
 
-```{code-cell} ipython2
+```{code-cell}
 !cat barcode.txt
 ```
 
 Generate TCR depth. Following code generates a depth file with 400 depth for each barcode.
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f tcr_depth.tsv ]; then \
     python -m yasim_sctcr generate_tcr_depth \
         -b barcode.txt \
@@ -85,7 +85,7 @@ fi
 
 Generates TCR cache. The TCR cache is a JSON containing TCR Nucleotide (NT) to AA alignment information.
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f tcr_cache.json ]; then \
     python -m yasim_sctcr generate_tcr_cache \
         --tcr_genelist_path ../data/tcr_genelist.min.json.xz \
@@ -108,7 +108,7 @@ This generates following files:
 
 Simulate ground-truth TCR contigs. This step may report `finish with N failures` -- don't worry! None of your cells would lost.
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f sim_tcr.stats.tsv ]; then \
     python -m yasim_sctcr rearrange_tcr \
     --tcr_genelist_path ../data/tcr_genelist.min.json.xz \
@@ -133,17 +133,17 @@ This generates following files:
   - `ALPHA_NT` \& `BETA_NT`, NT sequence of corresponding TCR chain.
 - `sim_tcr.aa.fa` and `sim_tcr.nt.fa`, ground-truth contig in AA and NT with seqname `{barcode}:A` for TCR alpha chain and `{barcode}:B` for TCR beta chain.
 
-```{code-cell} ipython2
+```{code-cell}
 sim_tcr_contigs = pd.read_table("sim_tcr.stats.tsv", quotechar="'")
 ```
 
-```{code-cell} ipython2
+```{code-cell}
 sim_tcr_contigs.head()
 ```
 
 Strip the FASTA before performing calling YASIM RNA-Seq interface, and perform single-end bulk RNA-Seq using ART.
 
-```{code-cell} ipython2
+```{code-cell}
 !if [ ! -f sim_tcr_50.fq ]; then \
     python -m labw_utils.bioutils split_fasta sim_tcr.nt.fa; \
     python -m yasim art \
@@ -165,6 +165,6 @@ Generates:
 - `sim_tcr_50.fq`: Useless merged file. DO NOT USE.
 - `sim_tcr_50.fq.stats`: Real simulation statistics. See [](../tutorial/index) for more details.
 
-```{code-cell} ipython2
+```{code-cell}
 !ls -lFh
 ```

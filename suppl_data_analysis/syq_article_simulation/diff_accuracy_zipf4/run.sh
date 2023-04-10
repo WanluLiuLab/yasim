@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 set -uex
- LOG_FILE_NAME="yasim_generate_gene_depth.log" \
-     python -m yasim generate_gene_depth \
-     -g ../ce11_as_2.gtf \
-     -o ce11_as_2_gene_depth_20.tsv \
-     -d 20
- LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
-     python -m yasim generate_isoform_depth \
-     -g ../ce11_as_2.gtf \
-     -d ce11_as_2_gene_depth_20.tsv \
-     -o ce11_as_2_isoform_depth_20.tsv \
-     --alpha 4
+LOG_FILE_NAME="yasim_generate_gene_depth.log" \
+    python -m yasim generate_gene_depth \
+    -g ../ce11_as_2.gtf \
+    -o ce11_as_2_gene_depth_20.tsv \
+    -d 20
+LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
+    python -m yasim generate_isoform_depth \
+    -g ../ce11_as_2.gtf \
+    -d ce11_as_2_gene_depth_20.tsv \
+    -o ce11_as_2_isoform_depth_20.tsv \
+    --alpha 4
 
 function perform_housekeeping() {
-    for fn in "${1}".d/*/*.maf; do cat "${fn}"; done >"${1}".maf && \
-    rm -rf "${1}".d && \
-    touch "${1}".finished || return 1
+    for fn in "${1}".d/*/*.maf; do cat "${fn}"; done >"${1}".maf &&
+        rm -rf "${1}".d &&
+        touch "${1}".finished || return 1
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {

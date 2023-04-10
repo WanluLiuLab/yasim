@@ -14,6 +14,7 @@ from typing import List, Dict
 from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.tcr import TCRTranslationTableType, Cdr3InsertionTable, TCell, GenerationFailure
@@ -23,7 +24,7 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m yasim_sctcr rearrange_tcr",
         description=__doc__.splitlines()[1]
     )

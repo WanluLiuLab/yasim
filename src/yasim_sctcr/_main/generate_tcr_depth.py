@@ -11,12 +11,13 @@ import argparse
 from typing import List
 
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper.depth_io import write_depth
 from yasim.helper.frontend import patch_frontend_argument_parser
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m yasim_sctcr generate_tcr_depth",
         description=__doc__.splitlines()[1]
     )

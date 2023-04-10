@@ -12,11 +12,12 @@ from typing import List
 
 import pandas as pd
 
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper.depth_io import write_depth
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m yasim_scripts featurecounts_to_depth",
         description=__doc__.splitlines()[1]
     )

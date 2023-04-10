@@ -89,20 +89,23 @@ This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT sta
 Get first chromosome of CE11 reference genome sequence and annotation from UCSC.
 
 ```{code-cell}
-! if [ ! -f ce11.ncbiRefSeq.chr1.gtf ]; then \
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz; \
-    gunzip ce11.ncbiRefSeq.gtf.gz; \
-    grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf; \
-else \
-    echo "ce11.ncbiRefSeq.gtf.gz already exists."; \
-fi
-! if [ ! -f ce11.chr1.fa ]; then \
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz; \
-    gunzip ce11.fa.gz; \
-    head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa; \
-else \
-    echo "ce11.fa.gz already exists."; \
-fi
+:tags: [skip-execution]
+
+# SKIP
+!axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
+!gunzip ce11.ncbiRefSeq.gtf.gz
+!grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
+
+!axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
+!gunzip ce11.fa.gz
+!head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa
+```
+
+```{code-cell}
+:tags: [remove-input]
+
+# RMIN
+%cat preparation.log
 ```
 
 ## Generation of AS Events: `generate_as_events`
@@ -120,16 +123,21 @@ The help message is as follows:
 Example (Some warnings generated during GTF parsing was filtered out):
 
 ```{code-cell}
-!if [ ! -f ce11.ncbiRefSeq.chr1.as.gtf ]; then \
-    python -m yasim generate_as_events \
-        -f ce11.fa \
-        -g ce11.ncbiRefSeq.chr1.gtf \
-        -o ce11.ncbiRefSeq.chr1.as.gtf \
-        -c 5 \
-    2>&1 | grep -v 'inferred from feature transcript'; \
-else \
-    echo "ce11.ncbiRefSeq.chr1.as.gtf already exists."; \
-fi
+:tags: [skip-execution]
+
+# SKIP
+!python -m yasim generate_as_events \
+    -f ce11.fa \
+    -g ce11.ncbiRefSeq.chr1.gtf \
+    -o ce11.ncbiRefSeq.chr1.as.gtf \
+    -c 5
+```
+
+```{code-cell}
+:tags: [remove-input]
+
+# RMIN
+%cat generate_as_events.log
 ```
 
 Generates:
@@ -434,9 +442,7 @@ Generated files similar to NGS, so omitted.
 
 Using utilities bundled in `labw_utils`, it is easy to perform quality control on reads you just generated without the need of installation of additional software! Look at following example:
 
-```{code-cell}
-!python -m labw_utils.bioutils describe_fastq pbsim3_mode.fq art_mode_1.fq
-```
++++
 
 This generates:
 
@@ -472,7 +478,7 @@ For example, the GC distribution:
 sns.histplot(pbsim3_mode_all_qc, x="GC")
 ```
 
-`extension_stat.tsv` may indicate whether clipping of terminal low-quality regions in NGS reads using [CutAdapt](https://cutadapt.readthedocs.io/en/stable) or [Trimmomatic](www.usadellab.org/cms/?page=trimmomatic) are required. For example:
+`extension_stat.tsv` may indicate whether clipping of terminal low-quality regions in NGS reads using [CutAdapt](https://cutadapt.readthedocs.io/en/stable) or [Trimmomatic](https://www.usadellab.org/cms/?page=trimmomatic) are required. For example:
 
 ```{code-cell}
 art_mode_extension_qc = pd.read_table(os.path.join("art_mode_1.fq.stats.d", "extension_stat.tsv"))
@@ -487,127 +493,6 @@ Following is a plot of mean per-base quality of all reads from 5' end to 3' end:
 ```{code-cell}
 sns.lineplot(art_mode_extension_qc, x="POS", y="QUAL")
 ```
-
-Which can be seen as suggestion of trimming leading and trailing bases. This is not done in this example due to time limit.
-
-+++
-
-## Salmon Quasi Alignment and Quantification
-
-Salmon is used to precisely align and quantify reads mapped to transcriptome on an isoform-specific manner. Here we would make Salmon align to cDNA of ground truth GTF and see whether the quantification is accurate.
-
-```{code-cell}
-!if [ ! -d SALMON_IDX ]; then \
-    salmon index \
-        -i SALMON_IDX \
-        -p 40 \
-        -t ce11_trans_as.fa \
-        &> salmon_index.log; \
-else \
-    echo "SALMON_IDX already exists."; \
-fi
-!salmon quant \
-    -i SALMON_IDX \
-    -l IU \
-    -1 art_mode_1.fq -2 art_mode_2.fq \
-    --validateMappings \
-    -o art_mode_salmon \
-    &> art_mode_salmon.log
-!salmon quant \
-    -i SALMON_IDX \
-    -l U \
-    -r pbsim3_mode.fq \
-    --validateMappings \
-    -o pbsim3_mode_salmon \
-    &> pbsim3_mode_salmon.log
-```
-
-Compare them to ground truth.
-
-```{code-cell}
-def calculate_tpm(n_reads: pd.Series, transcribed_length: pd.Series) -> pd.Series:
-    rpk = 1E3 * n_reads / transcribed_length
-    return 1E6 * rpk / rpk.sum()
-
-def read_salmon(file_path: str) -> pd.DataFrame:
-    return (
-    pd.read_table(file_path, comment="#")
-    [["Name", "NumReads"]].
-    rename(columns={"Name": "TRANSCRIPT_ID", "NumReads": "REAL_N_OF_READS"}).
-    set_index('TRANSCRIPT_ID')
-)
-
-ngs_salmon_data = read_salmon(os.path.join("art_mode_salmon", "quant.sf"))
-tgs_salmon_data = read_salmon(os.path.join("pbsim3_mode_salmon", "quant.sf"))
-
-ngs_df = (
-    pd.read_table("art_mode.fq.stats").
-    join(ngs_salmon_data, on="TRANSCRIPT_ID").
-    fillna(0)
-    [["TRANSCRIPT_ID", "SIMULATED_N_OF_READS", "REAL_N_OF_READS", "TRANSCRIBED_LENGTH"]]
-)
-tgs_df = (
-    pd.read_table("pbsim3_mode.fq.stats").
-    join(tgs_salmon_data, on="TRANSCRIPT_ID").
-    fillna(0)
-    [["TRANSCRIPT_ID", "SIMULATED_N_OF_READS", "REAL_N_OF_READS", "TRANSCRIBED_LENGTH"]]
-)
-ngs_df["GENERATION"] = "NGS"
-tgs_df["GENERATION"] = "TGS"
-
-# Calculate TPM for NGS and TGS data.
-for df in (ngs_df, tgs_df):
-    df["TPM_SIM"] = calculate_tpm(
-        df["SIMULATED_N_OF_READS"],
-        df["TRANSCRIBED_LENGTH"]
-    )
-    df["TPM_REAL"] = calculate_tpm(
-        df["REAL_N_OF_READS"],
-        df["TRANSCRIBED_LENGTH"]
-    )
-# Merge and filter low-expression isoforms.
-ngs_tgs_merged_df = pd.concat((ngs_df, tgs_df)).query(
-    "TPM_SIM > 10 & TPM_REAL > 10 & TPM_SIM < 3000 & TPM_REAL < 3000"
-)
-# Calculate Log 2 Fold Change (L2FC).
-ngs_tgs_merged_df["TPM_L2FC"] = np.log2(
-    ngs_tgs_merged_df["TPM_SIM"] / ngs_tgs_merged_df["TPM_REAL"]
-)
-```
-
-Plotting simulated (`TPM_SIM`) vs. actual (`TPM_REAL`) data.
-
-```{code-cell}
-# Getting axis limits.
-xylim = max(ngs_tgs_merged_df["TPM_SIM"].max(), ngs_tgs_merged_df["TPM_REAL"].max())
-g = sns.FacetGrid(
-    ngs_tgs_merged_df,
-    col="GENERATION",
-    xlim=(0, xylim),
-    ylim=(0, xylim),
-    height=5,
-    aspect=1
-)
-g.map(sns.scatterplot, "TPM_SIM", "TPM_REAL", alpha=0.4)
-```
-
-Plotting log 2 Fold Change (`TPM_L2FC`) vs. base mean (`TPM_SIM`) data.
-
-```{code-cell}
-g = sns.FacetGrid(
-    ngs_tgs_merged_df,
-    col="GENERATION",
-    xlim=(-4, 4),
-    ylim=(0, xylim),
-    height=5,
-    aspect=1
-)
-g.map(sns.scatterplot, "TPM_L2FC",  "TPM_SIM" , alpha=0.4)
-```
-
-From above plot, it is evident that in more complex genomes, TGS data could outperform NGS ones.
-
-+++
 
 List of files:
 

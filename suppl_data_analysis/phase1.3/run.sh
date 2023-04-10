@@ -6,8 +6,8 @@ axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefS
 axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
 gunzip ./*.gz
 
-grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
-head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" > ce11.chr1.fa
+grep -i '^chrI\s' <ce11.ncbiRefSeq.gtf >ce11.ncbiRefSeq.chr1.gtf
+head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1) - 1))" >ce11.chr1.fa
 rm -f ce11.ncbiRefSeq.gtf ce11.fa
 
 python -m labw_utils.bioutils transcribe \
@@ -19,14 +19,14 @@ mkdir -p sim
 rm -rf sim/* pbsim.log
 for fn in ce11_trans.chr1.fa.d/*.fa; do
     pbsim2 \
-    --hmm_model ../../src/yasim/llrg_adapter/pbsim2_dist/R103.model \
-    --prefix sim/ce11_"$(basename "${fn}")" \
-    --depth 5 \
-    "${fn}" 2>&1 | tee -a pbsim.log || true
+        --hmm_model ../../src/yasim/llrg_adapter/pbsim2_dist/R103.model \
+        --prefix sim/ce11_"$(basename "${fn}")" \
+        --depth 5 \
+        "${fn}" 2>&1 | tee -a pbsim.log || true
 done
 
-cat sim/*.fastq | pigz -9 > simulated.fastq.gz
-cat sim/*.maf | pigz -9 > simulated_gt.maf.gz
+cat sim/*.fastq | pigz -9 >simulated.fastq.gz
+cat sim/*.maf | pigz -9 >simulated_gt.maf.gz
 rm sim -rf
 
 mkdir -p lastdb
@@ -35,11 +35,11 @@ lastdb -v -P"${NUM_THREADS}" lastdb/ce11_t ce11_trans.chr1.fa
 last-train -v \
     -Qfastx \
     -P"${NUM_THREADS}" \
-    lastdb/ce11 simulated.fastq.gz > simulated.train
+    lastdb/ce11 simulated.fastq.gz >simulated.train
 last-train -v \
     -Qfastx \
     -P"${NUM_THREADS}" \
-    lastdb/ce11_t simulated.fastq.gz > simulated_t.train
+    lastdb/ce11_t simulated.fastq.gz >simulated_t.train
 lastal -v \
     -Qfastx \
     -P"${NUM_THREADS}" \
@@ -47,9 +47,9 @@ lastal -v \
     -m100 \
     -j7 \
     --splice \
-    lastdb/ce11 simulated.fastq.gz |\
-    last-map-probs /dev/stdin | \
-    pigz -9 > simulated.maf.gz
+    lastdb/ce11 simulated.fastq.gz |
+    last-map-probs /dev/stdin |
+    pigz -9 >simulated.maf.gz
 
 lastal -v \
     -Qfastx \
@@ -57,9 +57,9 @@ lastal -v \
     -p simulated_t.train \
     -m100 \
     -j7 \
-    lastdb/ce11_t simulated.fastq.gz |\
-    last-map-probs /dev/stdin | \
-    pigz -9 > simulated_t.maf.gz
+    lastdb/ce11_t simulated.fastq.gz |
+    last-map-probs /dev/stdin |
+    pigz -9 >simulated_t.maf.gz
 
 for fn in *.maf.gz; do
     echo "${fn}"

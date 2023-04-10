@@ -22,6 +22,8 @@ _lh = get_logger(__name__)
 
 
 def main(args: List[str]):
-    _lh.warning("DEPRECATION WARNING: "
-                "`transcribe` at `yasim` had been deprecated. Use those in `labw_utils.bioutils` instead")
+    _lh.warning(
+        "DEPRECATION WARNING: "
+        "`transcribe` at `yasim` had been deprecated. Use those in `labw_utils.bioutils` instead"
+    )
     bc_main(args)

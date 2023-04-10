@@ -15,13 +15,14 @@ import pandas as pd
 
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname
 from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m yasim_scripts sample_pcg", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim_scripts sample_pcg", description=__doc__.splitlines()[1])
     parser.add_argument(
         '-i',
         '--ncbi_dataset',

@@ -13,13 +13,14 @@ from typing import List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 logger = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m yasim_sc generate_barcode", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim_sc generate_barcode", description=__doc__.splitlines()[1])
     parser.add_argument(
         '-n',
         '--num_cells',
