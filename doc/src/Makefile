@@ -1,9 +1,9 @@
 .PHONY: all
-all: tutorial
+all: quickstart
 
-.PHONY: tutorial
-tutorial:
-	$(MAKE) -C tutorial
+.PHONY: quickstart
+quickstart:
+	$(MAKE) -C quickstart
 
 .PHONY: clean
-	$(MAKE) -C tutorial clean
+	$(MAKE) -C quickstart clean

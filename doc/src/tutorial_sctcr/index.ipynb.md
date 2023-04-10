@@ -163,7 +163,7 @@ Generates:
 
 - `sim_tcr_50.d`: The target directory. See FASTQ files inside.
 - `sim_tcr_50.fq`: Useless merged file. DO NOT USE.
-- `sim_tcr_50.fq.stats`: Real simulation statistics. See [](../tutorial/index) for more details.
+- `sim_tcr_50.fq.stats`: Real simulation statistics. See [](../quickstart/index) for more details.
 
 ```{code-cell}
 !ls -lFh
