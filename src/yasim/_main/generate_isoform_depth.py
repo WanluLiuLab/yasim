@@ -60,6 +60,8 @@ def main(args: List[str]):
     gene_level_depth = yasim.helper.depth_io.read_depth(args.depth)
     transcript_level_depth = {}
     for gene in gv.iter_genes():
+        if gene.gene_id not in gene_level_depth:
+            _lh.warning("Gene %s defined in GTF but not gene-level depth", gene.gene_id)
         if gene_level_depth[gene.gene_id] == 0:
             for transcript in gene.iter_transcripts():
                 transcript_level_depth[transcript.transcript_id] = 0

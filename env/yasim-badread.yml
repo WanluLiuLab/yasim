@@ -1,0 +1,6 @@
+name: yasim-badread
+channels:
+  - defaults
+dependencies:
+  - badread=0.2.0
+  - python-edlib

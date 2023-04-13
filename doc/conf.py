@@ -33,7 +33,7 @@ release = yasim.__version__
 
 # -- General configuration ---------------------------------------------------
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 extensions = [
     # 'sphinx.ext.autodoc',
     'sphinx.ext.todo',
@@ -41,7 +41,8 @@ extensions = [
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',
-    'sphinx_copybutton'
+    'sphinx_copybutton',
+    'sphinx_design'
 ]
 myst_enable_extensions = ["deflist", "dollarmath"]
 exclude_patterns = [

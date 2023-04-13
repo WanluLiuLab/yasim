@@ -8,6 +8,7 @@ os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
+
 def scan_dir(path_to_scan: str):
     """
     Recursively list files in directories.

@@ -1,0 +1,5 @@
+name: yasim-pbsim1
+channels:
+  - defaults
+dependencies:
+  - pbsim=1.0.3

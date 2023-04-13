@@ -17,31 +17,28 @@ This is a quickstart documentation for YASIM. In this documentation, you would g
 
 This tutorial assumes basic understandings on RNA-Seq and Shell scripting. Those `# SKIP` on each cell is used for acceleration, so please do not copy-and-ans-paste them into your terminal.
 
-```{warning}
-Copy-and-paste code on a website to your terminal is dangerous. See following StackOverflow pages for more details on prevention:
++++
 
-- [web browser - Simple way to safely paste text from website into terminal - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
-- [malware - What is the risk of copy and pasting Linux commands from a website? How can some commands be invisible? - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
-- [exploit - How can I protect myself from this kind of clipboard abuse? - Information Security Stack Exchange](https://security.stackexchange.com/questions/39118/how-can-i-protect-myself-from-this-kind-of-clipboard-abuse)
-```
+**How to read this documentation**:
 
-**How to read this documentation**: Code block without leading `!` are Python code blocks. For example:
+Code block with leading `%%bash` are Shell code blocks. For example:
 
 ```{code-cell}
-import os; os.name
+%%bash
+ls -lFh | grep ipynb
 ```
 
-Code block with leading `!` are Shell code blocks. For example:
+## YASIM Data Flow Diagram
 
-```{code-cell}
-!ls -lFh | grep ipynb
-```
+The following diagram lists full YASIM workflow. You are not limited to this and can start at any position.
 
 ```{figure} ../fig/yasim_toplevel.svg
 :width: 100%
 :align: left
 :alt: Common YASIM Workflow
 ```
+
++++
 
 ## Environment Specifications
 
@@ -52,11 +49,12 @@ we would assume that PBSIM3 is installed at `/home/yuzj/bin/pbsim3`. Change that
 ```
 
 ```{code-cell}
-!bash --version | head -n 1
-!grep --version | head -n 1
-!axel --version | head -n 1
+%%bash
+bash --version | head -n 1
+grep --version | head -n 1
+axel --version | head -n 1
 
-!python -m yasim --version
+python -m yasim --version 2> /dev/null
 ```
 
 ## Preparations
@@ -67,47 +65,36 @@ Inside the example, chromosome 1 of _C. Elegans_ reference genome sequence (in F
 This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT stable and is to be deprecated. You shold use **UNSORTED** UCSC references for compatibility. Reference genome annotation from NCBI RefSeq official website (i.e., <https://www.ncbi.nlm.nih.gov/genome/?term=txid6239[orgn]>) is explicitly incompatible, and those from Ensembl may experience bugs.
 ```
 
+```{warning}
+This simulator does not support fancy genomic features like decoy sequences, HLA sequences, EBV sequences, fix or novel patches, unplaced or unlocalized scaffolds. You are free to use references with those features but generated data may not be biologically meaningful.
+```
+
 Get first chromosome of CE11 reference genome sequence and annotation from UCSC.
 
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
-!gunzip ce11.ncbiRefSeq.gtf.gz
-!grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
+%%bash
+axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
+gunzip ce11.ncbiRefSeq.gtf.gz
+grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
 
-!axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
-!gunzip ce11.fa.gz
-!head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa
-```
-
-```{code-cell}
-:tags: [remove-input]
-
-# RMIN
-%cat preparation.log
+axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
+gunzip ce11.fa.gz
+head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa
 ```
 
 ## Generation of AS Events: `generate_as_events`
 
 This step would generate alternative splicing events. It would take reference genome annotation as input and generate GTF with AS events as output.
 
-The generated GTF should be seen as ground truth for benchmarking AS detectors. If you wish to benchmark quantifiers only, this step can be safely omitted.
-
-The help message is as follows:
-
-```{code-cell}
-!python -m yasim generate_as_events --help
-```
-
-Example (Some warnings generated during GTF parsing was filtered out):
+The following example generates AS events from chromosome 1 of CE11 reference genome annotation with complexity index 5 (Some warnings generated during GTF parsing and process bar was filtered out):
 
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!python -m yasim generate_as_events \
+%%bash
+python -m yasim generate_as_events \
     -f ce11.fa \
     -g ce11.ncbiRefSeq.chr1.gtf \
     -o ce11.ncbiRefSeq.chr1.as.gtf \
@@ -117,7 +104,6 @@ Example (Some warnings generated during GTF parsing was filtered out):
 ```{code-cell}
 :tags: [remove-input]
 
-# RMIN
 %cat generate_as_events.log
 ```
 
@@ -125,6 +111,8 @@ Generates:
 
 - `ce11.ncbiRefSeq.chr1.as.gtf`, the generated GTF with AS events.
 - `ce11.ncbiRefSeq.chr1.gtf.0.4.gvpkl.xz`, if not exist. This is a cache file for the `labw_utils` GTF parser.
+
+The generated GTF (V2API) or part of generated GTF which expresses (V3API) should be seen as ground truth for benchmarking AS detectors. If you wish to benchmark quantifiers only using V3API, this step can be safely omitted. The reference genome should have a complexity index between 1 and 2 with real organism in about 2.
 
 +++
 
@@ -142,19 +130,17 @@ The YASIM V2 API was preserved. You can access it through `generate_depth_v2`.
 The generated coverage is **NOT** number of reads generated! It cannot be used as ground truth to assess quantification software! The number of reads ground truth will be provided by LLRG UIs introduced below.
 ```
 
-The help message is as follows:
-
-```{code-cell}
-!python -m yasim generate_gene_depth --help
+```{warning}
+The distribution of AS events also doesn't simulate cross-sample difference of AS events distribution. That is, generated depth of two runs are totally independent without biological assumptions held by tools like [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html).
 ```
 
-Example:
+Example of coverage generation on genome annotation with AS events just generated with mean depth 5:
 
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!python -m yasim generate_gene_depth \
+%%bash
+python -m yasim generate_gene_depth \
     -g ce11.ncbiRefSeq.chr1.as.gtf \
     -o ce11_gene_depth.tsv \
     -d 5
@@ -163,7 +149,6 @@ Example:
 ```{code-cell}
 :tags: [remove-input]
 
-# RMIN
 %cat generate_gene_depth.log
 ```
 
@@ -174,25 +159,21 @@ Generates:
   - `DEPTH`, gene expression level in coverage.
 - `ce11.ncbiRefSeq.chr1.as.gtf.0.4.gvpkl.xz`, if not present.
 
+The generated depth file can be regarded as ground truth for gene-level quantifiers.
+
 +++
 
 ## Generate Sequencing Depth of Isoform: `generate_isoform_depth`
 
 Here assigns expression level in coverage to isoforms. The mean expression level of each isoform in some gene should be equal to the base expression level assigned to that gene in previous step.
 
-The help message is as follows:
-
-```{code-cell}
-!python -m yasim generate_isoform_depth --help
-```
-
-Example:
+Example with `alpha` 4:
 
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!python -m yasim generate_isoform_depth \
+%%bash
+python -m yasim generate_isoform_depth \
     -g ce11.ncbiRefSeq.chr1.as.gtf \
     -d ce11_gene_depth.tsv \
     -o ce11_isoform_depth.tsv \
@@ -202,7 +183,6 @@ Example:
 ```{code-cell}
 :tags: [remove-input]
 
-# RMIN
 %cat generate_isoform_depth.log
 ```
 
@@ -212,6 +192,8 @@ Generates:
   - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
   - `DEPTH`, isoform expression level in coverage.
 
+The generated depth file can be regarded as ground truth for isoform-level quantifiers.
+
 +++
 
 ## Transcribe GTF to FASTA: `transcribe`
@@ -219,17 +201,16 @@ Generates:
 ```{warning}
 The `yasim transcribe` module was be deprecated. Use `labw_utils.bioutils transcribe` instead.
 ```
+This step is general-purpose. It can be used to transcribe (**stranded**) any GTF that contains some isoforms into a FASTA file of all cDNA and a directory with all cDNAs in separate FASTA files, and skip those isoforms whose region is not defined in genomic sequence FASTA file. It would not add post-transcriptional modifications.
 
-This step would transcribe the input genome GTF and genome FASTA into **stranded** transcriptome FASTA. It is designed to be general-purposed, i.e., can be applied on any matching GTF and FASTA. It should generate similar output with `bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]`
+For those who is familiar with [BedTools](https://bedtools.readthedocs.io), It should generate similar output with:
+
+```shell
+bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]
+```
 
 ```{note}
 Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while YASIM transcribed cDNA includes all transcripts inside provided GTF.
-```
-
-The help message is as follows:
-
-```{code-cell}
-!python -m labw_utils.bioutils transcribe --help
 ```
 
 Example:
@@ -237,17 +218,16 @@ Example:
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!python -m labw_utils.bioutils transcribe \
+%%bash
+python -m labw_utils.bioutils transcribe \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.as.gtf \
-    -o ce11_trans_as.fa; \
+    -o ce11_trans_as.fa
 ```
 
 ```{code-cell}
 :tags: [remove-input]
 
-# RMIN
 %cat transcribe.log
 ```
 
@@ -284,19 +264,13 @@ The official build of PBSIM, PBSIM2 and PBSIM3 shares a common executable anme (
 
 Compared to NGS simulators, TGS simulators have `truncate_ratio_3p` and `truncate_ratio_5p`. These two parameters are used to set hard limits at two sides that allows simulation of incomplete reads due to reasons like 3' truncation.
 
-The help message is as follows:
-
-```{code-cell}
-!python -m yasim pbsim3 --help
-```
-
 Following is an example of simulation of CCS data using PacBio RS II model:
 
 ```{code-cell}
 :tags: [skip-execution]
 
-# SKIP
-!python -m yasim pbsim3 \
+%%bash
+python -m yasim pbsim3 \
     -F ce11_trans_as.fa.d \
     -j 40 \
     -e /home/yuzj/bin/pbsim3 \
@@ -311,7 +285,6 @@ Following is an example of simulation of CCS data using PacBio RS II model:
 ```{code-cell}
 :tags: [remove-input]
 
-# RMIN
 %cat pbsim3.log
 ```
 
@@ -329,8 +302,9 @@ Generates:
 
 +++
 
-List of files:
+Final list of files:
 
 ```{code-cell}
-!ls -lFh
+%%bash
+ls -lFh
 ```

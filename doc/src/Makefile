@@ -6,4 +6,5 @@ quickstart:
 	$(MAKE) -C quickstart
 
 .PHONY: clean
+clean:
 	$(MAKE) -C quickstart clean
