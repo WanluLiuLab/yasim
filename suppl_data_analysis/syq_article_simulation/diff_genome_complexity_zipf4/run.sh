@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -ue
 
+ LOG_FILE_NAME="yasim_generate_gene_depth_.log" \
+     python -m yasim generate_gene_depth \
+     -g ../ce11.ncbiRefSeq.gtf \
+     -o ce11_no_as_gene_depth_20.tsv \
+     -d 20
 function generate_as_events() {
     LOG_FILE_NAME="yasim_generate_as_events_${1}.log" \
         python -m yasim generate_as_events \
@@ -15,16 +20,12 @@ function generate_as_events() {
         -g ce11_as_"${1}".gtf \
         -f ../ce11.fa \
         -o ce11_trans_"${1}".fa
-    LOG_FILE_NAME="yasim_generate_gene_depth_${1}.log" \
-        python -m yasim generate_gene_depth \
-        -g ce11_as_"${1}".gtf \
-        -o ce11_as_"${1}"_gene_depth_20.tsv \
-        -d 20
     LOG_FILE_NAME="yasim_generate_isoform_depth_${1}.log" \
         python -m yasim generate_isoform_depth \
         -g ce11_as_"${1}".gtf \
-        -d ce11_as_"${1}"_gene_depth_20.tsv \
+        -d ce11_no_as_gene_depth_20.tsv \
         -o ce11_as_"${1}"_isoform_depth_20.tsv \
+        --low_cutoff 1 \
         --alpha 4
 }
 
@@ -40,6 +41,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ce11_trans_"${1}".fa.d \
         -d ce11_as_"${1}"_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
@@ -53,6 +55,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ce11_trans_"${1}".fa.d \
         --ccs_pass 10 \
         -d ce11_as_"${1}"_isoform_depth_20.tsv \
@@ -67,6 +70,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ce11_trans_"${1}".fa.d \
         -d ce11_as_"${1}"_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
@@ -80,6 +84,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ce11_trans_"${1}".fa.d \
         --ccs_pass 10 \
         -d ce11_as_"${1}"_isoform_depth_20.tsv \
@@ -115,6 +120,7 @@ for gene_complexity_level in 1 3 5 7 9; do
     generate_as_events "${gene_complexity_level}" &
 done
 wait
+python p5.py
 
 for gene_complexity_level in 1 3 5 7 9; do
     perform_simulation "${gene_complexity_level}"

@@ -33,6 +33,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ce11_trans_3.fa.d \
         -d "${1}".tsv \
         -o "${OUTPUT_BASENAME}" \
@@ -46,6 +47,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ce11_trans_3.fa.d \
         --ccs_pass 10 \
         -d "${1}".tsv \
@@ -60,6 +62,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ce11_trans_3.fa.d \
         -d "${1}".tsv \
         -o "${OUTPUT_BASENAME}" \
@@ -73,6 +76,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ce11_trans_3.fa.d \
         --ccs_pass 10 \
         -d "${1}".tsv \

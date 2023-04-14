@@ -25,6 +25,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ../ce11_trans_2.fa.d \
         -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
@@ -40,6 +41,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m RSII \
         -M qshmm \
+        --strategy wgs \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
         -d ce11_as_2_isoform_depth_20.tsv \
@@ -56,6 +58,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ../ce11_trans_2.fa.d \
         --ccs_pass 10 \
         -d ce11_as_2_isoform_depth_20.tsv \
@@ -72,6 +75,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -e ../bin/pbsim3 \
         -m SEQUEL \
         -M errhmm \
+        --strategy wgs \
         -F ../ce11_trans_2.fa.d \
         -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
