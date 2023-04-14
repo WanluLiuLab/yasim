@@ -159,8 +159,6 @@ Generates:
   - `DEPTH`, gene expression level in coverage.
 - `ce11.ncbiRefSeq.chr1.as.gtf.0.4.gvpkl.xz`, if not present.
 
-The generated depth file can be regarded as ground truth for gene-level quantifiers.
-
 +++
 
 ## Generate Sequencing Depth of Isoform: `generate_isoform_depth`
@@ -191,8 +189,6 @@ Generates:
 - `ce11_isoform_depth.tsv`, a TSV file with following columns:
   - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
   - `DEPTH`, isoform expression level in coverage.
-
-The generated depth file can be regarded as ground truth for isoform-level quantifiers.
 
 +++
 

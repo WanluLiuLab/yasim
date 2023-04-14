@@ -58,8 +58,6 @@ if [ ! -f chrm_pbsim3_wgs.fq ]; then
         -d isoform_depth.tsv \
         -o chrm_pbsim3_wgs \
         -j 40 &>>/dev/null
-else
-    echo "chrm_pbsim3_wgs.fq already exists."
 fi
 if [ ! -f chrm_pbsim3_trans.fq ]; then
     python -m yasim pbsim3 \
@@ -71,13 +69,11 @@ if [ ! -f chrm_pbsim3_trans.fq ]; then
         -d isoform_depth.tsv \
         -o chrm_pbsim3_trans \
         -j 40 &>>/dev/null
-else
-    echo "chrm_pbsim3_trans.fq already exists."
 fi
 python -m labw_utils.bioutils describe_fastq chrm_pbsim3_trans.fq chrm_pbsim3_wgs.fq &>>/dev/null
 python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf &>>/dev/null
 
-!if [ ! -f chrm_pbsim3_errhmm.fq ]; then \
+if [ ! -f chrm_pbsim3_errhmm.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M errhmm \
@@ -86,11 +82,10 @@ python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf &>>/dev/null
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
         -o chrm_pbsim3_errhmm \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_errhmm.fq already exists."; \
+        -j 40 &>>/dev/null
+    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq &>>/dev/null
 fi
-if [ ! -f chrm_pbsim3_qshmm.fq ]; then \
+if [ ! -f chrm_pbsim3_qshmm.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M qshmm \
@@ -99,8 +94,34 @@ if [ ! -f chrm_pbsim3_qshmm.fq ]; then \
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
         -o chrm_pbsim3_qshmm \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_qshmm.fq already exists."; \
+        -j 40 &>>/dev/null
+    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_qshmm.fq &>>/dev/null
 fi
-python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq chrm_pbsim3_qshmm.fq
+
+if [ ! -f chrm_pbsim3_clr.fq ]; then
+    python -m yasim pbsim3 \
+        -m RSII \
+        -M qshmm \
+        -e /home/yuzj/bin/pbsim3 \
+        --strategy trans \
+        -F chrm_trans.fa.d \
+        -d isoform_low_depth.tsv \
+        -o chrm_pbsim3_clr \
+        --ccs_pass 1 \
+        -j 40 &>>/dev/null
+    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_clr.fq &>>/dev/null
+fi
+if [ ! -f chrm_pbsim3_ccs.fq ]; then
+    python -m yasim pbsim3 \
+        -m RSII \
+        -M qshmm \
+        -e /home/yuzj/bin/pbsim3 \
+        --strategy trans \
+        -F chrm_trans.fa.d \
+        -d isoform_low_depth.tsv \
+        -o chrm_pbsim3_ccs \
+        --ccs_pass 10 \
+        -j 40 &>>/dev/null
+    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_ccs.fq &>>/dev/null
+fi
+

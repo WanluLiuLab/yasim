@@ -394,6 +394,6 @@ def patch_frontend_parser(
         choices=PBSIM3_STRATEGY,
         type=str,
         action='store',
-        default="trans"
+        default="wgs"
     )
     return parser

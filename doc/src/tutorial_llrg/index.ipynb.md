@@ -17,7 +17,11 @@ Although most LLRGs are straightforward, there are still some LLRGs that takes a
 
 Here we would demonstrate features of commonly-used LLRGs using mitochondria of _C. Elegans_.
 
++++
+
 ## Introduction
+
+Low-Level Read Generators (LLRGs) are programs used to generate machine errors. Normally, a LLRG can be represented in 2 forms: As a standalone third-party executable (e.g., PBSIM can benevoked by `pbsim` command) or as a Python module that can be imported (e.g., dTGS). These two forms are unified using LLRG adapter, a builtin middleware inside YASIM that performs execution and error handling of LLRGs. The LLRG adapters are evoked by LLRG frontend (i.e., the `python -m yasim [LLRG]` command) in bulk or single-cell RNA-Seq experiments. Following is a workflow of LLRG step:
 
 ```{figure} ../fig/llrg_step.svg
 :width: 100%
@@ -34,67 +38,49 @@ This figure demonstrates the basic workflow of the LLRG step. It is, in details,
 4. Generated reads would be merged into one (SE) or two (PE) files.
 ```
 
+So after knowing these knowledge, it would be easy to decode LLRG parameter specifications. Among all possible parameters, the most important are `--simulator_name` and `-e`. The former specifies what would appear in FASTQ SEQID, and the latter specifies path to LLRG executable. For example, if you installed PBSIM3 in `/home/yuzj/bin/pbsim3` instead of normal locations, you should specify `-e /home/yuzj/bin/pbsim3`.
+
+Compared to NGS simulators, TGS simulators supports two additional parameter: `--truncate_ratio_3p` and `--truncate_ratio_5p`. These two parameters specifies 3' and 5' truncation where 3' and 5' are **IN RESPECT TO SEQUENCER**. For example, suppose that a isoform is defined on forward strand. PBSIM1 would take its cDNA (on forward strand) and generate reads in **both** forward strand and reverse strand. At this time, if we specified a 3' truncation, in respect to reference genome, the forward cDNA-Seq read would be clipped on 3' end while reverse cDNA-Seq strand would be clipped on 5' end.
+
+The argument parser of LLRG frontend supports pass-through. That is, arguments or options that cannot be recognized would be applied to all LLRG. For example, if we wish to adjust the accuracy of PBSIM, we can add `--accuracy-mean [VALUE]` parameter at the end of `python -m yasim pbsim ...` command. Since `--accuracy-mean` is not a recognizable parameter of YASIM, it would be passed to all `pbsim` process.
+
 +++
 
 ## Preparations
 
-Here generates all steps before proceeding into LLRG. Note that generation of AS events is optional so not used.
+Here generates all steps before proceeding into LLRG. It would download CE11 reference genome sequence and annotation from UCSC and generate sequencing depth using V3API. Note that generation of AS events is optional so not used.
 
 ```{code-cell}
-!if [ ! -f chrM.fa ]; then \
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/chromFa.tar.gz; \
-    tar xzvf chromFa.tar.gz; \
-    rm -f chrI.fa chrII.fa chrIII.fa chrIV.fa; \
-else \
-    echo "chrM.fa already exists."; \
-fi
+:tags: [skip-execution]
 
-!if [ ! -f chrM.ncbiRefSeq.gtf ]; then \
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz; \
-    gzip -cfd ce11.ncbiRefSeq.gtf.gz | grep '^chrM\s' > chrM.ncbiRefSeq.gtf ; \
-else \
-    echo "chrM.ncbiRefSeq.gtf already exists."; \
-fi
+%%bash
+axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/chromFa.tar.gz
+tar xzvf chromFa.tar.gz
+rm -f chrI.fa chrII.fa chrIII.fa chrIV.fa
 
-!if [ ! -f isoform_depth.tsv ]; then \
-    python -m yasim generate_gene_depth \
-        -g chrM.ncbiRefSeq.gtf \
-        -o gene_depth.tsv \
-        -d 60 \
-    2>&1 | grep -v 'inferred from feature transcript'; \
-    python -m yasim generate_isoform_depth \
-        -g chrM.ncbiRefSeq.gtf \
-        -d gene_depth.tsv \
-        -o isoform_depth.tsv \
-        --alpha 4; \
-else \
-    echo "isoform_depth.tsv already exists."; \
-fi
-
-!if [ ! -f isoform_low_depth.tsv ]; then \
-    python -m yasim generate_gene_depth \
-        -g chrM.ncbiRefSeq.gtf \
-        -o gene_low_depth.tsv \
-        -d 5 \
-    2>&1 | grep -v 'inferred from feature transcript'; \
-    python -m yasim generate_isoform_depth \
-        -g chrM.ncbiRefSeq.gtf \
-        -d gene_low_depth.tsv \
-        -o isoform_low_depth.tsv \
-        --alpha 4; \
-else \
-    echo "isoform_depth.tsv already exists."; \
-fi
-
-!if [ ! -f chrm_trans.fa ]; then \
-    python -m labw_utils.bioutils transcribe \
+axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
+gzip -cfd ce11.ncbiRefSeq.gtf.gz | grep '^chrM\s' >chrM.ncbiRefSeq.gtf
+python -m yasim generate_gene_depth \
     -g chrM.ncbiRefSeq.gtf \
-    -f chrM.fa \
-    -o chrm_trans.fa; \
-else \
-    echo "chrm_trans.fa already exists."; \
-fi
+    -o gene_depth.tsv \
+    -d 60
+python -m yasim generate_isoform_depth \
+    -g chrM.ncbiRefSeq.gtf \
+    -d gene_depth.tsv \
+    -o isoform_depth.tsv \
+    --alpha 4
+python -m yasim generate_gene_depth \
+    -g chrM.ncbiRefSeq.gtf \
+    -o gene_low_depth.tsv \
+    -d 5
+python -m yasim generate_isoform_depth \
+    -g chrM.ncbiRefSeq.gtf \
+    -d gene_low_depth.tsv \
+    -o isoform_low_depth.tsv \
+    --alpha 4
 ```
+
+To interactively seen LLRG simulation statistics, following Python modules are imported:
 
 ```{code-cell}
 import os
@@ -109,22 +95,26 @@ import matplotlib.pyplot as plt
 ART is a general-purposed NGS DNA-Seq simulator. YASIM uses ART's Illumina mode (Executable `art_illumina`) with version information as follows:
 
 ```{code-cell}
-!art_illumina | head -n 6
+%%bash
+art_illumina | head -n 6
 ```
 
-The output of `yasim art --help` may be hard to read. This is a table of supported ART sequencers and read length:
+### Specifying Sequencer Model and Read Length
+
+The output of `python -m yasim art --help` may be hard to read, and we would provide an explanation here. Although ART simulator can simulate Illumina sequencers with different model and read length, the choises of read length is limited by the chose of models. For example, if we choose Illumina GenomeAnalyzer I (`GA1` as is in parameter), the valid read length would be 36 or 44. If the read length is not valid or not specified, the default read length (the first valid read length) would be used.
+
+Following is a table of supported ART sequencers and read length:
 
 ```{code-cell}
+:tags: [hide-input]
+
 from yasim.llrg_adapter.art import AVAILABLE_ILLUMINA_ART_SEQUENCER
 art_compatibility_matrix = pd.DataFrame(AVAILABLE_ILLUMINA_ART_SEQUENCER).transpose()
 art_compatibility_matrix.columns = ("Real Name", "Allowed Read lengths")
-```
-
-```{code-cell}
 art_compatibility_matrix
 ```
 
-where index is the name provided to `--sequencer` argument. For example, to simulate HiSeq 2500 with 150 read length, you need to:
+So, for example, to simulate single-end (SE) HiSeq 2500 with 150 read length, you need to:
 
 ```shell
 python -m yasim art \
@@ -137,9 +127,28 @@ python -m yasim art \
 
 +++
 
+### Supporting Pair-End (PE) Mode
+
+ART also supports pair-end (PE) simulation. Under that circumstance, one additional flag, `--is_pair_end`, needs to be set and two additional parameters, `--pair_end_fragment_length_mean` and `--pair_end_fragment_length_std`, needs to be specified.
+
+### ART Errors
+
+Art may raise following errors:
+
+```text
+OpenBLAS blas thread_init: pthread_create failed for thread 14 of 128: Resource temporarily unavailable
+OpenBLAS blas thread init: RLIMIT_NPROC 4096 current, 2061441 max
+```
+
+Solve this error by setting `-j` parameter to a smaller value or wait until the server becomes less busy.
+
++++
+
 ## PBSIM
 
-PBSIM version 1 can simulate data generated by PacBio RS, a very old sequencer that is not commonly seen nowadays. It has a CCS mode.
+PBSIM version 1 can simulate data generated by PacBio RS, a very old sequencer that is not commonly seen nowadays.
+
+PBSIM has a CCS mode. You can use this mode by specifying `--ccs` flag.
 
 ```{warning}
 PBSIM generates CCS with a mechanism similiar to CLR. It does **NOT** require invocation of PacBio `ccs` utility.
@@ -150,6 +159,8 @@ PBSIM generates CCS with a mechanism similiar to CLR. It does **NOT** require in
 ## PBSIM2
 
 PBSIM2 can simulate early PacBio RS II and ONT models. It does **NOT** support CCS generation.
+
+Using PBSIM2 for TGS simulation is recommended. It is fast, reliable and accurate.
 
 +++
 
@@ -162,39 +173,34 @@ PBSIM3 is one of the most complicated LLRGs used in this software. Comparing to 
 PBSIM3 have 2 strategy: `wgs` and `trans`. Their difference is as follows:
 
 - The `wgs` strategy is same as what is used in PBSIM2, PBSIM, and other LLRGs. i.e., PBSIM3 was used as a DNA-Seq simulator that reads cDNA and outputs sequences.
-- The `trans` strategy is new in PBSIM3. It would generate reads based on a new PBSIM3-specific isoform record format and was claimed to be able to simulate 3' read truncation.
+- The `trans` strategy is new in PBSIM3. It would generate reads based on a new PBSIM3-specific isoform record format.
 
 An example is as follows:
 
 ```{code-cell}
-!if [ ! -f chrm_pbsim3_wgs.fq ]; then \
-    python -m yasim pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy wgs \
-        -F chrm_trans.fa.d \
-        -d isoform_depth.tsv \
-        -o chrm_pbsim3_wgs \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_wgs.fq already exists."; \
-fi
-!if [ ! -f chrm_pbsim3_trans.fq ]; then \
-    python -m yasim pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_depth.tsv \
-        -o chrm_pbsim3_trans \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_trans.fq already exists."; \
-fi
-!python -m labw_utils.bioutils describe_fastq chrm_pbsim3_trans.fq chrm_pbsim3_wgs.fq
-!python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf
+:tags: [skip-execution]
+
+%%bash
+python -m yasim pbsim3 \
+    -m SEQUEL \
+    -M errhmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy wgs \
+    -F chrm_trans.fa.d \
+    -d isoform_depth.tsv \
+    -o chrm_pbsim3_wgs \
+    -j 40
+python -m yasim pbsim3 \
+    -m SEQUEL \
+    -M errhmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy trans \
+    -F chrm_trans.fa.d \
+    -d isoform_depth.tsv \
+    -o chrm_pbsim3_trans \
+    -j 40
+python -m labw_utils.bioutils describe_fastq chrm_pbsim3_trans.fq chrm_pbsim3_wgs.fq
+python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf
 ```
 
 ```{code-cell}
@@ -225,38 +231,39 @@ axs[0].set_title("trans mode")
 axs[1].set_title("wgs mode")
 ```
 
+```{warning}
+The `trans` mode in YASIM can only simulate cDNA of corresponding strand. It would **NOT** generate reads on the reverse strand.
+```
+
++++
+
 ### HMM Method
 
 PBSIM3 have 2 HMM method: Error HMM and Quality Score HMM. Please refer to the paper for more details. A apparent difference is that the former would not generate meaningful quality scores in output FASTQ (all zero). See following example:
 
 ```{code-cell}
-!if [ ! -f chrm_pbsim3_errhmm.fq ]; then \
-    python -m yasim pbsim3 \
-        -m RSII \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_low_depth.tsv \
-        -o chrm_pbsim3_errhmm \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_errhmm.fq already exists."; \
-fi
-!if [ ! -f chrm_pbsim3_qshmm.fq ]; then \
-    python -m yasim pbsim3 \
-        -m RSII \
-        -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_low_depth.tsv \
-        -o chrm_pbsim3_qshmm \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_qshmm.fq already exists."; \
-fi
-!python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq chrm_pbsim3_qshmm.fq
+:tags: [skip-execution]
+
+%%bash
+python -m yasim pbsim3 \
+    -m RSII \
+    -M errhmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy trans \
+    -F chrm_trans.fa.d \
+    -d isoform_low_depth.tsv \
+    -o chrm_pbsim3_errhmm \
+    -j 40
+python -m yasim pbsim3 \
+    -m RSII \
+    -M qshmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy trans \
+    -F chrm_trans.fa.d \
+    -d isoform_low_depth.tsv \
+    -o chrm_pbsim3_qshmm \
+    -j 40
+python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq chrm_pbsim3_qshmm.fq
 ```
 
 ```{code-cell}
@@ -297,35 +304,32 @@ CCS generation requires `samtools` and `ccs` to be present. You may set their pa
 See following example for details:
 
 ```{code-cell}
-!if [ ! -f chrm_pbsim3_clr.fq ]; then \
-    python -m yasim pbsim3 \
-        -m RSII \
-        -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_low_depth.tsv \
-        -o chrm_pbsim3_clr \
-        --ccs_pass 1 \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_clr.fq already exists."; \
+:tags: [skip-execution]
+
+%%bash
+python -m yasim pbsim3 \
+    -m RSII \
+    -M qshmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy trans \
+    -F chrm_trans.fa.d \
+    -d isoform_low_depth.tsv \
+    -o chrm_pbsim3_clr \
+    --ccs_pass 1 \
+    -j 40
 fi
-!if [ ! -f chrm_pbsim3_ccs.fq ]; then \
-    python -m yasim pbsim3 \
-        -m RSII \
-        -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_low_depth.tsv \
-        -o chrm_pbsim3_ccs \
-        --ccs_pass 10 \
-        -j 40; \
-else \
-    echo "chrm_pbsim3_ccs.fq already exists."; \
+python -m yasim pbsim3 \
+    -m RSII \
+    -M qshmm \
+    -e /home/yuzj/bin/pbsim3 \
+    --strategy trans \
+    -F chrm_trans.fa.d \
+    -d isoform_low_depth.tsv \
+    -o chrm_pbsim3_ccs \
+    --ccs_pass 10 \
+    -j 40
 fi
-!python -m labw_utils.bioutils describe_fastq chrm_pbsim3_clr.fq chrm_pbsim3_ccs.fq
+python -m labw_utils.bioutils describe_fastq chrm_pbsim3_clr.fq chrm_pbsim3_ccs.fq
 ```
 
 ```{code-cell}
@@ -368,30 +372,30 @@ In this mode, `truncate_ratio_5p` and `truncate_ratio_3p` cannot be effective.
 CCS reads generated by `pbsim3` can be used in officially supported PacBio [IsoSeq](https://isoseq.how) pipelines. To finish this tutorial, you need to install PacBio [SMRTLink](https://www.pacb.com/support/software-downloads/) or its [community version](https://github.com/PacificBiosciences/pbbioconda) (recommended). Version of Dependencies:
 
 ```{code-cell}
-!pbmerge --version | head -n 1
-!pbindex --version | head -n 1
-!samtools --version | head -n 1
-!ccs --version | head -n 1
-!pbmm2 --version | head -n 1
-!isoseq3 --version | head -n 1
+%%bash
+pbmerge --version | head -n 1
+pbindex --version | head -n 1
+samtools --version | head -n 1
+ccs --version | head -n 1
+pbmm2 --version | head -n 1
+isoseq3 --version | head -n 1
 ```
 
 Generation of CCS reads. We would use PacBio Sequel for example.
 
 ```{code-cell}
-!if [ ! -f chrm_ccs_isoseq.fq ]; then \
-    python -m yasim pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        -F chrm_trans.fa.d \
-        -d isoform_low_depth.tsv \
-        -o chrm_ccs_isoseq \
-        -j 40 \
-        --ccs_pass 10; \
-else \
-    echo "chrm_ccs_isoseq.fq already exists."; \
-fi
+:tags: [skip-execution]
+
+%%bash
+python -m yasim pbsim3 \
+    -m SEQUEL \
+    -M errhmm \
+    -e /home/yuzj/bin/pbsim3 \
+    -F chrm_trans.fa.d \
+    -d isoform_low_depth.tsv \
+    -o chrm_ccs_isoseq \
+    -j 40 \
+    --ccs_pass 10
 ```
 
 Merge all small CCS BAMs into single CCS BAM. The file `merge.py` is provided as follows:
@@ -401,31 +405,33 @@ Merge all small CCS BAMs into single CCS BAM. The file `merge.py` is provided as
 ```
 
 ```{code-cell}
-!if [ ! -f chrm_ccs_isoseq.ccs.bam ]; then \
-    python merge.py chrm_ccs_isoseq.ccs.bam chrm_ccs_isoseq.d/*/tmp.ccs.bam; \
-    pbindex chrm_ccs_isoseq.ccs.bam; \
-    samtools index chrm_ccs_isoseq.ccs.bam \
-else \
-    echo "chrm_ccs_isoseq.ccs.bam already exists."; \
-fi
+:tags: [skip-execution]
+
+%%bash
+python merge.py chrm_ccs_isoseq.ccs.bam chrm_ccs_isoseq.d/*/tmp.ccs.bam
+pbindex chrm_ccs_isoseq.ccs.bam
+samtools index chrm_ccs_isoseq.ccs.bam
 ```
 
 Then you can use standard PacBio IsoSeq pipeline. For example:
 
 ```{code-cell}
-!isoseq3 cluster \
+:tags: [skip-execution]
+
+%%bash
+isoseq3 cluster \
     chrm_ccs_isoseq.ccs.bam \
     chrm_ccs_isoseq.transcripts.xml \
     --log-level INFO \
     --num-threads 40
-!pbmm2 align \
+pbmm2 align \
     --preset ISOSEQ \
     --sort \
     --log-level INFO \
     chrm_ccs_isoseq.transcripts.xml.hq.bam \
     chrM.fa \
     chrm_ccs_isoseq.aln.bam
-!isoseq3 collapse \
+isoseq3 collapse \
     --do-not-collapse-extra-5exons \
     --log-level INFO \
     chrm_ccs_isoseq.aln.bam \
