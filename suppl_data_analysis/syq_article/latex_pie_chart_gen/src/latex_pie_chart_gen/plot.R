@@ -10,7 +10,7 @@ library(ggpubr)
 library(parallel)
 cl <- parallel::makeCluster(spec = 8)
 
-dir.create(argv$dst_fig_dir_path, showWarnings = FALSE)
+dir.create(argv$dst_fig_dir_path, showWarnings = FALSE, recursive = TRUE)
 
 data <- readr::read_csv(
     argv$src_data_csv_file_path,
@@ -40,7 +40,6 @@ data_long <- data %>%
 
 clusterExport(cl, varlist = ls(), envir = environment())
 parLapply(cl, unique(data_long$fig_filename), function(fn) {
-    colors <- c("#B2182B", "#F4A582", "#9E9AC8", "#92C5DE", "#2166AC")
     g <- ggpubr::ggpie(
         dplyr::filter(
             data_long,
@@ -53,7 +52,10 @@ parLapply(cl, unique(data_long$fig_filename), function(fn) {
     ) +
         ggplot2::theme_void() +
         ggplot2::theme(legend.position = "none") +
-        ggplot2::scale_fill_manual(values = colors)
+        ggplot2::scale_fill_manual(
+            values = c("#B2182B", "#F4A582", "#9E9AC8", "#92C5DE", "#2166AC"),
+            limits = c("FSM", "ISM", "NIC", "NNC", "Intergenic")
+        )
     ggplot2::ggsave(fn, g, width = 5, height = 5)
 })
 

@@ -34,14 +34,16 @@ def gen_figs(
     Generate Figrues using R
     """
     _lh.info("GEN_FIGS: START")
-    with open(plot_log_file_path, "ab") as plot_log_file_writer:
-        retv = subprocess.Popen(
-            [
+    cmd = [
                 r_path,
                 os.path.join(FILE_DIR_PATH, "plot.R"),
                 "--src_data_csv_file_path", src_data_csv_file_path,
                 "--dst_fig_dir_path", dst_fig_dir_path
-            ],
+            ]
+    _lh.info("CMD: %s", " ".join(cmd))
+    with open(plot_log_file_path, "ab") as plot_log_file_writer:
+        retv = subprocess.Popen(
+            cmd,
             cwd=tmp_dir_path,
             stdout=plot_log_file_writer,
             stderr=plot_log_file_writer,
@@ -150,7 +152,7 @@ if __name__ == "__main__":
 
     _lh.info("Preparing...")
     data_csv_file_path = os.path.abspath(args.data_csv_file_path)
-    _tmp_dir_path = args.tmp_dir_path
+    _tmp_dir_path = os.path.abspath(args.tmp_dir_path)
     fig_dir_path = os.path.join(_tmp_dir_path, "figs")
     os.makedirs(_tmp_dir_path, exist_ok=True)
 
@@ -177,6 +179,7 @@ if __name__ == "__main__":
         plot_log_file_path=os.path.join(_tmp_dir_path, "gen_figs.log"),
         tmp_dir_path=_tmp_dir_path,
         r_path=_r_path
+
     )
     gen_table(
         src_data_csv_file_path=data_csv_file_path,
