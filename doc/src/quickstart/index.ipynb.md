@@ -48,6 +48,8 @@ Here would list version information of each component used in this tutorial for 
 we would assume that PBSIM3 is installed at `/home/yuzj/bin/pbsim3`. Change that to your own path on execution.
 ```
 
+TODO: To be changed
+
 ```{code-cell}
 %%bash
 bash --version | head -n 1
@@ -57,17 +59,9 @@ axel --version | head -n 1
 python -m yasim --version 2> /dev/null
 ```
 
-## Preparations
+## Step 0. Retrive Reference Genome Sequence and Annotation
 
 Inside the example, chromosome 1 of _C. Elegans_ reference genome sequence (in FASTA format) and annotation (in GTF format) from UCSC is used.
-
-```{warning}
-This version of YASIM uses `labw_utils` 0.1.X GTF parser. This parser is NOT stable and is to be deprecated. You shold use **UNSORTED** UCSC references for compatibility. Reference genome annotation from NCBI RefSeq official website (i.e., <https://www.ncbi.nlm.nih.gov/genome/?term=txid6239[orgn]>) is explicitly incompatible, and those from Ensembl may experience bugs.
-```
-
-```{warning}
-This simulator does not support fancy genomic features like decoy sequences, HLA sequences, EBV sequences, fix or novel patches, unplaced or unlocalized scaffolds. You are free to use references with those features but generated data may not be biologically meaningful.
-```
 
 Get first chromosome of CE11 reference genome sequence and annotation from UCSC.
 
@@ -84,7 +78,7 @@ gunzip ce11.fa.gz
 head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f 1)-1))" >  ce11.chr1.fa
 ```
 
-## Generation of AS Events: `generate_as_events`
+## Step 1. Generation of AS Events: `generate_as_events`
 
 This step would generate alternative splicing events. It would take reference genome annotation as input and generate GTF with AS events as output.
 
@@ -101,12 +95,6 @@ python -m yasim generate_as_events \
     -c 5
 ```
 
-```{code-cell}
-:tags: [remove-input]
-
-%cat generate_as_events.log
-```
-
 Generates:
 
 - `ce11.ncbiRefSeq.chr1.as.gtf`, the generated GTF with AS events.
@@ -116,22 +104,12 @@ The generated GTF (V2API) or part of generated GTF which expresses (V3API) shoul
 
 +++
 
-## Generate Sequencing Depth of Gene: `generate_gene_depth`
+## Step 2. Generate Sequencing Depth of Gene: `generate_gene_depth`
 
 This step would generate base gene expression level in coverage for each gene over some GTF.
 
-```{note}
-The YASIM V3 and V2 API differes in depth generation. In YASIM V2, we generate isoforms regardless of base expression level of genes. In YASIM V3, however, we first assign base level of each gene and then generate isoform-level abundance upon them. The YASIM V2 API also does not allow zeros to be present.
-
-The YASIM V2 API was preserved. You can access it through `generate_depth_v2`.
-```
-
 ```{warning}
 The generated coverage is **NOT** number of reads generated! It cannot be used as ground truth to assess quantification software! The number of reads ground truth will be provided by LLRG UIs introduced below.
-```
-
-```{warning}
-The distribution of AS events also doesn't simulate cross-sample difference of AS events distribution. That is, generated depth of two runs are totally independent without biological assumptions held by tools like [DESeq2](https://bioconductor.org/packages/release/bioc/html/DESeq2.html).
 ```
 
 Example of coverage generation on genome annotation with AS events just generated with mean depth 5:
@@ -146,12 +124,6 @@ python -m yasim generate_gene_depth \
     -d 5
 ```
 
-```{code-cell}
-:tags: [remove-input]
-
-%cat generate_gene_depth.log
-```
-
 Generates:
 
 - `ce11_gene_depth.tsv`, a TSV file with following columns:
@@ -161,11 +133,11 @@ Generates:
 
 +++
 
-## Generate Sequencing Depth of Isoform: `generate_isoform_depth`
+## Step 3. Generate Sequencing Depth of Isoform: `generate_isoform_depth`
 
 Here assigns expression level in coverage to isoforms. The mean expression level of each isoform in some gene should be equal to the base expression level assigned to that gene in previous step.
 
-Example with `alpha` 4:
+Following is a typical example. The parameter `alpha` (default to 4) was used to adjust evenness between isoform expression levels inside a gene.
 
 ```{code-cell}
 :tags: [skip-execution]
@@ -174,14 +146,7 @@ Example with `alpha` 4:
 python -m yasim generate_isoform_depth \
     -g ce11.ncbiRefSeq.chr1.as.gtf \
     -d ce11_gene_depth.tsv \
-    -o ce11_isoform_depth.tsv \
-    --alpha 4
-```
-
-```{code-cell}
-:tags: [remove-input]
-
-%cat generate_isoform_depth.log
+    -o ce11_isoform_depth.tsv
 ```
 
 Generates:
@@ -192,21 +157,14 @@ Generates:
 
 +++
 
-## Transcribe GTF to FASTA: `transcribe`
+## Step 4. Transcribe GTF to FASTA: `transcribe`
 
-```{warning}
-The `yasim transcribe` module was be deprecated. Use `labw_utils.bioutils transcribe` instead.
-```
 This step is general-purpose. It can be used to transcribe (**stranded**) any GTF that contains some isoforms into a FASTA file of all cDNA and a directory with all cDNAs in separate FASTA files, and skip those isoforms whose region is not defined in genomic sequence FASTA file. It would not add post-transcriptional modifications.
 
 For those who is familiar with [BedTools](https://bedtools.readthedocs.io), It should generate similar output with:
 
 ```shell
 bedtools getfasta -nameOnly -s -fi [FASTA] -bed [GTF] > [OUT]
-```
-
-```{note}
-Although this software can be used to generate reference cDNAs for software like Salmon, there are differences between transcribed cDNA and Ensembl-provided cDNA. Ensembl-provided cDNA does not include small features like lncRNA, while YASIM transcribed cDNA includes all transcripts inside provided GTF.
 ```
 
 Example:
@@ -219,12 +177,6 @@ python -m labw_utils.bioutils transcribe \
     -f ce11.chr1.fa \
     -g ce11.ncbiRefSeq.chr1.as.gtf \
     -o ce11_trans_as.fa
-```
-
-```{code-cell}
-:tags: [remove-input]
-
-%cat transcribe.log
 ```
 
 Generates:
@@ -244,7 +196,7 @@ Generates:
 
 +++
 
-## Invocation of LLRGs
+## Step 5. Invocation of LLRGs
 
 The Low-Level Read Generators (LLRGs) are programs that simulates DNA-Seq on some reference genome sequence by clipping reads in appropriate length and introducing sequencing errors. YASIM invokes LLRG on stranded cDNA sequences to generate RNA-Seq data. Here we would demonstrate their usage with following examples:
 
@@ -278,12 +230,6 @@ python -m yasim pbsim3 \
     -o pbsim3_mode
 ```
 
-```{code-cell}
-:tags: [remove-input]
-
-%cat pbsim3.log
-```
-
 Generates:
 
 - `pbsim3_mode.fq`, simulated Single-End FASTQ.
@@ -295,12 +241,3 @@ Generates:
   - `SIMULATED_N_OF_BASES`, simulated number of bases.
   - `TRANSCRIBED_LENGTH`, length of the cDNA without introns and UTRs.
   - `SIMULATED_DEPTH`, simulated depth.
-
-+++
-
-Final list of files:
-
-```{code-cell}
-%%bash
-ls -lFh
-```
