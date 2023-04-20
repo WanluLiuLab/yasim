@@ -11,7 +11,7 @@ __all__ = (
     "DepthParsingException"
 )
 
-from typing import Dict, Literal
+from labw_utils.typing_importer import Dict, Literal
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader

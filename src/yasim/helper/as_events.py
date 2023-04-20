@@ -13,7 +13,7 @@ __all__ = (
 )
 
 import random
-from typing import List, Callable, Iterable
+from labw_utils.typing_importer import List, Callable, Iterable
 
 import numpy as np
 from scipy.stats import lognorm

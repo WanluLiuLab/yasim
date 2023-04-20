@@ -20,7 +20,7 @@ from labw_utils import UnmetDependenciesError
 try:
 
     import numpy
-    from numpy import typing as npt
+    import numpy.typing as npt
 except ImportError as e:
     raise UnmetDependenciesError("numpy") from e
 try:

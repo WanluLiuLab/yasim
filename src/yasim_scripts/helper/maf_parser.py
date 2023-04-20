@@ -8,7 +8,7 @@ __all__ = (
 )
 
 import re
-from typing import Tuple, Iterable
+from labw_utils.typing_importer import Tuple, Iterable
 
 from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader

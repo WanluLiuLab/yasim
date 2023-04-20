@@ -22,7 +22,7 @@ import shutil
 import threading
 import time
 from abc import ABC, abstractmethod
-from typing import Tuple, List, Callable, Optional
+from labw_utils.typing_importer import Tuple, List, Callable, Optional
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
@@ -58,8 +58,8 @@ def remark_fastq_single_end(
         seq_len = len(sequence)
         truncate_len_3p = int(seq_len * truncate_ratio_3p)
         truncate_len_5p = int(seq_len * truncate_ratio_5p)
-        sequence = sequence[truncate_len_3p:seq_len - truncate_len_5p]
-        quality = quality[truncate_len_3p:seq_len - truncate_len_5p]
+        sequence = sequence[truncate_len_5p:seq_len - truncate_len_3p]
+        quality = quality[truncate_len_5p:seq_len - truncate_len_3p]
         new_record = FastqRecord(
             seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}",
             sequence=sequence,

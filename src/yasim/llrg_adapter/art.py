@@ -10,7 +10,7 @@ __all__ = (
 
 import argparse
 import os
-from typing import Dict, List, Tuple, Union, Final, Any, Mapping
+from labw_utils.typing_importer import Dict, List, Tuple, Union, Final, Any, Mapping
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException

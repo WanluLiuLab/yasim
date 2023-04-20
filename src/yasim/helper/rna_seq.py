@@ -2,7 +2,7 @@ import glob
 import os
 from collections import defaultdict
 import sys
-from typing import Tuple, Mapping, Any, Type, Optional, Dict, List
+from labw_utils.typing_importer import Tuple, Mapping, Any, Type, Optional, Dict, List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io import file_system

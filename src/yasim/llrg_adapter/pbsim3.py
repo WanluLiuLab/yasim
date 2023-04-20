@@ -14,7 +14,7 @@ import os
 import subprocess
 import time
 import uuid
-from typing import Final, List, Mapping, Any, Optional
+from labw_utils.typing_importer import Final, List, Mapping, Any, Optional
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.io.safe_io import get_writer

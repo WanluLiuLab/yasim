@@ -8,7 +8,7 @@ __all__ = (
 )
 
 import argparse
-from typing import List
+from labw_utils.typing_importer import List
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp

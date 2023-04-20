@@ -8,7 +8,7 @@ __all__ = (
 
 import multiprocessing
 from random import choices
-from typing import Optional, Union, Iterable, Tuple, List
+from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List
 
 import numpy as np
 import numpy.typing as npt

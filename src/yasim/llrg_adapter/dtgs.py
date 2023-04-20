@@ -6,7 +6,7 @@ __all__ = (
     "DTGSAdapter",
 )
 
-from typing import List, Union, Final, Mapping, Any
+from labw_utils.typing_importer import List, Union, Final, Mapping, Any
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter

@@ -1,7 +1,6 @@
 .PHONY: all
 all:
-	bash run.sh
-
+	true
 
 .PHONY: clean
 clean:

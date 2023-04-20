@@ -1,7 +1,7 @@
 """
 transcribe.py -- Proxy to ``transcribe`` in ``labw_utils.bioutils``.
 """
-from typing import List
+from labw_utils.typing_importer import List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 

@@ -24,7 +24,7 @@ import os.path
 import subprocess
 import threading
 from abc import abstractmethod, ABC
-from typing import Union, List, IO, Optional, Iterable, Mapping, Any
+from labw_utils.typing_importer import Union, List, IO, Optional, Iterable, Mapping, Any
 
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer, file_system
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger

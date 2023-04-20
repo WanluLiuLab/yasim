@@ -15,11 +15,11 @@ all: pbsim3_genome_mode \
 
 .PHONY: distclean
 distclean: clean
-	rm -rf chrM.trans.fa chrM.trans.fa.d chrM.trans.fa.stats depth.tsv depth_gene.tsv
+	rm -rf chrM.trans.fa chrM.trans.fa.d chrM.trans.fa.stats
 
 .PHONY: clean
 clean:
-	rm -rf *mode*
+	rm -rf *mode* depth.tsv depth_gene.tsv
 
 
 chrM.trans.fa: ../chrM.fa ../ce11.ncbiRefSeq.chrM.gtf
