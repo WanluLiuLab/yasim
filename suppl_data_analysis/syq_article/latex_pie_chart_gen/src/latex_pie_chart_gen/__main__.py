@@ -99,7 +99,11 @@ def gen_table(
             for software in unique_software:
                 _lh.debug("GEN_TABLE: Parsing %s, %s", data, software)
                 this_data_str += " & "
-                this_sum = df.query(f"Dataset == '{data}' & Software == '{software}'")["_sum"].item()
+                try:
+                    this_sum = df.query(f"Dataset == '{data}' & Software == '{software}'")["_sum"].item()
+                except ValueError:
+                    _lh.error("Software %s data %s have !=1 data!", software, data)
+                    sys.exit(1)
                 width = math.sqrt(this_sum / all_software_max)
                 # LaTeX does not support pathsep in \\
                 fig_file_path = r"/".join((src_fig_dir_path, f"{software}-{data}.pdf"))
