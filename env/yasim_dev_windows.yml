@@ -1,40 +1,36 @@
 name: yasim_dev
 channels:
   - nodefaults
-#  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge
-#  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch
-#  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
-#  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
   - conda-forge
   - anaconda
   - bioconda
   - main
   - free
+  - msys2
   - r
 
 dependencies:
-  # Core libraries
+  # Core libraries in labw_utils
   - python=3.8
-  - matplotlib>=3.6
   - tk
+  - scipy>=1.7
+  - pandas>=1.4 # Supported: 1.5.X, 2.0.X
   - numpy>=1.24
-  - pandas>=1.4
-  #- pysam>=0.20
   - joblib=>1.2
-  - scikit-learn>=1.2
-  - requests
-  - tomli
+  - jinja2>=3.1.2
+  - tqdm>=4.64
+  - matplotlib>=3.6
 
-  # Recommended libraries
-  - seaborn>=0.12 # A high-level plotting library over matplotlib.
-  - tqdm>=4.64 # Progress bar.
+  # Used in building docs
+  - tomli
+  - seaborn>=0.12
 
   # Development Utilities
   - m2-bash
   - m2-make
   - m2-coreutils
   - m2-findutils
-  - git
+  - m2-git
   - m2-grep
 
   # Sphinx documentation
@@ -42,37 +38,13 @@ dependencies:
   - sphinx_rtd_theme=1.1.1
   - sphinx-copybutton
   - myst-nb
+  - notebook
+  - jupyter
+  - jupytext
 
-  # Pandas acceleration libraries
-  - bottleneck>=1.3.1
-  - numexpr>=2.8
-  - numba>=0.53
-  - pyarrow
-  # - pyspark
-
-  # R
-  # - bioconductor-deseq2=1.38.0
-  # - bioconductor-isoformswitchanalyzer=1.20.0
-  # - r-arrow=10.0.1
-  # - r-corrplot=0.92
-  # - r-ggridges=0.5.4
-  # - r-tidyverse=1.3.2
-  # - r-scales=1.2.1
-  # - r-pheatmap=1.0.12
-  # - r-base=4.2.2
-#  - r-languageserver
-#  - radian=0.6.4
-#  - r-lintr
-
-
-  # TGS utils
-  # - pbccs=6.0.0
-  # - minimap2=2.24
-
+  # Build utils
   - pip
   - setuptools
   - wheel
   - build
   - twine
-  # - pip:
-  #   - pytype
