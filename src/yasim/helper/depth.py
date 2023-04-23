@@ -14,7 +14,7 @@ __all__ = (
 
 import math
 from random import uniform
-from typing import List
+from labw_utils.typing_importer import List
 
 import numpy as np
 

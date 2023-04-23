@@ -7,7 +7,7 @@ __all__ = (
 )
 
 import os
-from typing import List, Union, Final, Mapping, Any
+from labw_utils.typing_importer import List, Union, Final, Mapping, Any
 
 from labw_utils.commonutils.io import file_system
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, NoOutputFileException

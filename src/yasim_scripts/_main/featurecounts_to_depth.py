@@ -8,7 +8,7 @@ __all__ = (
 )
 
 import argparse
-from typing import List
+from labw_utils.typing_importer import List
 
 import pandas as pd
 

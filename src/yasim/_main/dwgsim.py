@@ -8,7 +8,7 @@ __all__ = (
 )
 
 import argparse
-from typing import List
+from labw_utils.typing_importer import List
 
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from yasim.helper import llrg

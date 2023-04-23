@@ -3,4 +3,3 @@ include src/yasim/llrg_adapter/pbsim2_dist/*
 include src/yasim/llrg_adapter/pbsim3_dist/*
 include src/yasim/llrg_adapter/pbsim_dist/*
 include src/yasim/llrg_adapter/templates/*
-include src/yasim_sctcr/_main/sample_data*

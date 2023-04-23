@@ -14,7 +14,7 @@ __all__ = (
     "main",
 )
 
-from typing import List
+from labw_utils.typing_importer import List
 
 from yasim_scripts.helper.maf_parser import maf_parse
 

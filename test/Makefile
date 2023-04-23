@@ -31,3 +31,4 @@ ce11.ncbiRefSeq.chrM.gtf: ce11.ncbiRefSeq.gtf
 .PHONY: clean
 clean:
 	$(MAKE) -C llrg clean
+	rm -f *.gvpkl.xz

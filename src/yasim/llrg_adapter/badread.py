@@ -9,7 +9,7 @@ __all__ = (
 )
 
 import argparse
-from typing import List, Final, Mapping, Any
+from labw_utils.typing_importer import List, Final, Mapping, Any
 
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, LLRGInitializationException
 

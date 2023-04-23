@@ -60,7 +60,6 @@ tags
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
-.idea/**/dictionaries
 .idea/**/shelf
 
 # AWS User-specific
@@ -470,3 +469,4 @@ gffcmp*
 makefile_test_data/
 syq_article_simulation2
 !requirements_*.txt
+!.markdownlint.json

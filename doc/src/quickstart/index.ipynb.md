@@ -24,6 +24,8 @@ This tutorial assumes basic understandings on RNA-Seq and Shell scripting. Those
 Code block with leading `%%bash` are Shell code blocks. For example:
 
 ```{code-cell}
+:tags: [skip-execution]
+
 %%bash
 ls -lFh | grep ipynb
 ```
@@ -44,17 +46,12 @@ The following diagram lists full YASIM workflow. You are not limited to this and
 
 Here would list version information of each component used in this tutorial for reproductive purposes.
 
-```{note}
-we would assume that PBSIM3 is installed at `/home/yuzj/bin/pbsim3`. Change that to your own path on execution.
-```
-
-TODO: To be changed
-
 ```{code-cell}
 %%bash
 bash --version | head -n 1
 grep --version | head -n 1
 axel --version | head -n 1
+pbsim --version
 
 python -m yasim --version 2> /dev/null
 ```
@@ -202,39 +199,35 @@ The Low-Level Read Generators (LLRGs) are programs that simulates DNA-Seq on som
 
 +++
 
-### Invocation of TGS LLRGs: Use `pbsim3` for Example
+### Invocation of TGS LLRGs: Use `pbsim` for Example
 
 ```{warning}
 The official build of PBSIM, PBSIM2 and PBSIM3 shares a common executable anme (`pbsim`) but with different argument layout. For convenience, I renamed executable of PBSIM2 to `pbsim2` and PBSIM3 to `pbsim3`. If you do not use this in your computer, please use the `-e` option.
 ```
 
-`pbsim3` is a general-purposed TGS DNA- and RNA-Seq simulator that supports multiple PacBio and Oxford Nanopore sequencers. It can generate Circular Consensus Sequence (CCS)/HiFi data.
+`pbsim` is a general-purposed TGS DNA-Seq simulator that supports PacBio RS simulators. It can generate Circular Consensus Sequence CCS data.
 
 Compared to NGS simulators, TGS simulators have `truncate_ratio_3p` and `truncate_ratio_5p`. These two parameters are used to set hard limits at two sides that allows simulation of incomplete reads due to reasons like 3' truncation.
 
-Following is an example of simulation of CCS data using PacBio RS II model:
+Following is an example of simulation of CCS data using PacBio RS model:
 
 ```{code-cell}
 :tags: [skip-execution]
 
 %%bash
-python -m yasim pbsim3 \
+python -m yasim pbsim \
     -F ce11_trans_as.fa.d \
     -j 40 \
-    -e /home/yuzj/bin/pbsim3 \
-    --ccs_pass 20 \
+    --ccs \
     -d ce11_isoform_depth.tsv \
-    -m RSII \
-    -M qshmm \
-    --strategy trans \
-    -o pbsim3_mode
+    -o pbsim_mode
 ```
 
 Generates:
 
-- `pbsim3_mode.fq`, simulated Single-End FASTQ.
-- `pbsim3_mode.d`, temporary directory that can be safely deleted.
-- `pbsim3_mode.fq.stats`, statistics of simulated FASTQ. a TSV containing following columns:
+- `pbsim_mode.fq`, simulated Single-End FASTQ.
+- `pbsim_mode.d`, temporary directory that can be safely deleted.
+- `pbsim_mode.fq.stats`, statistics of simulated FASTQ. a TSV containing following columns:
   - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
   - `INPUT_DEPTH`, isoform expression level in coverage provided by the upstream source.
   - `SIMULATED_N_OF_READS`, simulated number of reads. **This value can be used in assessing read quantifiers**.

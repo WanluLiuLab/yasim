@@ -3,7 +3,7 @@ plot_utils.py -- Utility functions in GMM fitting process.
 """
 
 import numpy as np
-from numpy import typing as npt
+import numpy.typing as npt
 
 from labw_utils import UnmetDependenciesError
 
