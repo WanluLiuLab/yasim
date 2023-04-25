@@ -10,8 +10,8 @@ __all__ = (
 import re
 from labw_utils.typing_importer import Tuple, Iterable
 
-from labw_utils.commonutils.io.safe_io import get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.lwio.safe_io import get_reader
+from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 MafRecordType = Tuple[str, str, str, str]

@@ -5,7 +5,7 @@ import sys
 from labw_utils.typing_importer import Tuple, Mapping, Any, Type, Optional, Dict, List
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.lwio import file_system
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 from yasim.helper.depth_io import DepthType, read_depth, DepthParsingException

@@ -9,7 +9,7 @@ __all__ = (
 import os
 from labw_utils.typing_importer import List, Union, Final, Mapping, Any
 
-from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.lwio import file_system
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, NoOutputFileException
 
 

@@ -27,8 +27,8 @@ from labw_utils.typing_importer import Tuple, List, Callable, Optional
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter, FastqIterator
 from labw_utils.bioutils.record.fastq import FastqRecord, MisFormattedFastqRecordError
-from labw_utils.commonutils.io import file_system
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.lwio import file_system
+from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from yasim.helper.depth_io import DepthType
 

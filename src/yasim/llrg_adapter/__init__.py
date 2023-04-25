@@ -26,7 +26,7 @@ import threading
 from abc import abstractmethod, ABC
 from labw_utils.typing_importer import Union, List, IO, Optional, Iterable, Mapping, Any
 
-from labw_utils.commonutils.io.safe_io import get_reader, get_writer, file_system
+from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer, file_system
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from yasim.helper.llrg import enhanced_which

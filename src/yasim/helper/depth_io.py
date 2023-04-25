@@ -14,8 +14,8 @@ __all__ = (
 from labw_utils.typing_importer import Dict, Literal
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
+from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 
 DepthType = Dict[str, float]
 """DGE type, is transcript_id -> coverage"""

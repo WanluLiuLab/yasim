@@ -4,7 +4,7 @@ import os
 
 from labw_utils.bioutils.parser.feature import Gff3Iterator
 
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.lwio.safe_io import get_writer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
