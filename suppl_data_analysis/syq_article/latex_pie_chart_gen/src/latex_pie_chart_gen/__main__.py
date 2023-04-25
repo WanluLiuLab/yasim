@@ -35,11 +35,11 @@ def gen_figs(
     """
     _lh.info("GEN_FIGS: START")
     cmd = [
-                r_path,
-                os.path.join(FILE_DIR_PATH, "plot.R"),
-                "--src_data_csv_file_path", src_data_csv_file_path,
-                "--dst_fig_dir_path", dst_fig_dir_path
-            ]
+        r_path,
+        os.path.join(FILE_DIR_PATH, "plot.R"),
+        "--src_data_csv_file_path", src_data_csv_file_path,
+        "--dst_fig_dir_path", dst_fig_dir_path
+    ]
     _lh.info("CMD: %s", " ".join(cmd))
     with open(plot_log_file_path, "ab") as plot_log_file_writer:
         retv = subprocess.Popen(

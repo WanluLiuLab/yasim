@@ -11,8 +11,8 @@ __all__ = (
 import argparse
 import glob
 import os
-from labw_utils.typing_importer import List, Final, Mapping, Any
 
+from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge, LLRGInitializationException
 
 PBSIM2_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim2_dist")

@@ -13,7 +13,6 @@ __all__ = (
 )
 
 import random
-from labw_utils.typing_importer import List, Callable, Iterable
 
 import numpy as np
 from scipy.stats import lognorm
@@ -22,6 +21,7 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneVie
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import Gene
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Callable, Iterable
 
 ORGANISM_PARAMS = {
     "ce": (1.0274021145895147, 0.6524307003952217, 0.41902707818534024)

@@ -8,11 +8,11 @@ __all__ = (
 )
 
 import argparse
-from labw_utils.typing_importer import List
 
 import pandas as pd
 
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.typing_importer import List
 from yasim.helper.depth_io import write_depth
 
 

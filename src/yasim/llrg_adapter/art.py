@@ -10,9 +10,9 @@ __all__ = (
 
 import argparse
 import os
-from labw_utils.typing_importer import Dict, List, Tuple, Union, Final, Any, Mapping
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Dict, List, Tuple, Union, Final, Any, Mapping
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {

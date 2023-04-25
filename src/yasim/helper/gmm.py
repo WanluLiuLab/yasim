@@ -8,7 +8,6 @@ __all__ = (
 
 import multiprocessing
 from random import choices
-from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List
 
 import numpy as np
 import numpy.typing as npt
@@ -17,6 +16,8 @@ from joblib import Parallel, delayed
 from numpy.random import choice
 from scipy.integrate import quad
 from scipy.stats import norm
+
+from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List
 
 
 class GaussianMixture1D:

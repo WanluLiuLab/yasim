@@ -14,13 +14,13 @@ __all__ = (
 
 import math
 from random import uniform
-from labw_utils.typing_importer import List
 
 import numpy as np
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List
 from yasim.helper.depth_io import DepthType
 from yasim.helper.gmm import GaussianMixture1D
 

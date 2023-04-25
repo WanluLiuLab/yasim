@@ -8,9 +8,9 @@ __all__ = (
 )
 
 import argparse
-from labw_utils.typing_importer import List
 
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.typing_importer import List
 from yasim.helper import depth, depth_io
 from yasim.helper.frontend import patch_frontend_argument_parser
 

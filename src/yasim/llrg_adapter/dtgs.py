@@ -6,11 +6,10 @@ __all__ = (
     "DTGSAdapter",
 )
 
-from labw_utils.typing_importer import List, Union, Final, Mapping, Any
-
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter
 from labw_utils.bioutils.record.fastq import FastqRecord
+from labw_utils.typing_importer import List, Union, Final, Mapping, Any
 from yasim.llrg_adapter import BaseFunctionBasedLLRGAdapter
 
 

@@ -8,9 +8,9 @@ __all__ = (
 )
 
 import argparse
-from labw_utils.typing_importer import List
 
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.typing_importer import List
 from yasim.helper import llrg
 from yasim.helper.rna_seq import bulk_rna_seq_frontend
 from yasim.llrg_adapter import art
