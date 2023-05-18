@@ -6,6 +6,8 @@ import numpy as np
 import numpy.typing as npt
 
 from labw_utils import UnmetDependenciesError
+from labw_utils.mlutils.ndarray_helper import describe
+from labw_utils.typing_importer import Optional, Any
 
 try:
 
@@ -19,25 +21,31 @@ matplotlib.use('qtagg')
 __all__ = ("plot",)
 
 
-def plot(data: npt.ArrayLike, model, title: str = ""):
+def plot(data: npt.NDArray, model:Optional[Any] = None, title: str = ""):
     """
     Plot how fitted GMM model performs over actual data
     """
 
-    def normalize(_simulated_data: npt.ArrayLike) -> npt.ArrayLike:
+    def normalize(_simulated_data: npt.NDArray) -> npt.NDArray:
         return _simulated_data[_simulated_data >= 0][:len(data)]
 
-    print(str(model))
-    # print(list(model.export()))
+    data = np.array(data)
     n_bins = np.arange(0, 10, 0.1)
+    if model is not None:
+        print(str(model))
 
-    simulated_data = model.rvs(2 * len(data))
-    data_n = data
-    simulated_data_n = normalize(simulated_data)
+        simulated_data = model.rvs(2 * len(data))
+        simulated_data_n = normalize(simulated_data)
 
-    fig, axes = plt.subplots(1, 1)
-    axes.hist(data_n, bins=n_bins, density=True, color="blue", alpha=0.2)
-    axes.hist(simulated_data_n, bins=n_bins, density=True, color="red", alpha=0.2)
-    print(np.mean(data), np.mean(simulated_data))
-    plt.title(f"{title} Red: Simulated, Blue: Real")
-    plt.show()
+        fig, axes = plt.subplots(1, 1)
+        axes.hist(data, bins=n_bins, density=True, color="blue", alpha=0.2)
+        axes.hist(simulated_data_n, bins=n_bins, density=True, color="red", alpha=0.2)
+        print("data: "+ describe(data))
+        print("simulated_data: "+ describe(simulated_data))
+        print("simulated_data (normalized): "+ describe(simulated_data_n))
+        plt.title(f"{title} Red: Simulated, Blue: Real")
+        plt.show()
+    else:
+        plt.hist(data, bins=n_bins, density=True, color="blue", alpha=0.2)
+        plt.title(f"{title} Blue: Real")
+        plt.show()

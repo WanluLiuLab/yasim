@@ -17,7 +17,7 @@ from numpy.random import choice
 from scipy.integrate import quad
 from scipy.stats import norm
 
-from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List
+from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, Sequence, SequenceProxy
 
 
 class GaussianMixture1D:
@@ -182,9 +182,11 @@ class GaussianMixture1D:
         result = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(_rvs)() for _ in range(size)))
         return result
 
-    def export(self) -> Iterable[Tuple[float, float, float]]:
+    def export(self) -> Sequence[Tuple[float, float, float]]:
+        retl = []
         for j in range(self._n_components):
-            yield self._weights[j], self._mu[j], self._sigma[j]
+            retl.append((self._weights[j], self._mu[j], self._sigma[j]))
+        return SequenceProxy(retl)
 
     @classmethod
     def import_model(cls, model: Iterable[Tuple[float, float, float]]):

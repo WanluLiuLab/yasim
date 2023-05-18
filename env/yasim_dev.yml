@@ -20,6 +20,7 @@ dependencies:
   - jinja2>=3.1.2
   - tqdm>=4.64
   - matplotlib>=3.6
+  - pyarrow
 
   # Used in building docs
   - tomli
@@ -99,5 +100,6 @@ dependencies:
   - wheel
   - build
   - twine
+  - mypy
   - pip:
     - pytype

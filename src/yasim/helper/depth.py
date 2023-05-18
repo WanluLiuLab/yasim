@@ -47,24 +47,30 @@ def simulate_gene_level_depth_gmm(
 
     :param gv: GeneView of the GTF.
     :param mu: Targeted mean.
-    :param low_cutoff: Depth lower than this value would be 0.
-    :param high_cutoff_ratio: Depth higher than mu * high_cutoff_ratio would be 0.
+    :param low_cutoff: Depth lower than this value would be preserved to this value.
+    :param high_cutoff_ratio: Depth higher than mu * high_cutoff_ratio would be preserved to this value.
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
     """
     gmm_model = GaussianMixture1D.import_model([
-        (0.3043757984608804, 2.3107772552803634, 0.3956119888112459),
-        (0.3106118627088962, 1.3815767710834788, 0.19646588205588317),
-        (0.2905529799446133, 1.000000000000003, 3.108624468950436e-15),
-        (0.09445935888561038, 3.04499166208647, 0.6200436778100588)
+        (0.14427447754677641, 1.5527662658235803, 0.5349602445403809),
+        (0.06838373058223621, 3.6990568545476674, 4.440892098500626e-16),
+        (0.3139879527820852, 2.3714543839859354, 0.3438604637707616),
+        (0.47335383908890194, 3.126802802022012, 0.3396120976402885)
     ])
     n_gene_ids = gv.number_of_genes
     depth = {}
     for _ in range(20):
-        data = np.power(10, gmm_model.rvs(size=n_gene_ids) - 1) - 1
-        data[data < low_cutoff] = 0
-        data[data > mu * high_cutoff_ratio] = 0
+        data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
         data = data / np.mean(data) * mu
+        data = data[np.logical_and(
+                   mu * high_cutoff_ratio > data,
+                   data> low_cutoff
+               )]
+        if len(data) < n_gene_ids:
+            continue
+        else:
+            data=data[: n_gene_ids]
         if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
             break
         else:
@@ -80,7 +86,8 @@ def simulate_isoform_variance_inside_a_gene(
         n: int,
         mu: float,
         alpha: int,
-        low_cutoff: float
+        low_cutoff: float,
+        high_cutoff_ratio: float
 ) -> List[float]:
     """
     Generate isoform variance inside a gene using Zipf's Distribution
@@ -88,7 +95,8 @@ def simulate_isoform_variance_inside_a_gene(
     :param n: Number of isoforms
     :param mu: Mean of expression data
     :param alpha: Zipf's Coefficient
-    :param low_cutoff: Depth lower than this value would be 0.
+    :param low_cutoff: Depth lower than this value would be preserved to this value.
+    :param high_cutoff_ratio: Depth higher than mu * high_cutoff_ratio would be preserved to this value.
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
     """
@@ -105,8 +113,9 @@ def simulate_isoform_variance_inside_a_gene(
             _lh.warning("NAN found in data; would regenerate")
     else:
         raise GenerationFailureException()
-    generated_abundance[generated_abundance < low_cutoff] = 0
     generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
+    generated_abundance[generated_abundance < low_cutoff] = low_cutoff
+    generated_abundance[generated_abundance > mu * high_cutoff_ratio] = mu * high_cutoff_ratio
     np.random.shuffle(generated_abundance)
     return generated_abundance
 
