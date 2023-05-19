@@ -72,7 +72,8 @@ def main(args: List[str]):
                 n=gene.number_of_transcripts,
                 mu=gene_level_depth[gene.gene_id],
                 low_cutoff=args.low_cutoff,
-                alpha=args.alpha
+                alpha=args.alpha,
+                high_cutoff_ratio=100 # FIXME
             )
         except depth.GenerationFailureException:
             _lh.error("Generation failed for gene %s -- SKIPPED", gene.gene_id)

@@ -12,6 +12,7 @@ __all__ = (
     "generate_depth_replicates_uniform"
 )
 
+import functools
 import math
 from random import uniform
 
@@ -20,6 +21,7 @@ import numpy as np
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.mlutils.ndarray_helper import describe
 from labw_utils.typing_importer import List
 from yasim.helper.depth_io import DepthType
 from yasim.helper.gmm import GaussianMixture1D
@@ -62,19 +64,27 @@ def simulate_gene_level_depth_gmm(
     depth = {}
     for _ in range(20):
         data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
-        data = data / np.mean(data) * mu
-        data = data[np.logical_and(
-                   mu * high_cutoff_ratio > data,
-                   data> low_cutoff
-               )]
+        data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
+        data = data[functools.reduce(
+                np.logical_and,
+                (
+                    mu * high_cutoff_ratio > data,
+                    data > low_cutoff,
+                    np.logical_not(np.isnan(data))
+                )
+            )]  # Filter data
         if len(data) < n_gene_ids:
+            _lh.warning(
+                "filtered data length (%d) smaller than required (%d); would regenerate",
+                len(data), n_gene_ids
+            )
             continue
-        else:
-            data=data[: n_gene_ids]
-        if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
-            break
-        else:
-            _lh.warning("NAN/all zero found in data; would regenerate")
+
+        data = data[: n_gene_ids]
+        data = data / np.mean(data) * mu  # Rescale to real mean
+        data[mu * high_cutoff_ratio < data] = mu * high_cutoff_ratio
+        data[data < low_cutoff] = low_cutoff
+        break
     else:
         raise GenerationFailureException()
     for i, gene_id in enumerate(tqdm(iterable=list(gv.iter_gene_ids()), desc="Simulating...")):

@@ -11,9 +11,9 @@ if __name__ == '__main__':
     for _ in range(20):
         d = simulate_gene_level_depth_gmm(
             gv=gv,
-            mu=100,
+            mu=40,
             low_cutoff=1,
-            high_cutoff_ratio=20
+            high_cutoff_ratio=10E4
         )
         gene_expr_levels = np.array(list(d.values()), dtype="float")
         inside_isoform_vars = []
@@ -22,9 +22,9 @@ if __name__ == '__main__':
             i = simulate_isoform_variance_inside_a_gene(
                 n=gv.get_gene(gene_name).number_of_transcripts,
                 mu=mean_expr,
-                alpha=3,
-                low_cutoff=0.01,
-                high_cutoff_ratio=20
+                alpha=10,
+                low_cutoff=1,
+                high_cutoff_ratio=10E4
             )
             isoform_expr_levels.extend(i)
             inside_isoform_vars.append(max(i) / min(i))
