@@ -5,9 +5,6 @@ This file contains necessary modules in *de novo* generation of AS events.
 It would reshape Number of Isoforms per Gene on Reference Genome in a log-normal distribution,
 with new isoforms introduced by creating AS events and redundant isoforms removed.
 """
-
-# FIXME: May exceed chromosome bound!
-
 __all__ = (
     "ASManipulator",
 )

@@ -20,8 +20,10 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim generate_gene_depth",
-                                                  description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim generate_gene_depth",
+        description=__doc__.splitlines()[1]
+    )
     parser = patch_frontend_argument_parser(parser, "-g")
     parser.add_argument(
         '-o', '--out',
@@ -41,15 +43,7 @@ def create_parser() -> argparse.ArgumentParser:
         default=100
     )
     parser = patch_frontend_argument_parser(parser, "--low_cutoff")
-    parser.add_argument(
-        '--high_cutoff_ratio',
-        required=False,
-        help="Depth higher than mu * high_cutoff_ratio would be 0.",
-        nargs='?',
-        type=float,
-        action='store',
-        default=10
-    )
+    parser = patch_frontend_argument_parser(parser, "--high_cutoff_ratio")
     return parser
 
 

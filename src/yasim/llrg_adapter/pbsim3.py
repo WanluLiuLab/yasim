@@ -14,6 +14,7 @@ import os
 import subprocess
 import time
 import uuid
+import enum
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.lwio.safe_io import get_writer
@@ -24,11 +25,10 @@ from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge,
 
 _lh = get_logger(__name__)
 
-# FIXME: Implement following feature
 try:
     import jinja2
 
-    PACB_SUBREAD_XML_TEMPLATE_FILE_PATH = (
+    PACB_SUBREAD_XML_TEMPLATE = (
         jinja2.
         Environment(
             loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates'),
@@ -40,15 +40,26 @@ try:
 except ImportError:
     _lh.warning("Jinja2 failed to import. CCS generation will be BAM-based instead of XML-based.")
     jinja2 = None
-    PACB_SUBREAD_XML_TEMPLATE_FILE_PATH = None
+    PACB_SUBREAD_XML_TEMPLATE = None
 
 PBSIM3_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
 """
 Where pbsim3 stores its models
 """
 
-PBSIM3_STRATEGY = ("wgs", "trans")
-"""PBSIM3 stratergy, can be WGS or Isoform cDNA (trans)"""
+class PBSIM3_STRATEGY(enum.Enum):
+    wgs = enum.auto()
+    trans = enum.auto()
+
+    @classmethod
+    def from_name(cls, in_name: str) -> 'PBSIM3_STRATEGY':
+        for choices in cls:
+            if choices.name == in_name:
+                return choices
+
+PBSIM3_STRATEGY.wgs.__doc__ = "WGS mode (as PBSIM2)"
+PBSIM3_STRATEGY.trans.__doc__ = "TRANS mode"
+
 
 PBSIM3_QSHMM_POSSIBLE_MODELS = [
     os.path.basename(os.path.splitext(filename.replace("QSHMM-", ""))[0])
@@ -84,7 +95,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
     _samtools_executable_path: Optional[str]
     _ccs_executable_path: Optional[str]
     _ccs_num_threads: Optional[int]
-    _strategy: str
+    _strategy: PBSIM3_STRATEGY
 
     _input_path: str
     """Path to input transcript.tsv or genome.fasta"""
@@ -97,7 +108,6 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
     def validate_params(
             hmm_model: str,
             hmm_method: str,
-            strategy: str,
             ccs_pass: int,
             ccs_executable_path: Optional[str],
             samtools_executable_path: Optional[str],
@@ -113,8 +123,6 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             hmm_model = possible_hmm_model_path
         else:
             raise LLRGInitializationException(f"HMM Model {hmm_model} cannot be resolved!")
-        if strategy not in PBSIM3_STRATEGY:
-            raise LLRGInitializationException(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
         if ccs_pass > 1:
             try:
                 ccs_executable_path = enhanced_which(ccs_executable_path)
@@ -142,7 +150,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             depth: int,
             llrg_executable_path: str,
             is_trusted: bool,
-            strategy: str,
+            strategy: PBSIM3_STRATEGY,
             hmm_method: str,
             hmm_model: str,
             samtools_executable_path: Optional[str],
@@ -180,7 +188,6 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             validated_params = Pbsim3Adapter.validate_params(
                 hmm_model=hmm_model,
                 hmm_method=hmm_method,
-                strategy=strategy,
                 ccs_pass=ccs_pass,
                 samtools_executable_path=samtools_executable_path,
                 ccs_executable_path=ccs_executable_path
@@ -205,9 +212,8 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
 
         if strategy not in PBSIM3_STRATEGY:
             raise LLRGInitializationException(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
-        self._strategy = strategy
 
-        if self._strategy == "trans":
+        if self._strategy == PBSIM3_STRATEGY.trans:
             self._input_path = os.path.join(
                 self._tmp_dir, "transcript.tsv"
             )
@@ -233,7 +239,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         ]
 
     def _pre_execution_hook(self) -> None:
-        if self._strategy == "trans":
+        if self._strategy == PBSIM3_STRATEGY.trans:
             try:
                 with get_writer(self._input_path) as transcript_writer, \
                         FastaViewFactory(
@@ -276,7 +282,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             if jinja2 is not None:
                 with get_writer(subreads_xml_path) as writer:
                     timestamp = time.localtime()
-                    writer.write(PACB_SUBREAD_XML_TEMPLATE_FILE_PATH.render(
+                    writer.write(PACB_SUBREAD_XML_TEMPLATE.render(
                         timestamp_file=time.strftime("%y-%m-%dT%H:%M:%S", timestamp),
                         timestamp_simple=time.strftime("%y%m%d_%H%m%S", timestamp),
                         bam_filepath=subreads_bam_path,
@@ -358,7 +364,7 @@ def patch_frontend_parser(
         nargs='?',
         type=str,
         action='store',
-        choices=["errhmm", "qshmm"]
+        choices=("errhmm", "qshmm")
     )
     parser.add_argument(
         "--ccs_pass",
@@ -392,7 +398,7 @@ def patch_frontend_parser(
         required=False,
         help="Whether to use transcript (trans) mode or wgs (wgs) mode",
         choices=PBSIM3_STRATEGY,
-        type=str,
+        type=PBSIM3_STRATEGY.from_name,
         action='store',
         default="wgs"
     )

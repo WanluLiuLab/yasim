@@ -30,11 +30,20 @@ FrontendOptSpecs.add(FrontendOptSpec(
 FrontendOptSpecs.add(FrontendOptSpec(
     '--low_cutoff',
     required=False,
-    help="Depth lower than this value would be 0.",
+    help="Depth lower than this value would be this value.",
     nargs='?',
     type=float,
     action='store',
     default=0.01
+))
+FrontendOptSpecs.add(FrontendOptSpec(
+    '--high_cutoff_ratio',
+    required=False,
+    help="Depth higher than `mu * high_cutoff_ratio` would be `mu * high_cutoff_ratio`",
+    nargs='?',
+    type=float,
+    action='store',
+    default=200
 ))
 
 

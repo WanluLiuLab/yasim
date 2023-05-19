@@ -43,6 +43,7 @@ def create_parser() -> argparse.ArgumentParser:
         action='store'
     )
     parser = patch_frontend_argument_parser(parser, "--low_cutoff")
+    parser = patch_frontend_argument_parser(parser, "--high_cutoff_ratio")
     parser.add_argument(
         '--alpha',
         required=False,
@@ -73,7 +74,7 @@ def main(args: List[str]):
                 mu=gene_level_depth[gene.gene_id],
                 low_cutoff=args.low_cutoff,
                 alpha=args.alpha,
-                high_cutoff_ratio=100 # FIXME
+                high_cutoff_ratio=args.high_cutoff_ratio
             )
         except depth.GenerationFailureException:
             _lh.error("Generation failed for gene %s -- SKIPPED", gene.gene_id)

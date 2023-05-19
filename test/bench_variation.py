@@ -4,16 +4,18 @@ from labw_utils.mlutils.ndarray_helper import describe
 from yasim.helper.depth import simulate_gene_level_depth_gmm, simulate_isoform_variance_inside_a_gene
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
+from labw_utils.commonutils.libfrontend import setup_basic_logger
 from yasim.helper.plot_utils import plot
 
 if __name__ == '__main__':
+    setup_basic_logger()
     gv = GeneViewFactory.from_file("ce11.ncbiRefSeq.gtf")
     for _ in range(20):
         d = simulate_gene_level_depth_gmm(
             gv=gv,
             mu=40,
             low_cutoff=1,
-            high_cutoff_ratio=10E4
+            high_cutoff_ratio=200
         )
         gene_expr_levels = np.array(list(d.values()), dtype="float")
         inside_isoform_vars = []
@@ -24,7 +26,7 @@ if __name__ == '__main__':
                 mu=mean_expr,
                 alpha=10,
                 low_cutoff=1,
-                high_cutoff_ratio=10E4
+                high_cutoff_ratio=200
             )
             isoform_expr_levels.extend(i)
             inside_isoform_vars.append(max(i) / min(i))
