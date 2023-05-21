@@ -2,13 +2,12 @@ library("tidyverse")
 library("pheatmap")
 library("ggridges")
 
-fns <- Sys.glob("ce11_as_3_isoform_depth_*.fq.stats")
+fns <- Sys.glob("*.fq.stats")
 conditions <- fns %>%
-    stringr::str_replace("ce11_as_3_isoform_depth_", "") %>%
     stringr::str_replace(".fq.stats", "")
 
 gene_id_transcript_id <- readr::read_tsv(
-    "ce11_as_3.gtf.transcripts.tsv",
+    "ce11.as.gtf.transcripts.tsv",
     show_col_types = FALSE,
     col_types = c(
         TRANSCRIPT_ID = col_character(),
@@ -59,26 +58,15 @@ if (file.exists("all_gep_data.parquet")) {
 }
 
 g <- ggplot(all_gep_data) +
-    geom_point(aes(y = log2(SIM_INPUT_RATIO), x = log10(INPUT_DEPTH)), size = 0.2, alpha = 0.1) +
-    ylab("Log2 Fold Change of LLRG Simulated vs. LLRG Input") +
-    xlab("Log10 LLRG Input") +
-    ggtitle("LLRG Error Summarize") +
-    facet_wrap(. ~ Condition, scales = "free") +
-    theme_bw()
-
-ggsave("gep_ratio.png", g, width = 15, height = 12)
-
-
-g <- ggplot(all_gep_data) +
     geom_point(aes(y = log10(SIMULATED_DEPTH), x = log10(INPUT_DEPTH)), size = 0.2, alpha = 0.1) +
+    geom_abline(slope = 1, intercept = 0, color = "red") +
     ylab("Log10 LLRG Simulated") +
     xlab("Log10 LLRG Input") +
     ggtitle("LLRG Error Summarize") +
-    geom_abline(slope=1, intercept=0, color="red") +
     facet_wrap(. ~ Condition) +
     theme_bw()
 
-ggsave("gep_ratio2.png", g, width = 15, height = 12)
+ggsave("gep_ratio.png", g, width = 15, height = 12)
 
 g <- ggplot(all_gep_data) +
     geom_histogram(aes(x = SIMULATED_DEPTH)) +
@@ -91,7 +79,6 @@ g <- ggplot(all_gep_data) +
 
 ggsave("gep_real_hist.pdf", g, width = 15, height = 12)
 
-
 means <- all_gep_data %>%
     dplyr::group_by(Condition) %>%
     dplyr::summarise(
@@ -103,7 +90,7 @@ means <- all_gep_data %>%
 
 
 g <- ggplot(means) +
-    geom_bar(aes(x = MEAN_SIMULATED_DEPTH, y = Condition), stat="identity") +
+    geom_bar(aes(x = MEAN_SIMULATED_DEPTH, y = Condition), stat = "identity") +
     ylab("Mean LLRG Simulated Depth") +
     xlab("Condition") +
     ggtitle("Mean Simulated Depth bar Plot") +
@@ -126,45 +113,101 @@ all_gep_data_with_gene_id <- all_gep_data %>%
     dplyr::inner_join(gene_id_transcript_id, by = "TRANSCRIPT_ID") %>%
     dplyr::select(GENE_ID, TRANSCRIPT_ID, SIMULATED_DEPTH, Condition)
 
-if (file.exists("all_gep_data_var.parquet")) {
-    all_variation_data <- arrow::read_parquet("all_gep_data_var.parquet")
+if (file.exists("gep_inside_gene_isoform_level_variation.parquet")) {
+    gep_inside_gene_isoform_level_variation <- arrow::read_parquet(
+        "gep_inside_gene_isoform_level_variation.parquet"
+    )
 } else {
-    all_variation_data <- data.frame()
-
+    gep_inside_gene_isoform_level_variation <- data.frame()
     for (gene_id in sample(unique(all_gep_data_with_gene_id$GENE_ID), 1000)) {
-        print(gene_id)
         for (condition in unique(all_gep_data_with_gene_id$Condition)) {
             this_gep_data_with_gene_id <- all_gep_data_with_gene_id %>%
                 dplyr::filter(GENE_ID == gene_id, Condition == condition)
-            for (transcript_id1 in this_gep_data_with_gene_id$TRANSCRIPT_ID) {
-                for (transcript_id2 in this_gep_data_with_gene_id$TRANSCRIPT_ID) {
-                    if (transcript_id1 != transcript_id2) {
-                        t1_data <- this_gep_data_with_gene_id %>%
-                            dplyr::filter(TRANSCRIPT_ID == transcript_id1)
-                        t2_data <- this_gep_data_with_gene_id %>%
-                            dplyr::filter(TRANSCRIPT_ID == transcript_id2)
-                        all_variation_data <- rbind(
-                            all_variation_data,
-                            data.frame(
-                                var = t1_data$SIMULATED_DEPTH / t2_data$SIMULATED_DEPTH,
-                                Condition = condition
-                            )
-                        )
-                    }
-                }
-            }
+            this_gep_data_with_gene_id <- this_gep_data_with_gene_id %>%
+                dplyr::cross_join(this_gep_data_with_gene_id)
+            gep_inside_gene_isoform_level_variation <- rbind(
+                gep_inside_gene_isoform_level_variation,
+                data.frame(
+                    var = this_gep_data_with_gene_id$SIMULATED_DEPTH.x / this_gep_data_with_gene_id$SIMULATED_DEPTH.y,
+                    Condition = condition
+                )
+            )
         }
-
     }
-    arrow::write_parquet(all_variation_data, "all_gep_data_var.parquet")
+    arrow::write_parquet(
+        gep_inside_gene_isoform_level_variation,
+        "gep_inside_gene_isoform_level_variation.parquet"
+    )
 }
 
-g <- ggplot(all_variation_data, aes(x = abs(log10(var)))) +
+g <- ggplot(gep_inside_gene_isoform_level_variation, aes(x = abs(log10(var)))) +
     geom_histogram() +
     xlab("Variance (Log 10 Fold Change)") +
     ggtitle("Distribution of Variation Inside a Gene") +
     facet_wrap(. ~ Condition, scales = "free_y") +
     theme_bw()
-
 ggsave("gep_var.pdf", g, width = 15, height = 12)
 
+if (file.exists("gep_isoform_level_variation.parquet")) {
+    gep_isoform_level_variation <- arrow::read_parquet("gep_isoform_level_variation.parquet")
+} else {
+    gep_isoform_level_variation <- data.frame()
+    for (condition in unique(all_gep_data_with_gene_id$Condition)) {
+        this_gep_data_with_gene_id <- all_gep_data_with_gene_id %>%
+            dplyr::filter(Condition == condition) %>%
+            head(3000)
+        this_gep_data_with_gene_id <- this_gep_data_with_gene_id %>%
+            dplyr::cross_join(this_gep_data_with_gene_id)
+        gep_isoform_level_variation <- rbind(
+            gep_isoform_level_variation,
+            data.frame(
+                var = this_gep_data_with_gene_id$SIMULATED_DEPTH.x / this_gep_data_with_gene_id$SIMULATED_DEPTH.y,
+                Condition = condition
+            )
+        )
+    }
+    arrow::write_parquet(gep_isoform_level_variation, "gep_isoform_level_variation.parquet")
+}
+
+g <- ggplot(gep_isoform_level_variation, aes(x = abs(log10(var)))) +
+    geom_histogram() +
+    xlab("Variance (Log 10 Fold Change)") +
+    ggtitle("Distribution of Variation among all Isoforms") +
+    facet_wrap(. ~ Condition, scales = "free_y") +
+    theme_bw()
+
+ggsave("gep_isoform_level_variation.pdf", g, width = 15, height = 12)
+
+if (file.exists("gep_gene_level_variation.parquet")) {
+    gep_gene_level_variation <- arrow::read_parquet("gep_gene_level_variation.parquet")
+} else {
+    gep_inside_gene_isoform_level_variation3 <- data.frame()
+    for (condition in unique(all_gep_data_with_gene_id$Condition)) {
+        print(condition)
+        this_gep_data_with_gene_id <- all_gep_data_with_gene_id %>%
+            dplyr::filter(Condition == condition) %>%
+            dplyr::group_by(GENE_ID) %>%
+            dplyr::summarise(SIMULATED_DEPTH = mean(SIMULATED_DEPTH)) %>%
+            unique() %>%
+            head(n = 1000)
+        this_gep_data_with_gene_id <- this_gep_data_with_gene_id %>%
+            dplyr::cross_join(this_gep_data_with_gene_id)
+        gep_gene_level_variation <- rbind(
+            gep_gene_level_variation,
+            data.frame(
+                var = this_gep_data_with_gene_id$SIMULATED_DEPTH.x / this_gep_data_with_gene_id$SIMULATED_DEPTH.y,
+                Condition = condition
+            )
+        )
+    }
+    arrow::write_parquet(gep_gene_level_variation, "gep_gene_level_variation.parquet")
+}
+
+g <- ggplot(gep_gene_level_variation, aes(x = abs(log10(var)))) +
+    geom_histogram() +
+    xlab("Variance (Log 10 Fold Change)") +
+    ggtitle("Distribution of Variation among all Genes") +
+    facet_wrap(. ~ Condition, scales = "free_y") +
+    theme_bw()
+
+ggsave("gep_gene_level_variation.pdf", g, width = 15, height = 12)
