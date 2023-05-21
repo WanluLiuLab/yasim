@@ -63,7 +63,7 @@ def simulate_gene_level_depth_gmm(
     n_gene_ids = gv.number_of_genes
     depth = {}
     for _ in range(20):
-        data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
+        data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids)) - 1
         data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
         data = data[functools.reduce(
                 np.logical_and,

@@ -7,6 +7,9 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneVie
 from labw_utils.commonutils.libfrontend import setup_basic_logger
 from yasim.helper.plot_utils import plot
 
+# 5-40
+# 10-80
+
 if __name__ == '__main__':
     setup_basic_logger()
     gv = GeneViewFactory.from_file("ce11.ncbiRefSeq.gtf")
@@ -24,7 +27,7 @@ if __name__ == '__main__':
             i = simulate_isoform_variance_inside_a_gene(
                 n=gv.get_gene(gene_name).number_of_transcripts,
                 mu=mean_expr,
-                alpha=10,
+                alpha=3,
                 low_cutoff=1,
                 high_cutoff_ratio=200
             )
