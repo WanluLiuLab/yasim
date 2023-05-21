@@ -12,6 +12,7 @@ import argparse
 import glob
 import os
 
+from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge, LLRGInitializationException
 
@@ -109,6 +110,7 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
 
     def _post_execution_hook(self):
         automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
+        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:

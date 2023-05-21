@@ -1906,6 +1906,8 @@
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/pbsim3_genome_ccs_mode.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/suppl_data_analysis" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/sonarlint" />
+      <excludeFolder url="file://$MODULE_DIR$/tmp/ce11.as.trans.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

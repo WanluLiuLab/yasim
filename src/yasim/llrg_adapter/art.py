@@ -12,10 +12,11 @@ import argparse
 import os
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Dict, List, Tuple, Union, Final, Any, Mapping
+from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
+from labw_utils.typing_importer import List, Tuple, Union, Final, Any, Mapping
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException
 
-AVAILABLE_ILLUMINA_ART_SEQUENCER: Dict[str, Tuple[str, List[int]]] = {
+AVAILABLE_ILLUMINA_ART_SEQUENCER: Mapping[str, Tuple[str, List[int]]] = {
     "GA1": ("GenomeAnalyzer I", [36, 44]),
     "GA2": ("GenomeAnalyzer II", [50, 75]),
     "HS10": ("HiSeq 1000", [100]),
@@ -165,6 +166,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             autocopy(os.path.join(self._tmp_dir, "tmp2.fq"), self._dst_fastq_file_prefix + "_2.fq")
         else:
             autocopy(os.path.join(self._tmp_dir, "tmp.fq"), self._dst_fastq_file_prefix + ".fq")
+        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:

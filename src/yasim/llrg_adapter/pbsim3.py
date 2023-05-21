@@ -19,6 +19,7 @@ import enum
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import Final, List, Mapping, Any, Optional
 from yasim.helper.llrg import enhanced_which
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge, LLRGInitializationException
@@ -47,6 +48,7 @@ PBSIM3_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
 Where pbsim3 stores its models
 """
 
+
 class PBSIM3_STRATEGY(enum.Enum):
     wgs = enum.auto()
     trans = enum.auto()
@@ -57,9 +59,15 @@ class PBSIM3_STRATEGY(enum.Enum):
             if choices.name == in_name:
                 return choices
 
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return self.name
+
+
 PBSIM3_STRATEGY.wgs.__doc__ = "WGS mode (as PBSIM2)"
 PBSIM3_STRATEGY.trans.__doc__ = "TRANS mode"
-
 
 PBSIM3_QSHMM_POSSIBLE_MODELS = [
     os.path.basename(os.path.splitext(filename.replace("QSHMM-", ""))[0])
@@ -228,7 +236,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             ]
         self._cmd = [
             llrg_executable_path,
-            "--strategy", self._strategy,
+            "--strategy", str(self._strategy),
             "--method", hmm_method,
             f"--{hmm_method}", hmm_model,
             "--prefix", os.path.join(self._tmp_dir, "tmp"),
@@ -319,12 +327,12 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
 
     def _post_execution_hook(self):
         if self._ccs_pass == 1:
-            if self._strategy == "wgs":
+            if self._strategy == PBSIM3_STRATEGY.wgs:
                 automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
             else:
                 autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._dst_fastq_file_prefix + ".fq")
         else:
-            if self._strategy == "wgs":
+            if self._strategy == PBSIM3_STRATEGY.wgs:
                 for fp in glob.glob(os.path.join(self._tmp_dir, "tmp_????.sam")):
                     prefix = os.path.basename(fp).split(".")[0]
                     self._ccs_to_fastq(prefix=prefix)
@@ -333,6 +341,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             else:
                 self._ccs_to_fastq(prefix="tmp")
                 autocopy(os.path.join(self._tmp_dir, "tmp.ccs.fq"), self._dst_fastq_file_prefix + ".fq")
+        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:

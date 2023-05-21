@@ -9,10 +9,13 @@ __all__ = (
 
 import argparse
 
+import numpy as np
+
 import yasim.helper.depth_io
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.mlutils.ndarray_helper import describe
 from labw_utils.typing_importer import List
 from yasim.helper import depth
 from yasim.helper.frontend import patch_frontend_argument_parser
@@ -81,4 +84,8 @@ def main(args: List[str]):
             continue
         for i, transcript in enumerate(gene.iter_transcripts()):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]
+    _lh.info(
+        "Generation of isoform-level depth: Final distribution: %s",
+        describe(np.array(list(transcript_level_depth.values())))
+    )
     yasim.helper.depth_io.write_depth(transcript_level_depth, args.out, "TRANSCRIPT_ID")

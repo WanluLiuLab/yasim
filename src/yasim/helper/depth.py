@@ -54,6 +54,7 @@ def simulate_gene_level_depth_gmm(
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
     """
+    _lh.info("Generation of gene-level depth: Loading GMM model...")
     gmm_model = GaussianMixture1D.import_model([
         (0.14427447754677641, 1.5527662658235803, 0.5349602445403809),
         (0.06838373058223621, 3.6990568545476674, 4.440892098500626e-16),
@@ -62,9 +63,12 @@ def simulate_gene_level_depth_gmm(
     ])
     n_gene_ids = gv.number_of_genes
     depth = {}
-    for _ in range(20):
+    for i in range(20):
+        _lh.info("Generation of gene-level depth: Attempt %d: GMM...", i)
         data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids)) - 1
+        _lh.info("Generation of gene-level depth: Attempt %d: 1/4: Scaling...", i)
         data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
+        _lh.info("Generation of gene-level depth: Attempt %d: 2/4: Filtering...", i)
         data = data[functools.reduce(
                 np.logical_and,
                 (
@@ -81,13 +85,16 @@ def simulate_gene_level_depth_gmm(
             continue
 
         data = data[: n_gene_ids]
+        _lh.info("Generation of gene-level depth: Attempt %d: 3/4 Scaling...", i)
         data = data / np.mean(data) * mu  # Rescale to real mean
+        _lh.info("Generation of gene-level depth: Attempt %d: 4/4 Filtering...", i)
         data[mu * high_cutoff_ratio < data] = mu * high_cutoff_ratio
         data[data < low_cutoff] = low_cutoff
         break
     else:
         raise GenerationFailureException()
-    for i, gene_id in enumerate(tqdm(iterable=list(gv.iter_gene_ids()), desc="Simulating...")):
+    _lh.info("Generation of gene-level depth: Final distribution: %s", describe(data))
+    for i, gene_id in enumerate(gv.iter_gene_ids()):
         depth[gene_id] = data[i]
     return depth
 
@@ -114,20 +121,20 @@ def simulate_isoform_variance_inside_a_gene(
         return [mu]
     for _ in range(20):
         if alpha == 1:
-            generated_abundance = np.array([(rn ** (-1)) for rn in range(1, n + 1)])
+            data = np.array([(rn ** (-1)) for rn in range(1, n + 1)])
         else:
-            generated_abundance = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
-        if np.sum(np.isnan(generated_abundance)) == 0 and np.sum(generated_abundance) != 0:
+            data = np.array([(alpha - 1) * (rn ** (-alpha)) for rn in range(1, n + 1)])
+        if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
             break
         else:
             _lh.warning("NAN found in data; would regenerate")
     else:
         raise GenerationFailureException()
-    generated_abundance = generated_abundance / np.mean(generated_abundance) * mu
-    generated_abundance[generated_abundance < low_cutoff] = low_cutoff
-    generated_abundance[generated_abundance > mu * high_cutoff_ratio] = mu * high_cutoff_ratio
-    np.random.shuffle(generated_abundance)
-    return generated_abundance
+    data = data / np.mean(data) * mu
+    data[data < low_cutoff] = low_cutoff
+    data[data > mu * high_cutoff_ratio] = mu * high_cutoff_ratio
+    np.random.shuffle(data)
+    return data
 
 
 def simulate_depth_gmm_v2(
