@@ -188,6 +188,10 @@ class BaseAssembler(AssemblerType, ABC):
 
     def terminate(self):
         self._should_stop = True
+    
+    @property
+    def n_pending(self) -> int:
+        return len(self._transcript_ids_pending)
 
 
 class AssembleSingleEnd(BaseAssembler):

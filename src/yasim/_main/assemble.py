@@ -8,13 +8,16 @@ __all__ = (
 )
 
 import argparse
-import os.path
+import os
+import time
 
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
-from labw_utils.typing_importer import List
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Type
 from yasim.helper import llrg, depth_io
-from yasim.helper.llrg import AssemblePairEnd, AssembleSingleEnd
+from yasim.helper.llrg import AssemblePairEnd, AssembleSingleEnd, AssemblerType
 
+_lh = get_logger(__name__)
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim pbsim", description=__doc__.splitlines()[1])
@@ -73,7 +76,8 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def main(args: List[str]):
-    args, other_args = create_parser().parse_known_args(args)
+    args = create_parser().parse_args(args)
+    assembler_class: Type[AssemblerType]
     if args.is_pair_end:
         assembler_class = AssemblePairEnd
     else:
@@ -93,4 +97,7 @@ def main(args: List[str]):
         assembler.add_transcript_id(transcript_id)
 
     assembler.terminate()
+    while assembler.is_alive():
+        _lh.info("%s -- PENDING: %d", args.out,  assembler.n_pending)
+        time.sleep(1.0)
     assembler.join()
