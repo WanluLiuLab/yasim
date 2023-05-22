@@ -16,7 +16,7 @@ if __name__ == '__main__':
     for _ in range(20):
         d = simulate_gene_level_depth_gmm(
             gv=gv,
-            mu=40,
+            mu=100,
             low_cutoff=1,
             high_cutoff_ratio=200
         )

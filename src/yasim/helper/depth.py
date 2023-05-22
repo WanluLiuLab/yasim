@@ -76,9 +76,8 @@ def simulate_gene_level_depth_gmm(
         data = data[functools.reduce(
                 np.logical_and,
                 (
-                    mu * high_cutoff_ratio > data,
-                    data > low_cutoff,
-                    np.logical_not(np.isnan(data))
+                    data > 0,
+                    np.isfinite(data)
                 )
             )]  # Filter data
         if len(data) < n_gene_ids:
