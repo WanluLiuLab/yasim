@@ -6,10 +6,11 @@ __all__ = (
     "GaussianMixture1D",
 )
 
+import bisect
 import itertools
-import math
 import multiprocessing
-from random import choices
+import random
+import secrets
 
 import numpy as np
 import numpy.typing as npt
@@ -20,7 +21,8 @@ from scipy.integrate import quad
 from scipy.stats import norm
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, Sequence, SequenceProxy
+from labw_utils.commonutils.stdlib_helper.parallel_helper import parallel_map
+from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, Sequence, SequenceProxy, Any
 
 _lh = get_logger(__name__)
 
@@ -192,12 +194,18 @@ class GaussianMixture1D:
     def rvs(self, size: int = 1) -> npt.ArrayLike:
         indices = list(range(self._n_components))
 
-        def _rvs():
-            k = choices(indices, weights=self._weights)
-            model = norm(self._mu[k], self._sigma[k])
-            return model.rvs()
+        def _rvs(_: Any):
+            rdg = random.SystemRandom()
+            k = rdg.choices(indices, weights=self._weights)
+            return rdg.normalvariate(mu=self._mu[k], sigma=self._sigma[k])
 
-        result = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(delayed(_rvs)() for _ in range(size)))
+        result = np.array(list(
+            parallel_map(
+                _rvs,
+                range(size),
+                n_jobs=multiprocessing.cpu_count()
+            )
+        ), dtype=float)
         return result
 
     def export(self) -> Sequence[Tuple[float, float, float]]:

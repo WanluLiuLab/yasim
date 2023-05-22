@@ -12,7 +12,7 @@ from yasim.helper.plot_utils import plot
 
 if __name__ == '__main__':
     setup_basic_logger()
-    gv = GeneViewFactory.from_file("ce11.ncbiRefSeq.gtf")
+    gv = GeneViewFactory.from_file("/home/yuzj/Downloads/ce11_as_2.gtf")
     for _ in range(20):
         d = simulate_gene_level_depth_gmm(
             gv=gv,
