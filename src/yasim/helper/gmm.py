@@ -6,17 +6,13 @@ __all__ = (
     "GaussianMixture1D",
 )
 
-import bisect
 import itertools
 import multiprocessing
-import random
 import secrets
 
 import numpy as np
 import numpy.typing as npt
 import tqdm
-from joblib import Parallel, delayed
-from numpy.random import choice
 from scipy.integrate import quad
 from scipy.stats import norm
 
@@ -51,9 +47,10 @@ class GaussianMixture1D:
 
     def fit(self, data: npt.ArrayLike, show_progress_bar: bool = True):
         n = len(data)
+        rdg = secrets.SystemRandom()
 
         # Use k-means to cluster points
-        centers = np.random.choice(data, size=self._n_components)
+        centers = np.array(rdg.choices(data, k=self._n_components))
         categories = np.repeat(0, n)
         bags: List[List[Union[int, float]]] = [[]] * self._n_components
         knn_range = range(self._n_iter)
@@ -130,7 +127,6 @@ class GaussianMixture1D:
                 break
             last_ll = ll
             current_export = np.array(list(itertools.chain(*self.export())), dtype=float)
-            print(current_export, np.sum(np.logical_not(np.isfinite(current_export))))
             if np.sum(
                 np.bitwise_or(
                     np.isnan(current_export),
@@ -141,7 +137,6 @@ class GaussianMixture1D:
                 return self.import_model(_last_range)
             else:
                 _last_range = list(self.export())
-                print(self.export())
         return self
 
     def log_likelihood(self, data):
@@ -195,7 +190,7 @@ class GaussianMixture1D:
         indices = list(range(self._n_components))
 
         def _rvs(_: Any):
-            rdg = random.SystemRandom()
+            rdg = secrets.SystemRandom()
             k = rdg.choices(indices, weights=self._weights)
             return rdg.normalvariate(mu=self._mu[k], sigma=self._sigma[k])
 

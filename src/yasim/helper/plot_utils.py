@@ -21,7 +21,7 @@ matplotlib.use('qtagg')
 __all__ = ("plot",)
 
 
-def plot(data: npt.NDArray, model:Optional[Any] = None, title: str = ""):
+def plot(data: npt.NDArray, model: Optional[Any] = None, title: str = ""):
     """
     Plot how fitted GMM model performs over actual data
     """
@@ -40,9 +40,9 @@ def plot(data: npt.NDArray, model:Optional[Any] = None, title: str = ""):
         fig, axes = plt.subplots(1, 1)
         axes.hist(data, bins=n_bins, density=True, color="blue", alpha=0.2)
         axes.hist(simulated_data_n, bins=n_bins, density=True, color="red", alpha=0.2)
-        print("data: "+ describe(data))
-        print("simulated_data: "+ describe(simulated_data))
-        print("simulated_data (normalized): "+ describe(simulated_data_n))
+        print("data:                        " + describe(data))
+        print("simulated_data:              " + describe(simulated_data))
+        print("simulated_data (normalized): " + describe(simulated_data_n))
         plt.title(f"{title} Red: Simulated, Blue: Real")
         plt.show()
     else:
