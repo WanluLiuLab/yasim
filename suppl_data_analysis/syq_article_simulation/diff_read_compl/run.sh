@@ -4,13 +4,17 @@ LOG_FILE_NAME="yasim_generate_gene_depth.log" \
     python -m yasim generate_gene_depth \
     -g ../ce11_as_2.gtf \
     -o ce11_as_2_gene_depth_20.tsv \
-    -d 20
+    -d 20 \
+    --low_cutoff 1.0 \
+    --high_cutoff_ratio 200
 LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
     python -m yasim generate_isoform_depth \
     -g ../ce11_as_2.gtf \
     -d ce11_as_2_gene_depth_20.tsv \
     -o ce11_as_2_isoform_depth_20.tsv \
-    --alpha 4
+    --alpha 4 \
+    --low_cutoff 1.0 \
+    --high_cutoff_ratio 200
 
 function perform_housekeeping() {
     rm -rf "${1}".d &&
@@ -121,3 +125,13 @@ perform_simulation 0.1 0.1
 perform_simulation 0.2 0.0
 
 perform_simulation 0.0 0.0
+
+for fn in *.fq; do
+    {
+        python -m labw_utils.bioutils describe_fastq "${fn}" &>/dev/null &&
+            echo "FIN ${fn}" ||
+            echo "ERR ${fn}"
+    } &
+done
+wait
+Rscript plot_fastq.R
