@@ -11,7 +11,7 @@ function generate_depth() {
         -g ce11_as_2.gtf \
         -o ce11_as_2_gene_depth_"${1}".tsv \
         -d "${1}" \
-        --low_cutoff 1 \
+        --low_cutoff 1.0 \
         --high_cutoff_ratio 200
     LOG_FILE_NAME="yasim_generate_isoform_depth_${1}.log" \
         python -m yasim generate_isoform_depth \
@@ -19,7 +19,7 @@ function generate_depth() {
         -d ce11_as_2_gene_depth_"${1}".tsv \
         -o ce11_as_2_isoform_depth_"${1}".tsv \
         --alpha 4 \
-        --low_cutoff 1 \
+        --low_cutoff 1.0 \
         --high_cutoff_ratio 200
 }
 
@@ -119,9 +119,20 @@ for mean_depth in 10 25 40 55 70; do
 done
 wait
 rm -f ./*.parquet
-Rscript plot_gep_simulated.R
+Rscript plot_gep.R simulated
 
-# for mean_depth in 10 25 40 55 70; do
-#     perform_simulation ce11_as_2_isoform_depth_"${mean_depth}"
-# done
-# wait
+for mean_depth in 10 25 40 55 70; do
+    perform_simulation ce11_as_2_isoform_depth_"${mean_depth}"
+done
+wait
+
+for fn in *.fq; do
+    {
+        python -m labw_utils.bioutils describe_fastq "${fn}" &>/dev/null &&
+            echo "FIN ${fn}" ||
+            echo "ERR ${fn}"
+    } &
+done
+wait
+
+Rscript plot_gep.R actual
