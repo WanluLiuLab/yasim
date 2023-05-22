@@ -36,11 +36,12 @@ def main(args: List[str]):
         jobs=args.jobs,
         simulator_name="dwgsim" if args.simulator_name is None else args.simulator_name,
         adapter_args={
-            "other_args": other_args
+            "other_args": other_args,
+            "preserve_intermediate_files": args.preserve_intermediate_files
         },
         assembler_args={},
         adapter_class=dwgsim.DwgsimAdapter,
         is_pair_end=True,
         llrg_executable_path=args.llrg_executable_path,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

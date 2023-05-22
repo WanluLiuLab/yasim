@@ -43,11 +43,12 @@ def main(args: List[str]) -> int:
             "read_length": args.read_length,
             "pair_end_fragment_length_mean": args.pair_end_fragment_length_mean,
             "pair_end_fragment_length_std": args.pair_end_fragment_length_std,
-            "is_pair_end": args.is_pair_end
+            "is_pair_end": args.is_pair_end,
+            "preserve_intermediate_files": args.preserve_intermediate_files
         },
         assembler_args={},
         adapter_class=art.ArtAdapter,
         is_pair_end=args.is_pair_end,
         llrg_executable_path=args.llrg_executable_path,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

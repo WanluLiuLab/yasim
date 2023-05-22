@@ -40,7 +40,8 @@ def main(args: List[str]):
             ("pbsim", "RS", "ccs" if args.ccs else "clr")) if args.simulator_name is None else args.simulator_name,
         adapter_args={
             "is_ccs": args.ccs,
-            "other_args": other_args
+            "other_args": other_args,
+            "preserve_intermediate_files": args.preserve_intermediate_files
         },
         assembler_args={
             "truncate_ratio_3p": args.truncate_ratio_3p,
@@ -49,5 +50,5 @@ def main(args: List[str]):
         adapter_class=pbsim.PbsimAdapter,
         is_pair_end=False,
         llrg_executable_path=args.llrg_executable_path,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

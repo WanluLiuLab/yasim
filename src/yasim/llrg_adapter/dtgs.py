@@ -42,6 +42,7 @@ class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
@@ -64,7 +65,8 @@ class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
             src_fasta_file_path=src_fasta_file_path,
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
-            is_trusted=is_trusted
+            is_trusted=is_trusted,
+            preserve_intermediate_files=None  # Not effective.
         )
 
     def _pre_execution_hook(self) -> None:

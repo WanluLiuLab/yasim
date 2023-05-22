@@ -47,7 +47,8 @@ def main(args: List[str]):
             "ccs_pass": args.ccs_pass,
             "hmm_method": args.hmm_method,
             "strategy": args.strategy,
-            "other_args": other_args
+            "other_args": other_args,
+            "preserve_intermediate_files": args.preserve_intermediate_files
         }, assembler_args={
             "truncate_ratio_3p": args.truncate_ratio_3p,
             "truncate_ratio_5p": args.truncate_ratio_5p
@@ -55,5 +56,5 @@ def main(args: List[str]):
         adapter_class=pbsim3.Pbsim3Adapter,
         is_pair_end=False,
         llrg_executable_path=args.llrg_executable_path,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

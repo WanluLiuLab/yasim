@@ -14,6 +14,7 @@ import os
 
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import List, Final, Mapping, Any
+from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge
 
 PBSIM_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim_dist")
@@ -59,12 +60,14 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: int,
             llrg_executable_path: str,
             is_trusted: bool,
             is_ccs: bool,
+            preserve_intermediate_files: bool,
             other_args: List[str]
     ):
         """
@@ -84,7 +87,8 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             llrg_executable_path=llrg_executable_path,
-            is_trusted=is_trusted
+            is_trusted=is_trusted,
+            preserve_intermediate_files=preserve_intermediate_files
         )
 
         cmd = [
@@ -114,7 +118,6 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
 
     def _post_execution_hook(self):
         automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
-        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:
@@ -128,4 +131,5 @@ def patch_frontend_parser(
     Patch argument parser with ART arguments.
     """
     parser.add_argument('-c', '--ccs', required=False, help="Simulate CCS instead of CLR", action='store_true')
+    parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

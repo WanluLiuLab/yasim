@@ -44,5 +44,5 @@ def main(args: List[str]):
         },
         adapter_class=dtgs.DTGSAdapter,
         is_pair_end=False,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

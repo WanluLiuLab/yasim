@@ -12,8 +12,8 @@ import argparse
 import os
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import List, Tuple, Union, Final, Any, Mapping
+from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Mapping[str, Tuple[str, List[int]]] = {
@@ -96,6 +96,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
@@ -106,6 +107,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             pair_end_fragment_length_mean: int,
             pair_end_fragment_length_std: int,
             is_pair_end: bool,
+            preserve_intermediate_files: bool,
             other_args: List[str]
     ):
         """
@@ -130,7 +132,8 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             llrg_executable_path=llrg_executable_path,
-            is_trusted=is_trusted
+            is_trusted=is_trusted,
+            preserve_intermediate_files=preserve_intermediate_files
         )
 
         if not is_trusted:
@@ -166,7 +169,6 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             autocopy(os.path.join(self._tmp_dir, "tmp2.fq"), self._dst_fastq_file_prefix + "_2.fq")
         else:
             autocopy(os.path.join(self._tmp_dir, "tmp.fq"), self._dst_fastq_file_prefix + ".fq")
-        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:
@@ -228,4 +230,5 @@ def patch_frontend_parser(
         help="Whether to use Pair End (PE) Simulation",
         action='store_true'
     )
+    parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

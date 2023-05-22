@@ -187,6 +187,19 @@ pbsim_ccs_mode: chrM.trans.fa depth.tsv
 	samtools index pbsim_ccs_mode.bam
 	touch pbsim_ccs_mode
 
+pbsim_ccs_mode_pi: chrM.trans.fa depth.tsv
+	python -m yasim pbsim \
+		-F chrM.trans.fa.d \
+		-d depth.tsv \
+		-o pbsim_ccs_mode \
+		--ccs \
+		-j 40 \
+		--preserve_intermediate_files
+	minimap2 -a -x splice ../chrM.fa pbsim_ccs_mode.fq | \
+		samtools sort -o pbsim_ccs_mode.bam
+	samtools index pbsim_ccs_mode.bam
+	touch pbsim_ccs_mode_pi
+
 dtgs_mode: chrM.trans.fa depth.tsv
 	python -m yasim dtgs \
 		-F chrM.trans.fa.d \

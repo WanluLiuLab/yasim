@@ -49,5 +49,5 @@ def main(args: List[str]):
         adapter_class=badread.BadReadAdapter,
         is_pair_end=False,
         llrg_executable_path=args.llrg_executable_path,
-        not_perform_assemble=False
+        not_perform_assemble=args.not_perform_assemble
     )

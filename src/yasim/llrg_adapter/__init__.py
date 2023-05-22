@@ -28,7 +28,7 @@ from abc import abstractmethod, ABC
 from labw_utils.commonutils.lwio import file_system
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
+from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c, rm_rf
 from labw_utils.typing_importer import Union, List, IO, Optional, Iterable, Mapping, Any
 from yasim.helper.llrg import enhanced_which
 
@@ -147,7 +147,6 @@ class BaseLLRGAdapter(threading.Thread):
     _depth: Union[int, float]
 
     # Following fields are left for LLRGs.
-
     _lh: logging.Logger
     """
     Class logger handler
@@ -155,6 +154,21 @@ class BaseLLRGAdapter(threading.Thread):
 
     _exception: Optional[LLRGException]
     """Exception raised during initialization, pre-execution, execution or post-execution of LLRG."""
+
+    _preserve_intermediate_files: Optional[bool]
+    """
+    Whether to preserve intermediate files.
+    
+    Valid values:
+        - True, for preserving them.
+        - False, for not preserving them.
+        - None, for not creating temporary directory.
+    """
+
+    _tmp_dir: Optional[str]
+    """
+    Simulator-based temp directory name.
+    """
 
     # Following fields are left for LLRG class variables..
     llrg_name: str
@@ -183,10 +197,12 @@ class BaseLLRGAdapter(threading.Thread):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
             is_trusted: bool,
+            preserve_intermediate_files: Optional[bool],
             **kwargs
     ):
         """
@@ -197,6 +213,8 @@ class BaseLLRGAdapter(threading.Thread):
         :param depth: Targeted sequencing depth. Would NOT be related to actual sequencing depth!
         :param kwargs: Other miscellaneous arguments.
         :param is_trusted: Whether to skip input validation test.
+        :param preserve_intermediate_files: Whether to preserve intermediate files.
+            Only effective when LLRG supports temporary file.
         :raise LLRGInitializationException: On error.
         """
         # To developers: This function should raise LLRGInitializationException only!
@@ -217,7 +235,13 @@ class BaseLLRGAdapter(threading.Thread):
         self._dst_fastq_file_prefix = os.path.abspath(dst_fastq_file_prefix)
         self._depth = int(depth) if self._require_integer_depth else depth
         self._lh = get_logger(__name__)
+        self._preserve_intermediate_files = preserve_intermediate_files
         self._exception = None
+
+        if self._preserve_intermediate_files is not None:
+            self._tmp_dir = self._dst_fastq_file_prefix + ".tmp.d"
+        else:
+            self._tmp_dir = None
 
     @property
     def exception(self) -> str:
@@ -277,6 +301,11 @@ class BaseLLRGAdapter(threading.Thread):
     def run(self) -> None:
         """Execute LLRG"""
         try:
+            if self._tmp_dir is not None:
+                try:
+                    os.makedirs(self._tmp_dir, exist_ok=True)
+                except OSError as e:
+                    raise LLRGInitializationException("MKTEMP Failed!") from e
             self._pre_execution_hook()
         except LLRGException as e:
             self._lh.warning("Exception %s caught at pre-execution time", str(e))
@@ -290,6 +319,11 @@ class BaseLLRGAdapter(threading.Thread):
             return
         try:
             self._post_execution_hook()
+            if self._preserve_intermediate_files is False:
+                try:
+                    rm_rf(self._tmp_dir)
+                except OSError as e:
+                    raise LLRGInitializationException("RMTEMP Failed!") from e
         except LLRGException as e:
             self._lh.warning("Exception %s caught at post-execution hook", str(e))
             self._exception = e
@@ -354,11 +388,6 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
     _cmd: Optional[List[str]]
     """Assembled Commandline"""
 
-    _tmp_dir: str
-    """
-    Simulator-based temp directory name.
-    """
-
     _capture_stdout: bool
     """Whether this simulator pours data into stdout. Should be Final."""
 
@@ -378,11 +407,13 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
             llrg_executable_path: str,
             is_trusted: bool,
+            preserve_intermediate_files: Optional[bool],
             **kwargs
     ):
         """
@@ -394,6 +425,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         :param llrg_executable_path: Path to LLRG Executable.
         :param kwargs: Other miscellaneous arguments.
         :param is_trusted: Whether to skip input validation test.
+        :param preserve_intermediate_files: Whether to preserve intermediate files.
         :raise LLRGInitializationException: On error.
         """
         # To developers: This function should raise LLRGInitializationException only!
@@ -402,6 +434,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             is_trusted=is_trusted,
+            preserve_intermediate_files=preserve_intermediate_files,
             **kwargs
         )
 
@@ -413,12 +446,6 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         else:
             self._llrg_executable_path = llrg_executable_path
         self._cmd = None
-        self._tmp_dir = self._dst_fastq_file_prefix + ".tmp.d"
-
-        try:
-            os.makedirs(self._tmp_dir, exist_ok=True)
-        except OSError as e:
-            raise LLRGInitializationException("MKTEMP Failed!") from e
 
     def _run_llrg_hook(self) -> None:
         """

@@ -45,6 +45,12 @@ FrontendOptSpecs.add(FrontendOptSpec(
     action='store',
     default=200
 ))
+FrontendOptSpecs.add(FrontendOptSpec(
+    '--preserve_intermediate_files',
+    required=False,
+    help="Do not remove intermediate files.",
+    action='store_true',
+))
 
 
 def patch_frontend_argument_parser(parser: argparse.ArgumentParser, argname: str) -> argparse.ArgumentParser:

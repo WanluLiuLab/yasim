@@ -6,10 +6,12 @@ __all__ = (
     "DwgsimAdapter",
 )
 
+import argparse
 import os
 
 from labw_utils.commonutils.lwio import file_system
 from labw_utils.typing_importer import List, Union, Final, Mapping, Any
+from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, NoOutputFileException
 
 
@@ -37,11 +39,13 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: Union[int, float],
             llrg_executable_path: str,
             is_trusted: bool,
+            preserve_intermediate_files: bool,
             other_args: List[str],
     ):
         """
@@ -60,7 +64,8 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             is_trusted=is_trusted,
-            llrg_executable_path=llrg_executable_path
+            llrg_executable_path=llrg_executable_path,
+            preserve_intermediate_files=preserve_intermediate_files
         )
         self._cmd = [
             llrg_executable_path,
@@ -103,3 +108,13 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
     @property
     def is_pair_end(self) -> bool:
         return True
+
+
+def patch_frontend_parser(
+        parser: argparse.ArgumentParser
+) -> argparse.ArgumentParser:
+    """
+    Patch argument parser with DWGSIM arguments.
+    """
+    parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
+    return parser

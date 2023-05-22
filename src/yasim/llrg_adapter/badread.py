@@ -78,6 +78,7 @@ class BadReadAdapter(BaseProcessBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             is_trusted: bool,
@@ -103,7 +104,8 @@ class BadReadAdapter(BaseProcessBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             llrg_executable_path=llrg_executable_path,
-            is_trusted=is_trusted
+            is_trusted=is_trusted,
+            preserve_intermediate_files=None  # Not effective.
         )
         if not is_trusted:
             _ = BadReadAdapter.validate_params(model_name=model_name)

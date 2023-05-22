@@ -21,6 +21,7 @@ from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import Final, List, Mapping, Any, Optional
+from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.llrg import enhanced_which
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge, LLRGInitializationException
 
@@ -153,6 +154,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
 
     def __init__(
             self,
+            *,
             src_fasta_file_path: str,
             dst_fastq_file_prefix: str,
             depth: int,
@@ -165,6 +167,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             ccs_executable_path: Optional[str],
             ccs_num_threads: Optional[int],
             ccs_pass: int,
+            preserve_intermediate_files: bool,
             other_args: List[str]
     ):
         """
@@ -189,6 +192,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             llrg_executable_path=llrg_executable_path,
+            preserve_intermediate_files=preserve_intermediate_files,
             is_trusted=is_trusted
         )
 
@@ -341,7 +345,6 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             else:
                 self._ccs_to_fastq(prefix="tmp")
                 autocopy(os.path.join(self._tmp_dir, "tmp.ccs.fq"), self._dst_fastq_file_prefix + ".fq")
-        rm_rf(self._tmp_dir)
 
     @property
     def is_pair_end(self) -> bool:
@@ -411,4 +414,5 @@ def patch_frontend_parser(
         action='store',
         default="wgs"
     )
+    parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser
