@@ -2,12 +2,14 @@ library("tidyverse")
 library("pheatmap")
 library("ggridges")
 
-fns <- Sys.glob("*.fq.stats")
-conditions <- fns %>%
+actual_fns <- Sys.glob("ce11_as_2_isoform_depth_*.fq.stats")
+conditions <- actual_fns %>%
+    stringr::str_replace("ce11_as_2_isoform_depth_", "") %>%
     stringr::str_replace(".fq.stats", "")
 
+
 gene_id_transcript_id <- readr::read_tsv(
-    "ce11.as.gtf.transcripts.tsv",
+    "ce11_as_2.gtf.transcripts.tsv",
     show_col_types = FALSE,
     col_types = c(
         TRANSCRIPT_ID = col_character(),
@@ -27,9 +29,9 @@ if (file.exists("all_gep_data.parquet")) {
 } else {
     all_gep_data <- NULL
     for (i in seq_along(conditions)) {
-        message(sprintf("%d/%d -- %s", i, length(fns), fns[i]))
+        message(sprintf("%d/%d -- %s", i, length(actual_fns), actual_fns[i]))
         this_gep_data <- readr::read_tsv(
-            fns[i],
+            actual_fns[i],
             col_types = c(
                 TRANSCRIPT_ID = col_character(),
                 INPUT_DEPTH = col_double(),
@@ -56,6 +58,7 @@ if (file.exists("all_gep_data.parquet")) {
     }
     arrow::write_parquet(all_gep_data, "all_gep_data.parquet")
 }
+
 
 g <- ggplot(all_gep_data) +
     geom_point(aes(y = log10(SIMULATED_DEPTH), x = log10(INPUT_DEPTH)), size = 0.2, alpha = 0.1) +

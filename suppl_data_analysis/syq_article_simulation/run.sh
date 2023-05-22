@@ -9,12 +9,13 @@ gunzip ./*.gz
 python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.gtf
 
 function generate_as_events() {
-    python -m yasim generate_as_events \
+    LOG_FILE_NAME="yasim_generate_as_events_2.log" \
+        python -m yasim generate_as_events \
         -f ce11.fa -g ce11.ncbiRefSeq.gtf \
         -o ce11_as_"${1}".gtf \
         --complexity "${1}"
     python -m labw_utils.bioutils describe_gtf ce11_as_"${1}".gtf
-    python -m yasim transcribe \
+    python -m labw_utils.bioutils transcribe \
         -g ce11_as_"${1}".gtf \
         -f ce11.fa \
         -o ce11_trans_"${1}".fa
