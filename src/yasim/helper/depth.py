@@ -56,16 +56,20 @@ def simulate_gene_level_depth_gmm(
     """
     _lh.info("Generation of gene-level depth: Loading GMM model...")
     gmm_model = GaussianMixture1D.import_model([
-        (0.14427447754677641, 1.5527662658235803, 0.5349602445403809),
-        (0.06838373058223621, 3.6990568545476674, 4.440892098500626e-16),
-        (0.3139879527820852, 2.3714543839859354, 0.3438604637707616),
-        (0.47335383908890194, 3.126802802022012, 0.3396120976402885)
+        # (0.14427447754677641, 1.5527662658235803, 0.5349602445403809),
+        # (0.06838373058223621, 3.6990568545476674, 4.440892098500626e-16),
+        # (0.3139879527820852, 2.3714543839859354, 0.3438604637707616),
+        # (0.47335383908890194, 3.126802802022012, 0.3396120976402885)
+        (0.1427655350146609, 1.5746800285632137, 0.5388586661428069),
+        (0.06837661567650871, 3.699056854547668, 0.0),
+        (0.31792430333258503, 2.369675925231799, 0.345735276372599),
+        (0.4709335459762455, 3.1287227827640636, 0.33812788057291315)
     ])
     n_gene_ids = gv.number_of_genes
     depth = {}
     for i in range(20):
         _lh.info("Generation of gene-level depth: Attempt %d: GMM...", i)
-        data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids)) - 1
+        data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
         _lh.info("Generation of gene-level depth: Attempt %d: 1/4: Scaling...", i)
         data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
         _lh.info("Generation of gene-level depth: Attempt %d: 2/4: Filtering...", i)

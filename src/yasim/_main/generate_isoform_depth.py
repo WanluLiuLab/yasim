@@ -24,8 +24,10 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim generate_isoform_depth",
-                                                  description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim generate_isoform_depth",
+        description=__doc__.splitlines()[1]
+    )
     parser = patch_frontend_argument_parser(parser, "-g")
     parser.add_argument(
         '-o',

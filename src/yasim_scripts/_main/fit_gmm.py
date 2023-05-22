@@ -73,7 +73,8 @@ def main(args: List[str]):
     else:
         df = pd.read_parquet(args.data)
         col_names = df.columns[list(map(lambda x: re.match(args.col_regex, x) is not None, df.columns))]
-        df = df[col_names]
+        df:pd.DataFrame = df[col_names]
+        df = df.fillna(0)
         if args.scale:
             df = df.apply(
                 lambda x: np.log10(x / max(x.max(), 1E-9) * 5000 + 1),
@@ -84,6 +85,7 @@ def main(args: List[str]):
         if args.filter_zero:
             data = data[data != 0]
     print(describe(data))
+    # plot(data)
 
     _lh.info("Fitting data...")
     # auto_select_num_components(data, 2, 8, args.num_iters)

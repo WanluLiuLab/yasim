@@ -6,6 +6,8 @@ __all__ = (
     "GaussianMixture1D",
 )
 
+import itertools
+import math
 import multiprocessing
 from random import choices
 
@@ -17,8 +19,10 @@ from numpy.random import choice
 from scipy.integrate import quad
 from scipy.stats import norm
 
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, Sequence, SequenceProxy
 
+_lh = get_logger(__name__)
 
 class GaussianMixture1D:
     _n_components: int
@@ -96,7 +100,9 @@ class GaussianMixture1D:
         em_range = range(self._n_iter)
         if show_progress_bar:
             em_range = tqdm.tqdm(iterable=em_range, desc="EM")
+        _last_range = self.export()
         for _ in em_range:
+
             # E step: compute ownership weights
             for j in range(self._n_components):
                 model = norm(loc=self._mu[j], scale=self._sigma[j])
@@ -121,7 +127,19 @@ class GaussianMixture1D:
             if 0 <= ll - last_ll < self._precision:
                 break
             last_ll = ll
-
+            current_export = np.array(list(itertools.chain(*self.export())), dtype=float)
+            print(current_export, np.sum(np.logical_not(np.isfinite(current_export))))
+            if np.sum(
+                np.bitwise_or(
+                    np.isnan(current_export),
+                    np.isinf(current_export)
+                )
+            ) != 0:
+                _lh.warning("NaN observed, will rerun last successful result")
+                return self.import_model(_last_range)
+            else:
+                _last_range = list(self.export())
+                print(self.export())
         return self
 
     def log_likelihood(self, data):
