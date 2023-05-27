@@ -4,7 +4,7 @@ library("arrow")
 
 
 if (file.exists("all_fastq_data_sampled.parquet")) {
-    all_data <- arrow::read_parquet("all_fastq_data_sampled.parquet")
+    all_data_joint <- arrow::read_parquet("all_fastq_data_sampled.parquet")
 } else {
     fns <- Sys.glob("ce11_as_2*.fq.stats.d")
     conditions <- fns %>%

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -uex
 # shellcheck disable=SC2001
 # shellcheck disable=SC2016
+set -uex
 LOG_FILE_NAME="yasim_generate_gene_depth.log" \
     python -m yasim generate_gene_depth \
     -g ../ce11_as_2.gtf \
@@ -23,7 +23,7 @@ function perform_housekeeping() {
 }
 
 function perform_pbsim3_RSII_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_rcompl_base_pbsim3_RSII_CLR
+    OUTPUT_BASENAME=ce11_as_2_rcompl_0.0_0.0_pbsim3_RSII_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -39,7 +39,7 @@ function perform_pbsim3_RSII_CLR_simulation() {
 }
 
 function perform_pbsim3_RSII_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_rcompl_base_pbsim3_RSII_CCS
+    OUTPUT_BASENAME=ce11_as_2_rcompl_0.0_0.0_pbsim3_RSII_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -56,7 +56,7 @@ function perform_pbsim3_RSII_CCS_simulation() {
 }
 
 function perform_pbsim3_SEQUEL_CCS_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_rcompl_base_pbsim3_SEQUEL_CCS
+    OUTPUT_BASENAME=ce11_as_2_rcompl_0.0_0.0_pbsim3_SEQUEL_CCS
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -73,7 +73,7 @@ function perform_pbsim3_SEQUEL_CCS_simulation() {
 }
 
 function perform_pbsim3_SEQUEL_CLR_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_rcompl_base_pbsim3_SEQUEL_CLR
+    OUTPUT_BASENAME=ce11_as_2_rcompl_0.0_0.0_pbsim3_SEQUEL_CLR
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim3 \
         -e ../bin/pbsim3 \
@@ -88,7 +88,7 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim2_simulation() {
-    OUTPUT_BASENAME=ce11_as_2_rcompl_base_pbsim2_"${1}"
+    OUTPUT_BASENAME=ce11_as_2_rcompl_0.0_0.0_pbsim2_"${1}"
     LOG_FILE_NAME="yasim_${OUTPUT_BASENAME}.log" \
         python -m yasim pbsim2 \
         -e ../bin/pbsim2 \
@@ -115,13 +115,13 @@ function perform_simulation() {
 perform_simulation
 
 perform_assemble() {
-    for fn in ce11_as_2_rcompl_base_*.d; do
+    for fn in ce11_as_2_rcompl_0.0_0.0_*.d; do
         python -m yasim assemble \
             -F ../ce11_trans_2.fa.d \
             -d ce11_as_2_isoform_depth_20.tsv \
             -i "${fn}" \
-            -o "$(echo "${fn/base/${1}_${2}}" | sed 's;\.d;;')" \
-            --simulator_name "$(echo "${fn}" | sed -E 's;ce11_as_2_rcompl_base_(.*)\.d;\1;')" \
+            -o "$(echo "${fn/0\.0_0\.0/${1}_${2}}" | sed 's;\.d;;')" \
+            --simulator_name "$(echo "${fn}" | sed -E 's;ce11_as_2_rcompl_0\.0_0\.0_(.*)\.d;\1;')" \
             --truncate_ratio_3p "${1}" \
             --truncate_ratio_5p "${2}" &
     done
@@ -134,10 +134,9 @@ perform_assemble 0.4 0.0
 perform_assemble 0.0 0.2
 perform_assemble 0.1 0.1
 perform_assemble 0.2 0.0
+perform_assemble 0.0 0.0
 
 wait
-
-rm -fr ce11_as_2_rcompl_base_*.d 
 
 for fn in *.fq; do
     {
@@ -147,4 +146,5 @@ for fn in *.fq; do
     } &
 done
 wait
+rm ./*.parquet
 Rscript plot_fastq.R

@@ -35,7 +35,8 @@ function perform_pbsim3_RSII_CLR_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --accuracy-mean "${1}" \
+        --preserve_intermediate_files || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
@@ -51,7 +52,8 @@ function perform_pbsim3_SEQUEL_CLR_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --accuracy-mean "${1}" \
+        --preserve_intermediate_files || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 function perform_pbsim2_simulation() {
@@ -64,7 +66,8 @@ function perform_pbsim2_simulation() {
         -d ce11_as_2_isoform_depth_20.tsv \
         -o "${OUTPUT_BASENAME}" \
         -j 40 \
-        --accuracy-mean "${1}" || return
+        --accuracy-mean "${1}" \
+        --preserve_intermediate_files || return
     perform_housekeeping "${OUTPUT_BASENAME}"
 }
 
@@ -74,7 +77,6 @@ function perform_simulation() {
     for pbsim2_mode in R94 R103; do
         perform_pbsim2_simulation "${1}" "${pbsim2_mode}" &
     done
-    wait
 }
 
 for accuracy in 0.80 0.85 0.90 0.95 1.00; do
@@ -82,14 +84,15 @@ for accuracy in 0.80 0.85 0.90 0.95 1.00; do
 done
 wait
 
-for fn in *.maf; do
+for fn in *.maf.gz; do
     python -m yasim_scripts extract_quality_from_maf "${fn}" >"${fn}".mapq.tsv &
 done
 wait
 
+
 printf "FILENAME\tINSERTION\tDELETION\tMATCH\tSUBSTITUTION\n" >all_last_mapq.tsv
-cat ./*.maf.mapq.tsv >>all_last_mapq.tsv
-rm -fr ./*.maf.mapq.tsv
+cat ./*.maf.gz.mapq.tsv >>all_last_mapq.tsv
+rm -fr ./*.maf.gz.mapq.tsv
 
 for fn in *.fq; do
     {

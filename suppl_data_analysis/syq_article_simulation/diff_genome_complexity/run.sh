@@ -120,7 +120,7 @@ for gene_complexity_level in 1 3 5 7 9; do
     generate_as_events "${gene_complexity_level}" &
 done
 wait
-python p5.py
+# python p5.py
 
 for gene_complexity_level in 1 3 5 7 9; do
     perform_simulation "${gene_complexity_level}"

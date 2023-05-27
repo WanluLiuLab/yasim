@@ -14,7 +14,7 @@ all_error <- readr::read_tsv(
         FILENAME = stringr::str_replace(FILENAME, "ce11_as_2_accu_", "")
     ) %>%
     dplyr::mutate(
-        FILENAME = stringr::str_replace(FILENAME, ".maf", "")
+        FILENAME = stringr::str_replace(FILENAME, ".maf.gz", "")
     ) %>%
     tidyr::gather(
         key = "EventType",
