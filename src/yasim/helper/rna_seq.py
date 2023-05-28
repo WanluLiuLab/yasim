@@ -1,6 +1,7 @@
 import glob
 import os
 import sys
+import time
 from collections import defaultdict
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
@@ -122,9 +123,14 @@ def run_rna_seq(
     simulating_pool.start()
     simulating_pool.join()
 
-    _lh.info("Jobs finished, cleaning up...")
+    _lh.info("Jobs finished, terminating assembler...")
     assembler.terminate()
+    _lh.info("Assembler termination signal sent, waiting...")
+    while assembler.is_alive():
+        _lh.info("%s -- PENDING: %d", output_fastq_prefix,  assembler.n_pending)
+        time.sleep(1.0)
     assembler.join()
+    _lh.info("Assembler finished, retrieving error reports...")
 
     # Calculating number of exceptions
     exception_dict = defaultdict(lambda: 0)
