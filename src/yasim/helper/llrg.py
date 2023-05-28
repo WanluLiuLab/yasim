@@ -292,7 +292,7 @@ class AssembleSingleEnd(BaseAssembler):
                     stats_writer.flush()
                     time.sleep(0.01)
                 else:
-                    if self._should_stop != 0:
+                    if self._should_stop:
                         break
 
 
@@ -365,7 +365,7 @@ class AssemblePairEnd(BaseAssembler):
                     stats_writer.flush()
                     time.sleep(0.01)
                 else:
-                    if self._should_stop != 0:
+                    if self._should_stop:
                         break
 
 
