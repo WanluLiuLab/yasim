@@ -85,7 +85,7 @@ class ASManipulator:
                 # lh.debug(f"{core_func.__name__} Too short")
             else:
                 return
-        _lh.debug(f"{gene.gene_id} trials exhausted")
+        _lh.debug("GEN AS EVENT: Gene %s: %d trials exhausted", gene.gene_id, max_try)
         raise ImpossibleToGenerateASEventError
 
     def _generate_multiple_as_events(
@@ -106,7 +106,7 @@ class ASManipulator:
         es_ids = random.sample(range(0, number_of_exons), int(number_of_exons * percent))
         if len(es_ids) == 0:
             raise ImpossibleToGenerateASEventError
-        _lh.debug(f"{new_transcript_id}: ES {es_ids}, total={number_of_exons}")
+        _lh.debug(f"GEN AS EVENT: {new_transcript_id}: ES {es_ids}, total={number_of_exons}")
         for exon_id in es_ids:
             self._gv.del_exon(new_transcript_id, exon_id)
         return new_transcript_id
@@ -116,7 +116,7 @@ class ASManipulator:
         start_exon_id = random.choice(range(0, number_of_exons - 2))
         stop_exon_id = start_exon_id + 1
         new_transcript_id = self._gv.duplicate_transcript(transcript_id)
-        _lh.debug(f"{new_transcript_id}: IR {start_exon_id}-{stop_exon_id}, total={number_of_exons}")
+        _lh.debug(f"GEN AS EVENT: {new_transcript_id}: IR {start_exon_id}-{stop_exon_id}, total={number_of_exons}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
         new_transcript.get_nth_exon(start_exon_id).end = new_transcript.get_nth_exon(stop_exon_id).end
         self._gv.del_exon(new_transcript_id, stop_exon_id)
@@ -132,7 +132,8 @@ class ASManipulator:
         splice_perc = (random.random() - 0.5) * 1.6
         delta = int(min(exon_len, intron_len) * splice_perc)
         new_transcript_id = self._gv.duplicate_transcript(transcript_id)
-        _lh.debug(f"{new_transcript_id}: A3P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}")
+        _lh.debug(
+            f"GEN AS EVENT: {new_transcript_id}: A3P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
         new_transcript.get_nth_exon(exon_id).end += delta
         return new_transcript_id
@@ -147,7 +148,8 @@ class ASManipulator:
         splice_perc = (random.random() - 0.5) * 1.6
         delta = int(min(exon_len, intron_len) * splice_perc)
         new_transcript_id = self._gv.duplicate_transcript(transcript_id)
-        _lh.debug(f"{new_transcript_id}: A5P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}")
+        _lh.debug(
+            f"GEN AS EVENT: {new_transcript_id}: A5P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}")
         new_transcript = self._gv.get_transcript(new_transcript_id)
         new_transcript.get_nth_exon(exon_id).start += delta
         return new_transcript_id
@@ -201,6 +203,7 @@ class ASManipulator:
             - ``ce``: *C. Elegans*.
         :param compl_idx: The complexity index. Larger for larger Number of Isoforms in a Gene.
         """
+        _lh.info("GEN AS EVENT: START")
         if organism not in ORGANISM_PARAMS.keys():
             raise ValueError(f"no organism {organism} available! Available: {ORGANISM_PARAMS.keys()}")
         fit_tuple = ORGANISM_PARAMS[organism]
@@ -235,11 +238,16 @@ class ASManipulator:
             except ImpossibleToGenerateASEventError:
                 gene_ids_to_del.append(gene.gene_id)
 
-        _lh.info(f"Will remove {len(gene_ids_to_del)} genes out of {self._gv.number_of_genes}")
+        _lh.info(
+            "GEN AS EVENT: Will remove %d genes out of %d",
+            len(gene_ids_to_del),
+            self._gv.number_of_genes
+
+        )
         for gene_id in gene_ids_to_del:
             self._gv.del_gene(gene_id)
-        _lh.info("Will remove genes FIN")
         self._gv.standardize()
+        _lh.info("GEN AS EVENT: FIN")
 
     def to_file(self, dst_gtf_file_path: str) -> None:
         """

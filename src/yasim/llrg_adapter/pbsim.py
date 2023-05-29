@@ -12,7 +12,6 @@ import argparse
 import glob
 import os
 
-from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge

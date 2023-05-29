@@ -61,7 +61,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
-    _lh.info("Processing data...")
+    _lh.info("GMM: Processing data...")
     if args.data == 'dummy':
         mu1, sigma1 = random() * 100, random() * 10
         mu2, sigma2 = random() * 100, random() * 10
@@ -73,7 +73,7 @@ def main(args: List[str]):
     else:
         df = pd.read_parquet(args.data)
         col_names = df.columns[list(map(lambda x: re.match(args.col_regex, x) is not None, df.columns))]
-        df:pd.DataFrame = df[col_names]
+        df: pd.DataFrame = df[col_names]
         df = df.fillna(0)
         if args.scale:
             df = df.apply(
@@ -87,13 +87,13 @@ def main(args: List[str]):
     print(describe(data))
     # plot(data)
 
-    _lh.info("Fitting data...")
+    _lh.info("GMM: Fitting START")
     # auto_select_num_components(data, 2, 8, args.num_iters)
     model = GaussianMixture1D(
         n_components=args.num_components,
         n_iter=args.num_iters
     ).fit(data)
-    print(f"Fitted to Gaussian mixture model ({args.num_components} components)")
+    _lh.info("GMM: Fitting FIN")
 
     plot(data, model)
     print(model.export())

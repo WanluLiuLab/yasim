@@ -1,11 +1,9 @@
 import numpy as np
 
-from labw_utils.mlutils.ndarray_helper import describe
-from yasim.helper.depth import simulate_gene_level_depth_gmm, simulate_isoform_variance_inside_a_gene
-
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.libfrontend import setup_basic_logger
-from yasim.helper.plot_utils import plot
+from labw_utils.mlutils.ndarray_helper import describe
+from yasim.helper.depth import simulate_gene_level_depth_gmm, simulate_isoform_variance_inside_a_gene
 
 # 5-40
 # 10-80

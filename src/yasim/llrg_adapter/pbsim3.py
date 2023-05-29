@@ -9,17 +9,16 @@ __all__ = (
 )
 
 import argparse
+import enum
 import glob
 import os
 import subprocess
 import time
 import uuid
-import enum
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 from labw_utils.typing_importer import Final, List, Mapping, Any, Optional
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.llrg import enhanced_which
@@ -40,7 +39,7 @@ try:
     )
     """PBSIM3 Subread XML Template."""
 except ImportError:
-    _lh.warning("Jinja2 failed to import. CCS generation will be BAM-based instead of XML-based.")
+    _lh.warning("PBSIM3: Jinja2 failed to import. CCS generation will be BAM-based instead of XML-based.")
     jinja2 = None
     PACB_SUBREAD_XML_TEMPLATE = None
 
@@ -79,8 +78,6 @@ PBSIM3_ERRHMM_POSSIBLE_MODELS = [
     os.path.basename(os.path.splitext(filename.replace("ERRHMM-", ""))[0])
     for filename in glob.glob(os.path.join(PBSIM3_DIST_DIR_PATH, "ERRHMM-*.model"))
 ]
-
-_lh = get_logger(__name__)
 
 
 class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
@@ -143,9 +140,9 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
                 raise LLRGInitializationException(f"SAMTOOLS at {samtools_executable_path} not found!") from e
         else:
             if ccs_executable_path is not None:
-                _lh.warning("CCS Executable path ignored in CLR mode")
+                _lh.warning("PBSIM3: CCS Executable path ignored in CLR mode")
             if samtools_executable_path is not None:
-                _lh.warning("SAMTOOLS Executable path ignored in CLR mode")
+                _lh.warning("PBSIM3: SAMTOOLS Executable path ignored in CLR mode")
         return {
             "hmm_model": hmm_model,
             "ccs_executable_path": ccs_executable_path,

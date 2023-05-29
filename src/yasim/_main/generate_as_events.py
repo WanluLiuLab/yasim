@@ -48,7 +48,11 @@ def create_parser() -> argparse.ArgumentParser:
 def main(args: List[str]):
     args = create_parser().parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
-    _lh.info(f"Loaded {gv.number_of_genes} genes with {gv.number_of_transcripts} transcript")
+    _lh.info(
+        "GEN AS EVENTS: Loaded %d genes with %d transcript",
+        gv.number_of_genes,
+        gv.number_of_transcripts
+    )
     asm = ASManipulator(gv=gv)
     asm.run("ce", args.complexity)
     asm.to_file(args.out)

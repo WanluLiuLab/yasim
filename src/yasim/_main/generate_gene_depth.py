@@ -58,6 +58,6 @@ def main(args: List[str]) -> int:
             high_cutoff_ratio=args.high_cutoff_ratio
         )
     except depth.GenerationFailureException:
-        _lh.error("Generation failed! You may try again or use larger `mu`.")
+        _lh.error("GEN GENE DEPTH: Generation failed! You may try again or use larger `mu`.")
         return 1
     depth_io.write_depth(dge_data, args.out, feature_name="GENE_ID")

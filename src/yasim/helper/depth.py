@@ -54,7 +54,7 @@ def simulate_gene_level_depth_gmm(
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
     """
-    _lh.info("Generation of gene-level depth: Loading GMM model...")
+    _lh.info("GEN GENE DEPTH: Loading GMM model...")
     gmm_model = GaussianMixture1D.import_model([
         # (0.14427447754677641, 1.5527662658235803, 0.5349602445403809),
         # (0.06838373058223621, 3.6990568545476674, 4.440892098500626e-16),
@@ -68,35 +68,35 @@ def simulate_gene_level_depth_gmm(
     n_gene_ids = gv.number_of_genes
     depth = {}
     for i in range(20):
-        _lh.info("Generation of gene-level depth: Attempt %d: GMM...", i)
+        _lh.info("GEN GENE DEPTH: Attempt %d: GMM...", i)
         data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
-        _lh.info("Generation of gene-level depth: Attempt %d: 1/4: Scaling...", i)
+        _lh.info("GEN GENE DEPTH: Attempt %d: 1/4: Scaling...", i)
         data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
-        _lh.info("Generation of gene-level depth: Attempt %d: 2/4: Filtering...", i)
+        _lh.info("GEN GENE DEPTH: Attempt %d: 2/4: Filtering...", i)
         data = data[functools.reduce(
-                np.logical_and,
-                (
-                    data > 0,
-                    np.isfinite(data)
-                )
-            )]  # Filter data
+            np.logical_and,
+            (
+                data > 0,
+                np.isfinite(data)
+            )
+        )]  # Filter data
         if len(data) < n_gene_ids:
             _lh.warning(
-                "filtered data length (%d) smaller than required (%d); would regenerate",
+                "GEN GENE DEPTH: filtered data length (%d) smaller than required (%d); would regenerate",
                 len(data), n_gene_ids
             )
             continue
 
         data = data[: n_gene_ids]
-        _lh.info("Generation of gene-level depth: Attempt %d: 3/4 Scaling...", i)
+        _lh.info("GEN GENE DEPTH: Attempt %d: 3/4 Scaling...", i)
         data = data / np.mean(data) * mu  # Rescale to real mean
-        _lh.info("Generation of gene-level depth: Attempt %d: 4/4 Filtering...", i)
+        _lh.info("GEN GENE DEPTH: Attempt %d: 4/4 Filtering...", i)
         data[mu * high_cutoff_ratio < data] = mu * high_cutoff_ratio
         data[data < low_cutoff] = low_cutoff
         break
     else:
         raise GenerationFailureException()
-    _lh.info("Generation of gene-level depth: Final distribution: %s", describe(data))
+    _lh.info("GEN GENE DEPTH: Final distribution: %s", describe(data))
     for i, gene_id in enumerate(gv.iter_gene_ids()):
         depth[gene_id] = data[i]
     return depth
@@ -130,7 +130,7 @@ def simulate_isoform_variance_inside_a_gene(
         if np.sum(np.isnan(data)) == 0 and np.sum(data) != 0:
             break
         else:
-            _lh.warning("NAN found in data; would regenerate")
+            _lh.warning("GEN ISOFORM DEPTH: NAN found in data; would regenerate")
     else:
         raise GenerationFailureException()
     data = data / np.mean(data) * mu

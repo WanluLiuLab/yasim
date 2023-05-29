@@ -22,6 +22,7 @@ from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, S
 
 _lh = get_logger(__name__)
 
+
 class GaussianMixture1D:
     _n_components: int
     _n_iter: int
@@ -128,12 +129,12 @@ class GaussianMixture1D:
             last_ll = ll
             current_export = np.array(list(itertools.chain(*self.export())), dtype=float)
             if np.sum(
-                np.bitwise_or(
-                    np.isnan(current_export),
-                    np.isinf(current_export)
-                )
+                    np.bitwise_or(
+                        np.isnan(current_export),
+                        np.isinf(current_export)
+                    )
             ) != 0:
-                _lh.warning("NaN observed, will rerun last successful result")
+                _lh.warning("GMM: NaN observed, will rerun last successful result")
                 return self.import_model(_last_range)
             else:
                 _last_range = list(self.export())
