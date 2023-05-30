@@ -146,5 +146,5 @@ for fn in *.fq; do
     } &
 done
 wait
-rm ./*.parquet
+rm -fr ./*.parquet
 Rscript plot_fastq.R

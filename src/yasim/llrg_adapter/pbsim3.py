@@ -329,7 +329,10 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
     def _post_execution_hook(self):
         if self._ccs_pass == 1:
             if self._strategy == PBSIM3_STRATEGY.wgs:
-                automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
+                automerge(
+                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")),
+                    self._dst_fastq_file_prefix + ".fq"
+                )
             else:
                 autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._dst_fastq_file_prefix + ".fq")
         else:
@@ -337,8 +340,10 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
                 for fp in glob.glob(os.path.join(self._tmp_dir, "tmp_????.sam")):
                     prefix = os.path.basename(fp).split(".")[0]
                     self._ccs_to_fastq(prefix=prefix)
-                automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")),
-                          self._dst_fastq_file_prefix + ".fq")
+                automerge(
+                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")),
+                    self._dst_fastq_file_prefix + ".fq"
+                )
             else:
                 self._ccs_to_fastq(prefix="tmp")
                 autocopy(os.path.join(self._tmp_dir, "tmp.ccs.fq"), self._dst_fastq_file_prefix + ".fq")

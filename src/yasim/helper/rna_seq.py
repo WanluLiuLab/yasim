@@ -127,7 +127,7 @@ def run_rna_seq(
     assembler.terminate()
     _lh.info("RNA SEQ: Assembler termination signal sent, waiting...")
     while assembler.is_alive():
-        _lh.info("ASSEMB: %s -- PENDING: %d", output_fastq_prefix, assembler.n_pending)
+        _lh.info("RNA SEQ: Assembling %s -- PENDING: %d", output_fastq_prefix, assembler.n_pending)
         time.sleep(1.0)
     assembler.join()
     _lh.info("RNA SEQ: Assembler finished, retrieving error reports...")

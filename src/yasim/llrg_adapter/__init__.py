@@ -124,7 +124,7 @@ def automerge(in_fns: Iterable[str], out_fn: str) -> None:
             except (OSError, IOError) as e:
                 raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
     if c_len == 0:
-        raise EmptyOutputFileException(f"No file passed!")
+        raise EmptyOutputFileException(f"Copy file {in_fns} empty!")
 
 
 class BaseLLRGAdapter(threading.Thread):
