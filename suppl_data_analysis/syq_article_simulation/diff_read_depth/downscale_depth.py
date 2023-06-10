@@ -1,10 +1,10 @@
 import sys
 
 import numpy as np
+
+from labw_utils.commonutils.libfrontend import setup_basic_logger
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.mlutils.ndarray_helper import describe
-from labw_utils.commonutils.libfrontend import setup_basic_logger
-
 from yasim.helper.depth_io import write_depth, read_depth
 
 _lh = get_logger(__name__)

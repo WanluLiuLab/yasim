@@ -24,6 +24,7 @@ def create_parser() -> argparse.ArgumentParser:
         default_llrg_executable_name="dwgsim"
     )
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
+    parser = dwgsim.patch_frontend_parser(parser)
     return parser
 
 

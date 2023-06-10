@@ -112,6 +112,9 @@ def remark_fastq_pair_end(
     return num_of_reads, num_of_bases
 
 
+class AssembError(ValueError):
+    ...
+
 class AssemblerType(ABC, threading.Thread):
     """
     The Assembler that assembles sequenced transcripts of each isoform into one (SE) or two (PE) files.
@@ -185,8 +188,10 @@ class BaseAssembler(AssemblerType, ABC):
 
     def add_transcript_id(self, transcript_id: str):
         self._transcript_ids_pending.append(transcript_id)
+        _lh.debug("ASSEMB: %s QUEUED", transcript_id)
 
     def terminate(self):
+        _lh.info("ASSEMB: Termination signal received")
         self._should_stop = True
 
     @property
@@ -235,6 +240,7 @@ class AssembleSingleEnd(BaseAssembler):
         self._truncate_ratio_5p = truncate_ratio_5p
 
     def run(self):
+        _lh.info("ASSEMB: START")
         with FastqWriter(self._output_fastq_prefix + ".fq") as writer, \
                 get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
             stats_writer.write("\t".join((
@@ -246,17 +252,17 @@ class AssembleSingleEnd(BaseAssembler):
                 "SIMULATED_DEPTH"
             )) + "\n")
 
-            while len(self._transcript_ids_pending) != 0 and not self._should_stop:
-                transcript_id = self._transcript_ids_pending.pop(0)
+            def _assemb(transcript_id:str):
+                _lh.debug("ASSEMB: %s START", transcript_id)
                 this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                 this_fastq_basename = os.path.join(self._input_fastq_dir, transcript_id)
                 this_fastq_path = this_fastq_basename + ".fq"
                 if not file_system.file_exists(this_fastq_path):
-                    _lh.warning("Skipped non-expressing transcript: %s (FASTQ not exist)", transcript_id)
-                    continue
+                    _lh.warning("ASSEMB: %s: Skipped non-expressing transcript (FASTQ not exist)", transcript_id)
+                    raise AssembError
                 if not file_system.file_exists(this_fasta_path):
-                    _lh.warning("Skipped none-existing transcript: %s (FASTA not exist)", transcript_id)
-                    continue
+                    _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA not exist)", transcript_id)
+                    raise AssembError
                 try:
                     transcribed_length = FastaViewFactory(
                         filename=this_fasta_path,
@@ -264,8 +270,8 @@ class AssembleSingleEnd(BaseAssembler):
                         show_tqdm=False
                     ).get_chr_length(transcript_id)
                 except KeyError:
-                    _lh.warning("Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
-                    continue
+                    _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA Parsing Error)", transcript_id)
+                    raise AssembError
                 transcript_depth = self._depth[transcript_id]
                 try:
                     num_of_reads, num_of_bases = remark_fastq_single_end(
@@ -278,8 +284,8 @@ class AssembleSingleEnd(BaseAssembler):
                         truncate_ratio_5p=self._truncate_ratio_5p
                     )
                 except MisFormattedFastqRecordError:
-                    _lh.warning("Skipped none-existing transcript: %s (FASTQ Parsing Error)", transcript_id)
-                    continue
+                    _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTQ Parsing Error)", transcript_id)
+                    return
                 stats_writer.write("\t".join((
                     transcript_id,  # "TRANSCRIPT_ID",
                     str(transcript_depth),  # "INPUT_DEPTH",
@@ -288,8 +294,22 @@ class AssembleSingleEnd(BaseAssembler):
                     str(transcribed_length),  # "TRANSCRIBED_LENGTH",
                     str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
                 )) + "\n")
+                _lh.debug("ASSEMB: %s FIN", transcript_id)
                 stats_writer.flush()
-                time.sleep(0.01)
+
+            while not self._should_stop:
+                if len(self._transcript_ids_pending) > 0:
+                    try:
+                        _assemb(self._transcript_ids_pending.pop())
+                    except AssembError:
+                        pass
+                else:
+                    time.sleep(0.01)
+            _lh.info("ASSEMB: Post TERM -- Remaining %d transcripts", len(self._transcript_ids_pending))
+            while len(self._transcript_ids_pending) > 0:
+                _assemb(self._transcript_ids_pending.pop())
+
+        _lh.info("ASSEMB: FIN")
 
 
 class AssemblePairEnd(BaseAssembler):
@@ -298,6 +318,56 @@ class AssemblePairEnd(BaseAssembler):
     """
 
     def run(self):
+        def _assemb(transcript_id: str):
+            _lh.debug("ASSEMB: %s START", transcript_id)
+            this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
+            this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
+            this_fastq_r1_path = this_fastq_basename + "_1.fq"
+            this_fastq_r2_path = this_fastq_basename + "_2.fq"
+            if not file_system.file_exists(this_fastq_r1_path):
+                _lh.warning("ASSEMB: %s: Skipped non-expressing transcript (FASTQ 1 not exist)", transcript_id)
+                raise AssembError
+            if not file_system.file_exists(this_fastq_r2_path):
+                _lh.warning("ASSEMB: %s: Skipped non-expressing transcript (FASTQ 2 not exist)", transcript_id)
+                raise AssembError
+            if not file_system.file_exists(this_fasta_path):
+                _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA not exist)", transcript_id)
+                raise AssembError
+            try:
+                transcribed_length = FastaViewFactory(
+                    filename=this_fasta_path,
+                    read_into_memory=True,
+                    show_tqdm=False
+                ).get_chr_length(transcript_id)
+            except KeyError:
+                _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA Parsing Error)", transcript_id)
+                raise AssembError
+            transcript_depth = self._depth[transcript_id]
+            try:
+                num_of_reads, num_of_bases = remark_fastq_pair_end(
+                    src_fastq_1_file_path=this_fastq_r1_path,
+                    src_fastq_2_file_path=this_fastq_r2_path,
+                    dst_fastq_1_file_writer=writer1,
+                    dst_fastq_2_file_writer=writer2,
+                    transcript_id=transcript_id,
+                    transcript_depth=transcript_depth,
+                    simulator_name=self._simulator_name
+                )
+            except MisFormattedFastqRecordError:
+                _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTQ Parsing Error)", transcript_id)
+                return
+            stats_writer.write("\t".join((
+                transcript_id,  # "TRANSCRIPT_ID",
+                str(transcript_depth),  # "INPUT_DEPTH",
+                str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
+            )) + "\n")
+            _lh.debug("ASSEMB: %s FIN", transcript_id)
+            stats_writer.flush()
+
+        _lh.info("ASSEMB: START")
         output_fastq_dir = self._output_fastq_prefix + ".d"
         with FastqWriter(self._output_fastq_prefix + "_1.fq") as writer1, \
                 FastqWriter(self._output_fastq_prefix + "_2.fq") as writer2, \
@@ -311,62 +381,29 @@ class AssemblePairEnd(BaseAssembler):
                 "SIMULATED_DEPTH"
             )) + "\n")
 
-            while len(self._transcript_ids_pending) != 0 and not self._should_stop:
-                transcript_id = self._transcript_ids_pending.pop(0)
-                this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
-                this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
-                this_fastq_r1_path = this_fastq_basename + "_1.fq"
-                this_fastq_r2_path = this_fastq_basename + "_2.fq"
-                if not file_system.file_exists(this_fastq_r1_path):
-                    _lh.warning("Skipped non-expressing transcript: %s (FASTQ 1 not exist)", transcript_id)
-                    continue
-                if not file_system.file_exists(this_fastq_r2_path):
-                    _lh.warning("Skipped non-expressing transcript: %s (FASTQ 2 not exist)", transcript_id)
-                    continue
-                if not file_system.file_exists(this_fasta_path):
-                    _lh.warning("Skipped none-existing transcript: %s (FASTA not exist)", transcript_id)
-                    continue
-                try:
-                    transcribed_length = FastaViewFactory(
-                        filename=this_fasta_path,
-                        read_into_memory=True,
-                        show_tqdm=False
-                    ).get_chr_length(transcript_id)
-                except KeyError:
-                    _lh.warning("Skipped none-existing transcript: %s (FASTA Parsing Error)", transcript_id)
-                    continue
-                transcript_depth = self._depth[transcript_id]
-                try:
-                    num_of_reads, num_of_bases = remark_fastq_pair_end(
-                        src_fastq_1_file_path=this_fastq_r1_path,
-                        src_fastq_2_file_path=this_fastq_r2_path,
-                        dst_fastq_1_file_writer=writer1,
-                        dst_fastq_2_file_writer=writer2,
-                        transcript_id=transcript_id,
-                        transcript_depth=transcript_depth,
-                        simulator_name=self._simulator_name
-                    )
-                except MisFormattedFastqRecordError:
-                    _lh.warning("Skipped none-existing transcript: %s (FASTQ Parsing Error)", transcript_id)
-                    continue
-                stats_writer.write("\t".join((
-                    transcript_id,  # "TRANSCRIPT_ID",
-                    str(transcript_depth),  # "INPUT_DEPTH",
-                    str(num_of_reads),  # "SIMULATED_N_OF_READS",
-                    str(num_of_bases),  # "SIMULATED_N_OF_BASES",
-                    str(transcribed_length),  # "TRANSCRIBED_LENGTH",
-                    str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
-                )) + "\n")
-                stats_writer.flush()
-                time.sleep(0.01)
+            while not self._should_stop:
+                if len(self._transcript_ids_pending) > 0:
+                    try:
+                        _assemb(self._transcript_ids_pending.pop())
+                    except AssembError:
+                        pass
+                else:
+                    time.sleep(0.01)
+            _lh.info("ASSEMB: Post TERM -- Remaining %d transcripts", len(self._transcript_ids_pending))
+            while len(self._transcript_ids_pending) > 0:
+                _assemb(self._transcript_ids_pending.pop())
+
+        _lh.info("ASSEMB: FIN")
 
 
 class AssembleDumb(BaseAssembler):
     """Assembler that does not perform anything."""
 
     def run(self):
+        _lh.info("ASSEMB: START")
         while not self._should_stop:
             time.sleep(0.01)
+        _lh.info("ASSEMB: FIN")
 
 
 def generate_callback(

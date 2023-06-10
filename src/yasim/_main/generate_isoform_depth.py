@@ -68,7 +68,7 @@ def main(args: List[str]):
     transcript_level_depth = {}
     for gene in gv.iter_genes():
         if gene.gene_id not in gene_level_depth:
-            _lh.warning("Gene %s defined in GTF but not gene-level depth", gene.gene_id)
+            _lh.warning("GEN ISOFORM DEPTH: Gene %s defined in GTF but not gene-level depth", gene.gene_id)
         if gene_level_depth[gene.gene_id] == 0:
             for transcript in gene.iter_transcripts():
                 transcript_level_depth[transcript.transcript_id] = 0
@@ -82,12 +82,12 @@ def main(args: List[str]):
                 high_cutoff_ratio=args.high_cutoff_ratio
             )
         except depth.GenerationFailureException:
-            _lh.error("Generation failed for gene %s -- SKIPPED", gene.gene_id)
+            _lh.error("GEN ISOFORM DEPTH: Generation failed for gene %s -- SKIPPED", gene.gene_id)
             continue
         for i, transcript in enumerate(gene.iter_transcripts()):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]
     _lh.info(
-        "Generation of isoform-level depth: Final distribution: %s",
+        "GEN ISOFORM DEPTH: Generation of isoform-level depth: Final distribution: %s",
         describe(np.array(list(transcript_level_depth.values())))
     )
     yasim.helper.depth_io.write_depth(transcript_level_depth, args.out, "TRANSCRIPT_ID")

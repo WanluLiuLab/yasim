@@ -77,7 +77,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             raise LLRGInitializationException(f"Sequencer Profile for sequencer {sequencer_name} not found!") from e
         if read_length not in sequencer_profile[1]:
             read_length_used = sequencer_profile[1][0]
-            _lh.warning("Read length %d not allowed, would use default %d.", read_length, read_length_used)
+            _lh.warning("ART: Read length %d not allowed, would use default %d.", read_length, read_length_used)
         else:
             read_length_used = read_length
         retd.update({"read_length": read_length_used})
@@ -89,7 +89,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
         else:
             if pair_end_fragment_length_mean != 0 or pair_end_fragment_length_std != 0:
                 _lh.warning(
-                    "PE Params pair_end_fragment_length_mean pair_end_fragment_length_std "
+                    "ART: PE Params pair_end_fragment_length_mean pair_end_fragment_length_std "
                     "should not be used in SE mode, ignored."
                 )
         return retd

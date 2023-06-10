@@ -19,6 +19,7 @@ from yasim.helper.llrg import AssemblePairEnd, AssembleSingleEnd, AssemblerType
 
 _lh = get_logger(__name__)
 
+
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim pbsim", description=__doc__.splitlines()[1])
     parser.add_argument(
@@ -87,7 +88,7 @@ def main(args: List[str]):
         depth_data=depth_data,
         output_fastq_prefix=os.path.abspath(args.out),
         input_fastq_dir=os.path.abspath(args.input_fastq_dir),
-        simulator_name = args.simulator_name,
+        simulator_name=args.simulator_name,
         input_transcriptome_fasta_dir=os.path.abspath(args.fastas),
         truncate_ratio_3p=args.truncate_ratio_3p,
         truncate_ratio_5p=args.truncate_ratio_5p
@@ -98,6 +99,6 @@ def main(args: List[str]):
 
     assembler.terminate()
     while assembler.is_alive():
-        _lh.info("%s -- PENDING: %d", args.out,  assembler.n_pending)
+        _lh.info("ASSEMB: %s -- PENDING: %d", args.out, assembler.n_pending)
         time.sleep(1.0)
     assembler.join()

@@ -19,7 +19,7 @@ distclean: clean
 
 .PHONY: clean
 clean:
-	rm -rf *mode* depth.tsv depth_gene.tsv
+	rm -rf *mode* depth.tsv depth_gene.tsv *.log
 
 
 chrM.trans.fa: ../chrM.fa ../ce11.ncbiRefSeq.chrM.gtf

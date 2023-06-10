@@ -27,7 +27,7 @@ done
 
 cat sim/*.fastq | pigz -9 >simulated.fastq.gz
 cat sim/*.maf | pigz -9 >simulated_gt.maf.gz
-rm sim -rf
+rm -rf sim
 
 mkdir -p lastdb
 lastdb -v -P"${NUM_THREADS}" lastdb/ce11 ce11.chr1.fa

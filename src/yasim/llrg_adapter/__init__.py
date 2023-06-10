@@ -124,7 +124,7 @@ def automerge(in_fns: Iterable[str], out_fn: str) -> None:
             except (OSError, IOError) as e:
                 raise LLRGException(f"Copy file {in_fn} -> {out_fn} failed!") from e
     if c_len == 0:
-        raise EmptyOutputFileException(f"Copy file {in_fn} empty!")
+        raise EmptyOutputFileException(f"Copy file {in_fns} empty!")
 
 
 class BaseLLRGAdapter(threading.Thread):
@@ -308,13 +308,13 @@ class BaseLLRGAdapter(threading.Thread):
                     raise LLRGInitializationException("MKTEMP Failed!") from e
             self._pre_execution_hook()
         except LLRGException as e:
-            self._lh.warning("Exception %s caught at pre-execution time", str(e))
+            self._lh.warning("LLRG: Exception %s caught at pre-execution time", str(e))
             self._exception = e
             return
         try:
             self._run_llrg_hook()
         except LLRGException as e:
-            self._lh.warning("Exception %s caught at execution time", str(e))
+            self._lh.warning("LLRG: Exception %s caught at execution time", str(e))
             self._exception = e
             return
         try:
@@ -325,7 +325,7 @@ class BaseLLRGAdapter(threading.Thread):
                 except OSError as e:
                     raise LLRGInitializationException("RMTEMP Failed!") from e
         except LLRGException as e:
-            self._lh.warning("Exception %s caught at post-execution hook", str(e))
+            self._lh.warning("LLRG: Exception %s caught at post-execution hook", str(e))
             self._exception = e
             return
 
@@ -496,7 +496,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         :param stderr: File descriptor for STDERR.
         :return: Return value of the process.
         """
-        self._lh.debug(f"Subprocess {' '.join(cmd)} START")
+        self._lh.debug(f"LLRG: Subprocess {' '.join(cmd)} START")
         retv = subprocess.Popen(
             cmd,
             stdin=stdin,
@@ -504,9 +504,9 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
             stderr=stderr
         ).wait()
         if retv == 0:
-            self._lh.debug(f"Subprocess {' '.join(cmd)} FIN")
+            self._lh.debug(f"LLRG: Subprocess {' '.join(cmd)} FIN")
         else:
-            self._lh.warning(f"Subprocess {' '.join(cmd)} ERR={retv}")
+            self._lh.warning(f"LLRG: Subprocess {' '.join(cmd)} ERR={retv}")
         return retv
 
 
