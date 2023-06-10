@@ -1,7 +1,10 @@
 library("tidyverse")
+library("parallel")
 
 args <- commandArgs(trailingOnly = TRUE)
 suffix <- args[1]
+
+cl <- parallel::makeCluster(120)
 
 
 if (suffix == "simulated") {
@@ -15,6 +18,20 @@ if (suffix == "simulated") {
         stringr::str_replace("ce11_as_2_isoform_depth_", "") %>%
         stringr::str_replace(".fq.stats", "")
 }
+
+all_gene_ids_with_multiple_transcripts <- readr::read_tsv(
+    "ce11_as_2.gtf.gene.tsv",
+    show_col_types = FALSE,
+    col_types = c(
+        GENE_ID = col_character(),
+        TRANSCRIPT_NUMBER = col_integer(),
+        NAIVE_LENGTH = col_integer(),
+        TRANSCRIBED_LENGTH = col_integer(),
+        MAPPABLE_LENGTH = col_integer()
+    )
+) %>%
+    dplyr::filter(TRANSCRIPT_NUMBER > 1) %>%
+    dplyr::select(GENE_ID)
 
 gene_id_transcript_id <- readr::read_tsv(
     "ce11_as_2.gtf.transcripts.tsv",
@@ -30,6 +47,7 @@ gene_id_transcript_id <- readr::read_tsv(
     dplyr::select(TRANSCRIPT_ID, GENE_ID)
 all_transcript_ids <- gene_id_transcript_id %>%
     dplyr::select(TRANSCRIPT_ID)
+
 
 all_gep_data_filename <- sprintf("all_gep_data_%s.parquet", suffix)
 if (file.exists(all_gep_data_filename)) {
@@ -84,6 +102,8 @@ if (file.exists(all_gep_data_filename)) {
     arrow::write_parquet(all_gep_data, all_gep_data_filename)
 }
 
+
+
 if (suffix != "simulated") {
     g <- ggplot(all_gep_data) +
         geom_point(aes(
@@ -101,6 +121,14 @@ if (suffix != "simulated") {
         sprintf("gep_ratio_%s.png", suffix),
         g, width = 15, height = 12
     )
+    means <- all_gep_data %>%
+        dplyr::group_by(Condition) %>%
+        dplyr::summarise(
+            MEAN_INPUT_DEPTH = mean(INPUT_DEPTH),
+            MEAN_SIMULATED_DEPTH = mean(DEPTH)
+        )
+
+    readr::write_tsv(means, sprintf("means_%s.tsv", suffix))
 }
 
 g <- ggplot(all_gep_data) +
@@ -120,6 +148,9 @@ all_gep_data_with_gene_id <- all_gep_data %>%
     dplyr::inner_join(gene_id_transcript_id, by = "TRANSCRIPT_ID") %>%
     dplyr::select(GENE_ID, TRANSCRIPT_ID, DEPTH, Condition)
 
+all_gep_data_with_gene_id_and_multiple_transcripts <- all_gep_data_with_gene_id %>%
+    dplyr::inner_join(all_gene_ids_with_multiple_transcripts, by = "GENE_ID")
+
 
 gep_inside_gene_isoform_level_variation_filename <- sprintf(
     "gep_inside_gene_isoform_level_variation_%s.parquet", suffix
@@ -129,22 +160,42 @@ if (file.exists(gep_inside_gene_isoform_level_variation_filename)) {
         gep_inside_gene_isoform_level_variation_filename
     )
 } else {
-    gep_inside_gene_isoform_level_variation <- data.frame()
-    for (gene_id in sample(unique(all_gep_data_with_gene_id$GENE_ID), 1000)) {
-        for (condition in unique(all_gep_data_with_gene_id$Condition)) {
-            this_gep_data_with_gene_id <- all_gep_data_with_gene_id %>%
-                dplyr::filter(GENE_ID == gene_id, Condition == condition)
-            this_gep_data_with_gene_id <- this_gep_data_with_gene_id %>%
-                dplyr::cross_join(this_gep_data_with_gene_id)
-            gep_inside_gene_isoform_level_variation <- rbind(
-                gep_inside_gene_isoform_level_variation,
-                data.frame(
-                    var = this_gep_data_with_gene_id$DEPTH.x / this_gep_data_with_gene_id$DEPTH.y,
-                    Condition = condition
-                )
-            )
+    parallel::clusterExport(
+        cl, 
+        c("all_gep_data_with_gene_id_and_multiple_transcripts")
+    )
+    gep_inside_gene_isoform_level_variation_l <- parallel::parLapply(
+        cl,
+        unique(all_gep_data_with_gene_id_and_multiple_transcripts$GENE_ID),
+        function(gene_id){
+            library(dplyr)
+            retdf <- data.frame()
+            for (condition in unique(all_gep_data_with_gene_id_and_multiple_transcripts$Condition)) {
+                this_gep_data_with_gene_id <- all_gep_data_with_gene_id_and_multiple_transcripts %>%
+                    dplyr::filter(GENE_ID == gene_id, Condition == condition) %>%
+                    dplyr::filter(DEPTH != 0)
+                this_gep_data_with_gene_id <- this_gep_data_with_gene_id %>%
+                    dplyr::cross_join(this_gep_data_with_gene_id) %>%
+                    dplyr::filter(DEPTH.x > DEPTH.y) %>%
+                    dplyr::mutate(var = DEPTH.x / DEPTH.y) %>%
+                    dplyr::select(var)
+                if (length(this_gep_data_with_gene_id$var) != 0){
+                    retdf <- rbind(
+                        retdf,
+                        data.frame(
+                            var = this_gep_data_with_gene_id$var,
+                            Condition = condition
+                        )
+                    )
+                }
+            }
+            return(retdf)
         }
-    }
+    )
+    gep_inside_gene_isoform_level_variation <- Reduce(
+        rbind,
+        gep_inside_gene_isoform_level_variation_l
+    )
     arrow::write_parquet(
         gep_inside_gene_isoform_level_variation,
         gep_inside_gene_isoform_level_variation_filename
@@ -154,8 +205,9 @@ if (file.exists(gep_inside_gene_isoform_level_variation_filename)) {
 g <- ggplot(gep_inside_gene_isoform_level_variation, aes(x = abs(log10(var)))) +
     geom_histogram() +
     scale_x_continuous("Variance (Log 10 Fold Change)", limit = c(0, 5)) +
+    scale_y_continuous(limit = c(0, 600)) +
     ggtitle("Distribution of Variation Inside a Gene") +
-    facet_wrap(. ~ Condition, scales = "free_y") +
+    facet_wrap(. ~ Condition, scales="free_y") +
     theme_bw()
 ggsave(
     sprintf("gep_inside_gene_isoform_level_variation_%s.pdf", suffix),
@@ -230,8 +282,6 @@ if (file.exists(gep_gene_level_variation_filename)) {
         gene_mean_depths_max <- gene_mean_depths %>%
             dplyr::arrange(desc(DEPTH)) %>%
             head(n = 100)
-        print(summary(gene_mean_depths_max))
-        print(summary(gene_mean_depths_min))
         gene_mean_depths <- gene_mean_depths_max %>%
             dplyr::cross_join(gene_mean_depths_min) %>%
             dplyr::filter(DEPTH.x >= DEPTH.y) %>%
