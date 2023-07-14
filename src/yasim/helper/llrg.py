@@ -307,8 +307,10 @@ class AssembleSingleEnd(BaseAssembler):
                     time.sleep(0.01)
             _lh.info("ASSEMB: Post TERM -- Remaining %d transcripts", len(self._transcript_ids_pending))
             while len(self._transcript_ids_pending) > 0:
-                _assemb(self._transcript_ids_pending.pop())
-
+                try:
+                    _assemb(self._transcript_ids_pending.pop())
+                except AssembError:
+                    pass
         _lh.info("ASSEMB: FIN")
 
 
@@ -391,7 +393,10 @@ class AssemblePairEnd(BaseAssembler):
                     time.sleep(0.01)
             _lh.info("ASSEMB: Post TERM -- Remaining %d transcripts", len(self._transcript_ids_pending))
             while len(self._transcript_ids_pending) > 0:
-                _assemb(self._transcript_ids_pending.pop())
+                try:
+                    _assemb(self._transcript_ids_pending.pop())
+                except AssembError:
+                    pass
 
         _lh.info("ASSEMB: FIN")
 
