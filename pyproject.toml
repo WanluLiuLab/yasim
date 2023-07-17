@@ -41,7 +41,7 @@ license-files = ["License.md", "Copying.md"]
 
 [tool.setuptools.dynamic]
 version = { attr = "yasim.__version__" }
-readme = { file = "Readme.md" }
+readme = { file = "Readme.md" , content-type = "text/markdown"}
 dependencies = { file = "requirements.txt" }
 
 [tool.setuptools.dynamic.optional-dependencies]

@@ -115,6 +115,7 @@ def remark_fastq_pair_end(
 class AssembError(ValueError):
     ...
 
+
 class AssemblerType(ABC, threading.Thread):
     """
     The Assembler that assembles sequenced transcripts of each isoform into one (SE) or two (PE) files.
@@ -252,7 +253,7 @@ class AssembleSingleEnd(BaseAssembler):
                 "SIMULATED_DEPTH"
             )) + "\n")
 
-            def _assemb(transcript_id:str):
+            def _assemb(transcript_id: str):
                 _lh.debug("ASSEMB: %s START", transcript_id)
                 this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                 this_fastq_basename = os.path.join(self._input_fastq_dir, transcript_id)
