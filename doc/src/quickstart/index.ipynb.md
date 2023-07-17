@@ -79,7 +79,7 @@ head ce11.fa -n "$(($(cat -n ce11.fa | grep '>' | head -n 2 | tail -n 1 | cut -f
 
 This step would generate alternative splicing events. It would take reference genome annotation as input and generate GTF with AS events as output.
 
-The following example generates AS events from chromosome 1 of CE11 reference genome annotation with complexity index 5 (Some warnings generated during GTF parsing and process bar was filtered out):
+The following example generates AS events from chromosome 1 of CE11 reference genome annotation with Transcriptome Complexity Index 5 (Some warnings generated during GTF parsing and process bar was filtered out):
 
 ```{code-cell}
 :tags: [skip-execution]

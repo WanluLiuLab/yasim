@@ -28,7 +28,7 @@ def create_parser() -> argparse.ArgumentParser:
         '-c',
         '--complexity',
         required=True,
-        help="Genome Complexity Index, should be an integer between 1 and 9.",
+        help="Transcriptome Complexity Index, should be an integer between 1 and 9.",
         nargs='?',
         type=int,
         action='store'

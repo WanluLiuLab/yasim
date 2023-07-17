@@ -1,0 +1,7 @@
+# Ignores custome model but add bundled model
+*.model
+!ERRHMM-ONT.model
+!ERRHMM-RSII.model
+!ERRHMM-SEQUEL.model
+!QSHMM-ONT.model
+!QSHMM-RSII.model

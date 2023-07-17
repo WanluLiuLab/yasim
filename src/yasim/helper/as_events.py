@@ -201,7 +201,7 @@ class ASManipulator:
         :param organism: Name of the organism. Allowed are:
 
             - ``ce``: *C. Elegans*.
-        :param compl_idx: The complexity index. Larger for larger Number of Isoforms in a Gene.
+        :param compl_idx: The Transcriptome Complexity Index. Larger for larger Number of Isoforms in a Gene.
         """
         _lh.info("GEN AS EVENT: START")
         if organism not in ORGANISM_PARAMS.keys():

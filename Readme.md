@@ -1,4 +1,4 @@
-# `yasim` -- Yet Another SIMulator
+# `yasim` -- Yet Another SIMulator for Alternative Splicing Events and Realistic Gene Expression Profile
 
 **Markdown compatibility guide** This file is written in [Myst-flavored Markdown](https://myst-parser.readthedocs.io/), and may show errors on the default landing page of PYPI or Git Hostings. You can correctly preview it on generated Sphinx documentation or [Visual Studio Code](https://code.visualstudio.com) with [ExecutableBookProject.myst-highlight](https://marketplace.visualstudio.com/items?itemName=ExecutableBookProject.myst-highlight) plugin.
 
@@ -8,9 +8,9 @@ With the development of Third-Generation Sequencing (TGS) and related technologi
 
 YASIM serves for different simulation purposes. For example, it can be used to simulate count matrix from reference genome annotation, or to simulate raw FASTQ reads from user-provided count matrix. When combined with other tools, user can also simulate reads from genome with Single Nucleotide Polymorphism (SNP), Insertions \& Deletions (InDels), Structural Variations (SVs) and other genomic variations.
 
-YASIM does not have the ability to generate machine noises for each sequencer, and third-party DNA- or RNA-Seq simulators (Referred to as Low-Level Read generators, LLRGs) are needed to convert cDNA sequences to reads with machine errors and quality information [^qual]. This gives YASIM extreme flexibility over sequencer models. Till now, YASIM can simulate most Illumina NGS sequencers and most pacBio/ONT TGS sequencing platforms.
+YASIM does not have the ability to generate machine noises for each sequencer, and third-party DNA- or RNA-Seq simulators (Referred to as Low-Level Read generators, LLRGs) are needed to convert cDNA sequences to reads with machine errors and quality information [^qual]. This gives YASIM extreme flexibility over sequencer models. Till now, YASIM can simulate most Illumina NGS sequencers and most PacBio/ONT TGS sequencing platforms.
 
-[^qual]: Except PacBio Sequel model.
+[^qual]: Except PacBio Sequel/Sequel II model.
 
 YASIM is designed to be modularized, as some of the modules are general-purpose and can be used in other simulation tasks. Implemented in Python 3, YASIM follows Object-Oriented Programming (OOP) styles and can be easily extended. Theoretically, YASIM can run on any platform that supports Python3. However, most LLRG are POSIX-only (i.e., work on GNU/Linux, MacOS and friends). So it is recommended to deploy this tool inside major GNU/Linux distributions like Ubuntu, Debian, CentOS, Fedora, etc. Using YASIM on Microsoft Windows Subsystem of Linux (WSL), version 1 or 2, is **NOT** recommended -- It would lead to impaired performance and may cause other problems due to LLRG incompatibilities. Using YASIM on other platforms (e.g., Oracle Solaris) is neither tested nor recommended.
 
@@ -21,7 +21,7 @@ YASIM is designed to be modularized, as some of the modules are general-purpose 
 You need Python interpreter (CPython implementation) >= 3.8 (recommended 3.8) and latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
 
 ```shell
-pip install yasim==1.0.0
+pip install yasim==3.1.5
 ```
 
 You are recommended to use this application inside a virtual environment like [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io) or [`poetry`](https://python-poetry.org).
@@ -34,7 +34,7 @@ Build the simulator using:
 
 ```shell
 python3 -m build
-pip install dist/yasim-1.0.0.tar.gz
+pip install dist/yasim-3.1.5.tar.gz
 ```
 
 ### Installation of Third-Party Programs
@@ -72,4 +72,4 @@ You may refer to LLRG tutorial for detailed guidance on utilization of these sof
 
 ## NEWS
 
-- 2022-11-09: The `yasim.commonutils` and `yasim.bioutils` package would be separated into a new package (still under internal development) and `yasim` of later versions would depend on it.
+- 2022-11-09: The `yasim.commonutils` and `yasim.bioutils` package would be separated into a new package ([`labw-utils`](https://pypi.org/project/labw-utils)) and YASIM of later versions would depend on it.
