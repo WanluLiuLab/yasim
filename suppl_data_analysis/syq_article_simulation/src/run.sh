@@ -19,9 +19,9 @@ make -j20
 ln -sf "$(pwd)"/src/pbsim ../../bin/pbsim2
 cd .. || exit 1
 
-git clone http://github.com/yukiteruono/pbsim
+git clone https://salsa.debian.org/med-team/pbsim # Network issues
 cd pbsim || exit 1
-# git checkout TODO
+git checkout a7a3a39c774b240d482e1f444bc40cefdd93227f
 autoreconf -i
 ./configure
 make -j20

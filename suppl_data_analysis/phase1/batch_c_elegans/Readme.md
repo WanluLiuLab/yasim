@@ -97,7 +97,7 @@ NO DATA!
     - SRR17886747 (N2-C), 2.0 GB 2.1 GB
     - SRR17886748 (N2-B), 2.4 GB 2.5 GB
     - SRR17886749 (N2-A), 2.0 GB 1.9 GB
-  - NO REFERENCE
+  - Sleep neuron depolarization promotes protective gene expression changes and FOXO activation. Koutsoumparis A, Welp LM, Wulf A, Urlaub H, Meierhofer D, Börno S, Timmermann B, Busack I, Bringmann H. Chair of Cellular Circuits and Systems, Biotechnology Center (BIOTEC), Center for Molecular and Cellular Bioengineering (CMCB), Technical University Dresden, 01307 Dresden, Germany. Curr Biol 32(10): 2248-2262.e9 (2022 May) <https://doi.org/10.1016/j.cub.2022.04.012>
 
 
 
@@ -123,8 +123,7 @@ NO DATA!
     - SRR7771392 (N2 OP50 1), 878.8 MB 914.8 MB
     - SRR7771394 (N2 OP50 2), 724.1 MB 788.0 MB
     - SRR7771396 (N2 OP50 3), 715.0 MB 750.0 MB
-  - Global transcriptional regulation of innate immunity by ATF-7 in C. elegans.
-Fletcher M, Tillman EJ, Butty VL, Levine SS, Kim DH. Department of Biology, Massachusetts Institute of Technology, Cambridge, Massachusetts, United States of America. PLoS Genet 15(2): e1007830 (2019 Feb) <https://doi.org/10.1371/journal.pgen.1007830>
+  - Global transcriptional regulation of innate immunity by ATF-7 in C. elegans. Fletcher M, Tillman EJ, Butty VL, Levine SS, Kim DH. Department of Biology, Massachusetts Institute of Technology, Cambridge, Massachusetts, United States of America. PLoS Genet 15(2): e1007830 (2019 Feb) <https://doi.org/10.1371/journal.pgen.1007830>
 
 ### NextSeq 550
 
@@ -198,7 +197,7 @@ NO DATA!
   - data
     - SRR10517637 (gastrula_GroSeq), 3.1 GB
     - SRR10517638 (late_emb_GroSeq), 5.0 GB
-  - NO REFERENCE
+  - Genome sequence of the nematode C. elegans: a platform for investigating biology. C. elegans Sequencing Consortium. Science 282(5396): 2012-2018 (1998 Dec) <https://doi.org/10.1126/science.282.5396.2012>
 
 - [PRJNA533634](https://www.ebi.ac.uk/ena/browser/view/PRJNA533634)
   - High throughput RNA sequencing (RNA-seq) using cDNA has played a key role in delineating transcriptome complexity, including alternative transcription initiation, splicing, polyadenylation and base modification. However, the reads derived from current RNA-seq technologies are usually short and deprived of information on modification during reverse transcription, compromising their potential in defining transcriptome complexity. Here we applied a direct RNA sequencing method with ultra-long reads from Oxford Nanopore Technologies (ONT) to study the transcriptome complexity in C. elegans. We sequenced native poly-A tailed mRNAs by generating approximately six million reads from embryos, L1 larvae and young adult animals, with average read lengths ranging from 900 to 1,100 bps across stages. Around half of the reads represent full-length transcripts, judged by the presence of a splicing-leader or their full coverage of an existing transcript. To take advantage of the full-length transcripts in defining transcriptome complexity, we devised a novel algorithm to predict novel isoforms or group them with exiting isoforms using their mapping tracks rather than the existing intron/exon structures, which allowed us to identify roughly 57,000 novel isoforms and recover at least 26,000 out of the 33,500 existing isoforms. Intriguingly, stage-specific expression at the level of gene and isoform demonstrates little correlation. Finally, we observed an elevated level of modification in all bases in the coding region relative to the UTR. Taken together, the ONT long reads are expected to deliver new insights into RNA processing and modification and their underlying biology. Overall design: Animals of different stages, i.e., embryo, L1 larva and young adult, were collected and total RNAs were extracted using TRIzol (Invitrogen) following the manufacturer’s instructions. Approximately 100 µg total RNAs were extracted for each sample. Around 900 ng of poly-A tailed mRNAs was purified using Dynabeads™ mRNA Purification Kit (Invitrogen) based on the user’s manual for each library preparation. Nanopore sequencing libraries were constructed using Direct RNA sequencing kit (cat# SQK-RNA001). The libraries were loaded onto Nanopore R9.4.1 flow cell (cat# FLO-MIN106) and sequenced on MinION acquired from Oxford Nanopore Technologies. The software used for sequencing was MINKNOW 2.1 with base-caller, Albacore (v2.0.1).
@@ -208,7 +207,7 @@ NO DATA!
     - SRR8929004 (Mix-stage embryo), 1.7 GB
     - SRR8929005 (L1 larva), 1.5 GB
     - SRR8929006 (Young adult), 2.0 GB
-  - NO REFERENCE
+  - Genome sequence of the nematode C. elegans: a platform for investigating biology. C. elegans Sequencing Consortium. Science 282(5396): 2012-2018 (1998 Dec) <https://doi.org/10.1126/science.282.5396.2012>
 
 ### PromethION
 
@@ -229,7 +228,7 @@ NO DATA!
   - data:
     - SRR15993150 (CB4856_mixed_RNAseq_PacBio_Iso-Seq), 7.5 GB
     - SRR15993151 (PD1074_mixed_RNAseq_PacBio_Iso-Seq), 7.6 GB
-  - NO REFERENCE
+  - Intraspecific <i>de novo</i> gene birth revealed by presence-absence variant genes in <i>Caenorhabditis elegans</i>. Lee BY, Kim J, Lee J. Research Institute of Basic Sciences, Seoul National University, Seoul 08826, Korea. NAR Genom Bioinform 4(2): lqac031 (2022 Jun) <https://doi.org/10.1093/nargab/lqac031>
 
 ### PacBio Sequel II
 

@@ -410,9 +410,6 @@ tmp*/
 *.loci
 SiLiCO_Scratch/
 /yasim-*/
-/COPYING
-/README
-/TODO
 /test/dist/pytest/junit.xml
 *.so
 /venv_*/

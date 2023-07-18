@@ -17,7 +17,6 @@ LOG_FILE_NAME="yasim_generate_isoform_depth.log" \
     --high_cutoff_ratio 200
 
 function perform_housekeeping() {
-    # FIXME: MAF would be deleted!
     for fn in "${1}".d/*/*.maf; do cat "${fn}"; done | gzip -9 >"${1}".maf.gz &&
         rm -rf "${1}".d &&
         touch "${1}".finished || return 1
