@@ -12,6 +12,7 @@ authors = [
     { name = "SU Yaqi", email = "Yaqi.19@intl.zju.edu.cn" },
     { name = "YUAN Ruihong", email = "Ruihong.19@intl.zju.edu.cn" },
     { name = "CHEN Xinyi", email = "22171013@zju.edu.cn" },
+    { name = "LIU Wanlu (Correspondence)", email = "wanluliu@intl.zju.edu.cn" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
