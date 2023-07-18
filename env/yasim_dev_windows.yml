@@ -20,6 +20,7 @@ dependencies:
   - jinja2>=3.1.2
   - tqdm>=4.64
   - matplotlib>=3.6
+  - pyarrow
 
   # Used in building docs
   - tomli
@@ -35,12 +36,13 @@ dependencies:
 
   # Sphinx documentation
   - sphinx=5.3
-  - sphinx_rtd_theme=1.1.1
   - sphinx-copybutton
   - myst-nb
   - notebook
   - jupyter
   - jupytext
+  - sphinx-design=0.3.0
+  - furo=2023.3.27
 
   # Build utils
   - pip
@@ -48,3 +50,4 @@ dependencies:
   - wheel
   - build
   - twine
+  - mypy
