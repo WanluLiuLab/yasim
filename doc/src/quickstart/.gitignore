@@ -2,3 +2,4 @@ STAR_IDX/
 *_aln
 SALMON_IDX/
 *.0
+!yasim_toplevel.svg

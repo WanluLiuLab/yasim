@@ -43,5 +43,6 @@ myst_nb_helper.convert_ipynb_to_myst(
 
 myst_nb_helper.generate_cli_docs(
     os.path.join(THIS_DIR, "cli_docs.toml"),
-    os.path.join(THIS_DIR, "_cli_docs")
+    os.path.join(THIS_DIR, "_cli_docs"),
+    format="txt"
 )

@@ -34,14 +34,14 @@ ls -lFh | grep ipynb
 
 ## Introduction
 
-Low-Level Read Generators (LLRGs) are programs used to generate machine errors. Normally, an LLRG can be represented in 2 forms: As a standalone third-party executable (e.g., PBSIM can ben invoked by `pbsim` command) or as a Python module that can be imported (e.g., dTGS). These two forms are unified by the introduction of what we called "LLRG adapter", a middleware inside YASIM that performs execution and error handling of LLRGs. The LLRG adapters are evoked by the LLRG frontend (i.e., the `python -m yasim [LLRG]` command) in bulk or single-cell RNA-Seq experiments. Following is a workflow of the LLRG step:
+Low-Level Read Generators (LLRGs) are programs used to generate machine errors. Normally, an LLRG can be represented in 2 forms: As a standalone third-party executable (e.g., PBSIM can be invoked by `pbsim` command) or as a Python module that can be imported (e.g., dTGS). These two forms are unified by the introduction of what we called "LLRG adapter", a middleware inside YASIM that performs execution and error handling of LLRGs. The LLRG adapters are evoked by the LLRG frontend (i.e., the `python -m yasim [LLRG]` command) in bulk or single-cell RNA-Seq experiments. Following is a workflow of the LLRG step:
 
-```{figure} ../fig/llrg_step.svg
+```{figure} llrg_step.svg
 :width: 100%
-:align: left
 :alt: LLRG Step Flow Chart
+:align: left
 
-LLRG Step Flow Chart
+**LLRG Step Flow Chart**
 
 This figure demonstrates the basic workflow of the LLRG step. It is, in details, as follows:
 
@@ -51,7 +51,7 @@ This figure demonstrates the basic workflow of the LLRG step. It is, in details,
 4. Generated reads would be merged into one (SE) or two (PE) files.
 ```
 
-So after knowing this knowledge, it would be easy to decode LLRG parameter specifications. Firstly, we would stress that the arguments marked in braces **should be filled by user**  (e.g., please replace `[FASTAS_DIR]` with the path of FASTA directory generated in `transcribe` step). So, to invoke LLRG adapter for `[LLRG]`, you should at least:
+So after knowing this knowledge, it would be easy to decode LLRG parameter specifications. Firstly, we would stress that the arguments marked in braces **should be filled by the user**  (e.g., please replace `[FASTAS_DIR]` with the path of the FASTA directory generated in `transcribe` step). So, to invoke LLRG adapter for `[LLRG]`, you should at least:
 
 ```shell
 python -m yasim [LLRG] \
@@ -60,13 +60,13 @@ python -m yasim [LLRG] \
     -o [OUTPUT_NAME] \
 ```
 
-where `[LLRG]` is the name of the LLRG you wish to use, `[ISOFORM_DEPTH]` is the path to isoform-level depth generated in previous steps, and  `[OUTPUT_NAME]` is a basename to output which is intepreted as `[OUTPUT_NAME].fq` for single-end reads and `[OUTPUT_NAME]_1.fq` \& `[OUTPUT_NAME]_2.fq` for pair-end reads.
+where `[LLRG]` is the name of the LLRG you wish to use, `[ISOFORM_DEPTH]` is the path to isoform-level depth generated in previous steps, and  `[OUTPUT_NAME]` is a basename to output which is interpreted as `[OUTPUT_NAME].fq` for single-end reads and `[OUTPUT_NAME]_1.fq` \& `[OUTPUT_NAME]_2.fq` for pair-end reads.
 
-Among all possible optional parameters, the most important are `--simulator_name` and `-e`. The former specifies what would appear in FASTQ SEQID, and the latter specifies the path to the LLRG executable. For example, if you installed PBSIM3 in `/home/yuzj/bin/pbsim3` instead of normal locations, you should specify `-e /home/yuzj/bin/pbsim3`.
+Among all possible optional parameters, the most important are `--simulator_name` and `-e`. The former specifies what would appear in FASTQ SEQID, and the latter specifies the path to the LLRG executable. For example, if you installed PBSIM3 in `/usr/local/bin/pbsim3` instead of normal locations, you should specify `-e /usr/local/bin/pbsim3`.
 
-Compared to NGS simulators, TGS simulators support two additional parameters: `--truncate_ratio_3p` and `--truncate_ratio_5p`. These two parameters specify 3' and 5' truncation where 3' and 5' are **IN RESPECT TO SEQUENCER**. For example, suppose that an isoform is defined on the forward strand. PBSIM1 would take its cDNA (on the forward strand) and generate reads in **both** the forward strand and reverse strand. At this time, if we specified a 3' truncation, with respect to the reference genome, the forward cDNA-Seq read would be clipped on the 3' end while reverse cDNA-Seq strand would be clipped on the 5' end.
+Compared to NGS simulators, TGS simulators support two additional parameters: `--truncate_ratio_3p` and `--truncate_ratio_5p`. These two parameters specify 3' and 5' truncation where 3' and 5' are **IN RESPECT TO SEQUENCER**. For example, suppose that an isoform is defined on the forward strand. PBSIM1 would take its cDNA (on the forward strand) and generate reads in **both** the forward strand and reverse strand. At this time, if we specified a 3' truncation, the forward cDNA-Seq read would be clipped on the 3' end while the reverse cDNA-Seq strand would be clipped on the 5' end to the reference genome.
 
-The argument parser of the LLRG frontend supports pass-through. That is, arguments or options that cannot be recognized would be applied to all LLRG. For example, if we wish to adjust the accuracy of PBSIM, we can add `--accuracy-mean [VALUE]` parameter at the end of `python -m yasim pbsim ...` command. Since `--accuracy-mean` is not a recognizable parameter of YASIM, it would be passed to all `pbsim` processes.
+The argument parser of the LLRG front end supports pass-through. That is, arguments or options that cannot be recognized would be applied to all LLRG. For example, if we wish to adjust the accuracy of PBSIM, we can add `--accuracy-mean [VALUE]` parameter at the end of `python -m yasim pbsim ...` command. Since `--accuracy-mean` is not a recognizable parameter of YASIM, it would be passed to all `pbsim` processes.
 
 +++
 
@@ -94,7 +94,7 @@ Reference
 Installation
 : From [Conda](https://anaconda.org/bioconda/art). If you use Debian GNU/Linux-based distributions, you may also use [APT](https://packages.debian.org/stable/art-nextgen-simulation-tools).
 
-### How ART Specifies Sequencer Model and Read Length
+### Specify ART Sequencer Model and Read Length
 
 The output of `python -m yasim art --help` may be hard to read, and we would explain it here. Although ART can simulate Illumina sequencers with different models and read lengths, the choices of read length are limited by the choice of models. For example, if we choose Illumina GenomeAnalyzer I (`GA1` as is in the parameter), the valid read length would be 36 or 44. If the read length is not valid or not specified, the default read length (the first valid read length) would be used.
 
@@ -122,53 +122,33 @@ python -m yasim art \
 
 +++
 
-### How ART Supports Pair-End (PE) Mode
+### ART: Supporting Pair-End (PE) Mode
 
-ART also supports pair-end (PE) simulation. Under that circumstance, one additional flag, `--is_pair_end`, needs to be set and two additional parameters, `--pair_end_fragment_length_mean` (mean distance between two fragments) and `--pair_end_fragment_length_std` (standard diviation of distance between two fragments), need to be specified. You're recommended to set `--pair_end_fragment_length_mean` larger than read length with `--pair_end_fragment_length_std` smaller than read length.
+ART also supports pair-end (PE) simulation. Under that circumstance, one additional flag, `--is_pair_end`, needs to be set and two additional parameters, `--pair_end_fragment_length_mean` (mean distance between two fragments) and `--pair_end_fragment_length_std` (standard deviation of the distance between two fragments), need to be specified. You're recommended to set `--pair_end_fragment_length_mean` larger than read length with `--pair_end_fragment_length_std` smaller than read length.
 
 ### Debugging ART LLRG
 
-Art may raise some errors like:
+ART may raise some errors like:
 
 ```text
 OpenBLAS blas thread_init: pthread_create failed for thread 14 of 128: Resource temporarily unavailable
 OpenBLAS blas thread init: RLIMIT_NPROC 4096 current, 2061441 max
 ```
 
-Solve this error by setting `-j` parameter to a smaller value or wait until the server becomes less busy.
-
-+++
-
-## DWGSIM
-
-DWGSIM (Official Site at [GitHub](https://github.com/nh13/DWGSIM)) is an NGS simulator. YASIM uses its illumina PE mode.
-
-References
-: Unpublished.
-
-Installation
-: From [Conda](https://anaconda.org/bioconda/dwgsim). If you use Debian GNU/Linux-based distributions, you may also use [APT](https://packages.debian.org/stable/dwgsim).
-
-+++
-
-## Badread
-
-Badread (Official site at [GitHub](https://github.com/rrwick/Badread)) is a TGS simulator implemented in Python. It can be used to simulate various PacBio and ONT models (trained on unknown data so pore/chemistry information unavailable) Compared to other simulators, it is relatively slow.
-
-References
-: R. Wick, "Badread: Simulation of error-prone long reads," Journal of Open Source Software, vol. 4, no. 36, p. 1316, Apr. 2019. DOI: [10.21105/joss.01316](https://doi.org/10.21105/joss.01316)
-
-Installation
-: From [Conda](https://anaconda.org/bioconda/badread).
+Solve this error by setting the `-j` parameter to a smaller value or wait until the server becomes less busy.
 
 +++
 
 ## PBSIM
 
+```{warning}
+The official build of PBSIM, PBSIM2 and PBSIM3 shares a common executable anme (`pbsim`) but with different argument layout. For convenience, I renamed executable of PBSIM2 to `pbsim2` and PBSIM3 to `pbsim3`. If you do not use this in your computer, please use the `-e` option.
+```
+
 PBSIM version 1 (Official site at [GitHub](https://github.com/yukiteruono/pbsim)) can simulate C1/C2 chemistry data generated by PacBio RS, a very old sequencer that is not commonly seen nowadays.
 
 Reference
-: Y. Ono, K. Asai, and M. Hamada, "Pbsim: Pacbio reads simulator–toward accurate genome assembly.," _Bioinformatics (Oxford, England)_, vol. 29, pp. 119–121, 1 Jan. 2013, ISSN : 1367-4811. DOI: [10.1093/bioinformatics/bts649](https://doi.org/10.1093/bioinformatics/bts649)
+: Y. Ono, K. Asai, and M. Hamada, "Pbsim: Pacbio reads simulator–toward accurate genome assembly.," _Bioinformatics (Oxford, England)_, vol. 29, pp. 119–121, 1 Jan. 2013, ISSN: 1367-4811. DOI: [10.1093/bioinformatics/bts649](https://doi.org/10.1093/bioinformatics/bts649)
 
 Installation
 : From [Conda](https://anaconda.org/bioconda/pbsim). If you use Debian GNU/Linux-based distributions, you may also use [APT](https://packages.debian.org/stable/pbsim).
@@ -185,15 +165,15 @@ PBSIM generates CCS with a mechanism similiar to CLR. It does **NOT** require in
 
 ## PBSIM2
 
-PBSIM2 (Official Site at [GitHub](https://github.com/yukiteruono/pbsim2)) can simulate early PacBio RS II (P4C2, P5C3 and P6C4 chemistry) and ONT (R9.4, R9.5 and R10.3 pore) models. It does **NOT** support CCS generation.
+PBSIM2 (Official Site at [GitHub](https://github.com/yukiteruono/pbsim2)) can simulate early PacBio RS II (P4C2, P5C3, and P6C4 chemistry) and ONT (R9.4, R9.5, and R10.3 pore) models. It does **NOT** support CCS generation.
 
-Using PBSIM2 for TGS simulation is recommended. It is fast, reliable and accurate.
+Using PBSIM2 for TGS simulation is recommended. It is fast, reliable, and accurate.
 
 Reference
 : Y. Ono, K. Asai, and M. Hamada, "PBSIM2: A simulator for long-read sequencers with a novel generative model of quality scores," _Bioinformatics (Oxford, England)_, vol. 37, no. 5, pp. 589–595, May 5, 2021, Number: 5, ISSN: 1367-4811. DOI: [10.1093/bioinformatics/btaa835](https://doi.org/10.1093/bioinformatics/btaa835)
 
 Installation
-: From [Conda](https://anaconda.org/bioconda/pbsim2) 
+: From [Conda](https://anaconda.org/bioconda/pbsim2)
 
 +++
 
@@ -211,70 +191,31 @@ Installation
 
 PBSIM3 has 2 strategies: `wgs` and `trans`. Their difference is as follows:
 
-- The `wgs` strategy is the same as what is used in PBSIM2, PBSIM, and other LLRGs. i.e., PBSIM3 was used as a DNA-Seq simulator that reads cDNA and outputs sequences. Example:
+- **The `wgs` strategy** is the same as what is used in PBSIM2, PBSIM, and other LLRGs. i.e., PBSIM3 was used as a DNA-Seq simulator that reads cDNA and outputs sequences. Example:
 
-```shell
-python -m yasim pbsim3 \
-    -m SEQUEL \
-    -M errhmm \
-    --strategy wgs \
-    -F chrm_trans.fa.d \
-    -d isoform_depth.tsv \
-    -o chrm_pbsim3_wgs \
-    -j 40
-```
+    ```shell
+    python -m yasim pbsim3 \
+        -m SEQUEL \
+        -M errhmm \
+        --strategy wgs \
+        -F chrm_trans.fa.d \
+        -d isoform_depth.tsv \
+        -o chrm_pbsim3_wgs \
+        -j 40
+    ```
 
-- The `trans` strategy is new in PBSIM3. It would generate reads based on a new PBSIM3-specific isoform record format. In YASIM, this mode sets number of reads on forward (i.e., true mRNA) reads to desired number, and number of reads on reverse (i.e., reverse-complemented mRNA) reads to 0 to mimic direct RNA sequencing.
+- **The `trans` strategy** is new in PBSIM3. It would generate reads based on a new PBSIM3-specific isoform record format. In YASIM, this mode sets the number of reads on forward (i.e., true mRNA) reads to the desired number, and the number of reads on the reverse (i.e., reverse-complemented mRNA) reads to 0 to mimic direct RNA sequencing. Example:
 
-An example is as follows:
-
-```shell
-python -m yasim pbsim3 \
-    -m SEQUEL \
-    -M errhmm \
-    --strategy trans \
-    -F chrm_trans.fa.d \
-    -d isoform_depth.tsv \
-    -o chrm_pbsim3_trans \
-    -j 40
-```
-
-```shell
-python -m labw_utils.bioutils describe_fastq chrm_pbsim3_trans.fq chrm_pbsim3_wgs.fq
-python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf
-```
-
-```{code-cell}
-pbsim3_trans_fq_stats = pd.read_table(
-    os.path.join("chrm_pbsim3_trans.fq.stats.d", "all.tsv"),
-    quotechar="'"
-)
-pbsim3_wgs_fq_stats = pd.read_table(
-    os.path.join("chrm_pbsim3_wgs.fq.stats.d", "all.tsv"),
-    quotechar="'"
-)
-pbsim3_trans_fq_stats["TRANSCRIPT_ID"] = pbsim3_trans_fq_stats["SEQID"].apply(lambda s: s.split(":")[0])
-pbsim3_wgs_fq_stats["TRANSCRIPT_ID"] = pbsim3_wgs_fq_stats["SEQID"].apply(lambda s: s.split(":")[0])
-
-ref_genome_stats = pd.read_table("chrM.ncbiRefSeq.gtf.transcripts.tsv").set_index("TRANSCRIPT_ID")
-
-pbsim3_trans_fq_stats = pbsim3_trans_fq_stats.join(ref_genome_stats, on="TRANSCRIPT_ID")
-pbsim3_wgs_fq_stats = pbsim3_wgs_fq_stats.join(ref_genome_stats, on="TRANSCRIPT_ID")
-```
-
-Following is a plot of read length on FASTQ vs. transcribed length on GTF.
-
-`trans` mode:
-
-```{code-cell}
-_ = sns.boxplot(pbsim3_trans_fq_stats, y="LEN", x="TRANSCRIBED_LENGTH")
-```
-
-`wgs` mode:
-
-```{code-cell}
-_ = sns.boxplot(pbsim3_wgs_fq_stats, y="LEN", x="TRANSCRIBED_LENGTH")
-```
+    ```shell
+    python -m yasim pbsim3 \
+        -m SEQUEL \
+        -M errhmm \
+        --strategy trans \
+        -F chrm_trans.fa.d \
+        -d isoform_depth.tsv \
+        -o chrm_pbsim3_trans \
+        -j 40
+    ```
 
 +++
 
@@ -302,7 +243,10 @@ python -m yasim pbsim3 \
 python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq chrm_pbsim3_qshmm.fq
 ```
 
+Plotting of mean quality score per read.
+
 ```{code-cell}
+:tags: [hide-input]
 pbsim3_errhmm_fq_stats = pd.read_table(
     os.path.join("chrm_pbsim3_errhmm.fq.stats.d", "all.tsv"),
     quotechar="'"
@@ -311,11 +255,6 @@ pbsim3_qshmm_fq_stats = pd.read_table(
     os.path.join("chrm_pbsim3_qshmm.fq.stats.d", "all.tsv"),
     quotechar="'"
 )
-```
-
-Plotting of mean quality score per read.
-
-```{code-cell}
 fig, axs = plt.subplots(nrows=2, sharex=True)
 _ = sns.histplot(pbsim3_errhmm_fq_stats, x="MEANQUAL", ax=axs[0])
 _ = sns.histplot(pbsim3_qshmm_fq_stats, x="MEANQUAL", ax=axs[1], binwidth=1)
@@ -335,7 +274,17 @@ YASIM can generate CCS FASTQ. The `--ccs_pass` parameter determines the number o
 
 On CCS generation, YASIM would firstly invoke PBSIM3 to generate PacBio CLR reads, and then call CCS using the `ccs` utility (which is slow) from PacBio. The MAF generated in CCS mode is paired with generated CLR reads and cannot reflect the error status of generated CCS reads.
 
-CCS generation requires `samtools` and `ccs` to be present. You may set their path in corresponding parameters. For the IsoSeq-based pipeline that requires CCS BAM, please refer to the appendix. 3' and 5' truncation set in YASIM parameters are applicable for CCS FASTQ but not applicable to CCS BAM.
+**CCS generation requires `samtools` and `ccs` to be present.** You may set their path in corresponding parameters. For the IsoSeq-based pipeline that requires CCS BAM, please refer to the appendix. 3' and 5' truncation set in YASIM parameters are applicable for CCS FASTQ but not applicable to CCS BAM. Install them using:
+
+```shell
+conda install -c conda-forge -c bioconda pbccs samtools
+```
+
+You are also recommended to install `jinja2` and `pysam`, with which YASIM can utilize XML API of `ccs` as-is recommended by PacBio with a more accurate empty-file detection. Installation of those tools can be done by:
+
+```shell
+pip install yasim[pbsim3]==3.1.5
+```
 
 See the following example for details:
 
@@ -361,7 +310,10 @@ python -m yasim pbsim3 \
 python -m labw_utils.bioutils describe_fastq chrm_pbsim3_clr.fq chrm_pbsim3_ccs.fq
 ```
 
+Plotting of mean quality score per read.
+
 ```{code-cell}
+:tags: [hide-input]
 pbsim3_ccs_fq_stats = pd.read_table(
     os.path.join("chrm_pbsim3_ccs.fq.stats.d", "all.tsv"),
     quotechar="'"
@@ -370,17 +322,38 @@ pbsim3_clr_fq_stats = pd.read_table(
     os.path.join("chrm_pbsim3_clr.fq.stats.d", "all.tsv"),
     quotechar="'"
 )
-```
-
-Plotting of mean quality score per read.
-
-```{code-cell}
 fig, axs = plt.subplots(nrows=2, sharex=True)
 _ = sns.histplot(pbsim3_ccs_fq_stats, x="MEANQUAL", ax=axs[0], binwidth=1)
 _ = sns.histplot(pbsim3_clr_fq_stats, x="MEANQUAL", ax=axs[1], binwidth=1)
 _ = axs[0].set_title("CCS mode")
 _ = axs[1].set_title("CLR mode")
 ```
+
++++
+
+## DWGSIM
+
+DWGSIM (Official Site at [GitHub](https://github.com/nh13/DWGSIM)) is an NGS simulator. YASIM uses its illumina PE mode.
+
+References
+: Unpublished.
+
+Installation
+: From [Conda](https://anaconda.org/bioconda/dwgsim). If you use Debian GNU/Linux-based distributions, you may also use [APT](https://packages.debian.org/stable/dwgsim).
+
++++
+
+## Badread
+
+Badread (Official site at [GitHub](https://github.com/rrwick/Badread)) is a TGS simulator implemented in Python. It can be used to simulate various PacBio and ONT models (trained on unknown data so pore/chemistry information is unavailable) Compared to other simulators, it is relatively slow.
+
+References
+: R. Wick, "Badread: Simulation of error-prone long reads," Journal of Open Source Software, vol. 4, no. 36, p. 1316, Apr. 2019. DOI: [10.21105/joss.01316](https://doi.org/10.21105/joss.01316)
+
+Installation
+: From [Conda](https://anaconda.org/bioconda/badread).
+
++++
 
 ## dTGS
 
@@ -390,7 +363,7 @@ Reference
 : Unpublished.
 
 Installation
-: No installation needed.
+: No installation is needed.
 
 +++
 
@@ -404,17 +377,16 @@ Installation
 In this mode, `truncate_ratio_5p` and `truncate_ratio_3p` cannot be effective.
 ```
 
-CCS reads generated by `pbsim3` can be used in officially supported PacBio [IsoSeq](https://isoseq.how) pipelines. To finish this tutorial, you need to install PacBio [SMRTLink](https://www.pacb.com/support/software-downloads/) or its [community version](https://github.com/PacificBiosciences/pbbioconda) (recommended). Version of Dependencies:
+CCS reads generated by `pbsim3` can be used in officially supported PacBio [IsoSeq](https://isoseq.how) pipelines. To finish this tutorial, you need to install PacBio [SMRTLink](https://www.pacb.com/support/software-downloads/) or its [community version](https://github.com/PacificBiosciences/pbbioconda) (recommended). The version of Dependencies:
 
-```{code-cell}
-%%bash
-pbmerge --version | head -n 1
-pbindex --version | head -n 1
-samtools --version | head -n 1
-ccs --version | head -n 1
-pbmm2 --version | head -n 1
-isoseq3 --version | head -n 1
-```
+| Software | Version                           |
+| -------- | --------------------------------- |
+| pbmerge  | 3.0.0 (commit v3.0.0)             |
+| pbindex  | 3.0.0 (commit v3.0.0)             |
+| samtools | 1.16.1                            |
+| ccs      | 6.0.0 (commit v6.0.0-2-gf165cc26) |
+| pbmm2    | 1.10.0                            |
+| isoseq3  | 3.8.2 (commit v3.8.2)             |
 
 Generation of CCS reads. We would use PacBio Sequel for example.
 
@@ -471,7 +443,7 @@ The generated annotation file would be available at `chrm_ccs_isoseq.collapse.gf
 
 ### Interpretation of LLRG Exceptions
 
-After each simulation, the LLRG adapter would print a line like this: `2023-04-03 15:16:41,070	[INFO] Status of errors: {'NORMAL': 5, 'LLRGFail': 6}`. This line indicates LLRG exception status. Below are the definition of commonly-seen exceptions:
+After each simulation, the LLRG adapter would print a line like this: `2023-04-03 15:16:41,070  [INFO] Status of errors: {'NORMAL': 5, 'LLRGFail': 6}`. This line indicates LLRG exception status. Below are the definition of commonly-seen exceptions:
 
 - `NORMAL`: If no exception occurs
 - `EmptyOutFile`: If LLRG exited normally but with an empty output file.
@@ -480,10 +452,9 @@ After each simulation, the LLRG adapter would print a line like this: `2023-04-0
 - `InitFail`: if pre-execution of initialization hook failed.
 - `UNKNOWN`: Other errors.
 
-```{figure} ../fig/llrg_adapter.svg
-:width: 100%
-:align: left
+```{figure} llrg_adapter.svg
 :alt: LLRG Adapter
+:width: 100%
 ```
 
 +++
@@ -496,7 +467,7 @@ Following is a wrapper for Badread. This script would:
 
 1. Search for `badread` executable. If succeeded, would execute that executable.
 2. Search for `badread` Conda environment. If succeeded, would activate that environment and use `badread` executable inside.
-3. Setup `badread` Conda environment and use `badread` executable inside.
+3. Set up `badread` Conda environment and use `badread` executable inside.
 
 ```shell
 #!/usr/bin/env bash

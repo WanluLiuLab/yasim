@@ -1,4 +1,4 @@
-# Welcome to `yasim` Documentation
+# Welcome to YASIM Documentation
 
 This contains documentation for YASIM Users.
 
@@ -10,7 +10,7 @@ This contains documentation for YASIM Users.
 _root/Readme
 _cli_docs/index
 src/quickstart/index.ipynb.md
-src/tutorial_llrg/index.ipynb.md
+src/tutorial/index.md
 src/faq
 _root/Copying
 src/license/index

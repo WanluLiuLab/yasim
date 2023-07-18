@@ -43,29 +43,6 @@ if [ ! -f chrm_trans.fa ]; then
         -f chrM.fa \
         -o chrm_trans.fa
 fi
-if [ ! -f chrm_pbsim3_wgs.fq ]; then
-    python -m yasim pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy wgs \
-        -F chrm_trans.fa.d \
-        -d isoform_depth.tsv \
-        -o chrm_pbsim3_wgs \
-        -j 40
-fi
-if [ ! -f chrm_pbsim3_trans.fq ]; then
-    python -m yasim pbsim3 \
-        -m SEQUEL \
-        -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
-        --strategy trans \
-        -F chrm_trans.fa.d \
-        -d isoform_depth.tsv \
-        -o chrm_pbsim3_trans \
-        -j 40
-fi
-python -m labw_utils.bioutils describe_fastq chrm_pbsim3_trans.fq chrm_pbsim3_wgs.fq
 python -m labw_utils.bioutils describe_gtf chrM.ncbiRefSeq.gtf
 if [ ! -f chrm_pbsim3_errhmm.fq ]; then
     python -m yasim pbsim3 \

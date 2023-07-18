@@ -11,7 +11,7 @@ kernelspec:
   name: python3
 ---
 
-# YASIM Quickstart
+# Quickstart
 
 This is a quickstart documentation for YASIM. In this documentation, you would generate Third-generation Sequencing (TGS) RNA-Seq reads from *C. Elegans* (worm) reference genome with Alternative Splicing (AS) events.
 
@@ -31,12 +31,14 @@ Here would list version information of each component used in this tutorial for 
 | pbsim    | 1.0.4     |
 | yasim    | 3.1.5     |
 
-
 ## YASIM Data Flow Diagram
 
 The following diagram lists the full YASIM workflow. You are not limited to this and can start at any position.
 
-`{figure} ../fig/yasim_toplevel.svg :width: 100% :align: left :alt: Common YASIM Workflow`
+```{figure} yasim_toplevel.svg
+:alt: YASIM data flow
+:width: 100%
+```
 
 +++
 
@@ -70,12 +72,12 @@ python -m yasim generate_as_events \
     -c 5
 ```
 
-Generates:
+**Generates:**
 
 - `ce11.ncbiRefSeq.chr1.as.gtf`, the generated GTF with AS events.
 - `ce11.ncbiRefSeq.chr1.gtf.0.4.gvpkl.xz`, if not exist. This is a cache file for the `labw_utils` GTF parser.
 
-The generated GTF (V2API) or part of generated GTF which expresses (V3API) should be seen as ground truth for benchmarking AS detectors. The reference genome should have a Transcriptome Complexity Index between 1 and 2 with real organisms in about 2.
+The generated GTF should be seen as ground truth for benchmarking AS detectors. The reference genome should have a Transcriptome Complexity Index between 1 and 2 with real organisms in about 2.
 
 +++
 
@@ -96,7 +98,7 @@ python -m yasim generate_gene_depth \
     -d 5
 ```
 
-Generates:
+**Generates:**
 
 - `ce11_gene_depth.tsv`, a TSV file with the following columns:
   - `GENE_ID`, the `gene_id` field in GTF.
@@ -118,7 +120,7 @@ python -m yasim generate_isoform_depth \
     -o ce11_isoform_depth.tsv
 ```
 
-Generates:
+**Generates:**
 
 - `ce11_isoform_depth.tsv`, a TSV file with the following columns:
   - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
@@ -145,14 +147,14 @@ python -m labw_utils.bioutils transcribe \
     -o ce11_trans_as.fa
 ```
 
-Generates:
+**Generates:**
 
 - `ce11_transcripts.fa`, the generated cDNA sequence FASTA.
 - `ce11_transcripts.fa.d`, the directory where every cDNA is stored as separate FASTA files.
 - `ce11_transcripts.fa.stats`, a TSV file with the following columns:
   - `TRANSCRIPT_ID`, the `transcript_id` field in GTF.
   - `GENE_ID`, the `gene_id` field in GTF.
-  - `SEQNAME`, chromosome, scaffold or contig name.
+  - `SEQNAME`, chromosome \& scaffold \& contig name.
   - `START`, the `start` field in GTF, 1-based inclusive.
   - `END`, the `end` field in GTF, 1-based inclusive.
   - `STRAND`, the `strand` field in GTF.
@@ -185,7 +187,7 @@ python -m yasim pbsim \
     -o pbsim_mode
 ```
 
-Generates:
+**Generates:**
 
 - `pbsim_mode.fq`, simulated Single-End FASTQ.
 - `pbsim_mode.d`, a temporary directory for diagnostic purposes that can be safely deleted.

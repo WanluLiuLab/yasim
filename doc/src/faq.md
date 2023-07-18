@@ -1,4 +1,4 @@
-# Frequently Asked Questions (FAQs)
+# FAQs
 
 - **Q:What kind of reference genome should be used?**
 

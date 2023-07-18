@@ -1,45 +1,53 @@
-# Copyright Information of This Project
+# Copyright
 
 This project uses MIT License, a copy of which is available at <License.md>.
 
 This project uses code from the following projects:
 
-## GitHub `gitignore` Project
+---
 
-Available from <https://github.com/github/gitignore>
+- **GitHub `gitignore` Project**
 
-Affected files:
+    Available from <https://github.com/github/gitignore>
 
-* `/.gitignore`
+    Affected files:
 
-With CC0 1.0 Universal License.
+    * `/.gitignore`
 
-## Yukiteru Ono `pbsim` Project
+    With CC0 1.0 Universal License.
 
-Available from <https://github.com/yukiteruono/pbsim> or <https://salsa.debian.org/med-team/pbsim>
+---
 
-Affected files:
+- **Yukiteru Ono `pbsim` Project**
 
-* `/src/yasim/llrg_adapter/pbsim_dist/*.model`
+    Available from <https://github.com/yukiteruono/pbsim> or <https://salsa.debian.org/med-team/pbsim>
 
-With GNU GPL v2 License.
+    Affected files:
 
-## Yukiteru Ono `pbsim2` Project
+    * `/src/yasim/llrg_adapter/pbsim_dist/*.model`
 
-Available from <https://github.com/yukiteruono/pbsim2>
+    With GNU GPL v2 License.
 
-Affected files:
+---
 
-* `/src/yasim/llrg_adapter/pbsim2_dist/model_*`
+- **Yukiteru Ono `pbsim2` Project**
 
-With GNU GPL v2 License.
+    Available from <https://github.com/yukiteruono/pbsim2>
 
-## Yukiteru Ono `pbsim3` Project
+    Affected files:
 
-Available from <https://github.com/yukiteruono/pbsim3>
+    * `/src/yasim/llrg_adapter/pbsim2_dist/model_*`
 
-Affected files:
+    With GNU GPL v2 License.
 
-* `/src/yasim/llrg_adapter/pbsim3_dist/*.model`
+---
 
-With GNU GPL v2 License.
+- **Yukiteru Ono `pbsim3` Project**
+
+    Available from <https://github.com/yukiteruono/pbsim3>
+
+    Affected files:
+
+    * `/src/yasim/llrg_adapter/pbsim3_dist/*.model`
+
+    With GNU GPL v2 License.
