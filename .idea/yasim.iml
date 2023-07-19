@@ -155,7 +155,6 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94.fq.bam.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94.fq.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.1/ce11_pbsim2_R94_trans.fq.bam.stats.d" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/real_stats" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.3/sim" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.3/lastdb" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/tmp" />
@@ -1564,7 +1563,6 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/sam_stats_d" />
       <excludeFolder url="file://$MODULE_DIR$/deps/labw_utils" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/transmission" />
-      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/gtf" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.5/ce11_trans_stringtie.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.5/ce11_pbsim_clr_dge1_diu1_0.d" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/phase1.5/ce11_pbsim_clr_dge1_diu1_1.d" />
@@ -1908,6 +1906,9 @@
       <excludeFolder url="file://$MODULE_DIR$/.idea/sonarlint" />
       <excludeFolder url="file://$MODULE_DIR$/tmp/ce11.as.trans.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/gtf" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/real_stats" />
+      <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

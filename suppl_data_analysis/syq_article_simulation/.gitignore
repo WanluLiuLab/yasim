@@ -1,6 +1,0 @@
-bin/
-*tmp*
-!.gitignore
-!run.sh
-!*.R
-*bup*
