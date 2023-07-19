@@ -1,5 +1,7 @@
 """
 generate_isoform_depth.py -- Generate Isoform-Level Depth using YASIM V3 API.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

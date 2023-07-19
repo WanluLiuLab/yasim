@@ -1,5 +1,7 @@
 """
 dtgs.py -- Wrapper of dTGS simulator (Dumb Third-Generation Sequencing Simulator).
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -16,6 +18,8 @@ from yasim.llrg_adapter import BaseFunctionBasedLLRGAdapter
 class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
     """
     Wrapper of dTGS simulator (Dumb Third-Generation Sequencing Simulator).
+
+    .. versionadded:: 3.1.5
     """
 
     def llrg_func(self):

@@ -1,5 +1,7 @@
 """
 frontend.py -- Utilities for other ``main`` functions.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -54,4 +56,9 @@ FrontendOptSpecs.add(FrontendOptSpec(
 
 
 def patch_frontend_argument_parser(parser: argparse.ArgumentParser, argname: str) -> argparse.ArgumentParser:
+    """
+    TODO docs
+    
+    .. versionadded:: 3.1.5
+    """
     return FrontendOptSpecs.patch(parser, argname)

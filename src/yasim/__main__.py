@@ -1,3 +1,10 @@
+"""
+TODO docs
+
+.. versionadded:: 3.1.5
+"""
+
+
 from labw_utils.commonutils.libfrontend import setup_frontend
 
 from yasim import \
@@ -6,7 +13,7 @@ from yasim import \
 
 if __name__ == '__main__':
     setup_frontend(
-        "yasim._main",
+        f"{__package__}._main",
         description,
         yasim_ver,
     )

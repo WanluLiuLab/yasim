@@ -1,5 +1,7 @@
 """
 pbsim.py -- Wrapper of PBSIM.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -19,6 +21,8 @@ from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge
 PBSIM_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim_dist")
 """
 Where pbsim stores its models
+
+.. versionadded:: 3.1.5
 """
 
 
@@ -48,6 +52,8 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
                 *other_args,
                 self._src_fasta_file_path
             ]
+        
+    .. versionadded:: 3.1.5
     """
     llrg_name: Final[str] = "pbsim"
     _require_integer_depth: Final[bool] = False
@@ -127,7 +133,9 @@ def patch_frontend_parser(
         parser: argparse.ArgumentParser
 ) -> argparse.ArgumentParser:
     """
-    Patch argument parser with ART arguments.
+    Patch argument parser with pbsim arguments.
+
+    .. versionadded:: 3.1.5
     """
     parser.add_argument('-c', '--ccs', required=False, help="Simulate CCS instead of CLR", action='store_true')
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")

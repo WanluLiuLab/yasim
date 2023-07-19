@@ -1,5 +1,9 @@
 """
 pbsim3.py -- Wrapper of PBSIM3.
+
+.. versionadded:: 3.1.5
+
+.. todo:: Sphinx would get paths. Stop this.
 """
 __all__ = (
     "Pbsim3Adapter",
@@ -37,7 +41,11 @@ try:
         ).
         get_template('pbsim_xml_template.xml')
     )
-    """PBSIM3 Subread XML Template."""
+    """
+    PBSIM3 Subread XML Template. Should NOT be sphinx-searchable.
+
+    .. versionadded:: 3.1.5
+    """
 except ImportError:
     _lh.warning("PBSIM3: Jinja2 failed to import. CCS generation will be BAM-based instead of XML-based.")
     jinja2 = None
@@ -46,10 +54,17 @@ except ImportError:
 PBSIM3_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim3_dist")
 """
 Where pbsim3 stores its models
+
+.. versionadded:: 3.1.5
 """
 
 
 class PBSIM3_STRATEGY(enum.Enum):
+    """
+    TODO docs
+
+    .. versionadded:: 3.1.5
+    """
     wgs = enum.auto()
     trans = enum.auto()
 
@@ -73,11 +88,21 @@ PBSIM3_QSHMM_POSSIBLE_MODELS = [
     os.path.basename(os.path.splitext(filename.replace("QSHMM-", ""))[0])
     for filename in glob.glob(os.path.join(PBSIM3_DIST_DIR_PATH, "QSHMM-*.model"))
 ]
+"""
+TODO docs
+
+.. versionadded:: 3.1.5
+"""
 
 PBSIM3_ERRHMM_POSSIBLE_MODELS = [
     os.path.basename(os.path.splitext(filename.replace("ERRHMM-", ""))[0])
     for filename in glob.glob(os.path.join(PBSIM3_DIST_DIR_PATH, "ERRHMM-*.model"))
 ]
+"""
+TODO docs
+
+.. versionadded:: 3.1.5
+"""
 
 
 class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
@@ -96,6 +121,8 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             "--pass-num", str(self._ccs_pass),
             *other_args
         ]
+    
+    .. versionadded:: 3.1.5
     """
     _ccs_pass: int
     _samtools_executable_path: Optional[str]
@@ -357,7 +384,9 @@ def patch_frontend_parser(
         parser: argparse.ArgumentParser
 ) -> argparse.ArgumentParser:
     """
-    Patch argument parser with ART arguments.
+    Patch argument parser with pbsim3 arguments.
+
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '-m',

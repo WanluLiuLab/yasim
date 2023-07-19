@@ -1,5 +1,7 @@
 """
 Fit Gaussian Mixture by YUAN Ruihong
+
+.. versionadded:: 3.1.5
 """
 
 import argparse

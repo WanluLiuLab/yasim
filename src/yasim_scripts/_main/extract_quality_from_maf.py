@@ -8,6 +8,8 @@ Synopsis: python -m yasim_scrips extract_quality_from_maf [MAF1] [[MAF2]...]
 
 Arguments:
     [MAF1] [[MAF2]...] path to MAF files produced by PBSIM3 or LAST aligner.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

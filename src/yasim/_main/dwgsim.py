@@ -1,5 +1,7 @@
 """
 dwgsim.py -- LLRG adapter for DWGSIM, a NGS DNA-Seq simulator
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

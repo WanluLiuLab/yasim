@@ -1,5 +1,7 @@
 """
 badread.py -- LLRG adapter for BadRead, a TGS DNA-Seq simulator
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

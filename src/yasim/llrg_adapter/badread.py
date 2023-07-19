@@ -1,5 +1,7 @@
 """
 badread.py -- Wrapper for BadRead
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -14,7 +16,11 @@ from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, LLRGInitializationException
 
 ALL_POSSIBLE_BADREAD_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
-"""All possible badread model names"""
+"""
+All possible badread model names
+
+.. versionadded:: 3.1.5
+"""
 
 
 class BadReadAdapter(BaseProcessBasedLLRGAdapter):
@@ -64,6 +70,8 @@ class BadReadAdapter(BaseProcessBasedLLRGAdapter):
                 "--end_adapter_seq", "",
                 *other_args
             ]
+    
+    .. versionadded:: 3.1.5
     """
 
     @staticmethod
@@ -163,7 +171,9 @@ def patch_frontend_parser(
         parser: argparse.ArgumentParser
 ) -> argparse.ArgumentParser:
     """
-    Patch argument parser with ART arguments.
+    Patch argument parser with Badread arguments.
+
+    .. versionadded:: 3.1.5
     """
 
     parser.add_argument(

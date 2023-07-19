@@ -2,6 +2,8 @@
 depth.py -- GEP Datastructure and Utils
 
 Here contains generators for Gene Expression Profile (GEP).
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -30,7 +32,11 @@ _lh = get_logger(__name__)
 
 
 class GenerationFailureException(RuntimeError):
-    """Raised while generation of data was failed"""
+    """
+    Raised while generation of data was failed
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
@@ -53,6 +59,8 @@ def simulate_gene_level_depth_gmm(
     :param high_cutoff_ratio: Depth higher than mu * high_cutoff_ratio would be preserved to this value.
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
+
+    .. versionadded:: 3.1.5
     """
     _lh.info("GEN GENE DEPTH: Loading GMM model...")
     gmm_model = GaussianMixture1D.import_model([
@@ -119,6 +127,8 @@ def simulate_isoform_variance_inside_a_gene(
     :param high_cutoff_ratio: Depth higher than mu * high_cutoff_ratio would be preserved to this value.
     :return: Generated abundance.
     :raise GenerationFailureException: If the data was re-generated 20 times.
+
+    .. versionadded:: 3.1.5
     """
     if n == 1:
         return [mu]
@@ -150,6 +160,10 @@ def simulate_depth_gmm_v2(
     :param gv: GeneView of the GTF.
     :param mu: Targeted mean.
     :return: Generated abundance.
+    
+    .. versionadded:: 2.0.0
+    .. versiondeprecated:: 3.0.0
+        Please use V3API instead.
     """
     gmm_model = GaussianMixture1D.import_model(
         [
@@ -184,6 +198,8 @@ def generate_depth_replicates_uniform(
     :param input_depth: Input depth.
     :param _range: Degree of variation to be added.
     :return: Mutated depth information.
+
+    .. versionadded:: 3.1.5
     """
     return {
         k: v + uniform(-_range, +_range) * v

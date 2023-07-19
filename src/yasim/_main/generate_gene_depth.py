@@ -1,5 +1,7 @@
 """
 generate_gene_depth.py -- Generate Gene-Level Depth using YASIM V3 API.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

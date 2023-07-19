@@ -1,5 +1,7 @@
 """
 plot_utils.py -- Utility functions in GMM fitting process.
+    
+.. versionadded:: 3.1.5
 """
 
 import numpy as np
@@ -24,6 +26,8 @@ __all__ = ("plot",)
 def plot(data: npt.NDArray, model: Optional[Any] = None, title: str = ""):
     """
     Plot how fitted GMM model performs over actual data
+
+    .. versionadded:: 3.1.5
     """
 
     def normalize(_simulated_data: npt.NDArray) -> npt.NDArray:
@@ -37,7 +41,7 @@ def plot(data: npt.NDArray, model: Optional[Any] = None, title: str = ""):
         simulated_data = model.rvs(2 * len(data))
         simulated_data_n = normalize(simulated_data)
 
-        fig, axes = plt.subplots(1, 1)
+        _, axes = plt.subplots(1, 1)
         axes.hist(data, bins=n_bins, density=True, color="blue", alpha=0.2)
         axes.hist(simulated_data_n, bins=n_bins, density=True, color="red", alpha=0.2)
         print("data:                        " + describe(data))

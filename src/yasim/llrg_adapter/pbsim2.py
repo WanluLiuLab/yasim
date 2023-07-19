@@ -1,5 +1,7 @@
 """
 pbsim2.py -- Wrapper of PBSIM2.
+
+.. versionadded:: 3.1.5
 """
 __all__ = (
     "Pbsim2Adapter",
@@ -19,6 +21,8 @@ from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge, LLRGIniti
 PBSIM2_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
 Where PBSIM2 stores its model.
+
+.. versionadded:: 3.1.5
 """
 
 PBSIM2_ALL_POSSIBLE_MODELS = [
@@ -27,6 +31,8 @@ PBSIM2_ALL_POSSIBLE_MODELS = [
 ]
 """
 Possible PBSIM2 models.
+
+.. versionadded:: 3.1.5
 """
 
 
@@ -44,6 +50,8 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
             *other_args,
             self._src_fasta_file_path
         ]
+    
+    .. versionadded:: 3.1.5
     """
     llrg_name: Final[str] = "pbsim2"
     _require_integer_depth: Final[bool] = False
@@ -123,7 +131,9 @@ def patch_frontend_parser(
         parser: argparse.ArgumentParser
 ) -> argparse.ArgumentParser:
     """
-    Patch argument parser with ART arguments.
+    Patch argument parser with pbsim2 arguments.
+
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '-m',

@@ -1,5 +1,7 @@
 """
 generate_as_events.py -- Generate Alternative Splicing Events from Reference genome using YASIM V3 API.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

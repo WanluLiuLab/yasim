@@ -1,5 +1,7 @@
 """
 dtgs.py -- LLRG adapter for dTGS simulator (Dumb Third-Generation Sequencing Simulator).
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

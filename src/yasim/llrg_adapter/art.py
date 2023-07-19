@@ -1,5 +1,7 @@
 """
 art.py -- ART adapter for Illumina sequencing.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -29,6 +31,11 @@ AVAILABLE_ILLUMINA_ART_SEQUENCER: Mapping[str, Tuple[str, List[int]]] = {
     "MSv3": ("MSv3 - MiSeq v3", [250]),
     "NS50": ("NextSeq500 v2", [75])
 }
+"""
+TODO docs
+
+.. versionadded:: 3.1.5
+"""
 
 _lh = get_logger(__name__)
 
@@ -49,6 +56,8 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             "-O", os.path.join(self._tmp_dir, "tmp"),
             *other_args
         ]
+    
+    .. versionadded:: 3.1.5
     """
 
     def _pre_execution_hook(self) -> None:
@@ -180,6 +189,8 @@ def patch_frontend_parser(
 ) -> argparse.ArgumentParser:
     """
     Patch argument parser with ART arguments.
+
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         "--sequencer_name",

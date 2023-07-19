@@ -1,5 +1,7 @@
 """
 generate_isoform_replicates.py -- Generate Technical Replicates using YASIM V3 API.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

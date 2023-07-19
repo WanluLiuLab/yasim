@@ -2,6 +2,8 @@
 yasim.llrg_adapter -- Adapters for LLRGs
 
 Here contains LLRG adapters that should have been used in DNA-Seq.
+
+.. versionadded:: 3.1.5
 """
 from __future__ import annotations
 
@@ -33,11 +35,19 @@ from labw_utils.typing_importer import Union, List, IO, Optional, Iterable, Mapp
 from yasim.helper.llrg import enhanced_which
 
 COPY_BUFSIZE = 1024 * 1024 if os.name == 'nt' else 64 * 1024
-"""Copy buffer size from shutil."""
+"""
+Copy buffer size from :py:mod:`shutil`.
+
+.. versionadded:: 3.1.5
+"""
 
 
 class LLRGException(RuntimeError):
-    """Some error raised due to (improperly configured) LLRG"""
+    """
+    Some error raised due to (improperly configured) LLRG
+    
+    .. versionadded:: 3.1.5
+    """
 
     _contents: str
 
@@ -56,28 +66,46 @@ class LLRGException(RuntimeError):
 
 
 class NoOutputFileException(LLRGException):
-    """Error raised if no output file was found even when LLRG exited normally."""
+    """
+    Error raised if no output file was found even when LLRG exited normally.
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
 class EmptyOutputFileException(LLRGException):
-    """Error raised if empty output file was found even when LLRG exited normally."""
+    """
+    Error raised if empty output file was found even when LLRG exited normally.
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
 class LLRGFailException(LLRGException):
-    """Error raised LLRG exited abnormally."""
+    """
+    Error raised LLRG exited abnormally.
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
 class LLRGInitializationException(LLRGException):
-    """Error raised in initialization or pre-execution stage."""
+    """
+    Error raised in initialization or pre-execution stage.
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
 def enhanced_copyfileobj(src_fd: IO, dst_fd: IO) -> int:
     """
     :py:func:`shutil.copyfileobj` with number of bytes copied.
+
+    .. versionadded:: 3.1.5
     """
     c_len = 0
     while True:
@@ -96,6 +124,8 @@ def autocopy(in_fn: str, out_fn: str) -> None:
     :param in_fn: Input filename.
     :param out_fn: Output filename.
     :raises LLRGException: If error occurs in copying.
+
+    .. versionadded:: 3.1.5
     """
     try:
         with get_reader(in_fn, is_binary=True) as r1, \
@@ -112,6 +142,8 @@ def autocopy(in_fn: str, out_fn: str) -> None:
 def automerge(in_fns: Iterable[str], out_fn: str) -> None:
     """
     Merge multiple files into one. See :py:func:`autocopy`.
+
+    .. versionadded:: 3.1.5
     """
     c_len = 0
     with get_writer(out_fn, is_binary=True) as w1:
@@ -140,6 +172,8 @@ class BaseLLRGAdapter(threading.Thread):
     - Assemble the command that calls LLRG.
     - Call LLRG, see subclasses.
     - Move generated files to ``_dst_fastq_file_prefix``.
+
+    .. versionadded:: 3.1.5
     """
 
     _src_fasta_file_path: str
@@ -379,6 +413,8 @@ class BaseLLRGAdapter(threading.Thread):
 class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
     """
     LLRG adapters that executes a process using :py:mod:`subprocess`.
+
+    .. versionadded:: 3.1.5
     """
 
     _llrg_executable_path: str
@@ -513,6 +549,8 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
 class BaseFunctionBasedLLRGAdapter(BaseLLRGAdapter, ABC):
     """
     LLRG adapters that executes a function.
+    
+    .. versionadded:: 3.1.5
     """
 
     @abstractmethod

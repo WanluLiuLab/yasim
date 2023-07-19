@@ -1,5 +1,7 @@
 """
 gmm.py -- Gaussian Mixture Model bu YUAN Ruihong
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -24,6 +26,11 @@ _lh = get_logger(__name__)
 
 
 class GaussianMixture1D:
+    """
+    TODO docs
+    
+    .. versionadded:: 3.1.5
+    """
     _n_components: int
     _n_iter: int
     _precision: float

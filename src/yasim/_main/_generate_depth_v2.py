@@ -1,5 +1,14 @@
 """
 generate_depth_v2.py -- Generate Isoform-Level Depth using YASIM V2 API.
+
+.. versionadded:: 0.2.7
+    Named as generate_depth
+
+.. versionchanged:: 3.0.0
+    Renamed to generate_depth_v2
+
+.. versiondeprecated:: 3.1.5
+    Use V3API instead.
 """
 
 __all__ = (

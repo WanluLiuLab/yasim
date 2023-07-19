@@ -1,5 +1,7 @@
 """
 art.py -- LLRG adapter for ART, a NGS DNA-Seq simulator
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

@@ -1,5 +1,7 @@
 """
 assemble.py -- Assemble unassembled outputs.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

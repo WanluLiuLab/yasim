@@ -1,5 +1,7 @@
 """
 featurecounts_to_depth.py -- Convert FeatureCounts Output for NGS and TGS to YASIM input depth.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

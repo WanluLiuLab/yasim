@@ -1,5 +1,10 @@
 """
-transcribe.py -- Proxy to ``sample_transcript`` in ``labw_utils.bioutils``.
+sample_transcript.py -- Proxy to ``sample_transcript`` in ``labw_utils.bioutils``.
+
+.. versionadded:: 3.1.4
+
+.. versiondeprecated:: 3.1.5
+    Use that in ``labw_utils.bioutils`` instead.
 """
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List

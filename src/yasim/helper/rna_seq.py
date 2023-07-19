@@ -1,3 +1,9 @@
+"""
+TODO docs
+
+.. versionadded:: 3.1.5
+"""
+
 import glob
 import os
 import sys
@@ -21,6 +27,11 @@ def validate_adapter_args(
         adapter_class: Type[BaseLLRGAdapter],
         llrg_executable_path: Optional[str] = None
 ) -> Mapping[str, Any]:
+    """
+    TODO docs
+
+    .. versionadded:: 3.1.5
+    """
     _lh.info("RNA SEQ: Validating LLRG Adapter parameters...")
     # Validate LLRG Adapter Params
     if llrg_executable_path is not None:
@@ -55,6 +66,11 @@ def run_rna_seq(
         not_perform_assemble: bool = False,
         show_tqdm: bool = True
 ):
+    """
+    TODO docs
+
+    .. versionadded:: 3.1.5
+    """
     _lh.info("RNA SEQ: Creating multiprocessing pool and assembler...")
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
@@ -155,6 +171,8 @@ def bulk_rna_seq_frontend(
 ) -> int:
     """
     :return: Exit Value
+
+    .. versionadded:: 3.1.5
     """
     adapter_args = validate_adapter_args(
         adapter_args=adapter_args,
@@ -201,6 +219,8 @@ def sc_rna_seq_frontend(
 ) -> int:
     """
     :return: Exit Value
+
+    .. versionadded:: 3.1.5
     """
     adapter_args = validate_adapter_args(
         adapter_args=adapter_args,

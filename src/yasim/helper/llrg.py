@@ -1,5 +1,7 @@
 """
 llrg.py -- Helper functions in Low-Level Read Generators.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -50,6 +52,8 @@ def remark_fastq_single_end(
     - R: ``{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}``
 
     :return : Tuple of (number of actually processed reads, number of actually processed bases)
+
+    .. versionadded:: 3.1.5
     """
     num_of_reads = 0
     num_of_bases = 0
@@ -87,6 +91,8 @@ def remark_fastq_pair_end(
     - R2: ``{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/2``
 
     :return : Tuple of (number of actually processed reads, number of actually processed bases)
+
+    .. versionadded:: 3.1.5
     """
     num_of_reads = 0
     num_of_bases = 0
@@ -113,12 +119,19 @@ def remark_fastq_pair_end(
 
 
 class AssembError(ValueError):
+    """
+    TODO docs
+    
+    .. versionadded:: 3.1.5
+    """
     ...
 
 
 class AssemblerType(ABC, threading.Thread):
     """
     The Assembler that assembles sequenced transcripts of each isoform into one (SE) or two (PE) files.
+
+    .. versionadded:: 3.1.5
     """
 
     def __init__(self, **kwargs) -> None:
@@ -149,6 +162,11 @@ class AssemblerType(ABC, threading.Thread):
 
 
 class BaseAssembler(AssemblerType, ABC):
+    """
+    TODO docs
+    
+    .. versionadded:: 3.1.5
+    """
     _transcript_ids_pending: List[str]
     _should_stop: bool
     _depth: DepthType
@@ -203,6 +221,8 @@ class BaseAssembler(AssemblerType, ABC):
 class AssembleSingleEnd(BaseAssembler):
     """
     Assembler for single-end reads.
+    
+    .. versionadded:: 3.1.5
     """
     _truncate_ratio_3p: float
     _truncate_ratio_5p: float
@@ -318,6 +338,8 @@ class AssembleSingleEnd(BaseAssembler):
 class AssemblePairEnd(BaseAssembler):
     """
     Assembler for pair-end reads.
+    
+    .. versionadded:: 3.1.5
     """
 
     def run(self):
@@ -403,7 +425,11 @@ class AssemblePairEnd(BaseAssembler):
 
 
 class AssembleDumb(BaseAssembler):
-    """Assembler that does not perform anything."""
+    """
+    Assembler that does not perform anything.
+    
+    .. versionadded:: 3.1.5
+    """
 
     def run(self):
         _lh.info("ASSEMB: START")
@@ -425,6 +451,8 @@ def generate_callback(
     :param assembler: Targeted assembler.
     :param transcript_id: Source Transcript ID.
     :return: Generated callback.
+    
+    .. versionadded:: 3.1.5
     """
     return lambda _: assembler.add_transcript_id(transcript_id)
 
@@ -441,6 +469,8 @@ def patch_frontend_parser_public(
     :param default_llrg_executable_name: Default LLRG Executable Name. None if is function-based.
     :param parser: Source parser.
     :return: Patched parser.
+    
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '-F',
@@ -493,6 +523,8 @@ def patch_frontend_parser_sc_rna_seq(
 
     :param parser: Source parser.
     :return: Patched parser.
+    
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '-d',
@@ -518,6 +550,11 @@ def patch_frontend_parser_sc_rna_seq(
 def patch_frontend_parser_bulk_rna_seq_assemble(
         parser: argparse.ArgumentParser
 ) -> argparse.ArgumentParser:
+    """
+    TODO docs
+    
+    .. versionadded:: 3.1.5
+    """
     return parser
 
 
@@ -529,6 +566,8 @@ def patch_frontend_parser_bulk_rna_seq(
 
     :param parser: Source parser.
     :return: Patched parser.
+    
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '-d',
@@ -566,6 +605,8 @@ def patch_frontend_parser_tgs(parser: argparse.ArgumentParser) -> argparse.Argum
 
     :param parser: Source parser.
     :return: Patched parser.
+    
+    .. versionadded:: 3.1.5
     """
     parser.add_argument(
         '--truncate_ratio_3p',
@@ -597,6 +638,8 @@ def enhanced_which(path_or_filename: str) -> str:
     :param path_or_filename: Path or filename you wish to resolve.
     :return: Absolute path found by :py:func:`shutil.which`.
     :raise FileNotFoundError: On failure.
+    
+    .. versionadded:: 3.1.5
     """
     resolved_path = shutil.which(path_or_filename)
     if resolved_path is None:

@@ -1,5 +1,7 @@
 """
 pbsim2.py -- LLRG adapter for PBSIM v2, a TGS DNA-Seq simulator
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (

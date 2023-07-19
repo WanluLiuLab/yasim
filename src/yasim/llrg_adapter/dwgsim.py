@@ -1,5 +1,7 @@
 """
 dwgsim.py -- Wrapper of DWGSIM.
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -28,6 +30,8 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
             self._src_fasta_file_path,
             self._tmp_dir
         ]
+    
+    .. versionadded:: 3.1.5
     """
     llrg_name: Final[str] = "dwgsim"
     _require_integer_depth: Final[bool] = False
@@ -115,6 +119,8 @@ def patch_frontend_parser(
 ) -> argparse.ArgumentParser:
     """
     Patch argument parser with DWGSIM arguments.
+
+    .. versionadded:: 3.1.5
     """
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

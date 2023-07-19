@@ -1,5 +1,7 @@
 """
 maf_parser.py -- Parser for LAST aligned/PBSIM MAF.
+
+.. versionadded:: 3.1.5
 """
 __all__ = (
     "MAF_RECORD_REGEX",
@@ -15,10 +17,18 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Tuple, Iterable
 
 MafRecordType = Tuple[str, str, str, str]
-"""Name1, Name2, Alignment1, Alignment2"""
+"""
+Name1, Name2, Alignment1, Alignment2
+
+.. versionadded:: 3.1.5
+"""
 
 MAF_RECORD_REGEX = re.compile(r"^s +(\S+) +(\d+) +(\d+) +([+-]) +(\d+) +(\S+)$")
-"""Regex to MAF record"""
+"""
+Regex to MAF record
+
+.. versionadded:: 3.1.5
+"""
 
 _lh = get_logger(__name__)
 
@@ -32,6 +42,8 @@ def maf_parse(
 
     :param maf_path: Path to input MAF file.
     :param show_tqdm: Whether to show progress bar.
+
+    .. versionadded:: 3.1.5
     """
     num_error = 0
     num_record = 0

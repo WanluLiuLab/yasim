@@ -2,6 +2,8 @@
 depth_io.py -- GEP Datastructure and Utils
 
 Here contains Datastructure and I/O utilities for Gene Expression Profile (GEP).
+
+.. versionadded:: 3.1.5
 """
 
 __all__ = (
@@ -17,7 +19,11 @@ from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.typing_importer import Dict, Literal
 
 DepthType = Dict[str, float]
-"""DGE type, is transcript_id -> coverage"""
+"""
+DGE type, is transcript_id -> coverage
+
+.. versionadded:: 3.1.5
+"""
 
 
 class DepthParsingException(RuntimeError):
@@ -37,6 +43,8 @@ def write_depth(
     :param dst_depth_file_path: Output TSV path. Can be compressed.
     :param feature_name: Name of deature. Should be ``GENE_ID`` or ``TRANSCRIPT_ID``.
     :param show_tqdm: Whether to show a progress bar.
+
+    .. versionadded:: 3.1.5
     """
     with get_writer(dst_depth_file_path) as writer:
         writer.write(f"{feature_name}\tDEPTH\n")
@@ -57,6 +65,8 @@ def read_depth(
     :param src_depth_file_path: Path to source depth file. Can be compressed.
     :param show_tqdm: Whether to show a progress bar.
     :return: Retrived depth information
+
+    .. versionadded:: 3.1.5
     """
     try:
         retd = {}
