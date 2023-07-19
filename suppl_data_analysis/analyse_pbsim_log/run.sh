@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Previously named phase1.3
 set -uex
 export NUM_THREADS=40
 
