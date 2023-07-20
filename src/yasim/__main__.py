@@ -1,7 +1,7 @@
 """
 TODO docs
 
-.. versionadded:: 3.1.5
+.. versionadded:: 3.1.6
 """
 
 

@@ -1,7 +1,3 @@
----
-orphan: true
----
-
 # NEWS
 
 Initial released version is [`3.1.5`](https://pypi.org/project/yasim/3.1.5/) at 2023-07-18 CST.
@@ -11,6 +7,7 @@ Initial released version is [`3.1.5`](https://pypi.org/project/yasim/3.1.5/) at 
 - 3.1.6:
   - Updated publication information in Phase 1 data analysis.
   - Miscellaneous bug fixes.
+  - scRNA-Seq-related functions removed.
 
 ## Unsorted
 

@@ -12,6 +12,7 @@ _cli_docs/index
 src/quickstart/index.ipynb.md
 src/tutorial/index.md
 src/faq
+_root/NEWS
 _root/Copying
 src/license/index
 ```
