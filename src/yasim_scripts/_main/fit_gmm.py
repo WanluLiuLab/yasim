@@ -21,15 +21,9 @@ from yasim.helper.gmm import GaussianMixture1D
 from yasim.helper.plot_utils import plot
 
 try:
-    import pytest
-
-    _ = pytest.importorskip("pyarrow")
-except ImportError:
-    pytest = None
-    try:
-        import pyarrow
-    except ImportError as e:
-        raise UnmetDependenciesError("pyarrow") from e
+    import pyarrow as _
+except ImportError as e:
+    raise UnmetDependenciesError("pyarrow") from e
 
 _lh = get_logger()
 

@@ -18,7 +18,11 @@ try:
 except ImportError as e:
     raise UnmetDependenciesError("matplotlib") from e
 
-matplotlib.use('qtagg')
+# Try to use Qt. If not available, will fall to defaults.
+try:
+    matplotlib.use('qtagg')
+except ImportError as e:
+    pass
 
 __all__ = ("plot",)
 
