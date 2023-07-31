@@ -2,7 +2,7 @@
 all: deps llrg
 
 .PHONY: llrg
-llrg:
+llrg: chrM.STAR.ref.d chrM.trans.fa chrI.trans.fa chrI.STAR.ref.d
 	$(MAKE) -C llrg
 
 .PHONY: deps
@@ -19,6 +19,8 @@ chromFa.tar.gz:
 chrM.fa: chromFa.tar.gz
 	tar xzvf chromFa.tar.gz
 	touch chrI.fa chrII.fa chrIII.fa chrIV.fa chrM.fa
+	gatk CreateSequenceDictionary -R chrI.fa
+	gatk CreateSequenceDictionary -R chrM.fa
 
 ce11.ncbiRefSeq.gtf.gz:
 	axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
@@ -42,3 +44,32 @@ ce11.ncbiRefSeq.chrM.as.gtf:ce11.ncbiRefSeq.chrM.gtf chrM.fa
 clean:
 	$(MAKE) -C llrg clean
 	rm -f *.gvpkl.xz
+
+
+chrM.STAR.ref.d: chrM.fa ce11.ncbiRefSeq.chrM.gtf
+	STAR \
+		--runThreadN 40 \
+		--runMode genomeGenerate \
+		--genomeDir chrM.STAR.ref.d \
+		--genomeFastaFiles chrM.fa \
+		--sjdbGTFfile ce11.ncbiRefSeq.chrM.gtf
+
+chrI.STAR.ref.d: chrI.fa ce11.ncbiRefSeq.chrI.gtf
+	STAR \
+		--runThreadN 40 \
+		--runMode genomeGenerate \
+		--genomeDir chrI.STAR.ref.d \
+		--genomeFastaFiles chrI.fa \
+		--sjdbGTFfile ce11.ncbiRefSeq.chrI.gtf
+
+chrM.trans.fa: chrM.fa ce11.ncbiRefSeq.chrM.gtf
+	python -m labw_utils.bioutils transcribe \
+		-g ce11.ncbiRefSeq.chrM.gtf \
+		-f chrM.fa \
+		-o chrM.trans.fa
+
+chrI.trans.fa: chrI.fa ce11.ncbiRefSeq.chrI.gtf
+	python -m labw_utils.bioutils transcribe \
+		-g ce11.ncbiRefSeq.chrI.gtf \
+		-f chrI.fa \
+		-o chrI.trans.fa
