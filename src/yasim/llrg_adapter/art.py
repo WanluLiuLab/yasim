@@ -4,11 +4,7 @@ art.py -- ART adapter for Illumina sequencing.
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "AVAILABLE_ILLUMINA_ART_SEQUENCER",
-    "ArtAdapter",
-    "patch_frontend_parser"
-)
+__all__ = ("AVAILABLE_ILLUMINA_ART_SEQUENCER", "ArtAdapter", "patch_frontend_parser")
 
 import argparse
 import os
@@ -29,7 +25,7 @@ AVAILABLE_ILLUMINA_ART_SEQUENCER: Mapping[str, Tuple[str, List[int]]] = {
     "MinS": ("MiniSeq TruSeq", [50]),
     "MSv1": ("MiSeq v1", [250]),
     "MSv3": ("MSv3 - MiSeq v3", [250]),
-    "NS50": ("NextSeq500 v2", [75])
+    "NS50": ("NextSeq500 v2", [75]),
 }
 """
 TODO docs
@@ -56,7 +52,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             "-O", os.path.join(self._tmp_dir, "tmp"),
             *other_args
         ]
-    
+
     .. versionadded:: 3.1.5
     """
 
@@ -71,12 +67,12 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
 
     @staticmethod
     def validate_params(
-            sequencer_name: str,
-            read_length: int,
-            pair_end_fragment_length_mean: int,
-            pair_end_fragment_length_std: int,
-            is_pair_end: bool,
-            **kwargs
+        sequencer_name: str,
+        read_length: int,
+        pair_end_fragment_length_mean: int,
+        pair_end_fragment_length_std: int,
+        is_pair_end: bool,
+        **kwargs,
     ) -> Mapping[str, Any]:
         _ = kwargs
         retd = {}
@@ -104,20 +100,20 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
         return retd
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: Union[int, float],
-            llrg_executable_path: str,
-            is_trusted: bool,
-            sequencer_name: str,
-            read_length: int,
-            pair_end_fragment_length_mean: int,
-            pair_end_fragment_length_std: int,
-            is_pair_end: bool,
-            preserve_intermediate_files: bool,
-            other_args: List[str]
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: Union[int, float],
+        llrg_executable_path: str,
+        is_trusted: bool,
+        sequencer_name: str,
+        read_length: int,
+        pair_end_fragment_length_mean: int,
+        pair_end_fragment_length_std: int,
+        is_pair_end: bool,
+        preserve_intermediate_files: bool,
+        other_args: List[str],
     ):
         """
         Initializer.
@@ -142,7 +138,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             depth=depth,
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted,
-            preserve_intermediate_files=preserve_intermediate_files
+            preserve_intermediate_files=preserve_intermediate_files,
         )
 
         if not is_trusted:
@@ -151,26 +147,28 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
                 read_length=read_length,
                 pair_end_fragment_length_mean=pair_end_fragment_length_mean,
                 pair_end_fragment_length_std=pair_end_fragment_length_std,
-                is_pair_end=is_pair_end
+                is_pair_end=is_pair_end,
             )
             read_length = validated_params["read_length"]
         self._is_pair_end = is_pair_end
         self._cmd = [
             self._llrg_executable_path,
-            "--fcov", str(self._depth),
-            "--in", self._src_fasta_file_path,
+            "--fcov",
+            str(self._depth),
+            "--in",
+            self._src_fasta_file_path,
             "--samout",
             "--noALN",
-            "-l", str(read_length),
-            "--out", os.path.join(self._tmp_dir, "tmp"),
-            *other_args
+            "-l",
+            str(read_length),
+            "--out",
+            os.path.join(self._tmp_dir, "tmp"),
+            *other_args,
         ]
         if self._is_pair_end:
-            self._cmd.extend([
-                "-p",
-                "--sdev", str(pair_end_fragment_length_std),
-                "--mflen", str(pair_end_fragment_length_mean)
-            ])
+            self._cmd.extend(
+                ["-p", "--sdev", str(pair_end_fragment_length_std), "--mflen", str(pair_end_fragment_length_mean)]
+            )
 
     def _post_execution_hook(self):
         if self._is_pair_end:
@@ -184,9 +182,7 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
         return self._is_pair_end
 
 
-def patch_frontend_parser(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser with ART arguments.
 
@@ -195,51 +191,49 @@ def patch_frontend_parser(
     parser.add_argument(
         "--sequencer_name",
         required=False,
-        help="Name of Illumina Sequencer to Simulate: " + ", ".join((
-            f"{name} -- {AVAILABLE_ILLUMINA_ART_SEQUENCER[name][0]}"
-            for name in AVAILABLE_ILLUMINA_ART_SEQUENCER.keys()
-        )),
-        nargs='?',
+        help="Name of Illumina Sequencer to Simulate: "
+        + ", ".join(
+            (
+                f"{name} -- {AVAILABLE_ILLUMINA_ART_SEQUENCER[name][0]}"
+                for name in AVAILABLE_ILLUMINA_ART_SEQUENCER.keys()
+            )
+        ),
+        nargs="?",
         choices=AVAILABLE_ILLUMINA_ART_SEQUENCER.keys(),
         type=str,
-        action='store',
-        default="HS25"
+        action="store",
+        default="HS25",
     )
     parser.add_argument(
         "--read_length",
         required=False,
-        help="Read length. Sequencer -- Read Length Table: " + ", ".join((
-            f"{v[0]} -- {v[1]}"
-            for v in AVAILABLE_ILLUMINA_ART_SEQUENCER.values()
-        )),
-        nargs='?',
+        help="Read length. Sequencer -- Read Length Table: "
+        + ", ".join((f"{v[0]} -- {v[1]}" for v in AVAILABLE_ILLUMINA_ART_SEQUENCER.values())),
+        nargs="?",
         type=int,
-        action='store',
-        default=0
+        action="store",
+        default=0,
     )
     parser.add_argument(
-        '--pair_end_fragment_length_mean',
+        "--pair_end_fragment_length_mean",
         required=False,
         help="[PE Only] The mean size of DNA/RNA fragments for paired-end simulations",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=0
+        action="store",
+        default=0,
     )
     parser.add_argument(
-        '--pair_end_fragment_length_std',
+        "--pair_end_fragment_length_std",
         required=False,
         help="[PE Only] The standard deviation of DNA/RNA fragment size for paired-end simulations.",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=0
+        action="store",
+        default=0,
     )
     parser.add_argument(
-        '--is_pair_end',
-        required=False,
-        help="Whether to use Pair End (PE) Simulation",
-        action='store_true'
+        "--is_pair_end", required=False, help="Whether to use Pair End (PE) Simulation", action="store_true"
     )
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

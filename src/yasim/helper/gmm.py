@@ -4,9 +4,7 @@ gmm.py -- Gaussian Mixture Model bu YUAN Ruihong
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "GaussianMixture1D",
-)
+__all__ = ("GaussianMixture1D",)
 
 import itertools
 import multiprocessing
@@ -28,9 +26,10 @@ _lh = get_logger(__name__)
 class GaussianMixture1D:
     """
     TODO docs
-    
+
     .. versionadded:: 3.1.5
     """
+
     _n_components: int
     _n_iter: int
     _precision: float
@@ -39,12 +38,13 @@ class GaussianMixture1D:
     _sigma: npt.NDArray
 
     def __init__(
-            self, n_components: int = 1,
-            n_iter: int = 100,
-            init_weights: Optional[npt.ArrayLike] = None,
-            init_mus: Optional[npt.ArrayLike] = None,
-            init_sigmas: Optional[npt.ArrayLike] = None,
-            precision: float = 1E-4,
+        self,
+        n_components: int = 1,
+        n_iter: int = 100,
+        init_weights: Optional[npt.ArrayLike] = None,
+        init_mus: Optional[npt.ArrayLike] = None,
+        init_sigmas: Optional[npt.ArrayLike] = None,
+        precision: float = 1e-4,
     ) -> None:
         self._n_components = n_components
         self._n_iter = n_iter
@@ -109,14 +109,13 @@ class GaussianMixture1D:
             em_range = tqdm.tqdm(iterable=em_range, desc="EM")
         _last_range = self.export()
         for _ in em_range:
-
             # E step: compute ownership weights
             for j in range(self._n_components):
                 model = norm(loc=self._mu[j], scale=self._sigma[j])
                 densities[j, :] = model.pdf(data)
 
             a = np.transpose(np.multiply(np.transpose(densities), self._weights))
-            b = (np.transpose(self._weights) @ densities)
+            b = np.transpose(self._weights) @ densities
             gamma = a / b
 
             # M step: compute means, variances and weights
@@ -135,12 +134,7 @@ class GaussianMixture1D:
                 break
             last_ll = ll
             current_export = np.array(list(itertools.chain(*self.export())), dtype=float)
-            if np.sum(
-                    np.bitwise_or(
-                        np.isnan(current_export),
-                        np.isinf(current_export)
-                    )
-            ) != 0:
+            if np.sum(np.bitwise_or(np.isnan(current_export), np.isinf(current_export))) != 0:
                 _lh.warning("GMM: NaN observed, will rerun last successful result")
                 return self.import_model(_last_range)
             else:
@@ -202,13 +196,7 @@ class GaussianMixture1D:
             k = rdg.choices(indices, weights=self._weights)
             return rdg.normalvariate(mu=self._mu[k], sigma=self._sigma[k])
 
-        result = np.array(list(
-            parallel_map(
-                _rvs,
-                range(size),
-                n_jobs=multiprocessing.cpu_count()
-            )
-        ), dtype=float)
+        result = np.array(list(parallel_map(_rvs, range(size), n_jobs=multiprocessing.cpu_count())), dtype=float)
         return result
 
     def export(self) -> Sequence[Tuple[float, float, float]]:

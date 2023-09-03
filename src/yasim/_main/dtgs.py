@@ -4,10 +4,7 @@ dtgs.py -- LLRG adapter for dTGS simulator (Dumb Third-Generation Sequencing Sim
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "main",
-    "create_parser"
-)
+__all__ = ("main", "create_parser")
 
 import argparse
 
@@ -20,10 +17,7 @@ from yasim.llrg_adapter import dtgs
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim dtgs", description=__doc__.splitlines()[1])
-    parser = llrg.patch_frontend_parser_public(
-        parser,
-        llrg_name="dtgs"
-    )
+    parser = llrg.patch_frontend_parser_public(parser, llrg_name="dtgs")
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = llrg.patch_frontend_parser_tgs(parser)
     return parser
@@ -37,14 +31,9 @@ def main(args: List[str]):
         depth_file_path=args.depth,
         jobs=args.jobs,
         simulator_name="dtgs" if args.simulator_name is None else args.simulator_name,
-        adapter_args={
-            "other_args": other_args
-        },
-        assembler_args={
-            "truncate_ratio_3p": args.truncate_ratio_3p,
-            "truncate_ratio_5p": args.truncate_ratio_5p
-        },
+        adapter_args={"other_args": other_args},
+        assembler_args={"truncate_ratio_3p": args.truncate_ratio_3p, "truncate_ratio_5p": args.truncate_ratio_5p},
         adapter_class=dtgs.DTGSAdapter,
         is_pair_end=False,
-        not_perform_assemble=args.not_perform_assemble
+        not_perform_assemble=args.not_perform_assemble,
     )

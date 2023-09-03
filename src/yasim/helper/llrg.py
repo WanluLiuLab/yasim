@@ -14,7 +14,7 @@ __all__ = (
     "AssembleDumb",
     "AssemblePairEnd",
     "AssembleSingleEnd",
-    "enhanced_which"
+    "enhanced_which",
 )
 
 import argparse
@@ -38,13 +38,13 @@ _lh = get_logger(__name__)
 
 
 def remark_fastq_single_end(
-        src_fastq_file_path: str,
-        dst_fastq_file_writer: FastqWriter,
-        transcript_id: str,
-        transcript_depth: float,
-        simulator_name: str,
-        truncate_ratio_3p: float,
-        truncate_ratio_5p: float
+    src_fastq_file_path: str,
+    dst_fastq_file_writer: FastqWriter,
+    transcript_id: str,
+    transcript_depth: float,
+    simulator_name: str,
+    truncate_ratio_3p: float,
+    truncate_ratio_5p: float,
 ) -> Tuple[int, int]:
     """
     Re-mark all seq_id in FASTQ files with truncation.
@@ -62,12 +62,12 @@ def remark_fastq_single_end(
         seq_len = len(sequence)
         truncate_len_3p = int(seq_len * truncate_ratio_3p)
         truncate_len_5p = int(seq_len * truncate_ratio_5p)
-        sequence = sequence[truncate_len_5p:seq_len - truncate_len_3p]
-        quality = quality[truncate_len_5p:seq_len - truncate_len_3p]
+        sequence = sequence[truncate_len_5p : seq_len - truncate_len_3p]
+        quality = quality[truncate_len_5p : seq_len - truncate_len_3p]
         new_record = FastqRecord(
             seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}",
             sequence=sequence,
-            quality=quality
+            quality=quality,
         )
         dst_fastq_file_writer.write(new_record)
         num_of_reads += 1
@@ -76,13 +76,13 @@ def remark_fastq_single_end(
 
 
 def remark_fastq_pair_end(
-        src_fastq_1_file_path: str,
-        src_fastq_2_file_path: str,
-        dst_fastq_1_file_writer: FastqWriter,
-        dst_fastq_2_file_writer: FastqWriter,
-        transcript_id: str,
-        transcript_depth: float,
-        simulator_name: str
+    src_fastq_1_file_path: str,
+    src_fastq_2_file_path: str,
+    dst_fastq_1_file_writer: FastqWriter,
+    dst_fastq_2_file_writer: FastqWriter,
+    transcript_id: str,
+    transcript_depth: float,
+    simulator_name: str,
 ) -> Tuple[int, int]:
     """
     Re-mark all seq_id in FASTQ files, return number of reads
@@ -97,18 +97,17 @@ def remark_fastq_pair_end(
     num_of_reads = 0
     num_of_bases = 0
     for fastq_record_1, fastq_record_2 in zip(
-            FastqIterator(src_fastq_1_file_path, show_tqdm=False),
-            FastqIterator(src_fastq_2_file_path, show_tqdm=False)
+        FastqIterator(src_fastq_1_file_path, show_tqdm=False), FastqIterator(src_fastq_2_file_path, show_tqdm=False)
     ):
         new_fastq_record_1 = FastqRecord(
             seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/1",
             sequence=fastq_record_1.sequence,
-            quality=fastq_record_1.quality
+            quality=fastq_record_1.quality,
         )
         new_fastq_record_2 = FastqRecord(
             seq_id=f"{transcript_id}:{num_of_reads}:{transcript_depth}:{simulator_name}/2",
             sequence=fastq_record_2.sequence,
-            quality=fastq_record_2.quality
+            quality=fastq_record_2.quality,
         )
         dst_fastq_1_file_writer.write(new_fastq_record_1)
         dst_fastq_2_file_writer.write(new_fastq_record_2)
@@ -121,9 +120,10 @@ def remark_fastq_pair_end(
 class AssembError(ValueError):
     """
     TODO docs
-    
+
     .. versionadded:: 3.1.5
     """
+
     ...
 
 
@@ -164,9 +164,10 @@ class AssemblerType(ABC, threading.Thread):
 class BaseAssembler(AssemblerType, ABC):
     """
     TODO docs
-    
+
     .. versionadded:: 3.1.5
     """
+
     _transcript_ids_pending: List[str]
     _should_stop: bool
     _depth: DepthType
@@ -176,14 +177,14 @@ class BaseAssembler(AssemblerType, ABC):
     _input_fastq_dir: str
 
     def __init__(
-            self,
-            *,
-            depth_data: DepthType,
-            output_fastq_prefix: str,
-            simulator_name: str,
-            input_transcriptome_fasta_dir: str,
-            input_fastq_dir: Optional[str] = None,
-            **kwargs
+        self,
+        *,
+        depth_data: DepthType,
+        output_fastq_prefix: str,
+        simulator_name: str,
+        input_transcriptome_fasta_dir: str,
+        input_fastq_dir: Optional[str] = None,
+        **kwargs,
     ):
         """
         Assembler Initialization.
@@ -221,23 +222,24 @@ class BaseAssembler(AssemblerType, ABC):
 class AssembleSingleEnd(BaseAssembler):
     """
     Assembler for single-end reads.
-    
+
     .. versionadded:: 3.1.5
     """
+
     _truncate_ratio_3p: float
     _truncate_ratio_5p: float
 
     def __init__(
-            self,
-            *,
-            depth_data: DepthType,
-            output_fastq_prefix: str,
-            simulator_name: str,
-            input_transcriptome_fasta_dir: str,
-            input_fastq_dir: Optional[str] = None,
-            truncate_ratio_3p: float = 0,
-            truncate_ratio_5p: float = 0,
-            **kwargs
+        self,
+        *,
+        depth_data: DepthType,
+        output_fastq_prefix: str,
+        simulator_name: str,
+        input_transcriptome_fasta_dir: str,
+        input_fastq_dir: Optional[str] = None,
+        truncate_ratio_3p: float = 0,
+        truncate_ratio_5p: float = 0,
+        **kwargs,
     ):
         """
         Assembler Initialization.
@@ -255,23 +257,29 @@ class AssembleSingleEnd(BaseAssembler):
             simulator_name=simulator_name,
             input_transcriptome_fasta_dir=input_transcriptome_fasta_dir,
             input_fastq_dir=input_fastq_dir,
-            **kwargs
+            **kwargs,
         )
         self._truncate_ratio_3p = truncate_ratio_3p
         self._truncate_ratio_5p = truncate_ratio_5p
 
     def run(self):
         _lh.info("ASSEMB: START")
-        with FastqWriter(self._output_fastq_prefix + ".fq") as writer, \
-                get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
-            stats_writer.write("\t".join((
-                "TRANSCRIPT_ID",
-                "INPUT_DEPTH",
-                "SIMULATED_N_OF_READS",
-                "SIMULATED_N_OF_BASES",
-                "TRANSCRIBED_LENGTH",
-                "SIMULATED_DEPTH"
-            )) + "\n")
+        with FastqWriter(self._output_fastq_prefix + ".fq") as writer, get_writer(
+            self._output_fastq_prefix + ".fq.stats"
+        ) as stats_writer:
+            stats_writer.write(
+                "\t".join(
+                    (
+                        "TRANSCRIPT_ID",
+                        "INPUT_DEPTH",
+                        "SIMULATED_N_OF_READS",
+                        "SIMULATED_N_OF_BASES",
+                        "TRANSCRIBED_LENGTH",
+                        "SIMULATED_DEPTH",
+                    )
+                )
+                + "\n"
+            )
 
             def _assemb(transcript_id: str):
                 _lh.debug("ASSEMB: %s START", transcript_id)
@@ -286,9 +294,7 @@ class AssembleSingleEnd(BaseAssembler):
                     raise AssembError
                 try:
                     transcribed_length = FastaViewFactory(
-                        filename=this_fasta_path,
-                        read_into_memory=True,
-                        show_tqdm=False
+                        filename=this_fasta_path, read_into_memory=True, show_tqdm=False
                     ).get_chr_length(transcript_id)
                 except KeyError:
                     _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA Parsing Error)", transcript_id)
@@ -302,19 +308,24 @@ class AssembleSingleEnd(BaseAssembler):
                         transcript_depth=transcript_depth,
                         simulator_name=self._simulator_name,
                         truncate_ratio_3p=self._truncate_ratio_3p,
-                        truncate_ratio_5p=self._truncate_ratio_5p
+                        truncate_ratio_5p=self._truncate_ratio_5p,
                     )
                 except MisFormattedFastqRecordError:
                     _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTQ Parsing Error)", transcript_id)
                     return
-                stats_writer.write("\t".join((
-                    transcript_id,  # "TRANSCRIPT_ID",
-                    str(transcript_depth),  # "INPUT_DEPTH",
-                    str(num_of_reads),  # "SIMULATED_N_OF_READS",
-                    str(num_of_bases),  # "SIMULATED_N_OF_BASES",
-                    str(transcribed_length),  # "TRANSCRIBED_LENGTH",
-                    str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
-                )) + "\n")
+                stats_writer.write(
+                    "\t".join(
+                        (
+                            transcript_id,  # "TRANSCRIPT_ID",
+                            str(transcript_depth),  # "INPUT_DEPTH",
+                            str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                            str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                            str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                            str(num_of_bases / transcribed_length),  # "SIMULATED_DEPTH"
+                        )
+                    )
+                    + "\n"
+                )
                 _lh.debug("ASSEMB: %s FIN", transcript_id)
                 stats_writer.flush()
 
@@ -338,7 +349,7 @@ class AssembleSingleEnd(BaseAssembler):
 class AssemblePairEnd(BaseAssembler):
     """
     Assembler for pair-end reads.
-    
+
     .. versionadded:: 3.1.5
     """
 
@@ -360,9 +371,7 @@ class AssemblePairEnd(BaseAssembler):
                 raise AssembError
             try:
                 transcribed_length = FastaViewFactory(
-                    filename=this_fasta_path,
-                    read_into_memory=True,
-                    show_tqdm=False
+                    filename=this_fasta_path, read_into_memory=True, show_tqdm=False
                 ).get_chr_length(transcript_id)
             except KeyError:
                 _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTA Parsing Error)", transcript_id)
@@ -376,35 +385,45 @@ class AssemblePairEnd(BaseAssembler):
                     dst_fastq_2_file_writer=writer2,
                     transcript_id=transcript_id,
                     transcript_depth=transcript_depth,
-                    simulator_name=self._simulator_name
+                    simulator_name=self._simulator_name,
                 )
             except MisFormattedFastqRecordError:
                 _lh.warning("ASSEMB: %s: Skipped none-existing transcript (FASTQ Parsing Error)", transcript_id)
                 return
-            stats_writer.write("\t".join((
-                transcript_id,  # "TRANSCRIPT_ID",
-                str(transcript_depth),  # "INPUT_DEPTH",
-                str(num_of_reads),  # "SIMULATED_N_OF_READS",
-                str(num_of_bases),  # "SIMULATED_N_OF_BASES",
-                str(transcribed_length),  # "TRANSCRIBED_LENGTH",
-                str(num_of_bases / transcribed_length)  # "SIMULATED_DEPTH"
-            )) + "\n")
+            stats_writer.write(
+                "\t".join(
+                    (
+                        transcript_id,  # "TRANSCRIPT_ID",
+                        str(transcript_depth),  # "INPUT_DEPTH",
+                        str(num_of_reads),  # "SIMULATED_N_OF_READS",
+                        str(num_of_bases),  # "SIMULATED_N_OF_BASES",
+                        str(transcribed_length),  # "TRANSCRIBED_LENGTH",
+                        str(num_of_bases / transcribed_length),  # "SIMULATED_DEPTH"
+                    )
+                )
+                + "\n"
+            )
             _lh.debug("ASSEMB: %s FIN", transcript_id)
             stats_writer.flush()
 
         _lh.info("ASSEMB: START")
         output_fastq_dir = self._output_fastq_prefix + ".d"
-        with FastqWriter(self._output_fastq_prefix + "_1.fq") as writer1, \
-                FastqWriter(self._output_fastq_prefix + "_2.fq") as writer2, \
-                get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
-            stats_writer.write("\t".join((
-                "TRANSCRIPT_ID",
-                "INPUT_DEPTH",
-                "SIMULATED_N_OF_READS",
-                "SIMULATED_N_OF_BASES",
-                "TRANSCRIBED_LENGTH",
-                "SIMULATED_DEPTH"
-            )) + "\n")
+        with FastqWriter(self._output_fastq_prefix + "_1.fq") as writer1, FastqWriter(
+            self._output_fastq_prefix + "_2.fq"
+        ) as writer2, get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
+            stats_writer.write(
+                "\t".join(
+                    (
+                        "TRANSCRIPT_ID",
+                        "INPUT_DEPTH",
+                        "SIMULATED_N_OF_READS",
+                        "SIMULATED_N_OF_BASES",
+                        "TRANSCRIBED_LENGTH",
+                        "SIMULATED_DEPTH",
+                    )
+                )
+                + "\n"
+            )
 
             while not self._should_stop:
                 if len(self._transcript_ids_pending) > 0:
@@ -427,7 +446,7 @@ class AssemblePairEnd(BaseAssembler):
 class AssembleDumb(BaseAssembler):
     """
     Assembler that does not perform anything.
-    
+
     .. versionadded:: 3.1.5
     """
 
@@ -438,10 +457,7 @@ class AssembleDumb(BaseAssembler):
         _lh.info("ASSEMB: FIN")
 
 
-def generate_callback(
-        assembler: AssemblerType,
-        transcript_id: str
-) -> Callable[[threading.Thread], None]:
+def generate_callback(assembler: AssemblerType, transcript_id: str) -> Callable[[threading.Thread], None]:
     """
     Generate callback function for assemblers.
 
@@ -451,16 +467,14 @@ def generate_callback(
     :param assembler: Targeted assembler.
     :param transcript_id: Source Transcript ID.
     :return: Generated callback.
-    
+
     .. versionadded:: 3.1.5
     """
     return lambda _: assembler.add_transcript_id(transcript_id)
 
 
 def patch_frontend_parser_public(
-        parser: argparse.ArgumentParser,
-        llrg_name: str,
-        default_llrg_executable_name: Optional[str] = None
+    parser: argparse.ArgumentParser, llrg_name: str, default_llrg_executable_name: Optional[str] = None
 ) -> argparse.ArgumentParser:
     """
     Patch argument parser with commonly-used options.
@@ -469,131 +483,117 @@ def patch_frontend_parser_public(
     :param default_llrg_executable_name: Default LLRG Executable Name. None if is function-based.
     :param parser: Source parser.
     :return: Patched parser.
-    
+
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '-F',
-        '--fastas',
+        "-F",
+        "--fastas",
         required=True,
         help="Directory of transcribed cDNA sequences in FASTA format from `transcribe` step",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
-        '-j',
-        '--jobs',
+        "-j",
+        "--jobs",
         required=False,
         help="Number of LLRGs to be executed in parallel",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=multiprocessing.cpu_count()
+        action="store",
+        default=multiprocessing.cpu_count(),
     )
     parser.add_argument(
-        '--simulator_name',
+        "--simulator_name",
         required=False,
         help="Custom simulator name. Used in FASTQ tags\n"
-             "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
-        nargs='?',
+        "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
+        nargs="?",
         type=str,
-        action='store',
-        default=None
+        action="store",
+        default=None,
     )
     if default_llrg_executable_name is not None:
         parser.add_argument(
-            '-e',
-            '--llrg_executable_path',
+            "-e",
+            "--llrg_executable_path",
             required=False,
             help=f"Executable name or absolute path of {llrg_name}",
-            nargs='?',
+            nargs="?",
             type=str,
-            action='store',
-            default=default_llrg_executable_name
+            action="store",
+            default=default_llrg_executable_name,
         )
     return parser
 
 
-def patch_frontend_parser_sc_rna_seq(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser_sc_rna_seq(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser for Single-Cell RNA-Seq
 
     :param parser: Source parser.
     :return: Patched parser.
-    
+
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '-d',
-        '--depth',
+        "-d",
+        "--depth",
         required=True,
         help="Path to Isoform-Level Depth directory generated by `generate_barcoded_isoform_replicates`",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
-        '-o',
-        '--out',
-        required=True,
-        help="Path to output Directory.",
-        nargs='?',
-        type=str,
-        action='store'
+        "-o", "--out", required=True, help="Path to output Directory.", nargs="?", type=str, action="store"
     )
     return parser
 
 
-def patch_frontend_parser_bulk_rna_seq_assemble(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser_bulk_rna_seq_assemble(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     TODO docs
-    
+
     .. versionadded:: 3.1.5
     """
     return parser
 
 
-def patch_frontend_parser_bulk_rna_seq(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser_bulk_rna_seq(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser for Bulk-Cell RNA-Seq
 
     :param parser: Source parser.
     :return: Patched parser.
-    
+
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '-d',
-        '--depth',
+        "-d",
+        "--depth",
         required=True,
         help="Path to input Isoform-Level Depth TSV generated by `generate_depth_v2` or `generate_isoform_depth` step",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
-        '-o',
-        '--out',
+        "-o",
+        "--out",
         required=True,
         help="Output transcript prefix. "
-             "The output file would be {out}.fq for single-end "
-             "and {out}_1.fq, {out}_2.fq for pair end.\n"
-             "If --not_perform_assemble is set, would NOT generate FASTQ files but a {out}.d unassembled directory",
-        nargs='?',
+        "The output file would be {out}.fq for single-end "
+        "and {out}_1.fq, {out}_2.fq for pair end.\n"
+        "If --not_perform_assemble is set, would NOT generate FASTQ files but a {out}.d unassembled directory",
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
-        '--not_perform_assemble',
-        help="Do NOT assemble the output of each isoforms into one file.",
-        action='store_true'
+        "--not_perform_assemble", help="Do NOT assemble the output of each isoforms into one file.", action="store_true"
     )
     return parser
 
@@ -605,28 +605,28 @@ def patch_frontend_parser_tgs(parser: argparse.ArgumentParser) -> argparse.Argum
 
     :param parser: Source parser.
     :return: Patched parser.
-    
+
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '--truncate_ratio_3p',
+        "--truncate_ratio_3p",
         required=False,
         help="[Single End TGS Only] Ratio of 3 prime truncation, range from 0 (no truncation) to 1 (truncate all).\n"
-             "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
-        nargs='?',
+        "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
+        nargs="?",
         type=float,
-        action='store',
-        default=0.0
+        action="store",
+        default=0.0,
     )
     parser.add_argument(
-        '--truncate_ratio_5p',
+        "--truncate_ratio_5p",
         required=False,
         help="[Single End TGS Only] Ratio of 5 prime truncation, range from 0 (no truncation) to 1 (truncate all).\n"
-             "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
-        nargs='?',
+        "This step is done in assemble, so if --not_perform_assemble is set, this option would be useless.",
+        nargs="?",
         type=float,
-        action='store',
-        default=0.0
+        action="store",
+        default=0.0,
     )
     return parser
 
@@ -638,7 +638,7 @@ def enhanced_which(path_or_filename: str) -> str:
     :param path_or_filename: Path or filename you wish to resolve.
     :return: Absolute path found by :py:func:`shutil.which`.
     :raise FileNotFoundError: On failure.
-    
+
     .. versionadded:: 3.1.5
     """
     resolved_path = shutil.which(path_or_filename)

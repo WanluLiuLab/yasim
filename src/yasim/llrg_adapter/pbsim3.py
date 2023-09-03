@@ -5,12 +5,7 @@ pbsim3.py -- Wrapper of PBSIM3.
 
 .. todo:: Sphinx would get paths. Stop this.
 """
-__all__ = (
-    "Pbsim3Adapter",
-    "PBSIM3_DIST_DIR_PATH",
-    "PBSIM3_STRATEGY",
-    "patch_frontend_parser"
-)
+__all__ = ("Pbsim3Adapter", "PBSIM3_DIST_DIR_PATH", "PBSIM3_STRATEGY", "patch_frontend_parser")
 
 import argparse
 import enum
@@ -33,14 +28,9 @@ _lh = get_logger(__name__)
 try:
     import jinja2
 
-    PACB_SUBREAD_XML_TEMPLATE = (
-        jinja2.
-        Environment(
-            loader=jinja2.PackageLoader('yasim.llrg_adapter', 'templates'),
-            autoescape=True
-        ).
-        get_template('pbsim_xml_template.xml')
-    )
+    PACB_SUBREAD_XML_TEMPLATE = jinja2.Environment(
+        loader=jinja2.PackageLoader("yasim.llrg_adapter", "templates"), autoescape=True
+    ).get_template("pbsim_xml_template.xml")
     """
     PBSIM3 Subread XML Template. Should NOT be sphinx-searchable.
 
@@ -65,11 +55,12 @@ class PBSIM3_STRATEGY(enum.Enum):
 
     .. versionadded:: 3.1.5
     """
+
     wgs = enum.auto()
     trans = enum.auto()
 
     @classmethod
-    def from_name(cls, in_name: str) -> 'PBSIM3_STRATEGY':
+    def from_name(cls, in_name: str) -> "PBSIM3_STRATEGY":
         for choices in cls:
             if choices.name == in_name:
                 return choices
@@ -121,9 +112,10 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             "--pass-num", str(self._ccs_pass),
             *other_args
         ]
-    
+
     .. versionadded:: 3.1.5
     """
+
     _ccs_pass: int
     _samtools_executable_path: Optional[str]
     _ccs_executable_path: Optional[str]
@@ -139,17 +131,14 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
 
     @staticmethod
     def validate_params(
-            hmm_model: str,
-            hmm_method: str,
-            ccs_pass: int,
-            ccs_executable_path: Optional[str],
-            samtools_executable_path: Optional[str],
-            **kwargs
+        hmm_model: str,
+        hmm_method: str,
+        ccs_pass: int,
+        ccs_executable_path: Optional[str],
+        samtools_executable_path: Optional[str],
+        **kwargs,
     ) -> Mapping[str, Any]:
-        possible_hmm_model_path = os.path.join(
-            PBSIM3_DIST_DIR_PATH,
-            f"{hmm_method.upper()}-{hmm_model}.model"
-        )
+        possible_hmm_model_path = os.path.join(PBSIM3_DIST_DIR_PATH, f"{hmm_method.upper()}-{hmm_model}.model")
         if os.path.exists(hmm_model):
             pass
         elif os.path.exists(possible_hmm_model_path):
@@ -173,26 +162,26 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         return {
             "hmm_model": hmm_model,
             "ccs_executable_path": ccs_executable_path,
-            "samtools_executable_path": samtools_executable_path
+            "samtools_executable_path": samtools_executable_path,
         }
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: int,
-            llrg_executable_path: str,
-            is_trusted: bool,
-            strategy: PBSIM3_STRATEGY,
-            hmm_method: str,
-            hmm_model: str,
-            samtools_executable_path: Optional[str],
-            ccs_executable_path: Optional[str],
-            ccs_num_threads: Optional[int],
-            ccs_pass: int,
-            preserve_intermediate_files: bool,
-            other_args: List[str]
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: int,
+        llrg_executable_path: str,
+        is_trusted: bool,
+        strategy: PBSIM3_STRATEGY,
+        hmm_method: str,
+        hmm_model: str,
+        samtools_executable_path: Optional[str],
+        ccs_executable_path: Optional[str],
+        ccs_num_threads: Optional[int],
+        ccs_pass: int,
+        preserve_intermediate_files: bool,
+        other_args: List[str],
     ):
         """
         Initializer.
@@ -217,7 +206,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             depth=depth,
             llrg_executable_path=llrg_executable_path,
             preserve_intermediate_files=preserve_intermediate_files,
-            is_trusted=is_trusted
+            is_trusted=is_trusted,
         )
 
         if not is_trusted:
@@ -226,7 +215,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
                 hmm_method=hmm_method,
                 ccs_pass=ccs_pass,
                 samtools_executable_path=samtools_executable_path,
-                ccs_executable_path=ccs_executable_path
+                ccs_executable_path=ccs_executable_path,
             )
             hmm_model = validated_params["hmm_model"]
         self._strategy = strategy
@@ -235,10 +224,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         self._ccs_pass = ccs_pass
         self._ccs_num_threads = ccs_num_threads
 
-        possible_hmm_model_path = os.path.join(
-            PBSIM3_DIST_DIR_PATH,
-            f"{hmm_method.upper()}-{hmm_model}.model"
-        )
+        possible_hmm_model_path = os.path.join(PBSIM3_DIST_DIR_PATH, f"{hmm_method.upper()}-{hmm_model}.model")
         if os.path.exists(hmm_model):
             pass
         elif os.path.exists(possible_hmm_model_path):
@@ -250,50 +236,44 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
             raise LLRGInitializationException(f"strategy {strategy} should be in {PBSIM3_STRATEGY}!")
 
         if self._strategy == PBSIM3_STRATEGY.trans:
-            self._input_path = os.path.join(
-                self._tmp_dir, "transcript.tsv"
-            )
-            strategy_params = [
-                "--transcript", self._input_path
-            ]
+            self._input_path = os.path.join(self._tmp_dir, "transcript.tsv")
+            strategy_params = ["--transcript", self._input_path]
         else:
             self._input_path = self._src_fasta_file_path
-            strategy_params = [
-                "--depth", str(depth),
-                "--genome", self._input_path
-            ]
+            strategy_params = ["--depth", str(depth), "--genome", self._input_path]
         self._cmd = [
             llrg_executable_path,
-            "--strategy", str(self._strategy),
-            "--method", hmm_method,
-            f"--{hmm_method}", hmm_model,
-            "--prefix", os.path.join(self._tmp_dir, "tmp"),
-            "--id-prefix", f"movie{uuid.uuid4()}",
+            "--strategy",
+            str(self._strategy),
+            "--method",
+            hmm_method,
+            f"--{hmm_method}",
+            hmm_model,
+            "--prefix",
+            os.path.join(self._tmp_dir, "tmp"),
+            "--id-prefix",
+            f"movie{uuid.uuid4()}",
             *strategy_params,
-            "--pass-num", str(self._ccs_pass),
-            *other_args
+            "--pass-num",
+            str(self._ccs_pass),
+            *other_args,
         ]
 
     def _pre_execution_hook(self) -> None:
         if self._strategy == PBSIM3_STRATEGY.trans:
             try:
-                with get_writer(self._input_path) as transcript_writer, \
-                        FastaViewFactory(
-                            filename=self._src_fasta_file_path,
-                            read_into_memory=True,
-                            show_tqdm=False
-                        ) as ff:
+                with get_writer(self._input_path) as transcript_writer, FastaViewFactory(
+                    filename=self._src_fasta_file_path, read_into_memory=True, show_tqdm=False
+                ) as ff:
                     transcript_id = ff.chr_names[0]
                     sequence = ff.sequence(transcript_id)
-                    transcript_writer.write("\t".join((
-                        transcript_id,
-                        str(self._depth),  # Forward
-                        "0",  # Reverse
-                        sequence
-                    )) + "\n")
+                    transcript_writer.write(
+                        "\t".join((transcript_id, str(self._depth), "0", sequence)) + "\n"  # Forward  # Reverse
+                    )
             except (KeyError, OSError, IndexError) as e:
                 raise LLRGInitializationException(
-                    f"Sequence {transcript_id} from file {self._src_fasta_file_path} failed!") from e
+                    f"Sequence {transcript_id} from file {self._src_fasta_file_path} failed!"
+                ) from e
 
     def _ccs_to_fastq(self, prefix: str):
         subreads_bam_path = os.path.join(self._tmp_dir, f"{prefix}.subreads.bam")
@@ -303,63 +283,67 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         ccs_xml_path = os.path.join(self._tmp_dir, f"{prefix}.ccs.xml")
         output_fastq_path = os.path.join(self._tmp_dir, f"{prefix}.ccs.fq")
         with get_writer(os.path.join(self._tmp_dir, "call_ccs.log"), is_binary=True) as log_writer:
-            if self._exec_subprocess(
-                    [
-                        self._samtools_executable_path,
-                        "view",
-                        subreads_sam_path,
-                        "-o", subreads_bam_path
-                    ],
+            if (
+                self._exec_subprocess(
+                    [self._samtools_executable_path, "view", subreads_sam_path, "-o", subreads_bam_path],
                     stdin=subprocess.DEVNULL,
                     stdout=log_writer,
-                    stderr=log_writer
-            ) != 0:
+                    stderr=log_writer,
+                )
+                != 0
+            ):
                 return
             if jinja2 is not None:
                 with get_writer(subreads_xml_path) as writer:
                     timestamp = time.localtime()
-                    writer.write(PACB_SUBREAD_XML_TEMPLATE.render(
-                        timestamp_file=time.strftime("%y-%m-%dT%H:%M:%S", timestamp),
-                        timestamp_simple=time.strftime("%y%m%d_%H%m%S", timestamp),
-                        bam_filepath=subreads_bam_path,
-                        file_uuid=str(uuid.uuid4())
-                    ))
-            if self._exec_subprocess(
+                    writer.write(
+                        PACB_SUBREAD_XML_TEMPLATE.render(
+                            timestamp_file=time.strftime("%y-%m-%dT%H:%M:%S", timestamp),
+                            timestamp_simple=time.strftime("%y%m%d_%H%m%S", timestamp),
+                            bam_filepath=subreads_bam_path,
+                            file_uuid=str(uuid.uuid4()),
+                        )
+                    )
+            if (
+                self._exec_subprocess(
                     [
                         self._ccs_executable_path,
-                        "--report-json", os.path.join(self._tmp_dir, f"{prefix}.ccs.report.json"),
-                        "--report-file", os.path.join(self._tmp_dir, f"{prefix}.ccs.report.txt"),
-                        "--log-level", "INFO",
-                        "--log-file", os.path.join(self._tmp_dir, f"{prefix}.ccs.log"),
-                        "--num-threads", str(self._ccs_num_threads),
+                        "--report-json",
+                        os.path.join(self._tmp_dir, f"{prefix}.ccs.report.json"),
+                        "--report-file",
+                        os.path.join(self._tmp_dir, f"{prefix}.ccs.report.txt"),
+                        "--log-level",
+                        "INFO",
+                        "--log-file",
+                        os.path.join(self._tmp_dir, f"{prefix}.ccs.log"),
+                        "--num-threads",
+                        str(self._ccs_num_threads),
                         subreads_xml_path if jinja2 is not None else subreads_bam_path,
-                        ccs_xml_path
+                        ccs_xml_path,
                     ],
                     stdin=subprocess.DEVNULL,
                     stdout=log_writer,
-                    stderr=log_writer
-            ) != 0:
+                    stderr=log_writer,
+                )
+                != 0
+            ):
                 return
             with get_writer(output_fastq_path, is_binary=True) as writer:
-                if self._exec_subprocess(
-                        [
-                            self._samtools_executable_path,
-                            "fastq",
-                            ccs_bam_path
-                        ],
+                if (
+                    self._exec_subprocess(
+                        [self._samtools_executable_path, "fastq", ccs_bam_path],
                         stdin=subprocess.DEVNULL,
                         stdout=writer,
-                        stderr=log_writer
-                ) != 0:
+                        stderr=log_writer,
+                    )
+                    != 0
+                ):
                     return
 
     def _post_execution_hook(self):
         if self._ccs_pass == 1:
             if self._strategy == PBSIM3_STRATEGY.wgs:
-                automerge(
-                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")),
-                    self._dst_fastq_file_prefix + ".fq"
-                )
+                automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
             else:
                 autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._dst_fastq_file_prefix + ".fq")
         else:
@@ -368,8 +352,7 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
                     prefix = os.path.basename(fp).split(".")[0]
                     self._ccs_to_fastq(prefix=prefix)
                 automerge(
-                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")),
-                    self._dst_fastq_file_prefix + ".fq"
+                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")), self._dst_fastq_file_prefix + ".fq"
                 )
             else:
                 self._ccs_to_fastq(prefix="tmp")
@@ -380,70 +363,68 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         return False
 
 
-def patch_frontend_parser(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser with pbsim3 arguments.
 
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '-m',
-        '--hmm_model',
+        "-m",
+        "--hmm_model",
         required=True,
         help="Basename of HMM file. "
-             f"If you select errhmm in hmm_method, it would be {PBSIM3_ERRHMM_POSSIBLE_MODELS}"
-             f"If you select qshmm in hmm_method, it would be {PBSIM3_QSHMM_POSSIBLE_MODELS}",
-        nargs='?',
+        f"If you select errhmm in hmm_method, it would be {PBSIM3_ERRHMM_POSSIBLE_MODELS}"
+        f"If you select qshmm in hmm_method, it would be {PBSIM3_QSHMM_POSSIBLE_MODELS}",
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
         "-M",
         "--hmm_method",
         required=True,
         help="Whether to simulate using quality score (as PBSIM2) or error profile (new)",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store',
-        choices=("errhmm", "qshmm")
+        action="store",
+        choices=("errhmm", "qshmm"),
     )
     parser.add_argument(
         "--ccs_pass",
         required=False,
         help="CCS Multipass Settings. Use 1 for CLR and others for CCS.",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=1
+        action="store",
+        default=1,
     )
     parser.add_argument(
-        '--ccs_path',
+        "--ccs_path",
         required=False,
         help="Executable name of ccs or pbccs. Omitted if ccs_pass == 1.",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store',
-        default="ccs"
+        action="store",
+        default="ccs",
     )
     parser.add_argument(
-        '--samtools_path',
+        "--samtools_path",
         required=False,
         help="Executable name of samtools. Omitted if ccs_pass == 1.",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store',
-        default="samtools"
+        action="store",
+        default="samtools",
     )
     parser.add_argument(
-        '--strategy',
+        "--strategy",
         required=False,
         help="Whether to use transcript (trans) mode or wgs (wgs) mode",
         choices=PBSIM3_STRATEGY,
         type=PBSIM3_STRATEGY.from_name,
-        action='store',
-        default="wgs"
+        action="store",
+        default="wgs",
     )
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

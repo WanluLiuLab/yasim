@@ -4,10 +4,7 @@ yasim -- Yet Another SIMulator for Alternative Splicing and Realistic Gene Expre
 .. versionadded:: 3.1.5
 """
 
-__version__ = "3.1.5"
-__author__ = ",".join((
-    "YU Zhejian"
-))
+__version__ = "3.2.0"
 
 description = __doc__.splitlines()[1]
 
@@ -22,13 +19,11 @@ except ImportError as e:
 from labw_utils import UnmetDependenciesError
 
 try:
-
     import numpy
     import numpy.typing as npt
 except ImportError as e:
     raise UnmetDependenciesError("numpy") from e
 try:
-
     import pandas
 except ImportError as e:
     raise UnmetDependenciesError("pandas") from e

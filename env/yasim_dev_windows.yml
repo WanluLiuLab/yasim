@@ -23,31 +23,33 @@ dependencies:
   - pyarrow
 
   # Used in building docs
-  - tomli
-  - seaborn>=0.12
+  # - seaborn>=0.12
 
   # Development Utilities
-  - m2-bash
-  - m2-make
-  - m2-coreutils
-  - m2-findutils
-  - m2-git
-  - m2-grep
+  # - m2-bash
+  # - m2-make
+  # - m2-coreutils
+  # - m2-findutils
+  # - m2-git
+  # - m2-grep
 
   # Sphinx documentation
-  - sphinx=5.3
-  - sphinx-copybutton
-  - myst-nb
-  - notebook
-  - jupyter
-  - jupytext
-  - sphinx-design=0.3.0
-  - furo=2023.3.27
+  # No, we do not do this under Windows.
+  # - sphinx=5.3
+  # - sphinx-copybutton
+  # - myst-nb
+  # - notebook
+  # - jupyter
+  # - jupytext
+  # - sphinx-design=0.3.0
+  # - furo=2023.3.27
 
   # Build utils
-  - pip
+  # Only use minimal if not specified.
   - setuptools
-  - wheel
-  - build
-  - twine
-  - mypy
+  # - pip
+  # - wheel
+  # - build
+  # - twine
+  # - mypy
+  - black

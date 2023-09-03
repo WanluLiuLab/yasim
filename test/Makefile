@@ -6,7 +6,7 @@ llrg: chrM.STAR.ref.d chrM.trans.fa chrI.trans.fa chrI.STAR.ref.d
 	$(MAKE) -C llrg
 
 .PHONY: deps
-deps: ce11.ncbiRefSeq.chrM.gtf chrM.fa ce11.ncbiRefSeq.chrM.as.gtf
+deps: ce11.ncbiRefSeq.chrM.gtf chrM.fa ce11.ncbiRefSeq.chrM.as.gtf ce11.ncbiRefSeq.chrI.as.gtf
 
 .SUFFIXES:
 .SECONDARY: chromFa.tar.gz \
@@ -31,7 +31,10 @@ ce11.ncbiRefSeq.gtf: ce11.ncbiRefSeq.gtf.gz
 	touch ce11.ncbiRefSeq.gtf
 
 ce11.ncbiRefSeq.chrM.gtf: ce11.ncbiRefSeq.gtf
-	grep '^chrM' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chrM.gtf
+	grep '^chrM\s' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chrM.gtf
+
+ce11.ncbiRefSeq.chrI.gtf: ce11.ncbiRefSeq.gtf
+	grep '^chrI\s' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chrI.gtf
 
 ce11.ncbiRefSeq.chrM.as.gtf:ce11.ncbiRefSeq.chrM.gtf chrM.fa
 	python -m yasim generate_as_events \
@@ -39,6 +42,13 @@ ce11.ncbiRefSeq.chrM.as.gtf:ce11.ncbiRefSeq.chrM.gtf chrM.fa
 		-f chrM.fa \
 		-c 5 \
 		-o ce11.ncbiRefSeq.chrM.as.gtf
+
+ce11.ncbiRefSeq.chrI.as.gtf:ce11.ncbiRefSeq.chrI.gtf chrI.fa
+	python -m yasim generate_as_events \
+		-g ce11.ncbiRefSeq.chrI.gtf \
+		-f chrI.fa \
+		-c 5 \
+		-o ce11.ncbiRefSeq.chrI.as.gtf
 
 .PHONY: clean
 clean:

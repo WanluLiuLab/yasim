@@ -3,12 +3,7 @@ pbsim2.py -- Wrapper of PBSIM2.
 
 .. versionadded:: 3.1.5
 """
-__all__ = (
-    "Pbsim2Adapter",
-    "PBSIM2_DIST_DIR_PATH",
-    "PBSIM2_ALL_POSSIBLE_MODELS",
-    "patch_frontend_parser"
-)
+__all__ = ("Pbsim2Adapter", "PBSIM2_DIST_DIR_PATH", "PBSIM2_ALL_POSSIBLE_MODELS", "patch_frontend_parser")
 
 import argparse
 import glob
@@ -50,18 +45,16 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
             *other_args,
             self._src_fasta_file_path
         ]
-    
+
     .. versionadded:: 3.1.5
     """
+
     llrg_name: Final[str] = "pbsim2"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
 
     @staticmethod
-    def validate_params(
-            hmm_model: str,
-            **kwargs
-    ) -> Mapping[str, Any]:
+    def validate_params(hmm_model: str, **kwargs) -> Mapping[str, Any]:
         if os.path.exists(hmm_model):
             pass
         elif os.path.exists(os.path.join(PBSIM2_DIST_DIR_PATH, f"{hmm_model}.model")):
@@ -71,16 +64,16 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
         return {"hmm_model": hmm_model}
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: int,
-            llrg_executable_path: str,
-            is_trusted: bool,
-            hmm_model: str,
-            preserve_intermediate_files: bool,
-            other_args: List[str]
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: int,
+        llrg_executable_path: str,
+        is_trusted: bool,
+        hmm_model: str,
+        preserve_intermediate_files: bool,
+        other_args: List[str],
     ):
         """
         Initializer.
@@ -100,7 +93,7 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
             depth=depth,
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted,
-            preserve_intermediate_files=preserve_intermediate_files
+            preserve_intermediate_files=preserve_intermediate_files,
         )
 
         if not is_trusted:
@@ -108,11 +101,14 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
             hmm_model = validated_params["hmm_model"]
         self._cmd = [
             llrg_executable_path,
-            "--prefix", os.path.join(self._tmp_dir, "tmp"),
-            "--depth", str(self._depth),
-            "--hmm_model", hmm_model,
+            "--prefix",
+            os.path.join(self._tmp_dir, "tmp"),
+            "--depth",
+            str(self._depth),
+            "--hmm_model",
+            hmm_model,
             *other_args,
-            self._src_fasta_file_path
+            self._src_fasta_file_path,
         ]
 
     def _pre_execution_hook(self) -> None:
@@ -127,23 +123,21 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
         return False
 
 
-def patch_frontend_parser(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser with pbsim2 arguments.
 
     .. versionadded:: 3.1.5
     """
     parser.add_argument(
-        '-m',
-        '--hmm_model',
+        "-m",
+        "--hmm_model",
         required=True,
         help="Basename or absolute path of HMM file",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store',
-        choices=PBSIM2_ALL_POSSIBLE_MODELS
+        action="store",
+        choices=PBSIM2_ALL_POSSIBLE_MODELS,
     )
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

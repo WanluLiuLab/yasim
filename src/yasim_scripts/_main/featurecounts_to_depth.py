@@ -4,10 +4,7 @@ featurecounts_to_depth.py -- Convert FeatureCounts Output for NGS and TGS to YAS
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "main",
-    "create_parser"
-)
+__all__ = ("main", "create_parser")
 
 import argparse
 
@@ -20,66 +17,57 @@ from yasim.helper.depth_io import write_depth
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim_scripts featurecounts_to_depth",
-        description=__doc__.splitlines()[1]
+        prog="python -m yasim_scripts featurecounts_to_depth", description=__doc__.splitlines()[1]
     )
     parser.add_argument(
-        '-i',
-        '--input',
+        "-i",
+        "--input",
         required=True,
         help="Path to featureCounts/Salmon output TSV",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
-        '--software',
+        "--software",
         required=False,
         help="name of quantification software",
-        nargs='?',
+        nargs="?",
         choices=("featureCounts", "Salmon"),
         default="featureCounts",
         type=str,
-        action='store'
+        action="store",
     )
+    parser.add_argument("-o", "--out", required=True, help="Path to output TSV", nargs="?", type=str, action="store")
     parser.add_argument(
-        '-o',
-        '--out',
-        required=True,
-        help="Path to output TSV",
-        nargs='?',
-        type=str,
-        action='store'
-    )
-    parser.add_argument(
-        '-f',
-        '--feature_name',
+        "-f",
+        "--feature_name",
         required=False,
         help="Name of output feature",
         choices=("GENE_ID", "TRANSCRIPT_ID"),
         default="TRANSCRIPT_ID",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     ngs_tgs_meg = parser.add_mutually_exclusive_group()
     ngs_tgs_meg.add_argument(
-        '--read_length',
+        "--read_length",
         required=False,
         help="[For NGS Only] Read length",
-        nargs='?',
+        nargs="?",
         type=int,
         default=None,
-        action='store'
+        action="store",
     )
     ngs_tgs_meg.add_argument(
-        '--read_completeness',
+        "--read_completeness",
         required=False,
         help="[For TGS Only] Mean read completeness",
-        nargs='?',
+        nargs="?",
         type=float,
         default=None,
-        action='store'
+        action="store",
     )
     return parser
 
@@ -87,22 +75,25 @@ def create_parser() -> argparse.ArgumentParser:
 def main(args: List[str]) -> int:
     depth = {}
     args = create_parser().parse_args(args)
-    fc = pd.read_table(
-        args.input,
-        sep="\t",
-        comment="#"
-    )
+    fc = pd.read_table(args.input, sep="\t", comment="#")
     if args.read_length is not None:
         if args.software == "featureCounts":
+
             def get_read_depth(_datum):
                 return _datum[-1] * args.read_length / _datum[5]
+
         else:
+
             def get_read_depth(_datum):
                 return _datum.NumReads * args.read_length / _datum.Length
+
     elif args.read_completeness is not None:
+
         def get_read_depth(_datum):
             return _datum[-1] * args.read_completeness
+
     else:
+
         def get_read_depth(_datum):
             return _datum[-1]
 

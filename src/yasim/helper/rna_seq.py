@@ -24,9 +24,7 @@ _lh = get_logger(__name__)
 
 
 def validate_adapter_args(
-        adapter_args: Mapping[str, Any],
-        adapter_class: Type[BaseLLRGAdapter],
-        llrg_executable_path: Optional[str] = None
+    adapter_args: Mapping[str, Any], adapter_class: Type[BaseLLRGAdapter], llrg_executable_path: Optional[str] = None
 ) -> Mapping[str, Any]:
     """
     TODO docs
@@ -43,9 +41,7 @@ def validate_adapter_args(
             sys.exit(1)
     adapter_args = dict(adapter_args)
     try:
-        adapter_args_update = adapter_class.validate_params(
-            **adapter_args
-        )
+        adapter_args_update = adapter_class.validate_params(**adapter_args)
     except LLRGInitializationException as e:
         _lh.error("RNA SEQ: Exception %s caught at validating LLRG adapter arguments.", str(e))
         sys.exit(1)
@@ -54,18 +50,18 @@ def validate_adapter_args(
 
 
 def run_rna_seq(
-        transcriptome_fasta_dir: str,
-        output_fastq_prefix: str,
-        depth_data: DepthType,
-        jobs: int,
-        simulator_name: str,
-        adapter_args: Mapping[str, Any],
-        assembler_args: Mapping[str, Any],
-        adapter_class: Type[BaseLLRGAdapter],
-        is_pair_end: bool,
-        llrg_executable_path: Optional[str] = None,
-        not_perform_assemble: bool = False,
-        show_tqdm: bool = True
+    transcriptome_fasta_dir: str,
+    output_fastq_prefix: str,
+    depth_data: DepthType,
+    jobs: int,
+    simulator_name: str,
+    adapter_args: Mapping[str, Any],
+    assembler_args: Mapping[str, Any],
+    adapter_class: Type[BaseLLRGAdapter],
+    is_pair_end: bool,
+    llrg_executable_path: Optional[str] = None,
+    not_perform_assemble: bool = False,
+    show_tqdm: bool = True,
 ):
     """
     TODO docs
@@ -76,10 +72,7 @@ def run_rna_seq(
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = ParallelJobExecutor(
-        pool_name="Simulating jobs",
-        pool_size=jobs,
-        delete_after_finish=False,
-        show_tqdm=show_tqdm
+        pool_name="Simulating jobs", pool_size=jobs, delete_after_finish=False, show_tqdm=show_tqdm
     )
     depth_info: List[Tuple[float, str, str]] = []
     """
@@ -118,10 +111,7 @@ def run_rna_seq(
     assembler.start()
 
     _lh.info("RNA SEQ: Starting simulation and assembly...")
-    for transcript_depth, transcript_id, transcript_filename in tqdm(
-            iterable=depth_info,
-            desc="Submitting jobs..."
-    ):
+    for transcript_depth, transcript_id, transcript_filename in tqdm(iterable=depth_info, desc="Submitting jobs..."):
         try:
             sim_thread = adapter_class(
                 src_fasta_file_path=transcript_filename,
@@ -129,7 +119,7 @@ def run_rna_seq(
                 depth=transcript_depth,
                 llrg_executable_path=llrg_executable_path,  # TODO: Fix this.
                 is_trusted=True,
-                **adapter_args
+                **adapter_args,
             )
         except LLRGInitializationException as e:
             _lh.warning("Exception %s caught at initialization time", str(e))
@@ -158,17 +148,17 @@ def run_rna_seq(
 
 
 def bulk_rna_seq_frontend(
-        transcriptome_fasta_dir: str,
-        output_fastq_prefix: str,
-        depth_file_path: str,
-        jobs: int,
-        simulator_name: str,
-        adapter_args: Mapping[str, Any],
-        assembler_args: Mapping[str, Any],
-        adapter_class: Type[BaseLLRGAdapter],
-        is_pair_end: bool,
-        llrg_executable_path: Optional[str] = None,
-        not_perform_assemble: bool = False
+    transcriptome_fasta_dir: str,
+    output_fastq_prefix: str,
+    depth_file_path: str,
+    jobs: int,
+    simulator_name: str,
+    adapter_args: Mapping[str, Any],
+    assembler_args: Mapping[str, Any],
+    adapter_class: Type[BaseLLRGAdapter],
+    is_pair_end: bool,
+    llrg_executable_path: Optional[str] = None,
+    not_perform_assemble: bool = False,
 ) -> int:
     """
     :return: Exit Value
@@ -176,9 +166,7 @@ def bulk_rna_seq_frontend(
     .. versionadded:: 3.1.5
     """
     adapter_args = validate_adapter_args(
-        adapter_args=adapter_args,
-        adapter_class=adapter_class,
-        llrg_executable_path=llrg_executable_path
+        adapter_args=adapter_args, adapter_class=adapter_class, llrg_executable_path=llrg_executable_path
     )
     try:
         depth_data = read_depth(depth_file_path)
@@ -198,16 +186,14 @@ def bulk_rna_seq_frontend(
         is_pair_end=is_pair_end,
         llrg_executable_path=llrg_executable_path,
         not_perform_assemble=not_perform_assemble,
-        show_tqdm=True
+        show_tqdm=True,
     )
     _lh.info(f"RNA SEQ: Status of errors: {dict(exception_dict)}")
     _lh.info("RNA SEQ: Simulation finished successfully")
     return 0
 
 
-def sc_rna_seq_frontend(
-        *args, **kwargs
-) -> int:
+def sc_rna_seq_frontend(*args, **kwargs) -> int:
     _ = args, kwargs
     del args, kwargs
     _lh.error("This function was removed.")

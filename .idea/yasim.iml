@@ -1909,6 +1909,8 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/gtf" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/real_stats" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data" />
+      <excludeFolder url="file://$MODULE_DIR$/test/_STARtmp" />
+      <excludeFolder url="file://$MODULE_DIR$/test/chrM.STAR.ref.d" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

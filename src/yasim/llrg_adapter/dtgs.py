@@ -4,9 +4,7 @@ dtgs.py -- Wrapper of dTGS simulator (Dumb Third-Generation Sequencing Simulator
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "DTGSAdapter",
-)
+__all__ = ("DTGSAdapter",)
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fastq import FastqWriter
@@ -30,11 +28,7 @@ class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
                 chr_seq = fav.sequence(chr_name)
                 for _ in range(self.depth):
                     seqlen = len(chr_seq)
-                    fastq_writer.write(FastqRecord(
-                        seq_id=str(i),
-                        sequence=chr_seq,
-                        quality="K" * seqlen
-                    ))
+                    fastq_writer.write(FastqRecord(seq_id=str(i), sequence=chr_seq, quality="K" * seqlen))
                     i += 1
 
     llrg_name: Final[str] = "dtgs"
@@ -45,14 +39,14 @@ class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
         return {}
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: Union[int, float],
-            is_trusted: bool,
-            other_args: List[str],
-            **kwargs
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: Union[int, float],
+        is_trusted: bool,
+        other_args: List[str],
+        **kwargs,
     ):
         """
         Initializer.
@@ -70,7 +64,7 @@ class DTGSAdapter(BaseFunctionBasedLLRGAdapter):
             dst_fastq_file_prefix=dst_fastq_file_prefix,
             depth=depth,
             is_trusted=is_trusted,
-            preserve_intermediate_files=None  # Not effective.
+            preserve_intermediate_files=None,  # Not effective.
         )
 
     def _pre_execution_hook(self) -> None:
