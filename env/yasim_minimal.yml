@@ -29,4 +29,7 @@ dependencies:
   - pbccs=6.0.0
   - badread=0.2.0
   - python-edlib
+
+  # Maintenance
   - setuptools
+  - pip

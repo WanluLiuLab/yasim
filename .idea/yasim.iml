@@ -1909,7 +1909,9 @@
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/gtf" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data/real_stats" />
       <excludeFolder url="file://$MODULE_DIR$/suppl_data_analysis/syq_article/_data" />
+      <excludeFolder url="file://$MODULE_DIR$/singularity/labw_utils-latest.d" />
       <excludeFolder url="file://$MODULE_DIR$/singularity/pbsim_builder/pbsim.d" />
+      <excludeFolder url="file://$MODULE_DIR$/singularity/yasim-latest.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/_STARtmp" />
       <excludeFolder url="file://$MODULE_DIR$/test/chrI.STAR.ref.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/chrI.trans.fa.d" />
