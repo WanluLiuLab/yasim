@@ -16,7 +16,10 @@ from yasim.llrg_adapter import badread
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim badread", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim badread",
+        description=__doc__.splitlines()[1],
+    )
     parser = llrg.patch_frontend_parser_public(parser, llrg_name="badread", default_llrg_executable_name="badread")
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = llrg.patch_frontend_parser_tgs(parser)

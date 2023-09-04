@@ -16,8 +16,15 @@ from yasim.llrg_adapter import art
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim art", description=__doc__.splitlines()[1])
-    parser = llrg.patch_frontend_parser_public(parser, llrg_name="art", default_llrg_executable_name="art_illumina")
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim art",
+        description=__doc__.splitlines()[1],
+    )
+    parser = llrg.patch_frontend_parser_public(
+        parser,
+        llrg_name="art",
+        default_llrg_executable_name="art_illumina",
+    )
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = art.patch_frontend_parser(parser)
     return parser

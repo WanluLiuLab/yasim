@@ -56,7 +56,3 @@ def main(args: List[str]):
     asm = ASManipulator(gv=gv)
     asm.run("ce", args.complexity)
     asm.to_file(args.out)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

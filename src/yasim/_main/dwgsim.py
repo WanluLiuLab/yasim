@@ -16,8 +16,15 @@ from yasim.llrg_adapter import dwgsim
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim dwgsim", description=__doc__.splitlines()[1])
-    parser = llrg.patch_frontend_parser_public(parser, llrg_name="dwgsim", default_llrg_executable_name="dwgsim")
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim dwgsim",
+        description=__doc__.splitlines()[1],
+    )
+    parser = llrg.patch_frontend_parser_public(
+        parser,
+        llrg_name="dwgsim",
+        default_llrg_executable_name="dwgsim",
+    )
     parser = llrg.patch_frontend_parser_bulk_rna_seq(parser)
     parser = dwgsim.patch_frontend_parser(parser)
     return parser

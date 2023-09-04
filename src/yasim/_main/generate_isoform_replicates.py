@@ -16,7 +16,8 @@ from yasim.helper.frontend import patch_frontend_argument_parser
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim generate_isoform_replicates", description=__doc__.splitlines()[1]
+        prog="python -m yasim generate_isoform_replicates",
+        description=__doc__.splitlines()[1],
     )
     parser = patch_frontend_argument_parser(parser, "-d")
     parser.add_argument(
@@ -47,5 +48,7 @@ def main(args: List[str]):
     depth_data = depth_io.read_depth(args.depth)
     for i in range(args.num_replicates):
         depth_io.write_depth(
-            depth.generate_depth_replicates_uniform(depth_data, args.range), f"{args.depth}.{i}", "TRANSCRIPT_ID"
+            depth.generate_depth_replicates_uniform(depth_data, args.range),
+            dst_depth_file_path=f"{args.depth}.{i}",
+            feature_name="TRANSCRIPT_ID",
         )

@@ -13,13 +13,13 @@ if __name__ == "__main__":
     setup_basic_logger()
     gv = DiploidGeneTree.from_gtf_file("/home/yuzj/Downloads/ce11_as_2.gtf", gene_implementation=DumbGene)
     for _ in range(20):
-        d = simulate_gene_level_depth_gmm(gv=gv, mu=100, low_cutoff=1, high_cutoff_ratio=200)
+        d = simulate_gene_level_depth_gmm(gene_names=gv.gene_ids, mu=100, low_cutoff=1, high_cutoff_ratio=200)
         gene_expr_levels = np.array(list(d.values()), dtype="float")
         inside_isoform_vars = []
         isoform_expr_levels = []
         for gene_name, mean_expr in d.items():
             i = simulate_isoform_variance_inside_a_gene(
-                n=gv.get_gene(gene_name).number_of_transcripts,
+                n=gv.get_gene(gene_name)[0].number_of_transcripts,
                 mu=mean_expr,
                 alpha=3,
                 low_cutoff=1,

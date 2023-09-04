@@ -21,7 +21,8 @@ _lh = get_logger(__name__)
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim generate_gene_depth", description=__doc__.splitlines()[1]
+        prog="python -m yasim generate_gene_depth",
+        description=__doc__.splitlines()[1],
     )
     parser = patch_frontend_argument_parser(parser, "-g")
     parser.add_argument(
@@ -34,7 +35,14 @@ def create_parser() -> argparse.ArgumentParser:
         action="store",
     )
     parser.add_argument(
-        "-d", "--mu", required=False, help="Average depth.", nargs="?", type=float, action="store", default=100
+        "-d",
+        "--mu",
+        required=False,
+        help="Average depth.",
+        nargs="?",
+        type=float,
+        action="store",
+        default=100,
     )
     parser = patch_frontend_argument_parser(parser, "--low_cutoff")
     parser = patch_frontend_argument_parser(parser, "--high_cutoff_ratio")
@@ -46,7 +54,7 @@ def main(args: List[str]) -> int:
     gv = DiploidGeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
     try:
         dge_data = depth.simulate_gene_level_depth_gmm(
-            gv=gv,
+            gene_names=gv.gene_ids,
             mu=args.mu,
             low_cutoff=args.low_cutoff,
             high_cutoff_ratio=args.high_cutoff_ratio,

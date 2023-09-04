@@ -36,7 +36,8 @@ _lh = get_logger()
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim_scripts fit_gmm", description=__doc__.splitlines()[1]
+        prog="python -m yasim_scripts fit_gmm",
+        description=__doc__.splitlines()[1],
     )
     parser.add_argument("data", help="Dataset in Apache Parquet Format")
     parser.add_argument("-c", "--num_components", type=int, required=False, default=2)

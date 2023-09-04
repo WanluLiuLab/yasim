@@ -25,7 +25,8 @@ _lh = get_logger(__name__)
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim generate_isoform_depth", description=__doc__.splitlines()[1]
+        prog="python -m yasim generate_isoform_depth",
+        description=__doc__.splitlines()[1],
     )
     parser = patch_frontend_argument_parser(parser, "-g")
     parser.add_argument(
@@ -69,7 +70,7 @@ def main(args: List[str]):
         if gene.gene_id not in gene_level_depth:
             _lh.warning("GEN ISOFORM DEPTH: Gene %s defined in GTF but not gene-level depth", gene.gene_id)
         if gene_level_depth[gene.gene_id] == 0:
-            for transcript in gene.iter_transcripts():
+            for transcript in gene.transcript_values:
                 transcript_level_depth[transcript.transcript_id] = 0
             continue
         try:

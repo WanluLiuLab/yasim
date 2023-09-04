@@ -21,6 +21,7 @@ dependencies:
   - tqdm>=4.64
   - matplotlib>=3.6
   - pyarrow
+  - h5py
 
   # Used in building docs
   # - seaborn>=0.12

@@ -20,7 +20,10 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = ArgumentParserWithEnhancedFormatHelp(prog="python -m yasim pbsim", description=__doc__.splitlines()[1])
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim assemble",
+        description=__doc__.splitlines()[1],
+    )
     parser.add_argument(
         "-F",
         "--fastas",
@@ -66,7 +69,10 @@ def create_parser() -> argparse.ArgumentParser:
         action="store",
     )
     parser.add_argument(
-        "--is_pair_end", required=False, help="Whether to use Pair End (PE) Simulation", action="store_true"
+        "--is_pair_end",
+        required=False,
+        help="Whether to use Pair End (PE) Simulation",
+        action="store_true",
     )
     parser = llrg.patch_frontend_parser_tgs(parser)
     return parser

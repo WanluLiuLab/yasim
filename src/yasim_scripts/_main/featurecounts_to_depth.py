@@ -17,7 +17,8 @@ from yasim.helper.depth_io import write_depth
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m yasim_scripts featurecounts_to_depth", description=__doc__.splitlines()[1]
+        prog="python -m yasim_scripts featurecounts_to_depth",
+        description=__doc__.splitlines()[1],
     )
     parser.add_argument(
         "-i",
@@ -38,7 +39,15 @@ def create_parser() -> argparse.ArgumentParser:
         type=str,
         action="store",
     )
-    parser.add_argument("-o", "--out", required=True, help="Path to output TSV", nargs="?", type=str, action="store")
+    parser.add_argument(
+        "-o",
+        "--out",
+        required=True,
+        help="Path to output TSV",
+        nargs="?",
+        type=str,
+        action="store",
+    )
     parser.add_argument(
         "-f",
         "--feature_name",

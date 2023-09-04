@@ -21,6 +21,7 @@ dependencies:
   - tqdm>=4.64
   - matplotlib>=3.6
   - pyarrow
+  - h5py
 
   # Used in building docs
   - seaborn>=0.12
@@ -81,9 +82,6 @@ dependencies:
   - gffcompare=0.12.6
   - fastqc=0.12.1
   - gatk4=4.3.0.0
-
-  # TE generation
-  - h5py
 
   # PacBio CCS
   - pbcore=2.1.2

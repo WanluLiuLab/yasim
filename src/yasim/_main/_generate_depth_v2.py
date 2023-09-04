@@ -63,5 +63,5 @@ def main(args: List[str]):
     )
     args = create_parser().parse_args(args)
     gv = DiploidGeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
-    dge_data = depth.simulate_depth_gmm_v2(isoform_names=gv.iter_transcript_ids, mu=args.mu)
+    dge_data = depth.simulate_depth_gmm_v2(isoform_names=gv.transcript_ids, mu=args.mu)
     depth_io.write_depth(dge_data, args.out, feature_name="TRANSCRIPT_ID")
