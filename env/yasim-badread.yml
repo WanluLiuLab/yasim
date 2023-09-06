@@ -1,6 +1,11 @@
 name: yasim-badread
 channels:
-  - defaults
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
 dependencies:
   - badread=0.2.0
   - python-edlib

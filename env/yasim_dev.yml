@@ -82,6 +82,7 @@ dependencies:
   - gffcompare=0.12.6
   - fastqc=0.12.1
   - gatk4=4.3.0.0
+  - seqkit
 
   # PacBio CCS
   - pbcore=2.1.2

@@ -1,4 +1,4 @@
-name: yasim-pbsim2
+name: yasim-transabyss
 channels:
   - nodefaults
   - conda-forge
@@ -6,5 +6,8 @@ channels:
   - bioconda
   - main
   - free
+  - r
+
 dependencies:
-  - pbsim2=2.0.1
+  # Core libraries
+  - transabyss=2.0.1
