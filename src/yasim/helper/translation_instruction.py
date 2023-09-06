@@ -167,9 +167,7 @@ class TranslationInstruction(SimpleSerializable):
         self.transcripts = transcripts
 
     def to_dict(self):
-        return {
-            k: v.to_dict() for k, v in self.transcripts.items()
-        }
+        return {k: v.to_dict() for k, v in self.transcripts.items()}
 
     def to_fasta(self, dst_fasta_path: str):
         with FastaWriter(dst_fasta_path) as faw:

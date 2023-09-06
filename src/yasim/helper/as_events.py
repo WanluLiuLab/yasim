@@ -324,7 +324,7 @@ class ASManipulator:
             len(gene_ids_to_del),
             self._gv.number_of_transcripts,
             self._n_new_isoforms,
-            self._n_removed_isoforms
+            self._n_removed_isoforms,
         )
 
     def to_file(self, dst_gtf_file_path: str) -> None:
