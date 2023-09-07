@@ -1,0 +1,20 @@
+# No longer updated
+
+name: yasim-codan
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - r
+
+dependencies:
+  # Core libraries
+  - python=3.7
+  - biopython
+  - perl
+  - perl-bioperl
+  - perl-mce
+  - blast

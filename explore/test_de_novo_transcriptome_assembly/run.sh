@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ue
-mkdir -p logs assmb ref sim docs aln assmb_final
+mkdir -p logs ref sim docs assmb_final
 singularity run ../../singularity/trinity.sif Trinity --help >docs/trinity.help.txt
 singularity run ../../singularity/trinity.sif Trinity --show_full_usage_info >docs/trinity.help_full.txt
 
@@ -38,23 +38,33 @@ sbatch <run_aln_build_index_slrum.sh
 
 cd sim
 python -m yasim generate_gene_te_fusion \
-    -g ce11.ncbiRefSeq.gtf \
-    -f ce11.fa \
+    -g ../ref/ce11.ncbiRefSeq.gtf \
+    -f ../ref/ce11.fa \
     --tedb ../ref/teidx.pkl.xz \
     -o ce11_denovo_test \
-    -d 100
+    -d 150 \
+    -n 10000
+samtools faidx ce11_denovo_test.fa
 python -m labw_utils.bioutils split_fasta ce11_denovo_test.fa
 cd ..
+python plot_n_frags.py
+
 sbatch <run_art_slrum.sh
 sbatch <run_pbsim_slrum.sh
+
 seqkit fq2fa sim/ce11_denovo_test_pbsim.fq >sim/ce11_denovo_test_pbsim.fa
 
+# Running Aligner
+rm -fr aln; mkdir -p aln
 sbatch <run_sim_aln_slrum.sh
+
 # Running Assembler
+rm -fr assmb; mkdir -p assmb
 sbatch <run_trinity_slrum.sh
 sbatch <run_transabyss_slrum.sh
 sbatch <run_rnaspades_slrum.sh
 
+rm -fr assmb_final; mkdir -p assmb_final
 for fn in \
     assmb/rnaspades_*/transcripts.fasta \
     assmb/trinity_*.Trinity.fasta \
@@ -65,4 +75,12 @@ for fn in \
 done
 
 sbatch <run_transrate_slrum.sh
-sbatch <run_detonate_slrum.sh
+# sbatch <run_detonate_slrum.sh
+python plot_transrate.py
+
+# Run RepeatMasker
+python prepare_for_rmsk.py sim/ce11_denovo_test_pbsim
+python prepare_for_rmsk.py sim/ce11_denovo_test
+sbatch <run_sim_rmsk_slrum.sh
+python rmsk_cmp.py
+python plot_rmsk.py

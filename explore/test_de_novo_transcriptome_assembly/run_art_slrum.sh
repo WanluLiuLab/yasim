@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=run_dwgsim
+#SBATCH --job-name=run_art
 #SBATCH --partition=cpu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20

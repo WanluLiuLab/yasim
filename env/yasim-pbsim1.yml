@@ -1,3 +1,4 @@
+# No longer used -- merged into main YASIM environment
 name: yasim-pbsim1
 channels:
   - nodefaults

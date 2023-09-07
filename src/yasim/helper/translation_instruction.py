@@ -11,7 +11,7 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.lwio.safe_io import get_writer
+from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
 
 from labw_utils.typing_importer import Tuple, List, Union, Mapping, Any, Dict, Optional
 from yasim.helper import depth_io, depth
@@ -124,7 +124,7 @@ class SimpleTranscript(SimpleSerializable):
             l=[
                 SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v) for v in d["l"].values()
             ],
-            depth=d["depth"],
+            depth=d["d"],
         )
 
     @property
@@ -186,6 +186,11 @@ class TranslationInstruction(SimpleSerializable):
     def from_dict(cls, d: Dict[str, Any]):
         return cls({k: SimpleTranscript.from_dict(v) for k, v in d.items()})
 
+    @classmethod
+    def from_json(cls, src_json_file_path: str):
+        with get_reader(src_json_file_path, is_binary=False) as r:
+            return cls.from_dict(json.load(r))
+
     @property
     def seq(self) -> str:
         raise ValueError
@@ -198,13 +203,15 @@ class TranslationInstruction(SimpleSerializable):
         tedb: TransposonDatabase,
         gt: GeneTreeInterface,
         fav: FastaViewType,
-        mu: float,
+        mu: float = depth.DEFAULT_MU,
         weight_transcript: float = DEFAULT_WEIGHT_TRANSCRIPT,
         weight_transposon: float = DEFAULT_WEIGHT_TE,
         weight_stop: float = DEFAULT_WEIGHT_STOP,
         minimal_seq_len: int = DEFAULT_MINIMAL_SEQ_LEN,
         minimal_transposon_len: int = DEFAULT_MINIMAL_TRANSPOSON_LEN,
         minimal_transcript_len: int = DEFAULT_MINIMAL_TRANSCRIPT_LEN,
+        high_cutoff_ratio: float = depth.DEFAULT_HIGH_CUTOFF_RATIO,
+        low_cutoff: float = depth.DEFAULT_LOW_CUTOFF
     ):
         """
 
@@ -246,6 +253,11 @@ class TranslationInstruction(SimpleSerializable):
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
             final_simple_transcripts["chimeric_transcript-" + str(uuid.uuid4())] = new_transcript
-        for k, v in depth.simulate_depth_gmm_v2(final_simple_transcripts.keys(), mu=mu).items():
+        for k, v in depth.simulate_gene_level_depth_gmm(
+            gene_names=final_simple_transcripts.keys(),
+            mu=mu,
+            low_cutoff=low_cutoff,
+            high_cutoff_ratio=high_cutoff_ratio
+        ).items():
             final_simple_transcripts[k].depth = v
         return cls(final_simple_transcripts)

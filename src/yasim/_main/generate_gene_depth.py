@@ -42,7 +42,7 @@ def create_parser() -> argparse.ArgumentParser:
         nargs="?",
         type=float,
         action="store",
-        default=100,
+        default=depth.DEFAULT_MU,
     )
     parser = patch_frontend_argument_parser(parser, "--low_cutoff")
     parser = patch_frontend_argument_parser(parser, "--high_cutoff_ratio")

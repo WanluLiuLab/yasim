@@ -56,7 +56,7 @@ def create_parser() -> argparse.ArgumentParser:
         nargs="?",
         type=int,
         action="store",
-        default=4,
+        default=depth.DEFAULT_ALPHA,
     )
     return parser
 

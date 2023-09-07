@@ -8,6 +8,8 @@ __all__ = ("patch_frontend_argument_parser",)
 
 import argparse
 
+from yasim.helper import depth
+
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs, FrontendOptSpec
 
 FrontendOptSpecs.add(
@@ -41,7 +43,7 @@ FrontendOptSpecs.add(
         nargs="?",
         type=float,
         action="store",
-        default=0.01,
+        default=depth.DEFAULT_LOW_CUTOFF,
     )
 )
 FrontendOptSpecs.add(
@@ -52,7 +54,7 @@ FrontendOptSpecs.add(
         nargs="?",
         type=float,
         action="store",
-        default=200,
+        default=depth.DEFAULT_HIGH_CUTOFF_RATIO,
     )
 )
 FrontendOptSpecs.add(

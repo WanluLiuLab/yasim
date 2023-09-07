@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=run_transrate
+#SBATCH --job-name=run_detonate
 #SBATCH --partition=cpu
 #SBATCH --nodes=1
 #SBATCH --mem=10GB
@@ -7,6 +7,9 @@
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --time=20:00:00
+
+echo "No longer used."
+exit 1
 
 eval "$("${HOME}"/conda/condabin/conda shell.bash hook)"
 conda activate yasim-detonate

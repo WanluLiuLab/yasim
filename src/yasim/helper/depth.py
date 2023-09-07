@@ -30,6 +30,11 @@ from yasim.helper.gmm import GaussianMixture1D
 _lh = get_logger(__name__)
 
 
+DEFAULT_MU = 100
+DEFAULT_LOW_CUTOFF=0.01
+DEFAULT_HIGH_CUTOFF_RATIO = 200
+DEFAULT_ALPHA = 4
+
 class GenerationFailureException(RuntimeError):
     """
     Raised while generation of data was failed
@@ -42,9 +47,9 @@ class GenerationFailureException(RuntimeError):
 
 def simulate_gene_level_depth_gmm(
     gene_names: Sequence[str],
-    mu: float,
-    low_cutoff: float,
-    high_cutoff_ratio: float,
+    mu: float = DEFAULT_MU,
+    low_cutoff: float = DEFAULT_LOW_CUTOFF,
+    high_cutoff_ratio: float = DEFAULT_HIGH_CUTOFF_RATIO,
 ) -> DepthType:
     """
     Simulate DGE using Gaussian mixture model. Used in YASIM 3.0
@@ -109,10 +114,10 @@ def simulate_gene_level_depth_gmm(
 
 def simulate_isoform_variance_inside_a_gene(
     n: int,
-    mu: float,
-    alpha: int,
-    low_cutoff: float,
-    high_cutoff_ratio: float,
+    mu: float = DEFAULT_MU,
+    alpha: int = DEFAULT_ALPHA,
+    low_cutoff: float = DEFAULT_LOW_CUTOFF,
+    high_cutoff_ratio: float = DEFAULT_MU,
 ) -> List[float]:
     """
     Generate isoform variance inside a gene using Zipf's Distribution
@@ -147,7 +152,10 @@ def simulate_isoform_variance_inside_a_gene(
     return data
 
 
-def simulate_depth_gmm_v2(isoform_names: Sequence[str], mu: float) -> DepthType:
+def simulate_depth_gmm_v2(
+        isoform_names: Sequence[str],
+        mu: float=DEFAULT_MU
+    ) -> DepthType:
     """
     Simulate Isoform-level GEP using Gaussian mixture model using version 2 algorithm.
 
