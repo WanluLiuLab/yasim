@@ -21,9 +21,9 @@ dependencies:
   - tqdm>=4.64
   - matplotlib>=3.6
   - pyarrow
+  - h5py
 
   # Used in building docs
-  - tomli
   - seaborn>=0.12
 
   # Development Utilities
@@ -35,6 +35,7 @@ dependencies:
   - grep
   - axel
   - pigz
+  - go-shfmt
 
   # Sphinx documentation
   - sphinx=5.3
@@ -45,7 +46,6 @@ dependencies:
   - jupytext
   - sphinx-design=0.3.0
   - furo=2023.3.27
-  - bash_kernel
 
   # R
   - bioconductor-deseq2=1.38.0
@@ -76,15 +76,23 @@ dependencies:
   # LLRGs
   - dwgsim=1.1.13
   - art=2016.06.05
+  - badread=0.2.0
+  - python-edlib=1.3.9
+  - pbsim=1.0.3
 
   # Utils
   - samtools=1.16.1
   - gffcompare=0.12.6
   - fastqc=0.12.1
   - gatk4=4.3.0.0
+  - seqkit
 
-  # scTCR benchmark
-  - trust4=1.0.8
+  # RMSK essentials
+  - perl>=5.8.0
+  - trf=4.09
+  - hmmer=3.2.1
+  - rmblast>=2.13.0
+  - plass=4.687d7
 
   # PacBio CCS
   - pbcore=2.1.2
@@ -101,5 +109,7 @@ dependencies:
   - build
   - twine
   - mypy
+  - black
+  - line_profiler
   - pip:
     - pytype

@@ -1,5 +1,10 @@
 name: yasim-pbsim2
 channels:
-  - defaults
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
 dependencies:
   - pbsim2=2.0.1

@@ -2,7 +2,7 @@ import statistics
 
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     retd = {"I": [], "D": [], "M": [], "S": []}
     with get_tqdm_line_reader("pbsim.log") as reader:
         for line in reader:

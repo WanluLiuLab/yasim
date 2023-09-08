@@ -4,3 +4,6 @@
 
 PYTHONPATH="$(pwd):$(pwd)/src:$(pwd)/deps/labw_utils/src:${PYTHONPATH:-}"
 export PYTHONPATH
+
+PATH="$(pwd)/singularity/pbsim_builder:${PATH:-}"
+export PATH

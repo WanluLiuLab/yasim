@@ -4,9 +4,7 @@ dwgsim.py -- Wrapper of DWGSIM.
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "DwgsimAdapter",
-)
+__all__ = ("DwgsimAdapter",)
 
 import argparse
 import os
@@ -30,9 +28,10 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
             self._src_fasta_file_path,
             self._tmp_dir
         ]
-    
+
     .. versionadded:: 3.1.5
     """
+
     llrg_name: Final[str] = "dwgsim"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
@@ -42,15 +41,15 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
         return {}
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: Union[int, float],
-            llrg_executable_path: str,
-            is_trusted: bool,
-            preserve_intermediate_files: bool,
-            other_args: List[str],
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: Union[int, float],
+        llrg_executable_path: str,
+        is_trusted: bool,
+        preserve_intermediate_files: bool,
+        other_args: List[str],
     ):
         """
         Initializer.
@@ -69,14 +68,15 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
             depth=depth,
             is_trusted=is_trusted,
             llrg_executable_path=llrg_executable_path,
-            preserve_intermediate_files=preserve_intermediate_files
+            preserve_intermediate_files=preserve_intermediate_files,
         )
         self._cmd = [
             llrg_executable_path,
-            "-C", str(self._depth),
+            "-C",
+            str(self._depth),
             *other_args,
             self._src_fasta_file_path,
-            os.path.join(self._tmp_dir, "tmp")
+            os.path.join(self._tmp_dir, "tmp"),
         ]
 
     def _pre_execution_hook(self) -> None:
@@ -84,24 +84,13 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
         pass
 
     def _post_execution_hook(self):
-        try_read1_suffix = (
-            ".bwa.read1.fastq.gz",
-            ".bwa.read1.fastq",
-            ".bwa.read1.fq.gz",
-            ".bwa.read1.fq"
-        )
-        try_read2_suffix = (
-            ".bwa.read2.fastq.gz",
-            ".bwa.read2.fastq",
-            ".bwa.read2.fq.gz",
-            ".bwa.read2.fq"
-        )
+        try_read1_suffix = (".bwa.read1.fastq.gz", ".bwa.read1.fastq", ".bwa.read1.fq.gz", ".bwa.read1.fq")
+        try_read2_suffix = (".bwa.read2.fastq.gz", ".bwa.read2.fastq", ".bwa.read2.fq.gz", ".bwa.read2.fq")
         for suffix_r1, suffix_r2 in zip(try_read1_suffix, try_read2_suffix):
             r1_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r1)
             r2_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r2)
 
-            if not file_system.file_exists(r1_file_path) or \
-                    not file_system.file_exists(r2_file_path):
+            if not file_system.file_exists(r1_file_path) or not file_system.file_exists(r2_file_path):
                 continue
             autocopy(r1_file_path, self._dst_fastq_file_prefix + "_1.fq")
             autocopy(r2_file_path, self._dst_fastq_file_prefix + "_2.fq")
@@ -114,9 +103,7 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
         return True
 
 
-def patch_frontend_parser(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser with DWGSIM arguments.
 

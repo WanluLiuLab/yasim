@@ -4,11 +4,7 @@ pbsim.py -- Wrapper of PBSIM.
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "PbsimAdapter",
-    "PBSIM_DIST_DIR_PATH",
-    "patch_frontend_parser"
-)
+__all__ = ("PbsimAdapter", "PBSIM_DIST_DIR_PATH", "patch_frontend_parser")
 
 import argparse
 import glob
@@ -52,9 +48,10 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
                 *other_args,
                 self._src_fasta_file_path
             ]
-        
+
     .. versionadded:: 3.1.5
     """
+
     llrg_name: Final[str] = "pbsim"
     _require_integer_depth: Final[bool] = False
     _capture_stdout: Final[bool] = False
@@ -64,16 +61,16 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
         return {}
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: int,
-            llrg_executable_path: str,
-            is_trusted: bool,
-            is_ccs: bool,
-            preserve_intermediate_files: bool,
-            other_args: List[str]
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: int,
+        llrg_executable_path: str,
+        is_trusted: bool,
+        is_ccs: bool,
+        preserve_intermediate_files: bool,
+        other_args: List[str],
     ):
         """
         Initializer.
@@ -93,28 +90,35 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
             depth=depth,
             llrg_executable_path=llrg_executable_path,
             is_trusted=is_trusted,
-            preserve_intermediate_files=preserve_intermediate_files
+            preserve_intermediate_files=preserve_intermediate_files,
         )
 
         cmd = [
             llrg_executable_path,
-            "--prefix", os.path.join(self._tmp_dir, "tmp"),
-            "--depth", str(self._depth),
+            "--prefix",
+            os.path.join(self._tmp_dir, "tmp"),
+            "--depth",
+            str(self._depth),
         ]
         if is_ccs:
-            cmd.extend([
-                "--data-type", "CCS",
-                "--model_qc", os.path.join(PBSIM_DIST_DIR_PATH, "model_qc_ccs"),
-            ])
+            cmd.extend(
+                [
+                    "--data-type",
+                    "CCS",
+                    "--model_qc",
+                    os.path.join(PBSIM_DIST_DIR_PATH, "model_qc_ccs"),
+                ]
+            )
         else:
-            cmd.extend([
-                "--data-type", "CLR",
-                "--model_qc", os.path.join(PBSIM_DIST_DIR_PATH, "model_qc_clr"),
-            ])
-        cmd.extend([
-            *other_args,
-            self._src_fasta_file_path
-        ])
+            cmd.extend(
+                [
+                    "--data-type",
+                    "CLR",
+                    "--model_qc",
+                    os.path.join(PBSIM_DIST_DIR_PATH, "model_qc_clr"),
+                ]
+            )
+        cmd.extend([*other_args, self._src_fasta_file_path])
         self._cmd = cmd
 
     def _pre_execution_hook(self) -> None:
@@ -129,14 +133,12 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
         return False
 
 
-def patch_frontend_parser(
-        parser: argparse.ArgumentParser
-) -> argparse.ArgumentParser:
+def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     """
     Patch argument parser with pbsim arguments.
 
     .. versionadded:: 3.1.5
     """
-    parser.add_argument('-c', '--ccs', required=False, help="Simulate CCS instead of CLR", action='store_true')
+    parser.add_argument("-c", "--ccs", required=False, help="Simulate CCS instead of CLR", action="store_true")
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

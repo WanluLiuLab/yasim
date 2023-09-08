@@ -90,23 +90,27 @@ def mll2bic(mll: float, n_params: int, n_data: int) -> float:
 
 def _main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--depth", required=False,
-                        help="Path to training dataset. If not specified, uses a random negative binomial model")
-    parser.add_argument("-e", "--numEpochs", type=int,
-                        required=False, default=100,
-                        help="Number of training epochs (default 100)")
-    parser.add_argument("-c", "--columnNo", type=int,
-                        required=False, default=-1,
-                        help="0-based index of column of expression level")
-    parser.add_argument("--dataDisplayCutoff", type=int,
-                        required=False, default=None,
-                        help="Upper cut-off of data (default none)")
-    parser.add_argument("--header", type=int,
-                        required=False, default=None,
-                        help="Header specification (default auto-infer)")
-    parser.add_argument("--transform", required=False,
-                        choices=('log',),
-                        help="Transformation to the data (default identity)")
+    parser.add_argument(
+        "-d",
+        "--depth",
+        required=False,
+        help="Path to training dataset. If not specified, uses a random negative binomial model",
+    )
+    parser.add_argument(
+        "-e", "--numEpochs", type=int, required=False, default=100, help="Number of training epochs (default 100)"
+    )
+    parser.add_argument(
+        "-c", "--columnNo", type=int, required=False, default=-1, help="0-based index of column of expression level"
+    )
+    parser.add_argument(
+        "--dataDisplayCutoff", type=int, required=False, default=None, help="Upper cut-off of data (default none)"
+    )
+    parser.add_argument(
+        "--header", type=int, required=False, default=None, help="Header specification (default auto-infer)"
+    )
+    parser.add_argument(
+        "--transform", required=False, choices=("log",), help="Transformation to the data (default identity)"
+    )
 
     args = parser.parse_args()
 
@@ -123,7 +127,7 @@ def _main() -> None:
     if args.dataDisplayCutoff is None:
         args.dataDisplayCutoff = np.max(data)
     if args.transform:
-        if args.transform == 'log':
+        if args.transform == "log":
             data = np.log(data + 1)
             args.dataDisplayCutoff = int(np.log(args.dataDisplayCutoff + 1))
         else:
@@ -131,7 +135,8 @@ def _main() -> None:
 
     mll, n, p = nbinom_mle(data, args.numEpochs)
     print(
-        f"Fitted to nbinom(n={n}, p={p}) with LL={mll}, AICc={mll2aic(mll, 2, len(data))}, BIC={mll2bic(mll, 2, len(data))}")
+        f"Fitted to nbinom(n={n}, p={p}) with LL={mll}, AICc={mll2aic(mll, 2, len(data))}, BIC={mll2bic(mll, 2, len(data))}"
+    )
 
     model = scipy.stats.nbinom(n, p)
     print(f"MEAN={model.mean()}")

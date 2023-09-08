@@ -1,0 +1,13 @@
+name: yasim-transabyss
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - r
+
+dependencies:
+  # Core libraries
+  - transabyss=2.0.1

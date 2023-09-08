@@ -1,0 +1,19 @@
+# No longer maintained
+name: yasim-detonate
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - r
+
+dependencies:
+  # Core libraries
+  - detonate=1.11
+  - rsem=1.2.28
+  - blat=36
+  - bowtie=1.2.3
+  - bowtie2=2.3.5.1
+  - pblat=2.5

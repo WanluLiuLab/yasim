@@ -12,7 +12,6 @@ from labw_utils.mlutils.ndarray_helper import describe
 from labw_utils.typing_importer import Optional, Any
 
 try:
-
     import matplotlib
     from matplotlib import pyplot as plt
 except ImportError as e:
@@ -35,7 +34,7 @@ def plot(data: npt.NDArray, model: Optional[Any] = None, title: str = ""):
     """
 
     def normalize(_simulated_data: npt.NDArray) -> npt.NDArray:
-        return _simulated_data[_simulated_data >= 0][:len(data)]
+        return _simulated_data[_simulated_data >= 0][: len(data)]
 
     data = np.array(data)
     n_bins = np.arange(0, 10, 0.1)

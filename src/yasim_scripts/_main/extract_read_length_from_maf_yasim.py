@@ -11,9 +11,7 @@ Arguments:
 
 .. versionadded:: 3.1.5
 """
-__all__ = (
-    "main",
-)
+__all__ = ("main",)
 
 from labw_utils.typing_importer import List
 
@@ -27,8 +25,4 @@ def main(args: List[str]):
             aligned_transcript_id = maf_record[0]
             simulated_transcript_id = maf_record[1].split(":")[0]
             read_length = len(maf_record[3].replace("-", ""))
-            print("\t".join((
-                aligned_transcript_id,
-                simulated_transcript_id,
-                str(read_length)
-            )))
+            print("\t".join((aligned_transcript_id, simulated_transcript_id, str(read_length))))

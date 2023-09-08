@@ -9,14 +9,17 @@ channels:
 
 dependencies:
   # Core libraries in labw_utils
-  - python>=3.8
-  - tk
+  - python=3.8
   - scipy>=1.7
   - pandas>=1.4 # Supported: 1.5.X, 2.0.X
   - numpy>=1.24
   - pysam>=0.20
   - joblib=>1.2
+  - jinja2>=3.1.2
   - tqdm>=4.64
+  - matplotlib>=3.6
+  - pyarrow
+  - h5py
 
   # LLRGs
   - dwgsim=1.1.13
@@ -24,3 +27,9 @@ dependencies:
   - pbsim=1.0.3
   - samtools=1.16.1
   - pbccs=6.0.0
+  - badread=0.2.0
+  - python-edlib
+
+  # Maintenance
+  - setuptools
+  - pip

@@ -12,9 +12,7 @@ Arguments:
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "main",
-)
+__all__ = ("main",)
 
 from labw_utils.typing_importer import List
 

@@ -6,12 +6,7 @@ Here contains Datastructure and I/O utilities for Gene Expression Profile (GEP).
 .. versionadded:: 3.1.5
 """
 
-__all__ = (
-    "DepthType",
-    "write_depth",
-    "read_depth",
-    "DepthParsingException"
-)
+__all__ = ("DepthType", "write_depth", "read_depth", "DepthParsingException")
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
@@ -31,10 +26,10 @@ class DepthParsingException(RuntimeError):
 
 
 def write_depth(
-        depth_data: DepthType,
-        dst_depth_file_path: str,
-        feature_name: Literal["GENE_ID", "TRANSCRIPT_ID"],
-        show_tqdm: bool = True
+    depth_data: DepthType,
+    dst_depth_file_path: str,
+    feature_name: Literal["GENE_ID", "TRANSCRIPT_ID"],
+    show_tqdm: bool = True,
 ):
     """
     Write Depth information to file
@@ -55,10 +50,7 @@ def write_depth(
             writer.write(f"{transcript_id}\t{d}\n")
 
 
-def read_depth(
-        src_depth_file_path: str,
-        show_tqdm: bool = True
-) -> DepthType:
+def read_depth(src_depth_file_path: str, show_tqdm: bool = True) -> DepthType:
     """
     Read depth information from a file.
 

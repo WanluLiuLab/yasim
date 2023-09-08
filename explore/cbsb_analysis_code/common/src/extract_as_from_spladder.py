@@ -16,7 +16,4 @@ if __name__ == "__main__":
             gffi = Gff3Iterator(data_filename)
             for record in gffi:
                 if record.feature == "gene":
-                    writer.write("\t".join((
-                        record.attribute['GeneName'],
-                        record.source
-                    )) + "\n")
+                    writer.write("\t".join((record.attribute["GeneName"], record.source)) + "\n")

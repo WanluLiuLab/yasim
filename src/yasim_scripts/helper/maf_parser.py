@@ -3,11 +3,7 @@ maf_parser.py -- Parser for LAST aligned/PBSIM MAF.
 
 .. versionadded:: 3.1.5
 """
-__all__ = (
-    "MAF_RECORD_REGEX",
-    "MafRecordType",
-    "maf_parse"
-)
+__all__ = ("MAF_RECORD_REGEX", "MafRecordType", "maf_parse")
 
 import re
 
@@ -33,10 +29,7 @@ Regex to MAF record
 _lh = get_logger(__name__)
 
 
-def maf_parse(
-        maf_path: str,
-        show_tqdm: bool = True
-) -> Iterable[MafRecordType]:
+def maf_parse(maf_path: str, show_tqdm: bool = True) -> Iterable[MafRecordType]:
     """
     Parse MAF into iterable of ``MafRecordType``.
 
@@ -70,6 +63,4 @@ def maf_parse(
             g2 = lm2.groups()
             yield g1[0], g2[0], g1[5], g2[5]
             num_record += 1
-    _lh.debug(
-        "Finished with %d errors and %d records", num_error, num_record
-    )
+    _lh.debug("Finished with %d errors and %d records", num_error, num_record)

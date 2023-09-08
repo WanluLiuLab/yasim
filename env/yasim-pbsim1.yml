@@ -1,5 +1,11 @@
+# No longer used -- merged into main YASIM environment
 name: yasim-pbsim1
 channels:
-  - defaults
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
 dependencies:
   - pbsim=1.0.3

@@ -18,7 +18,7 @@ __all__ = (
     "LLRGException",
     "autocopy",
     "automerge",
-    "enhanced_copyfileobj"
+    "enhanced_copyfileobj",
 )
 
 import logging
@@ -34,7 +34,7 @@ from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c, rm_rf
 from labw_utils.typing_importer import Union, List, IO, Optional, Iterable, Mapping, Any
 from yasim.helper.llrg import enhanced_which
 
-COPY_BUFSIZE = 1024 * 1024 if os.name == 'nt' else 64 * 1024
+COPY_BUFSIZE = 1024 * 1024 if os.name == "nt" else 64 * 1024
 """
 Copy buffer size from :py:mod:`shutil`.
 
@@ -45,7 +45,7 @@ Copy buffer size from :py:mod:`shutil`.
 class LLRGException(RuntimeError):
     """
     Some error raised due to (improperly configured) LLRG
-    
+
     .. versionadded:: 3.1.5
     """
 
@@ -68,36 +68,40 @@ class LLRGException(RuntimeError):
 class NoOutputFileException(LLRGException):
     """
     Error raised if no output file was found even when LLRG exited normally.
-    
+
     .. versionadded:: 3.1.5
     """
+
     ...
 
 
 class EmptyOutputFileException(LLRGException):
     """
     Error raised if empty output file was found even when LLRG exited normally.
-    
+
     .. versionadded:: 3.1.5
     """
+
     ...
 
 
 class LLRGFailException(LLRGException):
     """
     Error raised LLRG exited abnormally.
-    
+
     .. versionadded:: 3.1.5
     """
+
     ...
 
 
 class LLRGInitializationException(LLRGException):
     """
     Error raised in initialization or pre-execution stage.
-    
+
     .. versionadded:: 3.1.5
     """
+
     ...
 
 
@@ -128,8 +132,7 @@ def autocopy(in_fn: str, out_fn: str) -> None:
     .. versionadded:: 3.1.5
     """
     try:
-        with get_reader(in_fn, is_binary=True) as r1, \
-                get_writer(out_fn, is_binary=True) as w1:
+        with get_reader(in_fn, is_binary=True) as r1, get_writer(out_fn, is_binary=True) as w1:
             c_len = enhanced_copyfileobj(r1, w1)
     except FileNotFoundError as e:
         raise NoOutputFileException(f"Copy file {in_fn} not found!") from e
@@ -212,11 +215,7 @@ class BaseLLRGAdapter(threading.Thread):
     """Class attribute, indicating whether the depth should be converted to integer. Should be Final."""
 
     @staticmethod
-    def validate_base_params(
-            depth: Union[int, float],
-            src_fasta_file_path: str,
-            **kwargs
-    ) -> Mapping[str, Any]:
+    def validate_base_params(depth: Union[int, float], src_fasta_file_path: str, **kwargs) -> Mapping[str, Any]:
         _ = kwargs
         if depth <= 0:
             raise LLRGInitializationException(f"Depth {depth} too low")
@@ -230,14 +229,14 @@ class BaseLLRGAdapter(threading.Thread):
         raise NotImplementedError
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: Union[int, float],
-            is_trusted: bool,
-            preserve_intermediate_files: Optional[bool],
-            **kwargs
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: Union[int, float],
+        is_trusted: bool,
+        preserve_intermediate_files: Optional[bool],
+        **kwargs,
     ):
         """
         Initializer.
@@ -261,10 +260,7 @@ class BaseLLRGAdapter(threading.Thread):
             raise TypeError
 
         if not is_trusted:
-            BaseLLRGAdapter.validate_base_params(
-                src_fasta_file_path=src_fasta_file_path,
-                depth=depth
-            )
+            BaseLLRGAdapter.validate_base_params(src_fasta_file_path=src_fasta_file_path, depth=depth)
         self._src_fasta_file_path = src_fasta_file_path
         self._dst_fastq_file_prefix = os.path.abspath(dst_fastq_file_prefix)
         self._depth = int(depth) if self._require_integer_depth else depth
@@ -428,10 +424,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
     """Whether this simulator pours data into stdout. Should be Final."""
 
     @staticmethod
-    def validate_process_based_params(
-            llrg_executable_path: str,
-            **kwargs
-    ) -> Mapping[str, Any]:
+    def validate_process_based_params(llrg_executable_path: str, **kwargs) -> Mapping[str, Any]:
         _ = kwargs
         try:
             llrg_executable_path = enhanced_which(llrg_executable_path)
@@ -442,15 +435,15 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         return {"llrg_executable_path": llrg_executable_path}
 
     def __init__(
-            self,
-            *,
-            src_fasta_file_path: str,
-            dst_fastq_file_prefix: str,
-            depth: Union[int, float],
-            llrg_executable_path: str,
-            is_trusted: bool,
-            preserve_intermediate_files: Optional[bool],
-            **kwargs
+        self,
+        *,
+        src_fasta_file_path: str,
+        dst_fastq_file_prefix: str,
+        depth: Union[int, float],
+        llrg_executable_path: str,
+        is_trusted: bool,
+        preserve_intermediate_files: Optional[bool],
+        **kwargs,
     ):
         """
         Initializer.
@@ -471,7 +464,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
             depth=depth,
             is_trusted=is_trusted,
             preserve_intermediate_files=preserve_intermediate_files,
-            **kwargs
+            **kwargs,
         )
 
         if not is_trusted:
@@ -494,33 +487,24 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         subprocess_log_file_path = os.path.join(self._tmp_dir, "llrg.log")
         dst_fastq_file_path = self._dst_fastq_file_prefix + ".fq"
         if self._capture_stdout:
-            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler, \
-                    get_writer(dst_fastq_file_path, is_binary=True) as stdout_handler:
+            with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler, get_writer(
+                dst_fastq_file_path, is_binary=True
+            ) as stdout_handler:
                 retv = self._exec_subprocess(
-                    self._cmd,
-                    stdin=subprocess.DEVNULL,
-                    stdout=stdout_handler,
-                    stderr=subprocess_log_handler
+                    self._cmd, stdin=subprocess.DEVNULL, stdout=stdout_handler, stderr=subprocess_log_handler
                 )
             if wc_c(dst_fastq_file_path) < 2:
                 raise EmptyOutputFileException(f"Output {dst_fastq_file_path} empty!")
         else:
             with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler:
                 retv = self._exec_subprocess(
-                    self._cmd,
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess_log_handler,
-                    stderr=subprocess_log_handler
+                    self._cmd, stdin=subprocess.DEVNULL, stdout=subprocess_log_handler, stderr=subprocess_log_handler
                 )
         if retv != 0:
             raise LLRGFailException(f"Return value LLRG ({retv}) != 0")
 
     def _exec_subprocess(
-            self,
-            cmd: List[str],
-            stdin: Union[IO, int],
-            stdout: Union[IO, int],
-            stderr: Union[IO, int]
+        self, cmd: List[str], stdin: Union[IO, int], stdout: Union[IO, int], stderr: Union[IO, int]
     ) -> int:
         """
         Wrapper of :py:class:`subprocess.Popen` with logs.
@@ -533,12 +517,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
         :return: Return value of the process.
         """
         self._lh.debug(f"LLRG: Subprocess {' '.join(cmd)} START")
-        retv = subprocess.Popen(
-            cmd,
-            stdin=stdin,
-            stdout=stdout,
-            stderr=stderr
-        ).wait()
+        retv = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, stderr=stderr).wait()
         if retv == 0:
             self._lh.debug(f"LLRG: Subprocess {' '.join(cmd)} FIN")
         else:
@@ -549,7 +528,7 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
 class BaseFunctionBasedLLRGAdapter(BaseLLRGAdapter, ABC):
     """
     LLRG adapters that executes a function.
-    
+
     .. versionadded:: 3.1.5
     """
 
@@ -573,9 +552,7 @@ class BaseFunctionBasedLLRGAdapter(BaseLLRGAdapter, ABC):
             dst_fastq_file_path2 = self._dst_fastq_file_prefix + ".fq"
             self.llrg_func()
             if wc_c(dst_fastq_file_path1) + wc_c(dst_fastq_file_path2) < 2:
-                raise EmptyOutputFileException(
-                    f"Output {dst_fastq_file_path1} & {dst_fastq_file_path2} empty!"
-                )
+                raise EmptyOutputFileException(f"Output {dst_fastq_file_path1} & {dst_fastq_file_path2} empty!")
         else:
             dst_fastq_file_path = self._dst_fastq_file_prefix + ".fq"
             self.llrg_func()

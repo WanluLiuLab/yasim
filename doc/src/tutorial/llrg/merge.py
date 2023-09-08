@@ -12,22 +12,13 @@ from typing import List
 from labw_utils.commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
 
 
-def merge(
-        _d1_path: str,
-        _d2_path: str,
-        _o_path: str,
-        _fns: List[str]
-):
-    if subprocess.Popen(
-            [
-                "pbmerge",
-                "-o", _o_path,
-                _d1_path,
-                _d2_path
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-    ).wait() == 0:
+def merge(_d1_path: str, _d2_path: str, _o_path: str, _fns: List[str]):
+    if (
+        subprocess.Popen(
+            ["pbmerge", "-o", _o_path, _d1_path, _d2_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        ).wait()
+        == 0
+    ):
         _fns.append(_o_path)
     else:
         print(f"MERGE {_d1_path} and {_d2_path} have errors; discarded")

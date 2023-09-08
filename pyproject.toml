@@ -52,6 +52,7 @@ dependencies = { file = "requirements.txt" }
 
 [tool.setuptools.dynamic.optional-dependencies]
 pbsim3 =  { file = "requirements_pbsim3.txt" }
+te =  { file = "requirements_te.txt" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

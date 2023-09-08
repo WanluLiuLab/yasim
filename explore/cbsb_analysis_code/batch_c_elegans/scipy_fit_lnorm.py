@@ -20,8 +20,8 @@ while len(count_new) < len(count_extracted):
         count_new.append(n)
 
 fig, ax = plt.subplots(1, 1)
-ax.hist(count_new, bins=25, density=True, histtype='stepfilled', alpha=0.2)
-ax.hist(count_extracted, bins=25, density=True, histtype='stepfilled', alpha=0.2)
-plt.yscale('log')
+ax.hist(count_new, bins=25, density=True, histtype="stepfilled", alpha=0.2)
+ax.hist(count_extracted, bins=25, density=True, histtype="stepfilled", alpha=0.2)
+plt.yscale("log")
 plt.show()
 print((f, loc, scale))
