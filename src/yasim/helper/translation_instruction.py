@@ -211,7 +211,7 @@ class TranslationInstruction(SimpleSerializable):
         minimal_transposon_len: int = DEFAULT_MINIMAL_TRANSPOSON_LEN,
         minimal_transcript_len: int = DEFAULT_MINIMAL_TRANSCRIPT_LEN,
         high_cutoff_ratio: float = depth.DEFAULT_HIGH_CUTOFF_RATIO,
-        low_cutoff: float = depth.DEFAULT_LOW_CUTOFF
+        low_cutoff: float = depth.DEFAULT_LOW_CUTOFF,
     ):
         """
 
@@ -257,7 +257,7 @@ class TranslationInstruction(SimpleSerializable):
             gene_names=final_simple_transcripts.keys(),
             mu=mu,
             low_cutoff=low_cutoff,
-            high_cutoff_ratio=high_cutoff_ratio
+            high_cutoff_ratio=high_cutoff_ratio,
         ).items():
             final_simple_transcripts[k].depth = v
         return cls(final_simple_transcripts)

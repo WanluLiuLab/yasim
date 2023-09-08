@@ -1917,6 +1917,7 @@
       <excludeFolder url="file://$MODULE_DIR$/test/chrI.trans.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/chrM.STAR.ref.d" />
       <excludeFolder url="file://$MODULE_DIR$/test/chrM.trans.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/tmp" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

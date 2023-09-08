@@ -7,9 +7,7 @@
 ('443', 'Motif:', 'MIR1_Amn', '27', '207')
 """
 
-__all__ = (
-    "parse_record"
-)
+__all__ = "parse_record"
 
 import re
 
@@ -21,6 +19,7 @@ from labw_utils.typing_importer import List, Optional, Iterable, Iterator
 
 class GFFParsingError(ValueError):
     """General GFF parsing errors."""
+
     pass
 
 
@@ -28,9 +27,9 @@ RMSK_GFF_ATTR_REGEX = re.compile(r"^ID=(\d+);Target[= ]\"?([^:]+:)?([^:\"]+)\"? 
 
 
 def parse_record(
-        in_str: str,
-        skip_fields: Optional[List[str]] = None,
-        included_attributes: Optional[List[str]] = None,
+    in_str: str,
+    skip_fields: Optional[List[str]] = None,
+    included_attributes: Optional[List[str]] = None,
 ) -> FeatureInterface:
     """
     Parse record string to :py:class:`Feature`.
@@ -43,19 +42,15 @@ def parse_record(
     """
     if skip_fields is None:
         skip_fields = []
-    line_split = in_str.rstrip('\n\r').split('\t')
+    line_split = in_str.rstrip("\n\r").split("\t")
     if len(line_split) != 9:
-        raise GFFParsingError(
-            f"Illegal GFF record '{in_str}': Should have 9 fields, here only {len(line_split)}"
-        )
+        raise GFFParsingError(f"Illegal GFF record '{in_str}': Should have 9 fields, here only {len(line_split)}")
     required_fields = line_split[0:-1]
     attribute_line = line_split[-1]
     """Sample: ID=443;Target "Motif:MIR1_Amn" 27 207"""
     lm = RMSK_GFF_ATTR_REGEX.match(attribute_line)
     if lm is None:
-        raise GFFParsingError(
-            f"Cannot parse Attribute '{attribute_line}'"
-        )
+        raise GFFParsingError(f"Cannot parse Attribute '{attribute_line}'")
     attributes = {
         "repeat_id": lm.group(1),
         "repeat_name": lm.group(3),
@@ -76,12 +71,10 @@ def parse_record(
             score=float(required_fields[5]) if required_fields[5] != "." and "score" not in skip_fields else None,
             strand=required_fields[6] == "+" if required_fields[6] != "." and "strand" not in skip_fields else None,
             frame=int(required_fields[7]) if required_fields[7] != "." and "frame" not in skip_fields else None,
-            attribute=attributes
+            attribute=attributes,
         )
     except ValueError as e:
-        raise GFFParsingError(
-            f"Illegal GFF record '{in_str}'"
-        ) from e
+        raise GFFParsingError(f"Illegal GFF record '{in_str}'") from e
 
 
 class RMSKGffIterator(BaseFileIterator, Iterable[FeatureInterface]):
@@ -90,6 +83,6 @@ class RMSKGffIterator(BaseFileIterator, Iterable[FeatureInterface]):
 
     def __iter__(self) -> Iterator[FeatureInterface]:
         for line in get_tqdm_line_reader(self.filename):
-            if line.startswith('#') or line == '':
+            if line.startswith("#") or line == "":
                 continue
             yield parse_record(line)

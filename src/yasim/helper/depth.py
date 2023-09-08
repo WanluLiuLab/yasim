@@ -31,9 +31,10 @@ _lh = get_logger(__name__)
 
 
 DEFAULT_MU = 100
-DEFAULT_LOW_CUTOFF=0.01
+DEFAULT_LOW_CUTOFF = 0.01
 DEFAULT_HIGH_CUTOFF_RATIO = 200
 DEFAULT_ALPHA = 4
+
 
 class GenerationFailureException(RuntimeError):
     """
@@ -152,10 +153,7 @@ def simulate_isoform_variance_inside_a_gene(
     return data
 
 
-def simulate_depth_gmm_v2(
-        isoform_names: Sequence[str],
-        mu: float=DEFAULT_MU
-    ) -> DepthType:
+def simulate_depth_gmm_v2(isoform_names: Sequence[str], mu: float = DEFAULT_MU) -> DepthType:
     """
     Simulate Isoform-level GEP using Gaussian mixture model using version 2 algorithm.
 

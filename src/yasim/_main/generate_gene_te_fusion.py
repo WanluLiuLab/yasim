@@ -75,7 +75,7 @@ def main(args: List[str]):
         gt=GeneTree.from_gtf_file(argv.gtf, gene_implementation=DumbGene),
         tedb=TransposonDatabase.load(argv.tedb, with_tqdm=True),
         low_cutoff=argv.low_cutoff,
-        high_cutoff_ratio=argv.high_cutoff_ratio
+        high_cutoff_ratio=argv.high_cutoff_ratio,
     )
     ti.to_fasta(argv.out + ".fa")
     ti.to_depth(argv.out + ".depth.tsv")
