@@ -17,6 +17,6 @@ rm -fr assmb_final/transrate
 
 transrate \
     --assembly="${FILES}" \
-    --reference=sim/ce11_denovo_test.fa \
+    --reference=sim/WBcel235.fa \
     --output=assmb_final/transrate \
     --threads=40

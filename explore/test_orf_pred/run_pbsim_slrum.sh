@@ -13,9 +13,9 @@ CURDIR="$(pwd)"
 cd ../../ && . bashrc && cd "${CURDIR}" || exit 1
 
 "${CONDA_PREFIX}/bin/python" -m yasim pbsim \
-    -F ref/ce11.trans.fa.d \
+    -F ref/WBcel235.trans.fa.d \
     -j 40 \
-    -d sim/ce11_denovo_test.isoform_depth.tsv \
-    -o sim/ce11_denovo_test_pbsim \
+    -d sim/WBcel235.isoform_depth.tsv \
+    -o sim/WBcel235_pbsim \
     --ccs
-rm -fr sim/ce11_denovo_test_pbsim.d
+rm -fr sim/WBcel235_pbsim.d

@@ -14,7 +14,7 @@ conda activate yasim_dev
 # genomeSAindexNbases as-is adviced by STAR
 STAR --runThreadN 40 \
     --runMode genomeGenerate \
-    --genomeDir ref/ce11_STAR_idx \
-    --genomeFastaFiles ref/ce11.fa \
-    --sjdbGTFfile ref/ce11.ncbiRefSeq.gtf \
+    --genomeDir ref/WBcel235_STAR_idx \
+    --genomeFastaFiles ref/WBcel235.genome.fa \
+    --sjdbGTFfile ref/WBcel235.gtf \
     --genomeSAindexNbases 12

@@ -15,27 +15,27 @@ conda activate yasim_dev
 
 STAR \
     --runThreadN 40 \
-    --genomeDir ref/ce11_STAR_idx \
-    --readFilesIn sim/ce11_denovo_test_art_1.fq sim/ce11_denovo_test_art_2.fq \
+    --genomeDir ref/WBcel235_STAR_idx \
+    --readFilesIn sim/WBcel235_art_1.fq sim/WBcel235_art_2.fq \
     --outSAMtype BAM Unsorted \
     --outSAMattributes All \
-    --outFileNamePrefix aln/ce11_denovo_test_art_STAR/ \
+    --outFileNamePrefix aln/WBcel235_art_STAR/ \
     --twopassMode Basic
 samtools sort \
     -@ 40 \
-    -o aln/ce11_denovo_test_art.bam \
-    aln/ce11_denovo_test_art_STAR/Aligned.out.bam
-samtools index aln/ce11_denovo_test_art.bam
+    -o aln/WBcel235_art.bam \
+    aln/WBcel235_art_STAR/Aligned.out.bam
+samtools index aln/WBcel235_art.bam
 
 minimap2 \
     -x splice \
     -a \
     -t 40 \
-    ref/ce11.fa \
-    sim/ce11_denovo_test_pbsim.fq >aln/ce11_denovo_test_pbsim.sam
+    ref/WBcel235.genome.fa \
+    sim/WBcel235_pbsim.fq >aln/WBcel235_pbsim.sam
 samtools sort \
     -@ 40 \
-    -o aln/ce11_denovo_test_pbsim.bam \
-    aln/ce11_denovo_test_pbsim.sam
-samtools index aln/ce11_denovo_test_pbsim.bam
-rm -fr aln/ce11_denovo_test_pbsim.sam
+    -o aln/WBcel235_pbsim.bam \
+    aln/WBcel235_pbsim.sam
+samtools index aln/WBcel235_pbsim.bam
+rm -fr aln/WBcel235_pbsim.sam

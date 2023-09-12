@@ -19,17 +19,20 @@ conda deactivate
 # Get Reference
 cd ref
 
-wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
-cat ce11.ncbiRefSeq.gtf.gz | pigz -d >ce11.ncbiRefSeq.gtf
+wget http://ftp.ensemblgenomes.org/pub/metazoa/release-57/fasta/caenorhabditis_elegans/pep/Caenorhabditis_elegans.WBcel235.pep.all.fa.gz -O WBcel235.pep.faa.gz
+wget http://ftp.ensemblgenomes.org/pub/metazoa/release-57/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz -O WBcel235.genome.fa.gz
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/metazoa/release-57/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.57.gtf.gz -O WBcel235.gtf.gz
+pigz -cdf - < WBcel235.pep.faa.gz > WBcel235.pep.faa
+pigz -cdf - < WBcel235.genome.fa.gz > WBcel235.genome.fa
+pigz -cdf - < WBcel235.gtf.gz > WBcel235.gtf
 
-wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz
-cat ce11.fa.gz | pigz -d >ce11.fa
-samtools faidx ce11.fa
 python -m labw_utils.bioutils transcribe \
-    -f ce11.fa \
-    -g ce11.ncbiRefSeq.gtf \
-    -o ce11.trans.fa
-samtools faidx ce11.trans.fa
+    -f WBcel235.genome.fa \
+    -g WBcel235.gtf \
+    -o WBcel235.trans.fa
+samtools faidx WBcel235.genome.fa
+samtools faidx WBcel235.pep.faa
+samtools faidx WBcel235.trans.fa
 cd ..
 sbatch <run_aln_build_index_slrum.sh
 
@@ -37,19 +40,19 @@ sbatch <run_aln_build_index_slrum.sh
 
 cd sim
 python -m yasim generate_gene_depth \
-    -g ../ref/ce11.ncbiRefSeq.gtf \
-    -o ce11_denovo_test.gene_depth.tsv \
+    -g ../ref/WBcel235.gtf \
+    -o WBcel235.gene_depth.tsv \
     -d 150
 python -m yasim generate_isoform_depth \
-    -g ../ref/ce11.ncbiRefSeq.gtf \
-    -o ce11_denovo_test.isoform_depth.tsv \
-    -d ce11_denovo_test.gene_depth.tsv
+    -g ../ref/WBcel235.gtf \
+    -o WBcel235.isoform_depth.tsv \
+    -d WBcel235.gene_depth.tsv
 cd ..
 
 sbatch <run_art_slrum.sh
 sbatch <run_pbsim_slrum.sh
 
-seqkit fq2fa sim/ce11_denovo_test_pbsim.fq >sim/ce11_denovo_test_pbsim.fa
+seqkit fq2fa sim/WBcel235_pbsim.fq >sim/WBcel235_pbsim.fa
 
 # Running Aligner
 rm -fr aln

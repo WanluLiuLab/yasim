@@ -12,8 +12,8 @@ singularity run ../../singularity/trinity.sif Trinity \
     --max_memory 100G \
     --verbose \
     --CPU 40 \
-    --left sim/ce11_denovo_test_art_1.fq \
-    --right sim/ce11_denovo_test_art_2.fq \
+    --left sim/WBcel235_art_1.fq \
+    --right sim/WBcel235_art_2.fq \
     --seqType fq \
     --output assmb/trinity_ngs_de_novo &>> \
     assmb/trinity_ngs_de_novo.log
@@ -22,9 +22,9 @@ singularity run ../../singularity/trinity.sif Trinity \
     --max_memory 100G \
     --verbose \
     --CPU 40 \
-    --left sim/ce11_denovo_test_art_1.fq \
-    --right sim/ce11_denovo_test_art_2.fq \
-    --long_reads sim/ce11_denovo_test_pbsim.fa \
+    --left sim/WBcel235_art_1.fq \
+    --right sim/WBcel235_art_2.fq \
+    --long_reads sim/WBcel235_pbsim.fa \
     --seqType fq \
     --output assmb/trinity_ngs_tgs_de_novo &>> \
     assmb/trinity_ngs_tgs_de_novo.log
@@ -33,7 +33,7 @@ singularity run ../../singularity/trinity.sif Trinity \
     --max_memory 100G \
     --verbose \
     --CPU 40 \
-    --genome_guided_bam aln/ce11_denovo_test_art.bam \
+    --genome_guided_bam aln/WBcel235_art.bam \
     --genome_guided_max_intron 10000 \
     --seqType fq \
     --output assmb/trinity_ngs_referenced &>> \
@@ -43,8 +43,8 @@ singularity run ../../singularity/trinity.sif Trinity \
     --max_memory 100G \
     --verbose \
     --CPU 40 \
-    --genome_guided_bam aln/ce11_denovo_test_art.bam \
-    --long_reads_bam aln/ce11_denovo_test_pbsim.bam \
+    --genome_guided_bam aln/WBcel235_art.bam \
+    --long_reads_bam aln/WBcel235_pbsim.bam \
     --genome_guided_max_intron 10000 \
     --seqType fq \
     --output assmb/trinity_ngs_tgs_referenced &>> \

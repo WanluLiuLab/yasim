@@ -15,21 +15,21 @@ rnaspades.py \
     --threads 40 \
     --memory 100 \
     -o assmb/rnaspades_ngs_de_novo \
-    -1 sim/ce11_denovo_test_art_1.fq \
-    -2 sim/ce11_denovo_test_art_2.fq &>> \
+    -1 sim/WBcel235_art_1.fq \
+    -2 sim/WBcel235_art_2.fq &>> \
     assmb/rnaspades_ngs_de_novo.log
 # TGS only not supported.
 # rnaspades.py \
 #     --threads 40 \
 #     --memory 100 \
 #     -o assmb/rnaspades_tgs_de_novo \
-#     --pacbio sim/ce11_denovo_test_pbsim.fa &>> \
+#     --pacbio sim/WBcel235_pbsim.fa &>> \
 #     assmb/rnaspades_tgs_de_novo.log
 rnaspades.py \
     --threads 40 \
     --memory 100 \
     -o assmb/rnaspades_ngs_tgs_de_novo \
-    -1 sim/ce11_denovo_test_art_1.fq \
-    -2 sim/ce11_denovo_test_art_2.fq \
-    --pacbio sim/ce11_denovo_test_pbsim.fa &>> \
+    -1 sim/WBcel235_art_1.fq \
+    -2 sim/WBcel235_art_2.fq \
+    --pacbio sim/WBcel235_pbsim.fa &>> \
     assmb/rnaspades_ngs_tgs_de_novo.log

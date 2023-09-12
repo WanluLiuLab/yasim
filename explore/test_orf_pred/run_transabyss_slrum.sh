@@ -14,16 +14,16 @@ conda activate yasim-transabyss
 transabyss \
     --threads 40 \
     --outdir assmb/transabyss_ngs_de_novo \
-    --pe sim/ce11_denovo_test_art_1.fq sim/ce11_denovo_test_art_2.fq &> \
+    --pe sim/WBcel235_art_1.fq sim/WBcel235_art_2.fq &> \
     assmb/transabyss_ngs_de_novo.log
 transabyss \
     --threads 40 \
     --outdir assmb/transabyss_tgs_de_novo \
-    --se sim/ce11_denovo_test_pbsim.fa &> \
+    --se sim/WBcel235_pbsim.fa &> \
     assmb/transabyss_tgs_de_novo.log
 transabyss \
     --threads 40 \
     --outdir assmb/transabyss_ngs_tgs_de_novo \
-    --se sim/ce11_denovo_test_pbsim.fa \
-    --pe sim/ce11_denovo_test_art_1.fq sim/ce11_denovo_test_art_2.fq &> \
+    --se sim/WBcel235_pbsim.fa \
+    --pe sim/WBcel235_art_1.fq sim/WBcel235_art_2.fq &> \
     assmb/transabyss_ngs_tgs_de_novo.log
