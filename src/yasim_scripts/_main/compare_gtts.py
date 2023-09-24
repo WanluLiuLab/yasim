@@ -1,11 +1,16 @@
 """
 
 """
+import argparse
+import json
 from collections import defaultdict
 
 import pysam
 import pandas as pd
 
+from labw_utils.commonutils.appender import TableAppenderConfig, load_table_appender_class, BaseTableAppender
+from labw_utils.commonutils.lwio import get_reader
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.typing_importer import Dict, Set, List
 from yasim.helper.translation_instruction import TranslationInstruction, SimpleTE
 from yasim.helper.rmsk_parser import RMSKGffIterator
@@ -23,27 +28,31 @@ def convert_aln_bam_to_tes(src_aln_bam_path: str, is_loci: bool) -> ReadIDTEName
 
 
 def convert_aln_blast6_to_tes(src_aln_blast6_path: str, is_loci: bool) -> ReadIDTENameMap:
-    df = pd.read_csv(
-        src_aln_blast6_path,
-        sep="\t",
-        names=[
-            "qseqid",
-            "sseqid",
-            "pident",
-            "length",
-            "mismatch",
-            "gapopen",
-            "qstart",
-            "qend",
-            "sstart",
-            "send",
-            "evalue",
-            "bitscore",
-        ],
-        engine="c",
-        comment="#",
-        usecols=["qseqid", "sseqid", "evalue", "length"],
-    ).query("evalue < 1E-5").query("length > 20")
+    df = (
+        pd.read_csv(
+            src_aln_blast6_path,
+            sep="\t",
+            names=[
+                "qseqid",
+                "sseqid",
+                "pident",
+                "length",
+                "mismatch",
+                "gapopen",
+                "qstart",
+                "qend",
+                "sstart",
+                "send",
+                "evalue",
+                "bitscore",
+            ],
+            engine="c",
+            comment="#",
+            usecols=["qseqid", "sseqid", "evalue", "length"],
+        )
+        .query("evalue < 1E-5")
+        .query("length > 20")
+    )
     if is_loci:
         df["sseqid"] = df["sseqid"].apply(lambda s: "_".join(s.split("_")[:-1]))
     retd = defaultdict(lambda: set())
@@ -57,7 +66,7 @@ def convert_rmsk_gff_to_tes(src_aln_rmsk_gff_path: str) -> ReadIDTENameMap:
     with RMSKGffIterator(src_aln_rmsk_gff_path) as gffi:
         for record in gffi:
             repeat_name = record.attribute_get("repeat_name")
-            if (repeat_name.endswith(")n") or repeat_name.endswith("-rich")):
+            if repeat_name.endswith(")n") or repeat_name.endswith("-rich"):
                 continue
             if record.end0b - record.start0b + 1 < 20:
                 continue
@@ -99,5 +108,47 @@ def convert_translation_instruction_to_tes(src_translation_instruction_path: str
     }
 
 
+def comp_tes_tes(src_gt_tes_file_path: str, src_query_tes_file_path: str, dst_path: str):
+    with get_reader(src_gt_tes_file_path, is_binary=False) as r:
+        gt_tes = json.load(r)
+    with get_reader(src_query_tes_file_path, is_binary=False) as r:
+        query_tes = json.load(r)
+
+    appender: BaseTableAppender = load_table_appender_class("TSVTableAppender")(
+        dst_path,
+        ["seq_id", "te_name", "status"],
+        tac=TableAppenderConfig(),
+    )
+    for gt_id in gt_tes.keys():
+        query_te_names = set(query_tes.get(gt_id, set()))
+        gt_te_names = set(gt_tes[gt_id])
+        all_te_names = query_te_names.union(gt_te_names)
+        for te_name in all_te_names:
+            if te_name in gt_te_names and te_name in query_te_names:
+                appender.append([gt_id, te_name, "TP"])
+            elif te_name in gt_te_names:
+                appender.append([gt_id, te_name, "FN"])
+            elif te_name in query_te_names:
+                appender.append([gt_id, te_name, "FP"])
+    appender.flush()
+    appender.close()
+
+
+def create_parser() -> argparse.ArgumentParser:
+    parser = ArgumentParserWithEnhancedFormatHelp(
+        prog="python -m yasim insert_transposon",
+        description=__doc__.splitlines()[1],
+    )
+    parser.add_argument("--src_gt_tes_file_path", type=str, required=True)
+    parser.add_argument("--src_query_tes_file_path", type=str, required=True)
+    parser.add_argument("--dst_path", type=str, required=True)
+    return parser
+
+
 def main(args: List[str]):
-    pass
+    argv = create_parser().parse_args(args)
+    comp_tes_tes(
+        src_gt_tes_file_path=argv.src_gt_tes_file_path,
+        src_query_tes_file_path=argv.src_query_tes_file_path,
+        dst_path=argv.dst_path,
+    )
