@@ -37,6 +37,24 @@ def create_parser() -> argparse.ArgumentParser:
         action="store",
     )
     parser.add_argument(
+        "--dst_consensus_fa_path",
+        required=False,
+        default=None,
+        help="Output TE index path",
+        nargs="?",
+        type=str,
+        action="store",
+    )
+    parser.add_argument(
+        "--dst_hmm_path",
+        required=False,
+        default=None,
+        help="Output TE index path",
+        nargs="?",
+        type=str,
+        action="store",
+    )
+    parser.add_argument(
         "-t",
         "--txid",
         required=False,
@@ -54,6 +72,8 @@ def main(args: List[str]):
     TransposonDatabase.convert_dfam_hdf5(
         src_dfam_hdf5_file_path=args.src_dfam_h5_file_path,
         dst_index_file_path=args.dst_te_idx_file_path,
+        dst_consensus_fa_path=args.dst_consensus_fa_path,
+        dst_hmm_path=args.dst_hmm_path,
         with_tqdm=True,
         required_txid=args.txid,
     )

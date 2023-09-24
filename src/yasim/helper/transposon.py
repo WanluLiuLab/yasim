@@ -13,7 +13,7 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 
-from labw_utils.typing_importer import List, Tuple, Dict
+from labw_utils.typing_importer import List, Tuple, Dict, Optional
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 
 _lh = get_logger()
@@ -25,9 +25,12 @@ class TransposonDatabase:
 
     @staticmethod
     def convert_dfam_hdf5(
+        *,
         src_dfam_hdf5_file_path: str,
         required_txid: int,
         dst_index_file_path: str,
+        dst_consensus_fa_path: Optional[str],
+        dst_hmm_path: Optional[str],
         with_tqdm: bool = True,
         fetch_parent: bool = True,
     ) -> None:
@@ -67,7 +70,7 @@ class TransposonDatabase:
             _lh.info("Finished with %d accesions, writing...", len(accession_sequence_map))
 
             pickle_helper.dump(accession_sequence_map, dst_index_file_path)
-            with FastaWriter(dst_index_file_path+".fa") as faw:
+            with FastaWriter(dst_consensus_fa_path) as faw:
                 for k, v in accession_sequence_map.items():
                     faw.write(FastaRecord(k, v))
             _lh.info("Finished")
