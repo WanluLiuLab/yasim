@@ -37,6 +37,7 @@ class TransposonDatabase:
         _lh.info("Enumerating taxons...")
         txids = [required_txid]
         accession_sequence_map = {}
+        accession_hmm_map = {}
         with h5py.File(src_dfam_hdf5_file_path) as ds:
             while fetch_parent:
                 this_taxon_node = ds["Taxonomy"]["Nodes"][str(txids[-1])]
@@ -66,8 +67,7 @@ class TransposonDatabase:
                         _lh.warning("Accession '%s' neither resolved as name nor accession, skipped", accession)
                         continue
                 accession_sequence_map[d.attrs["name"]] = d.attrs["consensus"]
-                print(d.attrs["hmm"])
-                exit(0)
+                accession_hmm_map[d.attrs["name"]] = d.attrs["model"]
 
             _lh.info("Finished with %d accesions, writing...", len(accession_sequence_map))
             pickle_helper.dump(accession_sequence_map, dst_index_file_path)
@@ -75,6 +75,10 @@ class TransposonDatabase:
                 with FastaWriter(dst_consensus_fa_path) as faw:
                     for k, v in accession_sequence_map.items():
                         faw.write(FastaRecord(k, v))
+            if dst_hmm_path is not None:
+                with get_writer(dst_hmm_path, is_binary=False) as hmmw:
+                    for v in accession_hmm_map.values():
+                        hmmw.write(v)
             _lh.info("Finished")
 
     @classmethod

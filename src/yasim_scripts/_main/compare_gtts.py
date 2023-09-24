@@ -16,9 +16,22 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from yasim.helper.translation_instruction import TranslationInstruction, SimpleTE
 from yasim.helper.rmsk_parser import RMSKGffIterator
 
-
 ReadIDTENameMap = Dict[str, Set[str]]
 
+
+def convert_hmmer_to_tes(src_hmmer_path: str) -> ReadIDTENameMap:
+    retd = defaultdict(lambda: set())
+    with get_reader(src_hmmer_path) as r:
+        for line in r:
+            if line.startswith("#"):
+                continue
+            try:
+                ls = list(filter(lambda x: bool(x), line.strip().split(" ")))
+                if float(ls[12]) < 1E-5:
+                    retd[ls[0]].add(ls[1].split("#")[0])
+            except Exception:
+                print(f"ERR: {line}")
+    return retd
 
 def convert_aln_bam_to_tes(src_aln_bam_path: str, is_loci: bool) -> ReadIDTENameMap:
     retd = defaultdict(lambda: set())

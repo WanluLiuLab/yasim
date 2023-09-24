@@ -16,6 +16,10 @@ if __name__ == "__main__":
     #     "sim/ce11_denovo_test.tes.json",
     #     convert_translation_instruction_to_tes("sim/ce11_denovo_test.json"),
     # )
+    jsond(
+        "aln/original_hmmer.tes.json",
+        convert_hmmer_to_tes("aln/original_hmmer.out")
+    )
     # jsond(
     #     "aln/ce11.rmsk_loci.minimap2.tes.json",
     #     convert_aln_bam_to_tes("aln/ce11.rmsk_loci.minimap2.bam", True)

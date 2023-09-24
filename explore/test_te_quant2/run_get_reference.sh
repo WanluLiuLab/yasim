@@ -28,6 +28,7 @@ python -m yasim generate_te_index \
     -i ref/Dfam_curatedonly.h5 \
     -o ref/teidx.pkl.xz \
     --dst_consensus_fa_path ref/ce11.rmsk_consensus.fa \
+    --dst_hmm_path ref/ce11.rmsk_consensus.hmm \
     --txid 6239
 samtools faidx ref/ce11.rmsk_loci.fa
 samtools faidx ref/ce11.rmsk_consensus.fa

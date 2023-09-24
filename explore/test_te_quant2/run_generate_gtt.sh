@@ -11,4 +11,6 @@ python -m yasim generate_gene_te_fusion \
     -d 150 \
     -n 100000
 sbatch < slrum/run_aln_gtts.sh
+
+cat sim/ce11_denovo_test_split/*.nhmmer_original.out > aln/nhmmer_original.out
 python run_convert_aln.py
