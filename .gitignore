@@ -471,3 +471,4 @@ syq_article_simulation2
 *.dict
 *.2bit
 logs/
+RM_*
