@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+set -e
+cd "$(readlink -f "$(dirname "${0}")")"
+cd ..
+
 perl \
     ../../deps/RepeatMasker/RepeatMasker \
     -species "Caenorhabditis elegans" \
@@ -6,4 +10,4 @@ perl \
     -parallel 40 \
     -dir ref/ce11.rmsk_rmblast.d \
     -gff -small -s \
-    ce11.fa
+    ref/ce11.fa
