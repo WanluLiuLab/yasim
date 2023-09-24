@@ -66,13 +66,15 @@ class TransposonDatabase:
                         _lh.warning("Accession '%s' neither resolved as name nor accession, skipped", accession)
                         continue
                 accession_sequence_map[d.attrs["name"]] = d.attrs["consensus"]
+                print(d.attrs["hmm"])
+                exit(0)
 
             _lh.info("Finished with %d accesions, writing...", len(accession_sequence_map))
-
             pickle_helper.dump(accession_sequence_map, dst_index_file_path)
-            with FastaWriter(dst_consensus_fa_path) as faw:
-                for k, v in accession_sequence_map.items():
-                    faw.write(FastaRecord(k, v))
+            if dst_consensus_fa_path is not None:
+                with FastaWriter(dst_consensus_fa_path) as faw:
+                    for k, v in accession_sequence_map.items():
+                        faw.write(FastaRecord(k, v))
             _lh.info("Finished")
 
     @classmethod
