@@ -230,6 +230,7 @@ class TranslationInstruction(SimpleSerializable):
         collapsed_transcripts = [gene.collapse_transcript(True) for gene in tqdm(gt.gene_values, "Collapsing...")]
         tisa = TranslationInstructionStateAutomata((weight_transcript, weight_transposon, weight_stop))
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
+        pbar = tqdm(desc="Generating sequences...", total=n)
         while len(final_simple_transcripts) < n:
             new_transcript = SimpleTranscript(l=[], depth=0)
             while True:
@@ -252,7 +253,8 @@ class TranslationInstruction(SimpleSerializable):
 
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
-            final_simple_transcripts["chimeric_transcript-" + str(uuid.uuid4())] = new_transcript
+            final_simple_transcripts[f"gtt-{len(final_simple_transcripts)}"] = new_transcript
+            pbar.update(1)
         for k, v in depth.simulate_gene_level_depth_gmm(
             gene_names=final_simple_transcripts.keys(),
             mu=mu,
