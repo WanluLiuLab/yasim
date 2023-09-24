@@ -10,6 +10,8 @@ import h5py
 from labw_utils.commonutils.lwio import get_writer
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.bioutils.parser.fasta import FastaWriter
+from labw_utils.bioutils.record.fasta import FastaRecord
 
 from labw_utils.typing_importer import List, Tuple, Dict
 from labw_utils.commonutils.stdlib_helper import pickle_helper
@@ -65,6 +67,9 @@ class TransposonDatabase:
             _lh.info("Finished with %d accesions, writing...", len(accession_sequence_map))
 
             pickle_helper.dump(accession_sequence_map, dst_index_file_path)
+            with FastaWriter(dst_index_file_path+".fa") as faw:
+                for k, v in accession_sequence_map.items():
+                    faw.write(FastaRecord(k, v))
             _lh.info("Finished")
 
     @classmethod

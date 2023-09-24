@@ -79,7 +79,7 @@ for fn in \
 done
 
 # Running CDS Predictor
-...
+sbatch <run_cds_pred_slrum.sh
 
 # Exit
 

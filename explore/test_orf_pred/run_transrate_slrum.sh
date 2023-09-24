@@ -11,12 +11,12 @@
 eval "$("${HOME}"/conda/condabin/conda shell.bash hook)"
 conda activate yasim-transrate
 
-FILES="$(echo assmb_final/*.fa | sed 's; ;,;g')"
+FILES="$(echo assmb_final/*.faa | sed 's; ;,;g')"
 echo "${FILES}" | sed 's;,;\n;g'
 rm -fr assmb_final/transrate
 
 transrate \
     --assembly="${FILES}" \
-    --reference=sim/WBcel235.fa \
+    --reference=ref/WBcel235.pep.faa \
     --output=assmb_final/transrate \
     --threads=40

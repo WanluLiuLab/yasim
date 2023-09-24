@@ -72,6 +72,10 @@ dependencies:
   - STAR=2.7.10b
   - last=1449
   - subread=2.0.3
+  - blat=35
+  - pblat=2.5.1
+  - ucsc-fatotwobit
+  - bwa=0.7.17
 
   # LLRGs
   - dwgsim=1.1.13
@@ -86,6 +90,7 @@ dependencies:
   - fastqc=0.12.1
   - gatk4=4.3.0.0
   - seqkit
+  - bedtools
 
   # RMSK essentials
   - perl>=5.8.0

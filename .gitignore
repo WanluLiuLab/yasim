@@ -469,3 +469,5 @@ syq_article_simulation2
 !.markdownlint.json
 /twine.pypirc.ini
 *.dict
+*.2bit
+logs/
