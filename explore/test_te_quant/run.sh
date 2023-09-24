@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -ue
-mkdir -p ref aln 
+mkdir -p ref aln
 # Get Reference
 cd ref
 
@@ -15,10 +15,10 @@ mkdir -p rmsk_wd
 cd rmsk_wd
 wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/chromOut.tar.gz
 tar xzvf chromOut.tar.gz
-cat */*.out > ce11.out
+cat */*.out >ce11.out
 perl \
     ../../../../deps/RepeatMasker/util/rmOutToGFF3.pl \
-    ce11.out > ce11.out.gff
+    ce11.out >ce11.out.gff
 cd ../../../
 python rmsk_filter.py
 cd -

@@ -27,11 +27,12 @@ def convert_hmmer_to_tes(src_hmmer_path: str) -> ReadIDTENameMap:
                 continue
             try:
                 ls = list(filter(lambda x: bool(x), line.strip().split(" ")))
-                if float(ls[12]) < 1E-5:
+                if float(ls[12]) < 1e-5:
                     retd[ls[0]].add(ls[1].split("#")[0])
             except Exception:
                 print(f"ERR: {line}")
     return retd
+
 
 def convert_aln_bam_to_tes(src_aln_bam_path: str, is_loci: bool) -> ReadIDTENameMap:
     retd = defaultdict(lambda: set())

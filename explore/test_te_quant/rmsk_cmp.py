@@ -77,7 +77,9 @@ if __name__ == "__main__":
                                 te_id_to_remove = te_id
                             break
                     else:
-                        appender.append([0, feature.seqname, "false_positive", feature.attribute_get("repeat_name"), "", 0])
+                        appender.append(
+                            [0, feature.seqname, "false_positive", feature.attribute_get("repeat_name"), "", 0]
+                        )
                     if te_id_to_remove != -1:
                         ground_truth_te_positions.pop(te_id_to_remove)
                     last_feature_id = current_feature_id

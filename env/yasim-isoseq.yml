@@ -1,0 +1,23 @@
+name: yasim_dev
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - r
+
+dependencies:
+  # Core libraries in labw_utils
+  - python=3.8
+
+  - minimap2=2.24
+  - samtools=1.16.1
+
+  - pbcore=2.1.2
+  - isoseq3=3.8.2
+  - pbmm2=1.10.0
+  - pbpigeon=1.0.0
+  - pbbam=2.1.0
+  - pbccs=6.0.0

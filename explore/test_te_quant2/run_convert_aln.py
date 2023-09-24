@@ -6,20 +6,15 @@ from yasim_scripts._main.compare_gtts import *
 
 def jsond(dst_json_path: str, tes):
     with open(dst_json_path, "w") as w:
-        json.dump(
-            {k:list(v) for k, v in tes.items()},
-            w
-        )
+        json.dump({k: list(v) for k, v in tes.items()}, w)
+
 
 if __name__ == "__main__":
     # jsond(
     #     "sim/ce11_denovo_test.tes.json",
     #     convert_translation_instruction_to_tes("sim/ce11_denovo_test.json"),
     # )
-    jsond(
-        "aln/original_hmmer.tes.json",
-        convert_hmmer_to_tes("aln/original_hmmer.out")
-    )
+    jsond("aln/original_hmmer.tes.json", convert_hmmer_to_tes("aln/original_hmmer.out"))
     # jsond(
     #     "aln/ce11.rmsk_loci.minimap2.tes.json",
     #     convert_aln_bam_to_tes("aln/ce11.rmsk_loci.minimap2.bam", True)
@@ -51,14 +46,8 @@ if __name__ == "__main__":
     dfs = []
     for fn in glob.glob("aln/*.tes.json"):
         print(f"COMPARE {fn}")
-        comp_tes_tes(
-            "sim/ce11_denovo_test.tes.json",
-            fn,
-            fn+".cmp"
-        )
-        df = pd.read_csv(fn+".cmp.tsv", sep="\t", quotechar="'")
+        comp_tes_tes("sim/ce11_denovo_test.tes.json", fn, fn + ".cmp")
+        df = pd.read_csv(fn + ".cmp.tsv", sep="\t", quotechar="'")
         df["fn"] = fn
         dfs.append(df)
     pd.concat(dfs).to_csv("all.cmp.tsv", sep="\t", index=False)
-
-

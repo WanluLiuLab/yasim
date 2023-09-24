@@ -22,9 +22,9 @@ cd ref
 wget http://ftp.ensemblgenomes.org/pub/metazoa/release-57/fasta/caenorhabditis_elegans/pep/Caenorhabditis_elegans.WBcel235.pep.all.fa.gz -O WBcel235.pep.faa.gz
 wget http://ftp.ensemblgenomes.org/pub/metazoa/release-57/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz -O WBcel235.genome.fa.gz
 wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/metazoa/release-57/gtf/caenorhabditis_elegans/Caenorhabditis_elegans.WBcel235.57.gtf.gz -O WBcel235.gtf.gz
-pigz -cdf - < WBcel235.pep.faa.gz > WBcel235.pep.faa
-pigz -cdf - < WBcel235.genome.fa.gz > WBcel235.genome.fa
-pigz -cdf - < WBcel235.gtf.gz > WBcel235.gtf
+pigz -cdf - <WBcel235.pep.faa.gz >WBcel235.pep.faa
+pigz -cdf - <WBcel235.genome.fa.gz >WBcel235.genome.fa
+pigz -cdf - <WBcel235.gtf.gz >WBcel235.gtf
 
 python -m labw_utils.bioutils transcribe \
     -f WBcel235.genome.fa \

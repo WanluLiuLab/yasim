@@ -15,7 +15,7 @@ samtools faidx ce11.fa
 wget https://dfam.org/releases/current/families/Dfam_curatedonly.h5.gz
 cat Dfam_curatedonly.h5.gz | pigz -d >Dfam_curatedonly.h5
 
-sbatch < slrum/run_rmsk_on_reference.sh
+sbatch <slrum/run_rmsk_on_reference.sh
 
 python -m yasim_scripts rmsk_filter \
     -i ref/ce11.rmsk_rmblast.d/ce11.fa.out.gff \
@@ -32,4 +32,3 @@ python -m yasim generate_te_index \
     --txid 6239
 samtools faidx ref/ce11.rmsk_loci.fa
 samtools faidx ref/ce11.rmsk_consensus.fa
-

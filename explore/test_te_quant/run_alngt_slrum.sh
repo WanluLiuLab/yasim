@@ -15,7 +15,7 @@ conda activate yasim_dev
 
 minimap2 -t 40 \
     -a ref/ce11.te_loci.fa sim/ce11_denovo_test.fa \
-    > aln/ce11_denovo_test.minimap2.te_loci.sam
+    >aln/ce11_denovo_test.minimap2.te_loci.sam
 samtools sort -@40 \
     aln/ce11_denovo_test.minimap2.te_loci.sam \
     -o aln/ce11_denovo_test.minimap2.te_loci.bam
@@ -23,12 +23,12 @@ samtools index aln/ce11_denovo_test.minimap2.te_loci.bam
 
 minimap2 -t 40 \
     -a ref/ce11.fa sim/ce11_denovo_test.fa \
-    > aln/ce11_denovo_test.minimap2.ref_genome.sam
+    >aln/ce11_denovo_test.minimap2.ref_genome.sam
 samtools sort -@40 \
     aln/ce11_denovo_test.minimap2.ref_genome.sam \
     -o aln/ce11_denovo_test.minimap2.ref_genome.bam
 samtools index aln/ce11_denovo_test.minimap2.ref_genome.bam
-mkdir -p  aln/ce11_denovo_test.minimap2.ref_genome.fc_assign.d
+mkdir -p aln/ce11_denovo_test.minimap2.ref_genome.fc_assign.d
 featureCounts -L -O -M --primary --ignoreDup \
     -a ref/rmsk_wd/ce11.out.gff \
     -g Target \
@@ -37,7 +37,6 @@ featureCounts -L -O -M --primary --ignoreDup \
     aln/ce11_denovo_test.minimap2.ref_genome.bam \
     -R CORE \
     --Rpath aln/ce11_denovo_test.minimap2.ref_genome.fc_assign.d
-
 
 pblat \
     -t=dna \
@@ -50,7 +49,7 @@ pblat \
 
 minimap2 -t 40 \
     -a ref/teidx.pkl.xz.fa sim/ce11_denovo_test.fa \
-    > aln/ce11_denovo_test.minimap2.te_consensus.sam
+    >aln/ce11_denovo_test.minimap2.te_consensus.sam
 samtools sort -@40 \
     aln/ce11_denovo_test.minimap2.te_consensus.sam \
     -o aln/ce11_denovo_test.minimap2.te_consensus.bam

@@ -71,7 +71,6 @@ dependencies:
   - minimap2=2.24
   - STAR=2.7.10b
   - last=1449
-  - subread=2.0.3
   - blat=35
   - pblat=2.5.1
   - ucsc-fatotwobit
@@ -100,11 +99,6 @@ dependencies:
   - plass=4.687d7
 
   # PacBio CCS
-  - pbcore=2.1.2
-  - isoseq3=3.8.2
-  - pbmm2=1.10.0
-  - pbpigeon=1.0.0
-  - pbbam=2.1.0
   - pbccs=6.0.0
 
   # Build utils
