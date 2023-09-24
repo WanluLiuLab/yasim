@@ -13,9 +13,6 @@ eval "$("${HOME}"/conda/condabin/conda shell.bash hook)"
 
 conda activate yasim_dev
 
-cd "$(readlink -f "$(dirname "${0}")")"
-cd ..
-
 perl \
     ../../deps/RepeatMasker/RepeatMasker \
     -species "Caenorhabditis elegans" \

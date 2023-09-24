@@ -11,7 +11,7 @@ from yasim.helper.translation_instruction import TranslationInstruction, SimpleT
 from yasim.helper.rmsk_parser import RMSKGffIterator
 
 
-ReadIDTENameMap: Dict[str, Set[str]]
+ReadIDTENameMap = Dict[str, Set[str]]
 
 
 def convert_aln_bam_to_tes(src_aln_bam_path: str, is_loci: bool) -> ReadIDTENameMap:
@@ -42,8 +42,8 @@ def convert_aln_blast6_to_tes(src_aln_blast6_path: str, is_loci: bool) -> ReadID
         ],
         engine="c",
         comment="#",
-        usecols=["qseqid", "sseqid", "evalue"],
-    ).query("evalue < 1E-5")
+        usecols=["qseqid", "sseqid", "evalue", "length"],
+    ).query("evalue < 1E-5").query("length > 20")
     if is_loci:
         df["sseqid"] = df["sseqid"].apply(lambda s: "_".join(s.split("_")[:-1]))
     retd = defaultdict(lambda: set())
@@ -56,6 +56,11 @@ def convert_rmsk_gff_to_tes(src_aln_rmsk_gff_path: str) -> ReadIDTENameMap:
     retd = defaultdict(lambda: set())
     with RMSKGffIterator(src_aln_rmsk_gff_path) as gffi:
         for record in gffi:
+            repeat_name = record.attribute_get("repeat_name")
+            if (repeat_name.endswith(")n") or repeat_name.endswith("-rich")):
+                continue
+            if record.end0b - record.start0b + 1 < 20:
+                continue
             retd[record.seqname].add(record.attribute_get("repeat_name"))
     return retd
 
@@ -70,9 +75,15 @@ def convert_fc_assignment_to_tes(src_fc_assignment_path: str) -> ReadIDTENameMap
             "unknown",
             "sseqid",
         ],
+        dtype={
+            "qseqid": str,
+            "status": str,
+            "unknown": str,
+            "sseqid": str,
+        },
         engine="c",
         comment="#",
-    ).query('sseqid != "NA"')
+    ).query('status == "Assigned"')
     df["sseqid"] = df["sseqid"].apply(lambda s: "_".join(s.split("_")[:-1]))
     retd = defaultdict(lambda: set())
     for tup in df.itertuples(index=False):

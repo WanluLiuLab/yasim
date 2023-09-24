@@ -28,7 +28,7 @@ def create_parser() -> argparse.ArgumentParser:
         required=True,
         help="File path of destination TE GFF",
     )
-    parser.add_argument("--no_filter_simple_repeats", action="store_false")
+    parser.add_argument("--no_filter_simple_repeats", action="store_true")
     parser.add_argument(
         "--filter_short_repeats_threshold",
         type=int,
@@ -60,6 +60,6 @@ def main(args: List[str]):
     filter_rmsk(
         src_rmsk_gff_path=argv.src_rmsk_gff_path,
         dst_rmsk_gtf_path=argv.dst_rmsk_gtf_path,
-        filter_simple_repeats=not argv.filter_simple_repeats,
+        filter_simple_repeats=not argv.no_filter_simple_repeats,
         filter_short_repeats_threshold=argv.filter_short_repeats_threshold,
     )
