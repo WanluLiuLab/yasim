@@ -12,6 +12,7 @@ from labw_utils.commonutils.appender import TableAppenderConfig, load_table_appe
 from labw_utils.commonutils.lwio import get_reader
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.typing_importer import Dict, Set, List
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from yasim.helper.translation_instruction import TranslationInstruction, SimpleTE
 from yasim.helper.rmsk_parser import RMSKGffIterator
 
@@ -23,7 +24,10 @@ def convert_aln_bam_to_tes(src_aln_bam_path: str, is_loci: bool) -> ReadIDTEName
     retd = defaultdict(lambda: set())
     with pysam.AlignmentFile(src_aln_bam_path) as af:
         for record in af.fetch():
-            ...
+            te_name = record.reference_name
+            if is_loci:
+                te_name = "_".join(te_name.split("_")[:-1])
+            retd[record.query_name].add(te_name)
     return retd
 
 
@@ -119,7 +123,7 @@ def comp_tes_tes(src_gt_tes_file_path: str, src_query_tes_file_path: str, dst_pa
         ["seq_id", "te_name", "status"],
         tac=TableAppenderConfig(),
     )
-    for gt_id in gt_tes.keys():
+    for gt_id in tqdm(gt_tes.keys()):
         query_te_names = set(query_tes.get(gt_id, set()))
         gt_te_names = set(gt_tes[gt_id])
         all_te_names = query_te_names.union(gt_te_names)
