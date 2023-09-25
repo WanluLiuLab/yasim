@@ -27,8 +27,12 @@ def convert_hmmer_to_tes(src_hmmer_path: str) -> ReadIDTENameMap:
                 continue
             try:
                 ls = list(filter(lambda x: bool(x), line.strip().split(" ")))
-                if float(ls[12]) < 1e-5:
-                    retd[ls[0]].add(ls[1].split("#")[0])
+                if float(ls[12]) >= 1e-5:  # Filter e-value
+                    continue
+                if int(ls[5]) - int(ls[4]) < 20:
+                    continue
+                retd[ls[0]].add(ls[2].split("#")[0])
+
             except Exception:
                 print(f"ERR: {line}")
     return retd

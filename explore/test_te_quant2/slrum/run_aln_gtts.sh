@@ -72,8 +72,9 @@ conda activate yasim_dev
 #     -gff -small -s \
 #     sim/ce11_denovo_test.fa
 
-# mkdir sim/ce11_denovo_test_split
-# split --lines=16384 sim/ce11_denovo_test.fa sim/ce11_denovo_test_split/
+rm -fr sim/ce11_denovo_test_split
+mkdir sim/ce11_denovo_test_split
+split --lines=16384 sim/ce11_denovo_test.fa sim/ce11_denovo_test_split/
 
 for fn in sim/ce11_denovo_test_split/*; do
     echo "NHMMER ${fn}"
