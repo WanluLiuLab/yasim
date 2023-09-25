@@ -14,3 +14,4 @@ sbatch < slrum/run_aln_gtts.sh
 
 cat sim/ce11_denovo_test_split/*.nhmmer_original.out > aln/nhmmer_original.out
 python run_convert_aln.py
+xz -9 -T5 -f -vv all.cmp.tsv
