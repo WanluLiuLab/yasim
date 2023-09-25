@@ -245,7 +245,7 @@ class TranslationInstruction(SimpleSerializable):
                     seq = autoclip(seq, minimal_transcript_len)
                     new_transcript.l.append(SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq))
                 elif state == TranslationInstructionState.TRANSPOSON:
-                    src_te_name, seq = tedb.draw()
+                    src_te_name, seq = tedb.draw(hmmemit=True)
                     if len(seq) < 2 * minimal_transposon_len:
                         continue
                     seq = autoclip(seq, minimal_transposon_len)
