@@ -5,18 +5,21 @@ Transposon database that manageconserved transposon sequences.
 """
 
 import json
+import os.path
 import random
 import shutil
 import subprocess
+import tempfile
+
 import h5py
-from labw_utils.commonutils.lwio import get_writer
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
 from labw_utils.bioutils.parser.fasta import FastaIterator, FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
-
-from labw_utils.typing_importer import List, Mapping, Tuple, Dict, Optional
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.lwio import get_writer
 from labw_utils.commonutils.stdlib_helper import pickle_helper
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Mapping, Tuple, Optional
 
 _lh = get_logger()
 
@@ -30,24 +33,38 @@ class TransposonDatabase:
 
     def draw_hmm_emissions(self) -> Tuple[str, str]:
         if not self._hmm_epool:
-            p = subprocess.Popen(
-                    [self._hmmemit_path, self._src_hmm_file_path, "-N", str(32)],
+            with tempfile.TemporaryDirectory() as tmpd:
+                hmm_file_path = os.path.join(tmpd, "ref.hmm")
+                sim_fa_file_path = os.path.join(tmpd, "sim.fa")
+                with get_writer(hmm_file_path, is_binary=False) as hmmw:
+                    for v in self._accession_hmm_map.values():
+                        hmmw.write(v)
+                p = subprocess.Popen(
+                    [
+                        self._hmmemit_path,
+                        hmm_file_path,
+                        "-N",
+                        str(32),
+                        "-o",
+                        sim_fa_file_path,
+                    ],
                     stdin=subprocess.DEVNULL,
-                    stdout=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
                     stderr=subprocess.PIPE,
                     text=True,
                     encoding="UTF-8",
                 )
-            try:
-                with FastaIterator(p.stdout) as fai:
-                    for record in fai:
-                        self._hmm_epool.append(record.seq_id.split("#")[0], record.sequence)
-                        
-                assert p.wait() == 0
-            except Exception as e:
-                print(p.stderr.read())
-                print(e)
-        
+                try:
+                    with FastaIterator(sim_fa_file_path) as fai:
+                        for record in fai:
+                            self._hmm_epool.append(
+                                (record.seq_id.split("#")[0], record.sequence)
+                            )
+                    assert p.wait() == 0
+                except Exception as e:
+                    print(p.stderr.read())
+                    print(e)
+
         rdg = random.SystemRandom()
         selected_accn, selected_seq = rdg.choice(self._hmm_epool)
         return selected_accn, selected_seq
@@ -88,18 +105,27 @@ class TransposonDatabase:
                 it = accessions
             for accession in it:
                 try:
-                    d = ds["Families"][accession[0:2]][accession[2:4]][accession[4:6]][accession]
+                    d = ds["Families"][accession[0:2]][accession[2:4]][accession[4:6]][
+                        accession
+                    ]
                 except KeyError:
                     try:
                         d = ds["Families"]["ByName"][accession]
                     except KeyError:
-                        _lh.warning("Accession '%s' neither resolved as name nor accession, skipped", accession)
+                        _lh.warning(
+                            "Accession '%s' neither resolved as name nor accession, skipped",
+                            accession,
+                        )
                         continue
                 accession_sequence_map[d.attrs["name"]] = d.attrs["consensus"]
                 accession_hmm_map[d.attrs["name"]] = d.attrs["model"]
 
-            _lh.info("Finished with %d accesions, writing...", len(accession_sequence_map))
-            pickle_helper.dump([accession_sequence_map, accession_hmm_map], dst_index_file_path)
+            _lh.info(
+                "Finished with %d accesions, writing...", len(accession_sequence_map)
+            )
+            pickle_helper.dump(
+                [accession_sequence_map, accession_hmm_map], dst_index_file_path
+            )
             if dst_consensus_fa_path is not None:
                 with FastaWriter(dst_consensus_fa_path) as faw:
                     for k, v in accession_sequence_map.items():
@@ -119,16 +145,15 @@ class TransposonDatabase:
             json.dump(self._accession_sequence_map, w, indent=4)
 
     def __init__(
-            self, 
-            accession_sequence_map: Mapping[str, str],
-            accession_hmm_map: Mapping[str, str],
-            src_hmm_file_path: Optional[str] = None,
-            hmmemit_path: Optional[str] = shutil.which("hmmemit")
-        ) -> None:
+        self,
+        accession_sequence_map: Mapping[str, str],
+        accession_hmm_map: Mapping[str, str],
+        hmmemit_path: Optional[str] = shutil.which("hmmemit"),
+    ) -> None:
         self._accession_sequence_map = accession_sequence_map
         self._accession_hmm_map = accession_hmm_map
         self._accessions = list(self._accession_sequence_map.keys())
-        self._hmm_epool = {}
+        self._hmm_epool = []
         self._hmmemit_path = hmmemit_path
 
     def draw(self) -> Tuple[str, str]:
