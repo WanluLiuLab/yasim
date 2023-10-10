@@ -3,16 +3,17 @@ from __future__ import annotations
 import enum
 import json
 import random
-import uuid
 from abc import abstractmethod
 
+from labw_utils.bioutils.datastructure.fasta_view import (
+    FastaViewType,
+    normalize_nt_sequence,
+)
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
-
 from labw_utils.typing_importer import Tuple, List, Union, Mapping, Any, Dict, Optional
 from yasim.helper import depth_io, depth
 from yasim.helper.transposon import TransposonDatabase
@@ -122,7 +123,10 @@ class SimpleTranscript(SimpleSerializable):
     def from_dict(cls, d: Mapping[str, Any]):
         return cls(
             l=[
-                SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v) for v in d["l"].values()
+                SimpleExon.from_dict(v)
+                if v["type"] == "SimpleExon"
+                else SimpleTE.from_dict(v)
+                for v in d["l"].values()
             ],
             depth=d["d"],
         )
@@ -213,11 +217,6 @@ class TranslationInstruction(SimpleSerializable):
         high_cutoff_ratio: float = depth.DEFAULT_HIGH_CUTOFF_RATIO,
         low_cutoff: float = depth.DEFAULT_LOW_CUTOFF,
     ):
-        """
-
-        :param n: Number of sequences.
-        :return: Generated instance
-        """
         rdg = random.SystemRandom()
 
         def autoclip(_seq: str, _min_len: int) -> str:
@@ -227,8 +226,13 @@ class TranslationInstruction(SimpleSerializable):
                 if end - start + 1 > _min_len:
                     return _seq[start:end]
 
-        collapsed_transcripts = [gene.collapse_transcript(True) for gene in tqdm(gt.gene_values, "Collapsing...")]
-        tisa = TranslationInstructionStateAutomata((weight_transcript, weight_transposon, weight_stop))
+        collapsed_transcripts = [
+            gene.collapse_transcript(True)
+            for gene in tqdm(gt.gene_values, "Collapsing...")
+        ]
+        tisa = TranslationInstructionStateAutomata(
+            (weight_transcript, weight_transposon, weight_stop)
+        )
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
         while len(final_simple_transcripts) < n:
@@ -239,21 +243,41 @@ class TranslationInstruction(SimpleSerializable):
                     break
                 elif state == TranslationInstructionState.TRANSCRIPT:
                     transcript_to_use = rdg.choice(collapsed_transcripts)
-                    seq = transcript_to_use.transcribe(fav.sequence, fav.legalize_region_best_effort)
+                    seq = transcript_to_use.transcribe(
+                        fav.sequence, fav.legalize_region_best_effort
+                    )
                     if len(seq) < 2 * minimal_transcript_len:
                         continue
                     seq = autoclip(seq, minimal_transcript_len)
-                    new_transcript.l.append(SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq))
+                    seq = normalize_nt_sequence(
+                        seq,
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    )
+                    new_transcript.l.append(
+                        SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq)
+                    )
                 elif state == TranslationInstructionState.TRANSPOSON:
                     src_te_name, seq = tedb.draw()
                     if len(seq) < 2 * minimal_transposon_len:
                         continue
                     seq = autoclip(seq, minimal_transposon_len)
+                    seq = normalize_nt_sequence(
+                        seq,
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    )
                     new_transcript.l.append(SimpleTE(src_te_name=src_te_name, seq=seq))
 
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
-            final_simple_transcripts[f"gtt-{len(final_simple_transcripts)}"] = new_transcript
+            final_simple_transcripts[
+                f"gtt-{len(final_simple_transcripts)}"
+            ] = new_transcript
             pbar.update(1)
         for k, v in depth.simulate_gene_level_depth_gmm(
             gene_names=final_simple_transcripts.keys(),

@@ -1,0 +1,13 @@
+name: yasim-trinity
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - r
+
+dependencies:
+  # Core libraries
+  - trinity=2.15.1
