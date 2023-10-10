@@ -3,16 +3,17 @@ from __future__ import annotations
 import enum
 import json
 import random
-import uuid
 from abc import abstractmethod
 
+from labw_utils.bioutils.datastructure.fasta_view import (
+    FastaViewType,
+    normalize_nt_sequence,
+)
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
-
 from labw_utils.typing_importer import Tuple, List, Union, Mapping, Any, Dict, Optional
 from yasim.helper import depth_io, depth
 from yasim.helper.transposon import TransposonDatabase
@@ -23,6 +24,9 @@ DEFAULT_WEIGHT_STOP = 100
 DEFAULT_MINIMAL_SEQ_LEN = 250
 DEFAULT_MINIMAL_TRANSPOSON_LEN = 20
 DEFAULT_MINIMAL_TRANSCRIPT_LEN = 120
+DEFAULT_MAX_N_GENE = 3
+DEFAULT_MAX_N_TRANSPOSON = 3
+DEFAULT_MAX_N_FEATURE = 4
 
 
 class SimpleSerializable:
@@ -122,7 +126,10 @@ class SimpleTranscript(SimpleSerializable):
     def from_dict(cls, d: Mapping[str, Any]):
         return cls(
             l=[
-                SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v) for v in d["l"].values()
+                SimpleExon.from_dict(v)
+                if v["type"] == "SimpleExon"
+                else SimpleTE.from_dict(v)
+                for v in d["l"].values()
             ],
             depth=d["d"],
         )
@@ -204,6 +211,7 @@ class TranslationInstruction(SimpleSerializable):
         gt: GeneTreeInterface,
         fav: FastaViewType,
         mu: float = depth.DEFAULT_MU,
+        disable_gmm: bool = False,
         weight_transcript: float = DEFAULT_WEIGHT_TRANSCRIPT,
         weight_transposon: float = DEFAULT_WEIGHT_TE,
         weight_stop: float = DEFAULT_WEIGHT_STOP,
@@ -212,12 +220,10 @@ class TranslationInstruction(SimpleSerializable):
         minimal_transcript_len: int = DEFAULT_MINIMAL_TRANSCRIPT_LEN,
         high_cutoff_ratio: float = depth.DEFAULT_HIGH_CUTOFF_RATIO,
         low_cutoff: float = depth.DEFAULT_LOW_CUTOFF,
+        max_n_gene: int = DEFAULT_MAX_N_GENE,
+        max_n_transposon: int = DEFAULT_MAX_N_TRANSPOSON,
+        max_n_feature: int = DEFAULT_MAX_N_FEATURE,
     ):
-        """
-
-        :param n: Number of sequences.
-        :return: Generated instance
-        """
         rdg = random.SystemRandom()
 
         def autoclip(_seq: str, _min_len: int) -> str:
@@ -227,39 +233,76 @@ class TranslationInstruction(SimpleSerializable):
                 if end - start + 1 > _min_len:
                     return _seq[start:end]
 
-        collapsed_transcripts = [gene.collapse_transcript(True) for gene in tqdm(gt.gene_values, "Collapsing...")]
-        tisa = TranslationInstructionStateAutomata((weight_transcript, weight_transposon, weight_stop))
+        collapsed_transcripts = [
+            gene.collapse_transcript(True)
+            for gene in tqdm(gt.gene_values, "Collapsing...")
+        ]
+        tisa = TranslationInstructionStateAutomata(
+            (weight_transcript, weight_transposon, weight_stop)
+        )
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
         while len(final_simple_transcripts) < n:
             new_transcript = SimpleTranscript(l=[], depth=0)
-            while True:
+            n_gene = 0
+            n_transposon = 0
+            while (
+                n_gene < max_n_gene
+                and n_transposon < max_n_transposon
+                and (n_gene + n_transposon) < max_n_feature
+            ):
                 state = tisa.draw()
                 if state == TranslationInstructionState.STOP:
                     break
                 elif state == TranslationInstructionState.TRANSCRIPT:
                     transcript_to_use = rdg.choice(collapsed_transcripts)
-                    seq = transcript_to_use.transcribe(fav.sequence, fav.legalize_region_best_effort)
+                    seq = transcript_to_use.transcribe(
+                        fav.sequence, fav.legalize_region_best_effort
+                    )
                     if len(seq) < 2 * minimal_transcript_len:
                         continue
                     seq = autoclip(seq, minimal_transcript_len)
-                    new_transcript.l.append(SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq))
+                    seq = normalize_nt_sequence(
+                        seq,
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    )
+                    new_transcript.l.append(
+                        SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq)
+                    )
+                    n_gene += 1
                 elif state == TranslationInstructionState.TRANSPOSON:
                     src_te_name, seq = tedb.draw()
                     if len(seq) < 2 * minimal_transposon_len:
                         continue
                     seq = autoclip(seq, minimal_transposon_len)
+                    seq = normalize_nt_sequence(
+                        seq,
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    )
                     new_transcript.l.append(SimpleTE(src_te_name=src_te_name, seq=seq))
+                    n_transposon += 1
 
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
-            final_simple_transcripts[f"gtt-{len(final_simple_transcripts)}"] = new_transcript
+            final_simple_transcripts[
+                f"gtt-{len(final_simple_transcripts)}"
+            ] = new_transcript
             pbar.update(1)
-        for k, v in depth.simulate_gene_level_depth_gmm(
-            gene_names=final_simple_transcripts.keys(),
-            mu=mu,
-            low_cutoff=low_cutoff,
-            high_cutoff_ratio=high_cutoff_ratio,
-        ).items():
-            final_simple_transcripts[k].depth = v
+        if disable_gmm:
+            for v in final_simple_transcripts.values():
+                v.depth = mu
+        else:
+            for k, v in depth.simulate_gene_level_depth_gmm(
+                gene_names=final_simple_transcripts.keys(),
+                mu=mu,
+                low_cutoff=low_cutoff,
+                high_cutoff_ratio=high_cutoff_ratio,
+            ).items():
+                final_simple_transcripts[k].depth = v
         return cls(final_simple_transcripts)

@@ -23,7 +23,7 @@ import numpy as np
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.mlutils.ndarray_helper import describe
-from labw_utils.typing_importer import List, Sequence
+from labw_utils.typing_importer import List, Sequence, Iterable
 from yasim.helper.depth_io import DepthType
 from yasim.helper.gmm import GaussianMixture1D
 
@@ -47,7 +47,7 @@ class GenerationFailureException(RuntimeError):
 
 
 def simulate_gene_level_depth_gmm(
-    gene_names: Sequence[str],
+    gene_names: Iterable[str],
     mu: float = DEFAULT_MU,
     low_cutoff: float = DEFAULT_LOW_CUTOFF,
     high_cutoff_ratio: float = DEFAULT_HIGH_CUTOFF_RATIO,
@@ -81,15 +81,20 @@ def simulate_gene_level_depth_gmm(
             (0.4709335459762455, 3.1287227827640636, 0.33812788057291315),
         ]
     )
+    gene_names = list(gene_names)
     n_gene_ids = len(gene_names)
     depth = {}
     for i in range(20):
         _lh.info("GEN GENE DEPTH: Attempt %d: GMM...", i)
         data = np.power(10, gmm_model.rvs(size=2 * n_gene_ids) - 1) - 1
         _lh.info("GEN GENE DEPTH: Attempt %d: 1/4: Scaling...", i)
-        data = data / np.mean(data) * mu  # Scale to similar mean; should have a ~10% error
+        data = (
+            data / np.mean(data) * mu
+        )  # Scale to similar mean; should have a ~10% error
         _lh.info("GEN GENE DEPTH: Attempt %d: 2/4: Filtering...", i)
-        data = data[functools.reduce(np.logical_and, (data > 0, np.isfinite(data)))]  # Filter data
+        data = data[
+            functools.reduce(np.logical_and, (data > 0, np.isfinite(data)))
+        ]  # Filter data
         if len(data) < n_gene_ids:
             _lh.warning(
                 "GEN GENE DEPTH: filtered data length (%d) smaller than required (%d); would regenerate",
@@ -153,7 +158,9 @@ def simulate_isoform_variance_inside_a_gene(
     return data
 
 
-def simulate_depth_gmm_v2(isoform_names: Sequence[str], mu: float = DEFAULT_MU) -> DepthType:
+def simulate_depth_gmm_v2(
+    isoform_names: Sequence[str], mu: float = DEFAULT_MU
+) -> DepthType:
     """
     Simulate Isoform-level GEP using Gaussian mixture model using version 2 algorithm.
 
@@ -187,7 +194,9 @@ def simulate_depth_gmm_v2(isoform_names: Sequence[str], mu: float = DEFAULT_MU) 
     return depth
 
 
-def generate_depth_replicates_uniform(input_depth: DepthType, _range: float = 0.001) -> DepthType:
+def generate_depth_replicates_uniform(
+    input_depth: DepthType, _range: float = 0.001
+) -> DepthType:
     """
     Generate replications of depth in uniform distribution. Would be O = I + uniform(-_range, +_range) * I
 
