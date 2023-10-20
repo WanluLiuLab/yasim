@@ -64,6 +64,7 @@ class TransposonDatabase:
                 except Exception as e:
                     print(p.stderr.read())
                     print(e)
+                    raise ValueError
 
         rdg = random.SystemRandom()
         selected_accn, selected_seq = rdg.choice(self._hmm_epool)
@@ -163,9 +164,11 @@ class TransposonDatabase:
         :returns: Transposon accession, start position and its sequence.
         """
         if self._hmmemit_path is not None:
-            return self.draw_hmm_emissions()
-        else:
-            rdg = random.SystemRandom()
-            selected_accn = rdg.choice(self._accessions)
-            selected_seq = self._accession_sequence_map[selected_accn]
-            return selected_accn, selected_seq
+            try:
+                return self.draw_hmm_emissions()
+            except ValueError:
+                pass
+        rdg = random.SystemRandom()
+        selected_accn = rdg.choice(self._accessions)
+        selected_seq = self._accession_sequence_map[selected_accn]
+        return selected_accn, selected_seq
