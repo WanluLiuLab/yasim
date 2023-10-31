@@ -40,8 +40,7 @@ class TransposonDatabase:
     ) -> None:
         _lh.info("Enumerating taxons...")
         txids = [required_txid]
-        accession_sequence_map = {}
-        accession_hmm_map = {}
+        accession_info = {}
         with h5py.File(src_dfam_hdf5_file_path) as ds:
             while fetch_parent:
                 this_taxon_node = ds["Taxonomy"]["Nodes"][str(txids[-1])]
@@ -75,28 +74,48 @@ class TransposonDatabase:
                             accession,
                         )
                         continue
-                accession_sequence_map[d.attrs["name"]] = d.attrs["consensus"]
-                accession_hmm_map[d.attrs["name"]] = d.attrs["model"]
-
+                try:
+                    accession_info[d.attrs["name"]] = {
+                        # "CONSENSUS": d.attrs["consensus"],
+                        # "HMM": d.attrs["model"],
+                        "NAME": d.attrs.get("name", f"NAME-{accession}"),
+                        "SUBTYPE": d.attrs.get(
+                            "repeat_subtype", f"SUBTYPE-{accession}"
+                        ),
+                        "TYPE": d.attrs.get("repeat_type", f"TYPE-{accession}"),
+                    }
+                except KeyError:
+                    _lh.warning(
+                        "Name '%s' do not have consensus/model, skipped",
+                        accession,
+                    )
+                    continue
             _lh.info(
-                "Finished with %d accesions, writing...", len(accession_sequence_map)
+                "Finished with %d accesions, writing...",
+                len(accession_info),
             )
             pickle_helper.dump(
-                [accession_sequence_map, accession_hmm_map], dst_index_file_path
+                accession_info,
+                dst_index_file_path,
             )
             if dst_consensus_fa_path is not None:
                 with FastaWriter(dst_consensus_fa_path) as faw:
-                    for k, v in accession_sequence_map.items():
-                        faw.write(FastaRecord(k, v))
+                    for k, v in accession_info.items():
+                        faw.write(FastaRecord(k, v["CONSENSUS"]))
             if dst_hmm_path is not None:
                 with get_writer(dst_hmm_path, is_binary=False) as hmmw:
-                    for v in accession_hmm_map.values():
-                        hmmw.write(v)
+                    for v in accession_info.values():
+                        hmmw.write(v["HMM"])
             _lh.info("Finished")
 
     @classmethod
     def load(cls, index_path: str, with_tqdm: bool = True):
-        return cls(*pickle_helper.load(index_path, with_tqdm=with_tqdm))
+        accession_info = pickle_helper.load(index_path, with_tqdm=with_tqdm)
+
+        return cls(
+            {k: v["CONSENSUS"] for k, v in accession_info.items()},
+            {k: v["HMM"] for k, v in accession_info.items()},
+        )
 
     def dump_json(self, dst_json_file_path: str):
         with get_writer(dst_json_file_path, is_binary=False) as w:
@@ -106,7 +125,10 @@ class TransposonDatabase:
         self,
         accession_sequence_map: Mapping[str, str],
         accession_hmm_map: Mapping[str, str],
+        **kwargs,
     ) -> None:
+        _ = kwargs
+        del kwargs
         self._accession_sequence_map = accession_sequence_map
         self._accession_hmm_map = accession_hmm_map
         self._accessions = list(self._accession_sequence_map.keys())
