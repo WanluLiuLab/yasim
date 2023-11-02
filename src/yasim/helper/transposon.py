@@ -76,8 +76,8 @@ class TransposonDatabase:
                         continue
                 try:
                     accession_info[d.attrs["name"]] = {
-                        # "CONSENSUS": d.attrs["consensus"],
-                        # "HMM": d.attrs["model"],
+                        "CONSENSUS": d.attrs["consensus"],
+                        "HMM": d.attrs["model"],
                         "NAME": d.attrs.get("name", f"NAME-{accession}"),
                         "SUBTYPE": d.attrs.get(
                             "repeat_subtype", f"SUBTYPE-{accession}"
