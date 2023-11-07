@@ -207,7 +207,7 @@ class TranslationInstruction(SimpleSerializable):
         cls,
         *,
         n: int,
-        tedb: TransposonDatabase,
+        tedb: Optional[TransposonDatabase],
         gt: GeneTreeInterface,
         fav: FastaViewType,
         mu: float = depth.DEFAULT_MU,
@@ -273,7 +273,9 @@ class TranslationInstruction(SimpleSerializable):
                         SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq)
                     )
                     n_gene += 1
-                elif state == TranslationInstructionState.TRANSPOSON:
+                elif (
+                    state == TranslationInstructionState.TRANSPOSON and tedb is not None
+                ):
                     src_te_name, seq = tedb.draw()
                     if len(seq) < 2 * minimal_transposon_len:
                         continue
