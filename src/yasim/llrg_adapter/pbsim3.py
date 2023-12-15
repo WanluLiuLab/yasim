@@ -5,7 +5,12 @@ pbsim3.py -- Wrapper of PBSIM3.
 
 .. todo:: Sphinx would get paths. Stop this.
 """
-__all__ = ("Pbsim3Adapter", "PBSIM3_DIST_DIR_PATH", "PBSIM3_STRATEGY", "patch_frontend_parser")
+__all__ = (
+    "Pbsim3Adapter",
+    "PBSIM3_DIST_DIR_PATH",
+    "PBSIM3_STRATEGY",
+    "patch_frontend_parser",
+)
 
 import argparse
 import enum
@@ -21,7 +26,12 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Final, List, Mapping, Any, Optional
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.llrg import enhanced_which
-from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, automerge, LLRGInitializationException
+from yasim.llrg_adapter import (
+    BaseProcessBasedLLRGAdapter,
+    autocopy,
+    automerge,
+    LLRGInitializationException,
+)
 
 _lh = get_logger(__name__)
 
@@ -263,7 +273,9 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         if self._strategy == PBSIM3_STRATEGY.trans:
             try:
                 with get_writer(self._input_path) as transcript_writer, FastaViewFactory(
-                    filename=self._src_fasta_file_path, read_into_memory=True, show_tqdm=False
+                    filename=self._src_fasta_file_path,
+                    read_into_memory=True,
+                    show_tqdm=False,
                 ) as ff:
                     transcript_id = ff.chr_names[0]
                     sequence = ff.sequence(transcript_id)
@@ -285,7 +297,13 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
         with get_writer(os.path.join(self._tmp_dir, "call_ccs.log"), is_binary=True) as log_writer:
             if (
                 self._exec_subprocess(
-                    [self._samtools_executable_path, "view", subreads_sam_path, "-o", subreads_bam_path],
+                    [
+                        self._samtools_executable_path,
+                        "view",
+                        subreads_sam_path,
+                        "-o",
+                        subreads_bam_path,
+                    ],
                     stdin=subprocess.DEVNULL,
                     stdout=log_writer,
                     stderr=log_writer,
@@ -343,20 +361,30 @@ class Pbsim3Adapter(BaseProcessBasedLLRGAdapter):
     def _post_execution_hook(self):
         if self._ccs_pass == 1:
             if self._strategy == PBSIM3_STRATEGY.wgs:
-                automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
+                automerge(
+                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")),
+                    self._dst_fastq_file_prefix + ".fq",
+                )
             else:
-                autocopy(os.path.join(self._tmp_dir, "tmp.fastq"), self._dst_fastq_file_prefix + ".fq")
+                autocopy(
+                    os.path.join(self._tmp_dir, "tmp.fastq"),
+                    self._dst_fastq_file_prefix + ".fq",
+                )
         else:
             if self._strategy == PBSIM3_STRATEGY.wgs:
                 for fp in glob.glob(os.path.join(self._tmp_dir, "tmp_????.sam")):
                     prefix = os.path.basename(fp).split(".")[0]
                     self._ccs_to_fastq(prefix=prefix)
                 automerge(
-                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")), self._dst_fastq_file_prefix + ".fq"
+                    glob.glob(os.path.join(self._tmp_dir, "tmp_????.ccs.fq")),
+                    self._dst_fastq_file_prefix + ".fq",
                 )
             else:
                 self._ccs_to_fastq(prefix="tmp")
-                autocopy(os.path.join(self._tmp_dir, "tmp.ccs.fq"), self._dst_fastq_file_prefix + ".fq")
+                autocopy(
+                    os.path.join(self._tmp_dir, "tmp.ccs.fq"),
+                    self._dst_fastq_file_prefix + ".fq",
+                )
 
     @property
     def is_pair_end(self) -> bool:

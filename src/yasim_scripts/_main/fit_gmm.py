@@ -13,7 +13,9 @@ import pandas as pd
 from scipy.stats import norm
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.mlutils.ndarray_helper import describe
 from labw_utils.typing_importer import List
@@ -33,12 +35,42 @@ def create_parser() -> argparse.ArgumentParser:
         prog="python -m yasim_scripts fit_gmm",
         description=__doc__.splitlines()[1],
     )
-    parser.add_argument("data", help="Dataset in Apache Parquet Format")
-    parser.add_argument("-c", "--num_components", type=int, required=False, default=2)
-    parser.add_argument("--col_regex", type=str, required=False, default="SRR.*")
-    parser.add_argument("--filter_zero", action="store_true")
-    parser.add_argument("--scale", action="store_true")
-    parser.add_argument("--num_iters", type=int, required=False, default=100)
+    parser.add_argument(
+        "data",
+        help="Dataset in Apache Parquet Format",
+    )
+    parser.add_argument(
+        "-c",
+        "--num_components",
+        type=int,
+        required=False,
+        default=2,
+        help="Number of components." "Larger value can capture more details but be at a rick of over fit.",
+    )
+    parser.add_argument(
+        "--col_regex",
+        type=str,
+        required=False,
+        default="SRR.*",
+        help="Regular expression for column names that will be modelled.",
+    )
+    parser.add_argument(
+        "--filter_zero",
+        action="store_true",
+        help="Filter zero.",
+    )
+    parser.add_argument(
+        "--scale",
+        action="store_true",
+        help="Scale fata to [1, 5001].",
+    )
+    parser.add_argument(
+        "--num_iters",
+        type=int,
+        required=False,
+        default=100,
+        help="Number of EM Iterations. Most samples will converge before 100.",
+    )
     return parser
 
 

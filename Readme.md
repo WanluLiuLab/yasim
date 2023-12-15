@@ -4,6 +4,8 @@
 
 ---
 
+[PYPI](https://pypi.org/project/yasim/) [GitHub](https://github.com/WanluLiuLab/yasim) [Documentations](https://labw.org/yasim-docs/)
+
 With the development of Third-Generation Sequencing (TGS) and related technologies, accurate quantification of transcripts in the isoform level with precise detection of novel isoforms from Alternative Splicing (AS) events or relocation of Transposable Elements (TEs) had become possible. YASIM is the tool that simulates Next- or Third-Generation bulk RNA-Sequencing raw FASTQ reads with ground truth genome annotation and realistic gene expression profile (GEP). It can be used to benchmark tools that are claimed to be able to detect isoforms (e.g., [StringTie](https://ccb.jhu.edu/software/stringtie/)) or quantify reads on an isoform level (e.g., [featureCounts](https://subread.sourceforge.net/featureCounts.html)).
 
 YASIM serves different simulation purposes. For example, it can be used to simulate a count matrix from reference genome annotation or to simulate raw FASTQ reads from a user-provided count matrix. When combined with other tools, the user can also simulate reads from the genome with Single Nucleotide Polymorphism (SNP), Insertions \& Deletions (InDels), Structural Variations (SVs), and other genomic variations.
@@ -53,7 +55,7 @@ pip install dist/yasim-3.1.6-py3-none-any.whl
 
 For TGS LLRGs:
 
-- [PBSIM](https://github.com/yukiteruono/pbsim), which simulates PacBio RS C1 and C2 chemistry, with CCS support.
+- [PBSIM](https://github.com/yukiteruono/pbsim), which simulates PacBio RS C1 and C2 chemistries, with CCS support.
 - [PBSIM2](https://github.com/yukiteruono/pbsim2), which simulates PacBio RS II P4C2, P5C3, and P6C4 chemistry, CLR only; ONT R9.4, R9.5, and R10.3 pore.
 - [PBSIM3](https://github.com/yukiteruono/pbsim3), which simulates PacBio RS II and Sequel model, with CCS support.
 - [BadRead](https://github.com/rrwick/Badread), which simulates arbitrary PacBio and ONT models.

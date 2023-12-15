@@ -18,7 +18,16 @@ from scipy.stats import norm
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import parallel_map
-from labw_utils.typing_importer import Optional, Union, Iterable, Tuple, List, Sequence, SequenceProxy, Any
+from labw_utils.typing_importer import (
+    Optional,
+    Union,
+    Iterable,
+    Tuple,
+    List,
+    Sequence,
+    SequenceProxy,
+    Any,
+)
 
 _lh = get_logger(__name__)
 
@@ -196,7 +205,10 @@ class GaussianMixture1D:
             k = rdg.choices(indices, weights=self._weights)
             return rdg.normalvariate(mu=self._mu[k], sigma=self._sigma[k])
 
-        result = np.array(list(parallel_map(_rvs, range(size), n_jobs=multiprocessing.cpu_count())), dtype=float)
+        result = np.array(
+            list(parallel_map(_rvs, range(size), n_jobs=multiprocessing.cpu_count())),
+            dtype=float,
+        )
         return result
 
     def export(self) -> Sequence[Tuple[float, float, float]]:
@@ -210,7 +222,11 @@ class GaussianMixture1D:
         model = list(model)
         new_instance = cls(n_components=len(model))
         for j in range(len(model)):
-            new_instance._weights[j], new_instance._mu[j], new_instance._sigma[j] = model[j]
+            (
+                new_instance._weights[j],
+                new_instance._mu[j],
+                new_instance._sigma[j],
+            ) = model[j]
         return new_instance
 
     def __repr__(self):

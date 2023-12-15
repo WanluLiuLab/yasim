@@ -3,7 +3,12 @@ pbsim2.py -- Wrapper of PBSIM2.
 
 .. versionadded:: 3.1.5
 """
-__all__ = ("Pbsim2Adapter", "PBSIM2_DIST_DIR_PATH", "PBSIM2_ALL_POSSIBLE_MODELS", "patch_frontend_parser")
+__all__ = (
+    "Pbsim2Adapter",
+    "PBSIM2_DIST_DIR_PATH",
+    "PBSIM2_ALL_POSSIBLE_MODELS",
+    "patch_frontend_parser",
+)
 
 import argparse
 import glob
@@ -11,7 +16,11 @@ import os
 
 from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.helper.frontend import patch_frontend_argument_parser
-from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, automerge, LLRGInitializationException
+from yasim.llrg_adapter import (
+    BaseProcessBasedLLRGAdapter,
+    automerge,
+    LLRGInitializationException,
+)
 
 PBSIM2_DIST_DIR_PATH = os.path.join(os.path.dirname(__file__), "pbsim2_dist")
 """
@@ -116,7 +125,10 @@ class Pbsim2Adapter(BaseProcessBasedLLRGAdapter):
         pass
 
     def _post_execution_hook(self):
-        automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
+        automerge(
+            glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")),
+            self._dst_fastq_file_prefix + ".fq",
+        )
 
     @property
     def is_pair_end(self) -> bool:

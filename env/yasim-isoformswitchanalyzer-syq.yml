@@ -1,4 +1,4 @@
-name: yasim_dev_isoformswitchanalyzer_syq
+name: yasim-isoformswitchanalyzer-syq
 channels:
   - nodefaults
   - conda-forge

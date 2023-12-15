@@ -11,7 +11,13 @@ import argparse
 from labw_utils.typing_importer import List, Final, Mapping, Any
 from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, LLRGInitializationException
 
-ALL_POSSIBLE_BADREAD_MODELS = ("nanopore2018", "nanopore2020", "pacbio2016", "verybad", "verynice")
+ALL_POSSIBLE_BADREAD_MODELS = (
+    "nanopore2018",
+    "nanopore2020",
+    "pacbio2016",
+    "verybad",
+    "verynice",
+)
 """
 All possible badread model names
 

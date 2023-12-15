@@ -308,9 +308,7 @@ class AssembleSingleEnd(BaseAssembler):
 
             def _assemb(transcript_id: str):
                 _lh.debug("ASSEMB: %s START", transcript_id)
-                this_fasta_path = os.path.join(
-                    self._input_transcriptome_fasta_dir, transcript_id + ".fa"
-                )
+                this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
                 this_fastq_basename = os.path.join(self._input_fastq_dir, transcript_id)
                 this_fastq_path = this_fastq_basename + ".fq"
                 if not file_system.file_exists(this_fastq_path):
@@ -398,9 +396,7 @@ class AssemblePairEnd(BaseAssembler):
     def run(self):
         def _assemb(transcript_id: str):
             _lh.debug("ASSEMB: %s START", transcript_id)
-            this_fasta_path = os.path.join(
-                self._input_transcriptome_fasta_dir, transcript_id + ".fa"
-            )
+            this_fasta_path = os.path.join(self._input_transcriptome_fasta_dir, transcript_id + ".fa")
             this_fastq_basename = os.path.join(output_fastq_dir, transcript_id)
             this_fastq_r1_path = this_fastq_basename + "_1.fq"
             this_fastq_r2_path = this_fastq_basename + "_2.fq"
@@ -469,9 +465,7 @@ class AssemblePairEnd(BaseAssembler):
         output_fastq_dir = self._output_fastq_prefix + ".d"
         with FastqWriter(self._output_fastq_prefix + "_1.fq") as writer1, FastqWriter(
             self._output_fastq_prefix + "_2.fq"
-        ) as writer2, get_writer(
-            self._output_fastq_prefix + ".fq.stats"
-        ) as stats_writer:
+        ) as writer2, get_writer(self._output_fastq_prefix + ".fq.stats") as stats_writer:
             stats_writer.write(
                 "\t".join(
                     (
@@ -521,9 +515,7 @@ class AssembleDumb(BaseAssembler):
         _lh.info("ASSEMB: FIN")
 
 
-def generate_callback(
-    assembler: AssemblerType, transcript_id: str
-) -> Callable[[threading.Thread], None]:
+def generate_callback(assembler: AssemblerType, transcript_id: str) -> Callable[[threading.Thread], None]:
     """
     Generate callback function for assemblers.
 

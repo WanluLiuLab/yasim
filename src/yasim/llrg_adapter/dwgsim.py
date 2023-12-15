@@ -12,7 +12,11 @@ import os
 from labw_utils.commonutils.lwio import file_system
 from labw_utils.typing_importer import List, Union, Final, Mapping, Any
 from yasim.helper.frontend import patch_frontend_argument_parser
-from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, NoOutputFileException
+from yasim.llrg_adapter import (
+    BaseProcessBasedLLRGAdapter,
+    autocopy,
+    NoOutputFileException,
+)
 
 
 class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
@@ -84,8 +88,18 @@ class DwgsimAdapter(BaseProcessBasedLLRGAdapter):
         pass
 
     def _post_execution_hook(self):
-        try_read1_suffix = (".bwa.read1.fastq.gz", ".bwa.read1.fastq", ".bwa.read1.fq.gz", ".bwa.read1.fq")
-        try_read2_suffix = (".bwa.read2.fastq.gz", ".bwa.read2.fastq", ".bwa.read2.fq.gz", ".bwa.read2.fq")
+        try_read1_suffix = (
+            ".bwa.read1.fastq.gz",
+            ".bwa.read1.fastq",
+            ".bwa.read1.fq.gz",
+            ".bwa.read1.fq",
+        )
+        try_read2_suffix = (
+            ".bwa.read2.fastq.gz",
+            ".bwa.read2.fastq",
+            ".bwa.read2.fq.gz",
+            ".bwa.read2.fq",
+        )
         for suffix_r1, suffix_r2 in zip(try_read1_suffix, try_read2_suffix):
             r1_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r1)
             r2_file_path = os.path.join(self._tmp_dir, "tmp" + suffix_r2)

@@ -4,7 +4,7 @@ yasim -- Yet Another SIMulator for Alternative Splicing and Realistic Gene Expre
 .. versionadded:: 3.1.5
 """
 
-__version__ = "3.2.0"
+__version__ = "3.1.6"
 
 description = __doc__.splitlines()[1]
 

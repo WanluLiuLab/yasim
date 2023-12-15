@@ -22,13 +22,10 @@ dependencies:
   - h5py
 
   # LLRGs
-  - dwgsim=1.1.13
   - art=2016.06.05
-  - pbsim=1.0.3
+  - pbsim3=3.0.1
   - samtools=1.16.1
   - pbccs=6.0.0
-  - badread=0.2.0
-  - python-edlib
 
   # Maintenance
   - setuptools

@@ -54,7 +54,7 @@ class SpaceOptimizedTranscript(Transcript):
         self._exon_boundaries = None
         self._cdna_unspliced_masked = None
         self._splice_sites = None
-        self._is_inferred = t.is_inferred
+        self._is_inferred = t._is_inferred
         self._transcript_id = t.transcript_id  # type: ignore
         self._gene_id = t.gene_id  # type: ignore
         self._exons = list(t.exons)  # Need to copy. # type: ignore
@@ -153,17 +153,21 @@ class ASManipulator:
             )
         )
         for core_func in core_funcs:
-            gene = self._generate_one_as_event(core_func=core_func, gene=gene, max_try=max_try, sotes=sotes)
+            gene = self._generate_one_as_event(
+                core_func=core_func,
+                gene=gene,
+                max_try=max_try,
+                sotes=sotes,
+            )
         return gene
 
-    def _core_perform_exon_skipping(self, old_transcript: Transcript) -> Transcript:
+    @staticmethod
+    def _core_perform_exon_skipping(old_transcript: Transcript) -> Transcript:
         number_of_exons = old_transcript.number_of_exons
-        # set the percent of knocked out exons
+        # set the percentage of knocked-out exons
         percent = random.random() * 0.3 + 0.3
         # get the number of exons n to be knocked out by multiplying total exon number of transcript
-        new_transcript = old_transcript.duplicate().update_attribute(
-            transcript_id=old_transcript.gene_id + str(uuid.uuid4())
-        )
+        new_transcript = old_transcript.duplicate(transcript_id=old_transcript.gene_id + str(uuid.uuid4()))
         es_ids = random.sample(range(0, number_of_exons), int(number_of_exons * percent))
         if len(es_ids) == 0:
             raise ImpossibleToGenerateASEventError
@@ -172,13 +176,12 @@ class ASManipulator:
             new_transcript = new_transcript.del_exon(exon_id)
         return new_transcript
 
-    def _core_perform_intron_retention(self, old_transcript: Transcript) -> Transcript:
+    @staticmethod
+    def _core_perform_intron_retention(old_transcript: Transcript) -> Transcript:
         number_of_exons = old_transcript.number_of_exons
         start_exon_id = random.choice(range(0, number_of_exons - 2))
         stop_exon_id = start_exon_id + 1
-        new_transcript = old_transcript.duplicate().update_attribute(
-            transcript_id=old_transcript.gene_id + str(uuid.uuid4())
-        )
+        new_transcript = old_transcript.duplicate(transcript_id=old_transcript.gene_id + str(uuid.uuid4()))
         _lh.debug(
             f"GEN AS EVENT: {new_transcript.transcript_id}: IR {start_exon_id}-{stop_exon_id}, total={number_of_exons}"
         )
@@ -189,7 +192,8 @@ class ASManipulator:
         new_transcript = new_transcript.del_exon(stop_exon_id)
         return new_transcript
 
-    def _core_perform_alternative_3p_splicing(self, old_transcript: Transcript) -> Transcript:
+    @staticmethod
+    def _core_perform_alternative_3p_splicing(old_transcript: Transcript) -> Transcript:
         # randomly pick an exon for splicing
         exon_id = random.randint(0, (old_transcript.number_of_exons - 1))
         # randomly generate the percent to shorten
@@ -197,9 +201,7 @@ class ASManipulator:
         intron_len = old_transcript.get_intron_length(exon_id)
         splice_perc = (random.random() - 0.5) * 1.6
         delta = int(min(exon_len, intron_len) * splice_perc)
-        new_transcript = old_transcript.duplicate().update_attribute(
-            transcript_id=old_transcript.gene_id + str(uuid.uuid4())
-        )
+        new_transcript = old_transcript.duplicate(transcript_id=old_transcript.gene_id + str(uuid.uuid4()))
         _lh.debug(
             f"GEN AS EVENT: {new_transcript.transcript_id}: "
             f"A3P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}"
@@ -210,7 +212,8 @@ class ASManipulator:
         new_transcript.add_exon(exon_to_change)
         return new_transcript
 
-    def _core_perform_alternative_5p_splicing(self, old_transcript: Transcript) -> Transcript:
+    @staticmethod
+    def _core_perform_alternative_5p_splicing(old_transcript: Transcript) -> Transcript:
         # randomly pick an exon for splicing
         exon_id = random.randint(0, old_transcript.number_of_exons - 1)
         # randomly generate the percent to shorten
@@ -218,9 +221,7 @@ class ASManipulator:
         intron_len = old_transcript.get_intron_length(exon_id - 1)
         splice_perc = (random.random() - 0.5) * 1.6
         delta = int(min(exon_len, intron_len) * splice_perc)
-        new_transcript = old_transcript.duplicate().update_attribute(
-            transcript_id=old_transcript.gene_id + str(uuid.uuid4())
-        )
+        new_transcript = old_transcript.duplicate(transcript_id=old_transcript.gene_id + str(uuid.uuid4()))
         _lh.debug(
             f"GEN AS EVENT: {new_transcript.transcript_id}: "
             f"A5P {exon_id} (EXON_LEN={exon_len}, INTRON_LEN={intron_len}), {delta}"
@@ -294,7 +295,13 @@ class ASManipulator:
         gene_ids_to_del: List[str] = []
         all_gene_ids = list(self._gv.gene_ids)
         targeted_nipg = np.array(
-            lognorm.rvs(fit_tuple[0], loc=fit_tuple[1], scale=fit_tuple[2], size=len(all_gene_ids) * 5), dtype=float
+            lognorm.rvs(
+                fit_tuple[0],
+                loc=fit_tuple[1],
+                scale=fit_tuple[2],
+                size=len(all_gene_ids) * 5,
+            ),
+            dtype=float,
         )
         minvalue = np.min(targeted_nipg)
         targeted_nipg = (targeted_nipg - minvalue) * compl_idx / np.mean(targeted_nipg) + minvalue

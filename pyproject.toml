@@ -8,8 +8,8 @@ build-backend = "setuptools.build_meta"
 name = "yasim"
 description = "Yet Another SIMulator for Alternative Splicing Events and Realistic Gene Expression Profile"
 authors = [
-    { name = "YU Zhejian", email = "Zhejian.19@intl.zju.edu.cn" },
-    { name = "SU Yaqi", email = "Yaqi.19@intl.zju.edu.cn" },
+    { name = "YU Zhejian", email = "Zhejian.23@intl.zju.edu.cn" },
+    { name = "SU Yaqi", email = "yaqisu@berkeley.edu" },
     { name = "YUAN Ruihong", email = "Ruihong.19@intl.zju.edu.cn" },
     { name = "CHEN Xinyi", email = "22171013@zju.edu.cn" },
     { name = "LIU Wanlu (Correspondence)", email = "wanluliu@intl.zju.edu.cn" }

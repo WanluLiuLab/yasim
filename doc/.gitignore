@@ -3,3 +3,4 @@
 /activate.sh
 /proc_profiler_*/
 *.ipynb
+!/yasim_docs_placeholder/*

@@ -12,7 +12,11 @@ import os
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List, Tuple, Union, Final, Any, Mapping
 from yasim.helper.frontend import patch_frontend_argument_parser
-from yasim.llrg_adapter import BaseProcessBasedLLRGAdapter, autocopy, LLRGInitializationException
+from yasim.llrg_adapter import (
+    BaseProcessBasedLLRGAdapter,
+    autocopy,
+    LLRGInitializationException,
+)
 
 AVAILABLE_ILLUMINA_ART_SEQUENCER: Mapping[str, Tuple[str, List[int]]] = {
     "GA1": ("GenomeAnalyzer I", [36, 44]),
@@ -82,7 +86,11 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
             raise LLRGInitializationException(f"Sequencer Profile for sequencer {sequencer_name} not found!") from e
         if read_length not in sequencer_profile[1]:
             read_length_used = sequencer_profile[1][0]
-            _lh.warning("ART: Read length %d not allowed, would use default %d.", read_length, read_length_used)
+            _lh.warning(
+                "ART: Read length %d not allowed, would use default %d.",
+                read_length,
+                read_length_used,
+            )
         else:
             read_length_used = read_length
         retd.update({"read_length": read_length_used})
@@ -167,15 +175,30 @@ class ArtAdapter(BaseProcessBasedLLRGAdapter):
         ]
         if self._is_pair_end:
             self._cmd.extend(
-                ["-p", "--sdev", str(pair_end_fragment_length_std), "--mflen", str(pair_end_fragment_length_mean)]
+                [
+                    "-p",
+                    "--sdev",
+                    str(pair_end_fragment_length_std),
+                    "--mflen",
+                    str(pair_end_fragment_length_mean),
+                ]
             )
 
     def _post_execution_hook(self):
         if self._is_pair_end:
-            autocopy(os.path.join(self._tmp_dir, "tmp1.fq"), self._dst_fastq_file_prefix + "_1.fq")
-            autocopy(os.path.join(self._tmp_dir, "tmp2.fq"), self._dst_fastq_file_prefix + "_2.fq")
+            autocopy(
+                os.path.join(self._tmp_dir, "tmp1.fq"),
+                self._dst_fastq_file_prefix + "_1.fq",
+            )
+            autocopy(
+                os.path.join(self._tmp_dir, "tmp2.fq"),
+                self._dst_fastq_file_prefix + "_2.fq",
+            )
         else:
-            autocopy(os.path.join(self._tmp_dir, "tmp.fq"), self._dst_fastq_file_prefix + ".fq")
+            autocopy(
+                os.path.join(self._tmp_dir, "tmp.fq"),
+                self._dst_fastq_file_prefix + ".fq",
+            )
 
     @property
     def is_pair_end(self) -> bool:
@@ -233,7 +256,10 @@ def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
         default=0,
     )
     parser.add_argument(
-        "--is_pair_end", required=False, help="Whether to use Pair End (PE) Simulation", action="store_true"
+        "--is_pair_end",
+        required=False,
+        help="Whether to use Pair End (PE) Simulation",
+        action="store_true",
     )
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

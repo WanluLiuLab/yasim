@@ -31,11 +31,11 @@ wait
 bwa-mem2 index ref/ce11.fa
 mkdir -p aln
 for acc in SRR9286044 SRR9286043; do
-        bwa-mem2 mem \
-            -t 32 -S -P \
-            ref/ce11.fa \
-            fastp_tmp/"${acc}"_1.fastq \
-            fastp_tmp/"${acc}"_2.fastq | \
+    bwa-mem2 mem \
+        -t 32 -S -P \
+        ref/ce11.fa \
+        fastp_tmp/"${acc}"_1.fastq \
+        fastp_tmp/"${acc}"_2.fastq |
         samtools view -h -@ 36 -o aln/"${acc}".bam
     pairtools parse \
         -o aln/"${acc}".pair.gz \
@@ -56,10 +56,11 @@ for acc in SRR9286044 SRR9286043; do
         --max-mismatch 3 \
         --mark-dups \
         --output \
-            >( pairtools split \
+        >(
+            pairtools split \
                 --output-pairs aln/"${acc}".nodups.pairs.gz \
-                --output-sam aln/"${acc}".nodups.bam \
-             ) \
+                --output-sam aln/"${acc}".nodups.bam
+        ) \
         --output-stats aln/"${acc}".dedup.stats \
         aln/"${acc}".pairs.gz
     pairtools select \

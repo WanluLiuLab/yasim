@@ -9,12 +9,7 @@ if [ ! -f chrM.ncbiRefSeq.gtf ]; then
     axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>/dev/null
     gzip -cfd ce11.ncbiRefSeq.gtf.gz | grep '^chrM\s' >chrM.ncbiRefSeq.gtf
 fi
-function grep_pbar() {
-    { grep -v '1%' || true; } |
-        { grep -v '26%' || true; } |
-        { grep -v '51%' || true; } |
-        { grep -v '76%' || true; }
-}
+
 if [ ! -f isoform_depth.tsv ]; then
     python -m yasim generate_gene_depth \
         -g chrM.ncbiRefSeq.gtf \

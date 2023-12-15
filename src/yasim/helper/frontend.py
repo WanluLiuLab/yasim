@@ -8,9 +8,8 @@ __all__ = ("patch_frontend_argument_parser",)
 
 import argparse
 
-from yasim.helper import depth
-
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs, FrontendOptSpec
+from yasim.helper import depth
 
 FrontendOptSpecs.add(
     FrontendOptSpec(

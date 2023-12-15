@@ -8,7 +8,9 @@ __all__ = ("main", "create_parser")
 
 import argparse
 
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.typing_importer import List
 from yasim.helper import llrg
 from yasim.helper.rna_seq import bulk_rna_seq_frontend
@@ -48,7 +50,10 @@ def main(args: List[str]):
             "other_args": other_args,
             "preserve_intermediate_files": args.preserve_intermediate_files,
         },
-        assembler_args={"truncate_ratio_3p": args.truncate_ratio_3p, "truncate_ratio_5p": args.truncate_ratio_5p},
+        assembler_args={
+            "truncate_ratio_3p": args.truncate_ratio_3p,
+            "truncate_ratio_5p": args.truncate_ratio_5p,
+        },
         adapter_class=pbsim3.Pbsim3Adapter,
         is_pair_end=False,
         llrg_executable_path=args.llrg_executable_path,

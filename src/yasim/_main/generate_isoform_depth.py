@@ -9,11 +9,13 @@ __all__ = ("main", "create_parser")
 import argparse
 
 import numpy as np
-from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
-from labw_utils.bioutils.datastructure.gv.gene import DumbGene
 
 import yasim.helper.depth_io
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
+from labw_utils.bioutils.datastructure.gv.gene import DumbGene
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.mlutils.ndarray_helper import describe
 from labw_utils.typing_importer import List
@@ -68,7 +70,10 @@ def main(args: List[str]):
     transcript_level_depth = {}
     for gene in gv.gene_values:
         if gene.gene_id not in gene_level_depth:
-            _lh.warning("GEN ISOFORM DEPTH: Gene %s defined in GTF but not gene-level depth", gene.gene_id)
+            _lh.warning(
+                "GEN ISOFORM DEPTH: Gene %s defined in GTF but not gene-level depth",
+                gene.gene_id,
+            )
         if gene_level_depth[gene.gene_id] == 0:
             for transcript in gene.transcript_values:
                 transcript_level_depth[transcript.transcript_id] = 0
@@ -82,7 +87,10 @@ def main(args: List[str]):
                 high_cutoff_ratio=args.high_cutoff_ratio,
             )
         except depth.GenerationFailureException:
-            _lh.error("GEN ISOFORM DEPTH: Generation failed for gene %s -- SKIPPED", gene.gene_id)
+            _lh.error(
+                "GEN ISOFORM DEPTH: Generation failed for gene %s -- SKIPPED",
+                gene.gene_id,
+            )
             continue
         for i, transcript in enumerate(gene.transcript_values):
             transcript_level_depth[transcript.transcript_id] = this_transcript_level_depth[i]

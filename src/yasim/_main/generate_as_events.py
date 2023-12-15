@@ -7,9 +7,8 @@ generate_as_events.py -- Generate Alternative Splicing Events from Reference gen
 __all__ = ("main", "create_parser")
 
 import argparse
-import sys
 
-from labw_utils.bioutils.datastructure.gene_tree import GeneTree
+from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
@@ -52,7 +51,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
-    gv = GeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
+    gv = DiploidGeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
     asm = ASManipulator(gv=gv)
     asm.run("ce", args.complexity)
     asm.to_file(args.out)

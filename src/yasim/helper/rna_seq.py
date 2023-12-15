@@ -15,16 +15,24 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio import file_system
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import ParallelJobExecutor
-from labw_utils.typing_importer import Tuple, Mapping, Any, Type, Optional, Dict, List
+from labw_utils.typing_importer import Tuple, Mapping, Any, Type, Optional, List
 from yasim.helper.depth_io import DepthType, read_depth, DepthParsingException
-from yasim.helper.llrg import enhanced_which, AssembleDumb, AssemblePairEnd, AssembleSingleEnd, generate_callback
+from yasim.helper.llrg import (
+    enhanced_which,
+    AssembleDumb,
+    AssemblePairEnd,
+    AssembleSingleEnd,
+    generate_callback,
+)
 from yasim.llrg_adapter import LLRGInitializationException, BaseLLRGAdapter
 
 _lh = get_logger(__name__)
 
 
 def validate_adapter_args(
-    adapter_args: Mapping[str, Any], adapter_class: Type[BaseLLRGAdapter], llrg_executable_path: Optional[str] = None
+    adapter_args: Mapping[str, Any],
+    adapter_class: Type[BaseLLRGAdapter],
+    llrg_executable_path: Optional[str] = None,
 ) -> Mapping[str, Any]:
     """
     TODO docs
@@ -72,7 +80,10 @@ def run_rna_seq(
     output_fastq_dir = output_fastq_prefix + ".d"
     os.makedirs(output_fastq_dir, exist_ok=True)
     simulating_pool = ParallelJobExecutor(
-        pool_name="Simulating jobs", pool_size=jobs, delete_after_finish=False, show_tqdm=show_tqdm
+        pool_name="Simulating jobs",
+        pool_size=jobs,
+        delete_after_finish=False,
+        show_tqdm=show_tqdm,
     )
     depth_info: List[Tuple[float, str, str]] = []
     """
@@ -134,7 +145,11 @@ def run_rna_seq(
     assembler.terminate()
     _lh.info("RNA SEQ: Assembler termination signal sent, waiting...")
     while assembler.is_alive():
-        _lh.info("RNA SEQ: Assembling %s -- PENDING: %d", output_fastq_prefix, assembler.n_pending)
+        _lh.info(
+            "RNA SEQ: Assembling %s -- PENDING: %d",
+            output_fastq_prefix,
+            assembler.n_pending,
+        )
         time.sleep(1.0)
     assembler.join()
     _lh.info("RNA SEQ: Assembler finished, retrieving error reports...")
@@ -166,7 +181,9 @@ def bulk_rna_seq_frontend(
     .. versionadded:: 3.1.5
     """
     adapter_args = validate_adapter_args(
-        adapter_args=adapter_args, adapter_class=adapter_class, llrg_executable_path=llrg_executable_path
+        adapter_args=adapter_args,
+        adapter_class=adapter_class,
+        llrg_executable_path=llrg_executable_path,
     )
     try:
         depth_data = read_depth(depth_file_path)

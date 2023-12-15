@@ -10,21 +10,23 @@ channels:
 
 dependencies:
   # Core libraries in labw_utils
-  - python=3.8
+  - python=3.9
   - tk
+  - numpy>=1.26 # Supported: 1.24.X, 1.25.X
+  - pandas>=2.0 # Supported: 1.4.X, 1.5.X, 2.0.X
+  - pysam>=0.21 # Supported: 0.20
+  - joblib=>1.3 # Supported: 1.2.X
+  - requests>=2.31 # Supported: 2.28.X
+  - tomli-w>=1.0
+  - tqdm>=4.66
   - scipy>=1.7
-  - pandas>=1.4 # Supported: 1.5.X, 2.0.X
-  - numpy>=1.24
-  - pysam>=0.20
-  - joblib=>1.2
   - jinja2>=3.1.2
-  - tqdm>=4.64
-  - matplotlib>=3.6
-  - pyarrow
+  - matplotlib>=3.8
+  - pyarrow>=12.0.0 # Supported: 9.0.X
   - h5py
 
   # Used in building docs
-  - seaborn>=0.12
+  - seaborn>=0.13.0
 
   # Development Utilities
   - bash
@@ -38,68 +40,34 @@ dependencies:
   - go-shfmt
 
   # Sphinx documentation
-  - sphinx=5.3
+  - sphinx=7.2
   - sphinx-copybutton
   - myst-nb
+  - sphinxcontrib-bibtex
+  - sphinx-design=0.5.0
+  - furo=2023.9.10
   - notebook
   - jupyter
   - jupytext
-  - sphinx-design=0.3.0
-  - furo=2023.3.27
-
-  # R
-  - bioconductor-deseq2=1.38.0
-  - bioconductor-isoformswitchanalyzer=1.20.0
-  - r-arrow=10.0.1
-  - r-corrplot=0.92
-  - r-ggridges=0.5.4
-  - r-tidyverse=1.3.2
-  - r-scales=1.2.1
-  - r-complexupset=1.3.3
-  - r-hexbin=1.28.2
-  - r-pheatmap=1.0.12
-  - r-base=4.2.2
-  - r-languageserver
-  - radian=0.6.4
-  - r-ggpubr=0.6.0
-  - r-lintr
-  - r-formatr
-  - r-argparse=2.1.5
-  - r-argparser=0.7.1
 
   # Aligners
   - minimap2=2.24
   - STAR=2.7.10b
   - last=1449
-  - blat=35
-  - pblat=2.5.1
-  - ucsc-fatotwobit
   - bwa=0.7.17
 
   # LLRGs
-  - dwgsim=1.1.13
   - art=2016.06.05
-  - badread=0.2.0
-  - python-edlib=1.3.9
-  - pbsim=1.0.3
+  - pbsim3=3.0.1
+  - pbccs=6.0.0
 
   # Utils
   - samtools=1.16.1
-  - gffcompare=0.12.6
+  - gffcompare
+  - gffread
   - fastqc=0.12.1
-  - gatk4=4.3.0.0
   - seqkit
   - bedtools
-
-  # RMSK essentials
-  - perl>=5.8.0
-  - trf=4.09
-  - hmmer=3.2.1
-  - rmblast>=2.13.0
-  - plass=4.687d7
-
-  # PacBio CCS
-  - pbccs=6.0.0
 
   # Build utils
   - pip
@@ -110,5 +78,3 @@ dependencies:
   - mypy
   - black
   - line_profiler
-  - pip:
-    - pytype

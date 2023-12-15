@@ -126,7 +126,10 @@ class PbsimAdapter(BaseProcessBasedLLRGAdapter):
         pass
 
     def _post_execution_hook(self):
-        automerge(glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")), self._dst_fastq_file_prefix + ".fq")
+        automerge(
+            glob.glob(os.path.join(self._tmp_dir, "tmp_????.fastq")),
+            self._dst_fastq_file_prefix + ".fq",
+        )
 
     @property
     def is_pair_end(self) -> bool:
@@ -139,6 +142,12 @@ def patch_frontend_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentP
 
     .. versionadded:: 3.1.5
     """
-    parser.add_argument("-c", "--ccs", required=False, help="Simulate CCS instead of CLR", action="store_true")
+    parser.add_argument(
+        "-c",
+        "--ccs",
+        required=False,
+        help="Simulate CCS instead of CLR",
+        action="store_true",
+    )
     parser = patch_frontend_argument_parser(parser, "--preserve_intermediate_files")
     return parser

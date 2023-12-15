@@ -1,5 +1,5 @@
 """
-generate_te_index.py -- Generate Transposon Indices from DFam HDF5 file
+generate_te_index.py -- NOT FINISHED DO NOT USE Generate Transposon Indices from DFam HDF5 file
 
 .. versionadded:: 3.2.0
 """
@@ -8,9 +8,11 @@ __all__ = ("create_parser", "main")
 
 import argparse
 
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.typing_importer import List
-from yasim.helper.transposon import TransposonDatabase
 
 
 def create_parser() -> argparse.ArgumentParser:

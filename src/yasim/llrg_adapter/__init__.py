@@ -491,20 +491,30 @@ class BaseProcessBasedLLRGAdapter(BaseLLRGAdapter, ABC):
                 dst_fastq_file_path, is_binary=True
             ) as stdout_handler:
                 retv = self._exec_subprocess(
-                    self._cmd, stdin=subprocess.DEVNULL, stdout=stdout_handler, stderr=subprocess_log_handler
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=stdout_handler,
+                    stderr=subprocess_log_handler,
                 )
             if wc_c(dst_fastq_file_path) < 2:
                 raise EmptyOutputFileException(f"Output {dst_fastq_file_path} empty!")
         else:
             with get_writer(subprocess_log_file_path, is_binary=True) as subprocess_log_handler:
                 retv = self._exec_subprocess(
-                    self._cmd, stdin=subprocess.DEVNULL, stdout=subprocess_log_handler, stderr=subprocess_log_handler
+                    self._cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess_log_handler,
+                    stderr=subprocess_log_handler,
                 )
         if retv != 0:
             raise LLRGFailException(f"Return value LLRG ({retv}) != 0")
 
     def _exec_subprocess(
-        self, cmd: List[str], stdin: Union[IO, int], stdout: Union[IO, int], stderr: Union[IO, int]
+        self,
+        cmd: List[str],
+        stdin: Union[IO, int],
+        stdout: Union[IO, int],
+        stderr: Union[IO, int],
     ) -> int:
         """
         Wrapper of :py:class:`subprocess.Popen` with logs.

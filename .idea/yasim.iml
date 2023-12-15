@@ -1922,6 +1922,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/test_hi_c/fastp_tmp" />
       <excludeFolder url="file://$MODULE_DIR$/explore/test_hi_c/raw_data" />
       <excludeFolder url="file://$MODULE_DIR$/explore/test_hi_c/ref" />
+      <excludeFolder url="file://$MODULE_DIR$/test/llrg/art_pe_mode_2_STAR" />
     </content>
     <orderEntry type="jdk" jdkName="yasim_dev" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -8,7 +8,9 @@ __all__ = ("main", "create_parser")
 
 import argparse
 
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.typing_importer import List
 from yasim.helper import llrg
 from yasim.helper.rna_seq import bulk_rna_seq_frontend
@@ -38,7 +40,10 @@ def main(args: List[str]):
         depth_file_path=args.depth,
         jobs=args.jobs,
         simulator_name="dwgsim" if args.simulator_name is None else args.simulator_name,
-        adapter_args={"other_args": other_args, "preserve_intermediate_files": args.preserve_intermediate_files},
+        adapter_args={
+            "other_args": other_args,
+            "preserve_intermediate_files": args.preserve_intermediate_files,
+        },
         assembler_args={},
         adapter_class=dwgsim.DwgsimAdapter,
         is_pair_end=True,

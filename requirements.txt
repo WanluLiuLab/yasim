@@ -5,4 +5,4 @@ tqdm>=4.64
 pandas[performance]>=1.4
 joblib>=1.2
 
-labw-utils==1.0.2
+labw-utils==1.0.3

@@ -7,10 +7,12 @@ generate_gene_depth.py -- Generate Gene-Level Depth using YASIM V3 API.
 __all__ = ("main", "create_parser")
 
 import argparse
+
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
-
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List
 from yasim.helper import depth, depth_io

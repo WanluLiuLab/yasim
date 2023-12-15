@@ -1,4 +1,4 @@
-name: yasim-spades
+name: yasim-pbsim2
 channels:
   - nodefaults
   - conda-forge
@@ -6,8 +6,5 @@ channels:
   - bioconda
   - main
   - free
-  - r
-
 dependencies:
-  # Core libraries
-  - spades=3.15.5
+  - pbsim3=3.0.1

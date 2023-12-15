@@ -15,7 +15,7 @@ kernelspec:
 
 Although most LLRGs are straightforward, there are still some LLRGs that take a long time to understand. This is a tutorial to correctly use different LLRGs to simulate different sequencers. We assume that you had already read _YASIM Tutorial_.
 
-Here we would demonstrate features of commonly-used LLRGs using mitochondria of _C. Elegans_.
+Here we would demonstrate features of commonly used LLRGs using mitochondria of _C. Elegans_.
 
 +++
 
@@ -283,7 +283,7 @@ conda install -c conda-forge -c bioconda pbccs samtools
 You are also recommended to install `jinja2` and `pysam`, with which YASIM can utilize XML API of `ccs` as-is recommended by PacBio with a more accurate empty-file detection. Installation of those tools can be done by:
 
 ```shell
-pip install yasim[pbsim3]==3.1.5
+pip install yasim[pbsim3]==3.1.6
 ```
 
 See the following example for details:

@@ -1,5 +1,7 @@
 """
 self_check.py -- Check whether YASIM installation is complete.
+
+.. versionadded:: 3.1.6
 """
 import importlib
 import shutil
@@ -7,11 +9,21 @@ import shutil
 from labw_utils.typing_importer import List, Callable, Any
 
 
-def get_version(pkg_name: str, version_hook: Callable[[Any], str] = lambda m: getattr(m, "__version__")):
+def get_version(
+    pkg_name: str,
+    version_hook: Callable[[Any], str] = lambda m: getattr(m, "__version__"),
+):
     try:
         mod = importlib.import_module(pkg_name)
         ver = version_hook(mod)
-    except (ImportError, ValueError, AttributeError, RuntimeError, SystemError, TypeError):
+    except (
+        ImportError,
+        ValueError,
+        AttributeError,
+        RuntimeError,
+        SystemError,
+        TypeError,
+    ):
         ver = "ERR"
     print(f"{pkg_name}: {ver}")
 

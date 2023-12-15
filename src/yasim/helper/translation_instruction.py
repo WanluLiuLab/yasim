@@ -10,13 +10,13 @@ from labw_utils.bioutils.datastructure.fasta_view import (
     normalize_nt_sequence,
 )
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
+from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
 from labw_utils.typing_importer import Tuple, List, Union, Mapping, Any, Dict, Optional
 from yasim.helper import depth_io, depth
-from yasim.helper.transposon import TransposonDatabase
 
 DEFAULT_WEIGHT_TRANSCRIPT = 80
 DEFAULT_WEIGHT_TE = 20
@@ -126,10 +126,7 @@ class SimpleTranscript(SimpleSerializable):
     def from_dict(cls, d: Mapping[str, Any]):
         return cls(
             l=[
-                SimpleExon.from_dict(v)
-                if v["type"] == "SimpleExon"
-                else SimpleTE.from_dict(v)
-                for v in d["l"].values()
+                SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v) for v in d["l"].values()
             ],
             depth=d["d"],
         )
@@ -233,32 +230,21 @@ class TranslationInstruction(SimpleSerializable):
                 if end - start + 1 > _min_len:
                     return _seq[start:end]
 
-        collapsed_transcripts = [
-            gene.collapse_transcript(True)
-            for gene in tqdm(gt.gene_values, "Collapsing...")
-        ]
-        tisa = TranslationInstructionStateAutomata(
-            (weight_transcript, weight_transposon, weight_stop)
-        )
+        collapsed_transcripts = [gene.collapse_transcript(True) for gene in tqdm(gt.gene_values, "Collapsing...")]
+        tisa = TranslationInstructionStateAutomata((weight_transcript, weight_transposon, weight_stop))
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
         while len(final_simple_transcripts) < n:
             new_transcript = SimpleTranscript(l=[], depth=0)
             n_gene = 0
             n_transposon = 0
-            while (
-                n_gene < max_n_gene
-                and n_transposon < max_n_transposon
-                and (n_gene + n_transposon) < max_n_feature
-            ):
+            while n_gene < max_n_gene and n_transposon < max_n_transposon and (n_gene + n_transposon) < max_n_feature:
                 state = tisa.draw()
                 if state == TranslationInstructionState.STOP:
                     break
                 elif state == TranslationInstructionState.TRANSCRIPT:
                     transcript_to_use = rdg.choice(collapsed_transcripts)
-                    seq = transcript_to_use.transcribe(
-                        fav.sequence, fav.legalize_region_best_effort
-                    )
+                    seq = transcript_to_use.transcribe(fav.sequence, fav.legalize_region_best_effort)
                     if len(seq) < 2 * minimal_transcript_len:
                         continue
                     seq = autoclip(seq, minimal_transcript_len)
@@ -269,13 +255,9 @@ class TranslationInstruction(SimpleSerializable):
                         convert_non_agct_to_n=True,
                         n_operation="random_assign",
                     )
-                    new_transcript.l.append(
-                        SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq)
-                    )
+                    new_transcript.l.append(SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq))
                     n_gene += 1
-                elif (
-                    state == TranslationInstructionState.TRANSPOSON and tedb is not None
-                ):
+                elif state == TranslationInstructionState.TRANSPOSON and tedb is not None:
                     src_te_name, seq = tedb.draw()
                     if len(seq) < 2 * minimal_transposon_len:
                         continue
@@ -292,9 +274,7 @@ class TranslationInstruction(SimpleSerializable):
 
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
-            final_simple_transcripts[
-                f"gtt-{len(final_simple_transcripts)}"
-            ] = new_transcript
+            final_simple_transcripts[f"gtt-{len(final_simple_transcripts)}"] = new_transcript
             pbar.update(1)
         if disable_gmm:
             for v in final_simple_transcripts.values():
