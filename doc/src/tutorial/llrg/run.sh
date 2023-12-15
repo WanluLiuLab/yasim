@@ -13,7 +13,7 @@ if [ ! -f isoform_depth.tsv ]; then
     python -m yasim generate_gene_depth \
         -g chrM.ncbiRefSeq.gtf \
         -o gene_depth.tsv \
-        -d 60
+        -d 20
     python -m yasim generate_isoform_depth \
         -g chrM.ncbiRefSeq.gtf \
         -d gene_depth.tsv \
@@ -48,7 +48,7 @@ if [ ! -f chrm_pbsim3_errhmm.fq ]; then
         -d isoform_low_depth.tsv \
         -o chrm_pbsim3_errhmm \
         -j 40
-    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_errhmm.fq
+    python -m labw_utils.bioutils describe_fastq --input chrm_pbsim3_errhmm.fq --input_fmt fastq
 fi
 if [ ! -f chrm_pbsim3_qshmm.fq ]; then
     python -m yasim pbsim3 \
@@ -60,7 +60,7 @@ if [ ! -f chrm_pbsim3_qshmm.fq ]; then
         -d isoform_low_depth.tsv \
         -o chrm_pbsim3_qshmm \
         -j 40
-    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_qshmm.fq
+    python -m labw_utils.bioutils describe_fastq --input chrm_pbsim3_qshmm.fq --input_fmt fastq
 fi
 if [ ! -f chrm_pbsim3_clr.fq ]; then
     python -m yasim pbsim3 \
@@ -73,7 +73,7 @@ if [ ! -f chrm_pbsim3_clr.fq ]; then
         -o chrm_pbsim3_clr \
         --ccs_pass 1 \
         -j 40
-    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_clr.fq
+    python -m labw_utils.bioutils describe_fastq --input chrm_pbsim3_clr.fq --input_fmt fastq
 fi
 if [ ! -f chrm_pbsim3_ccs.fq ]; then
     python -m yasim pbsim3 \
@@ -86,5 +86,5 @@ if [ ! -f chrm_pbsim3_ccs.fq ]; then
         -o chrm_pbsim3_ccs \
         --ccs_pass 10 \
         -j 40
-    python -m labw_utils.bioutils describe_fastq chrm_pbsim3_ccs.fq
+    python -m labw_utils.bioutils describe_fastq --input chrm_pbsim3_ccs.fq --input_fmt fastq
 fi

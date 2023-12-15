@@ -65,4 +65,4 @@ For NGS LLRGs:
 - [ART](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm), which simulates various Illumina NGS platforms. Namely, GenomeAnalyzer I, GenomeAnalyzer II, HiSeq 1000, HiSeq 2000, HiSeq 2500, HiSeqX PCR free, HiSeqX TruSeq, MiniSeq TruSeq, MiSeq v3, NextSeq500 v2.
 - [DWGSIM](https://github.com/nh13/DWGSIM), which simulates arbitrary Illumina models.
 
-You may refer to the LLRG tutorial for detailed guidance on the utilization of these pieces of software.
+You may refer to the [LLRG tutorial](https://labw.org/yasim-docs/src/tutorial/llrg/index.ipynb.html) for detailed guidance on the utilization of these pieces of software.

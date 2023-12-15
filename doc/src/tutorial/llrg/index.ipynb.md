@@ -11,24 +11,11 @@ kernelspec:
   name: python3
 ---
 
-# Additional Tutorial on LLRGs
+# Tutorial on LLRGs
 
 Although most LLRGs are straightforward, there are still some LLRGs that take a long time to understand. This is a tutorial to correctly use different LLRGs to simulate different sequencers. We assume that you had already read _YASIM Tutorial_.
 
 Here we would demonstrate features of commonly used LLRGs using mitochondria of _C. Elegans_.
-
-+++
-
-**How to read this documentation**:
-
-Code blocks with leading `%%bash` are Shell code blocks. For example:
-
-```{code-cell}
-:tags: [skip-execution]
-
-%%bash
-ls -lFh | grep ipynb
-```
 
 +++
 
@@ -77,6 +64,8 @@ Here generate all steps before proceeding into LLRG. It would download the ce11 
 To interactively see LLRG simulation statistics, the following Python modules are imported:
 
 ```{code-cell}
+:tags: [hide-input]
+
 import os
 
 import pandas as pd
@@ -124,7 +113,7 @@ python -m yasim art \
 
 ### ART: Supporting Pair-End (PE) Mode
 
-ART also supports pair-end (PE) simulation. Under that circumstance, one additional flag, `--is_pair_end`, needs to be set and two additional parameters, `--pair_end_fragment_length_mean` (mean distance between two fragments) and `--pair_end_fragment_length_std` (standard deviation of the distance between two fragments), need to be specified. You're recommended to set `--pair_end_fragment_length_mean` larger than read length with `--pair_end_fragment_length_std` smaller than read length.
+ART also supports pair-end (PE) simulation. Under that circumstance, one additional flag, `--is_pair_end`, needs to be set and two additional parameters, `--pair_end_fragment_length_mean` (mean distance between two fragments) and `--pair_end_fragment_length_std` (standard deviation of the distance between two fragments), needs to be specified. You're recommended to set `--pair_end_fragment_length_mean` larger than read length with `--pair_end_fragment_length_std` smaller than read length.
 
 ### Debugging ART LLRG
 
@@ -185,7 +174,7 @@ References
 : Y. Ono, M. Hamada, and K. Asai, "Pbsim3: A simulator for all types of pacbio and ont long reads.," _NAR genomics and bioinformatics_, vol. 4, lqac092, 4 Dec. 2022, ISSN: 2631-9268. DOI: [10.1093/nargab/lqac092](https://doi.org/10.1093/nargab/lqac092)
 
 Installation
-: Compile the source code.
+: From [Conda](https://anaconda.org/bioconda/pbsim3)
 
 ### PBSIM3 Simulation Strategy
 
@@ -402,14 +391,12 @@ python -m yasim pbsim3 \
     --preserve_intermediate_files
 ```
 
-Merge all small CCS BAMs into single CCS BAM. The file `merge.py` is provided as follows:
-
-```{literalinclude} merge.py
-:language: python
-```
+Merge all small CCS BAMs into single CCS BAM.
 
 ```shell
-python merge.py chrm_ccs_isoseq.ccs.bam chrm_ccs_isoseq.d/*/tmp*.ccs.bam
+python -m yasim_scripts merge_pbccs \
+    --out chrm_ccs_isoseq.ccs.bam \
+    --input_bam_glob 'chrm_ccs_isoseq.d/*/tmp*.ccs.bam'
 pbindex chrm_ccs_isoseq.ccs.bam
 samtools index chrm_ccs_isoseq.ccs.bam
 ```
@@ -437,13 +424,13 @@ isoseq3 collapse \
     chrm_ccs_isoseq.collapse.gff
 ```
 
-The generated annotation file would be available at `chrm_ccs_isoseq.collapse.gff`. You are free to use `gffcompare` or `pigeon` for further analysis.
+The generated annotation file would be available at `chrm_ccs_isoseq.collapse.gff`. You are free to use [GffCompare](http://ccb.jhu.edu/software/stringtie/gffcompare.shtml), [SQANTI3](https://github.com/ConesaLab/SQANTI3) or [Pigeon](https://isoseq.how/classification/pigeon.html) for further analysis.
 
 +++
 
 ### Interpretation of LLRG Exceptions
 
-After each simulation, the LLRG adapter would print a line like this: `2023-04-03 15:16:41,070  [INFO] Status of errors: {'NORMAL': 5, 'LLRGFail': 6}`. This line indicates LLRG exception status. Below are the definition of commonly-seen exceptions:
+After each simulation, the LLRG adapter would print a line like this: `2023-04-03 15:16:41,070  [INFO] Status of errors: {'NORMAL': 5, 'LLRGFail': 6}`. This line indicates LLRG exception status. Below are the definitions of commonly seen exceptions:
 
 - `NORMAL`: If no exception occurs
 - `EmptyOutFile`: If LLRG exited normally but with an empty output file.
