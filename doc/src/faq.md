@@ -8,6 +8,12 @@
 
 ---
 
+- **Q: Can I use YASIM to generate scRNA-Seq data?**
+
+    A: You might be interested in [scTCR-Seq variant](https://github.com/WanluLiuLab/yasim-sctcr.git) of YASIM, which contains a module that generates scRNA-Seq data.
+
+## Guide to Parameters
+
 - **Q: How do I specify read completeness?**
 
     A: Use `--truncate_ratio_3p` or `--truncate_ratio_5p` to truncate a portion of every read when invoking the LLRGs. Note, the 3' and 5' ends are in respect to the sequencer instead of cDNA or reference genome.
@@ -16,19 +22,13 @@
 
 - **Q: How should I decide on the complexity of AS events?**
 
-    A: TODO
+    A: Use `--complexity` while generating AS events. The larger for more complex genome annotation (i.e., more number of transcripts inside a gene).
 
 ---
 
 - **Q: How should I choose the Sequencing Depth of Isoforms?**
 
-    A: TODO
-
----
-
-- **Q: Can I use YASIM to generate scRNA-Seq data?**
-
-    A: You might be interested in [scTCR-Seq variant](https://github.com/WanluLiuLab/yasim-sctcr.git) of YASIM, which contains a module that generates scRNA-Seq data.
+    A: Use `--depth` while generating gene-level depth file instead of isoform-level depth file.
 
 ## Compatibility
 

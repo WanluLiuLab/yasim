@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -ue
 if [ ! -f chrM.fa ]; then
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/chromFa.tar.gz &>/dev/null
-    tar xzvf chromFa.tar.gz
-    rm -f chrI.fa chrII.fa chrIII.fa chrIV.fa
+    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/chromosomes/chrM.fa.gz &>/dev/null
+    gunzip chrM.fa.gz
 fi
 if [ ! -f chrM.ncbiRefSeq.gtf ]; then
     axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>/dev/null
@@ -43,7 +42,7 @@ if [ ! -f chrm_pbsim3_errhmm.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M errhmm \
-        -e /home/yuzj/bin/pbsim3 \
+        -e pbsim \
         --strategy trans \
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
@@ -55,7 +54,7 @@ if [ ! -f chrm_pbsim3_qshmm.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
+        -e pbsim \
         --strategy trans \
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
@@ -67,7 +66,7 @@ if [ ! -f chrm_pbsim3_clr.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
+        -e pbsim \
         --strategy trans \
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
@@ -80,7 +79,7 @@ if [ ! -f chrm_pbsim3_ccs.fq ]; then
     python -m yasim pbsim3 \
         -m RSII \
         -M qshmm \
-        -e /home/yuzj/bin/pbsim3 \
+        -e pbsim \
         --strategy trans \
         -F chrm_trans.fa.d \
         -d isoform_low_depth.tsv \
