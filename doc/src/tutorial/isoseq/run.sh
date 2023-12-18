@@ -1,4 +1,33 @@
 #!/usr/bin/env bash
+set -ue
+if [ ! -f chrM.fa ]; then
+    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/chromosomes/chrM.fa.gz &>/dev/null
+    gunzip chrM.fa.gz
+fi
+if [ ! -f chrM.ncbiRefSeq.gtf ]; then
+    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>/dev/null
+    gzip -cfd ce11.ncbiRefSeq.gtf.gz | grep '^chrM\s' >chrM.ncbiRefSeq.gtf
+fi
+if [ ! -f chrm_trans.fa ]; then
+    python -m labw_utils.bioutils transcribe \
+        -g chrM.ncbiRefSeq.gtf \
+        -f chrM.fa \
+        -o chrm_trans.fa
+fi
+if [ ! -f isoform_low_depth.tsv ]; then
+    python -m yasim generate_gene_depth \
+        -g chrM.ncbiRefSeq.gtf \
+        -o gene_low_depth.tsv \
+        -d 5 \
+        --low_cutoff 1
+    python -m yasim generate_isoform_depth \
+        -g chrM.ncbiRefSeq.gtf \
+        -d gene_low_depth.tsv \
+        -o isoform_low_depth.tsv \
+        --alpha 4 \
+        --low_cutoff 1
+fi
+
 if [ ! -f chrm_ccs_isoseq.fq ]; then
     python -m yasim pbsim3 \
         -m SEQUEL \

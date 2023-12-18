@@ -22,13 +22,13 @@
 
 - **Q: How should I decide on the complexity of AS events?**
 
-    A: Use `--complexity` while generating AS events. The larger for more complex genome annotation (i.e., more number of transcripts inside a gene).
+    A: Use `--complexity` while generating AS events. The larger for more complex genome annotation (i.e., larger mean number of transcripts inside a gene).
 
 ---
 
 - **Q: How should I choose the Sequencing Depth of Isoforms?**
 
-    A: Use `--depth` while generating gene-level depth file instead of isoform-level depth file.
+    A: Use `--depth` while generating **gene-level** depth file.
 
 ## Compatibility
 

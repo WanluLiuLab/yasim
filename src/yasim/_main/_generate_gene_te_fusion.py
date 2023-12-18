@@ -12,6 +12,7 @@ import random
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
+from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
 )
@@ -19,7 +20,6 @@ from labw_utils.typing_importer import List
 from yasim.helper.depth import DEFAULT_MU
 from yasim.helper.frontend import patch_frontend_argument_parser
 from yasim.helper.translation_instruction import TranslationInstruction
-from yasim.helper.transposon import TransposonDatabase
 
 rdg = random.SystemRandom()
 
@@ -76,7 +76,7 @@ def main(args: List[str]):
         mu=argv.mu,
         fav=FastaViewFactory(argv.fasta),
         gt=DiploidGeneTree.from_gtf_file(argv.gtf, gene_implementation=DumbGene),
-        tedb=TransposonDatabase.load(argv.tedb, with_tqdm=True) if argv.tedb is not None else None,
+        tedb=TransposonDatabase.load(argv.tedb) if argv.tedb is not None else None,
         low_cutoff=argv.low_cutoff,
         high_cutoff_ratio=argv.high_cutoff_ratio,
     )

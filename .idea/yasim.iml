@@ -1923,6 +1923,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/test_hi_c/raw_data" />
       <excludeFolder url="file://$MODULE_DIR$/explore/test_hi_c/ref" />
       <excludeFolder url="file://$MODULE_DIR$/test/llrg/art_pe_mode_2_STAR" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/llrg/chrm_ccs_isoseq.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/llrg/chrm_pbsim3_ccs.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/llrg/chrm_pbsim3_ccs.fq.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/llrg/chrm_pbsim3_clr.d" />

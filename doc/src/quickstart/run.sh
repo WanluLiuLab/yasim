@@ -3,11 +3,11 @@
 if [ ! -f ce11.ncbiRefSeq.chr1.gtf ]; then
     wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
     gunzip ce11.ncbiRefSeq.gtf.gz
-    grep -i '^chrI\s' < ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chr1.gtf
+    grep -i '^chrI\s' <ce11.ncbiRefSeq.gtf >ce11.ncbiRefSeq.chr1.gtf
 fi
 if [ ! -f ce11.chr1.fa ]; then
     wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/chromosomes/chrI.fa.gz
-    zcat chrI.fa.gz > ce11.chr1.fa
+    zcat chrI.fa.gz >ce11.chr1.fa
 fi
 
 python -m yasim generate_as_events \

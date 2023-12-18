@@ -6,4 +6,5 @@
 :maxdepth: 2
 
 llrg/index.ipynb.md
+isoseq/index.md
 ```

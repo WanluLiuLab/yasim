@@ -8,7 +8,6 @@ import glob
 import multiprocessing
 import os.path
 import shutil
-import sys
 import tempfile
 import uuid
 from multiprocessing.managers import SyncManager
