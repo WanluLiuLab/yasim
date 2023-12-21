@@ -40,13 +40,13 @@
 
     A: To adjust the sequencing depth for the entire sample, use `--depth` while invoking `generate_gene_depth`. Note that the depth is not equal to metrics like read counts, RPKM, TPM, etc.
 
-    If you want to customize sequencing depth for individual genes, there's currently no way to do it. You may manually edit the depth TSV produced using an editor.
+    If you want to customize sequencing depth for individual genes or individual isoform inside a gene, there's currently no way to do it. You may manually edit the depth TSV produced using an editor.
 
 ---
 
-- **Q: How do I set low- and high-cutoffs?**
+- **Q: How do I set low- and high-cutoffs for sequencing depth?**
 
-    A: The lower cutoff is designed for LLRGs that do not perform well if given a depth smaller than 1. Setting this value higher will result in a smoother execution (i.e., less number of errors) but will impair fold changes.
+    A: You are allowed to set low- and high-cutoffs in `generate_gene_depth` and `generate_isoform_depth`. The lower cutoff is designed for LLRGs that do not perform well if given a depth smaller than 1. Setting this value higher will result in a smoother execution (i.e., less number of errors) but will impair fold changes.
 
     The higher cutoff ratio is designed to reduce extremely high expression levels. For example, the GMM may generate large numbers like 100,000 (which would take LLRGs years to finish) even if your targeted sample-level mean depth is only 20. The real cutoff will be higher cutoff ratio times targeted sample-level mean depth. While using CCS-based LLRGs, you are recommended to lower this value since calculation of consensus sequence is computational-intensive.
 
