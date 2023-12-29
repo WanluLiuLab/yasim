@@ -34,6 +34,7 @@ def copy_doc_files(from_path: str, to_path: str):
         shutil.copy(name, to_path + os.sep)
 
 
+copy_doc_files(os.path.join(ROOT_DIR, "fig", "*"), os.path.join(THIS_DIR, "_root", "fig"))
 copy_doc_files(os.path.join(ROOT_DIR, "*.md"), os.path.join(THIS_DIR, "_root"))
 
 myst_nb_helper.convert_ipynb_to_myst(THIS_DIR, hooks=[myst_nb_helper.shell_filter])

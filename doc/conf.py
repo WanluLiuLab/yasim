@@ -54,7 +54,7 @@ autodoc_default_options = {
 
 # Intersphinx settings
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.8", None),
+    "python": ("https://docs.python.org/3.9", None),
     "joblib": ("https://joblib.readthedocs.io/en/latest", None),
 }
 
