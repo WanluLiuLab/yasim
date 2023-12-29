@@ -8,7 +8,7 @@ __all__ = ("main", "create_parser")
 
 import argparse
 
-from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
+from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree, GeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
@@ -51,7 +51,8 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
-    gv = DiploidGeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
+    # TODO: Change this to DiploidGeneTree. Now it failed with NotImplementedError.
+    gv = GeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
     asm = ASManipulator(gv=gv)
     asm.run("ce", args.complexity)
     asm.to_file(args.out)

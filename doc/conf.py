@@ -32,18 +32,9 @@ copyright_string = f"2022-2023, {author}"
 release = yasim.__version__
 
 # -- General configuration ---------------------------------------------------
+html_theme = parsed_pyproject["tool"]["sphinx"]["html_theme"]
+extensions = parsed_pyproject["tool"]["sphinx"]["extensions"]
 
-html_theme = "furo"
-extensions = [
-    # 'sphinx.ext.autodoc',
-    "sphinx.ext.todo",
-    # 'sphinx.ext.intersphinx',
-    "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
-    "myst_nb",
-    "sphinx_copybutton",
-    "sphinx_design",
-]
 myst_enable_extensions = ["deflist", "dollarmath"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".virtualenv/**"]
 

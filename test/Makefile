@@ -62,7 +62,8 @@ chrM.STAR.ref.d: chrM.fa ce11.ncbiRefSeq.chrM.gtf
 		--runMode genomeGenerate \
 		--genomeDir chrM.STAR.ref.d \
 		--genomeFastaFiles chrM.fa \
-		--sjdbGTFfile ce11.ncbiRefSeq.chrM.gtf
+		--sjdbGTFfile ce11.ncbiRefSeq.chrM.gtf \
+		--genomeSAindexNbases 10
 
 chrI.STAR.ref.d: chrI.fa ce11.ncbiRefSeq.chrI.gtf
 	STAR \
@@ -70,7 +71,8 @@ chrI.STAR.ref.d: chrI.fa ce11.ncbiRefSeq.chrI.gtf
 		--runMode genomeGenerate \
 		--genomeDir chrI.STAR.ref.d \
 		--genomeFastaFiles chrI.fa \
-		--sjdbGTFfile ce11.ncbiRefSeq.chrI.gtf
+		--sjdbGTFfile ce11.ncbiRefSeq.chrI.gtf \
+		--genomeSAindexNbases 10
 
 chrM.trans.fa: chrM.fa ce11.ncbiRefSeq.chrM.gtf
 	python -m labw_utils.bioutils transcribe \

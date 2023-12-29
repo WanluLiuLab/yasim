@@ -9,7 +9,6 @@ channels:
   - r
 dependencies:
   - bioconductor-deseq2=1.38.0
-  - bioconductor-isoformswitchanalyzer=1.20.0
   - r-arrow=10.0.1
   - r-corrplot=0.92
   - r-ggridges=0.5.4

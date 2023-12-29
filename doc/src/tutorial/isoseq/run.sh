@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -ue
 if [ ! -f chrM.fa ]; then
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/chromosomes/chrM.fa.gz &>/dev/null
+    wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/chromosomes/chrM.fa.gz
     gunzip chrM.fa.gz
 fi
 if [ ! -f chrM.ncbiRefSeq.gtf ]; then
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>/dev/null
+    wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
     gzip -cfd ce11.ncbiRefSeq.gtf.gz | grep '^chrM\s' >chrM.ncbiRefSeq.gtf
 fi
 if [ ! -f chrm_trans.fa ]; then

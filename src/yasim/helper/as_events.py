@@ -110,6 +110,7 @@ class ASManipulator:
             The Gene View passed would be internally modified!
         """
         self._gv = gv
+        print(self._gv.replace_gene.__qualname__)
         self._n_new_isoforms = 0
         self._n_removed_isoforms = 0
 
