@@ -29,7 +29,7 @@ Here would list version information of each component used in this tutorial for 
 | GNU Grep | 3.11      |
 | GNU Wget | 1.20.3    |
 | pbsim3   | 3.0.1     |
-| yasim    | 3.1.6     |
+| yasim    | 3.2.0     |
 
 ## YASIM Data Flow Diagram
 
@@ -66,11 +66,11 @@ python -m yasim self_check
 And you're expected to see an output like:
 
 ```text
-2023-12-15 17:06:17,024 [INFO] labw_utils.commonutils.libfrontend       yasim -- Yet Another SIMulator for Alternative Splicing and Realistic Gene Expression Profile ver. 3.1.6
+2023-12-15 17:06:17,024 [INFO] labw_utils.commonutils.libfrontend       yasim -- Yet Another SIMulator for Alternative Splicing and Realistic Gene Expression Profile ver. 3.2.0
 2023-12-15 17:06:17,024 [INFO] labw_utils.commonutils.libfrontend       Called by: /home/yuzj/Documents/yasim/src/yasim/__main__.py self_check
 YASIM version info:
 labw_utils: 1.0.3
-yasim: 3.1.6
+yasim: 3.2.0
 pandas: 2.1.4
 numpy: 1.26.2
 scipy: 1.11.4

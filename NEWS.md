@@ -4,10 +4,13 @@ The initially released version is [`3.1.5`](https://pypi.org/project/yasim/3.1.5
 
 ## Version 3.X
 
-- 3.1.6:
+- `3.1.6`:
   - Updated publication information in Phase 1 data analysis.
   - Miscellaneous bug fixes.
   - scRNA-Seq-related functions removed.
+  - **This version was mistakenly removed from PYPI. We're sorry for any inconvenience occured.**
+- `3.2.0`:
+  - Several improvements in documentation and test cases.
 
 ## Unsorted
 

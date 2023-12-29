@@ -272,7 +272,7 @@ conda install -c conda-forge -c bioconda pbccs samtools
 You are also recommended to install `jinja2` and `pysam`, with which YASIM can utilize XML API of `ccs` as-is recommended by PacBio with a more accurate empty-file detection. Installation of those tools can be done by:
 
 ```shell
-pip install yasim[pbsim3]==3.1.6
+pip install yasim[pbsim3]==3.2.0
 ```
 
 See the following example for details:

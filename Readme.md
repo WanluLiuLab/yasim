@@ -4,9 +4,12 @@
 
 ---
 
+Badages: 
 [![PyPI - Version](https://img.shields.io/pypi/v/yasim)](https://pypi.org/project/yasim/)
 [![GitHub contributors](https://img.shields.io/github/contributors/WanluLiuLab/yasim)](https://github.com/WanluLiuLab/yasim)
 [![Documentation](./fig/docs.svg)](https://labw.org/yasim-docs/)
+
+URLs: [PYPI](https://pypi.org/project/yasim/), [GitHub](https://github.com/WanluLiuLab/yasim), [Documentation](https://labw.org/yasim-docs/).
 
 With the development of Third-Generation Sequencing (TGS) and related technologies, accurate quantification of transcripts in the isoform level with precise detection of novel isoforms from Alternative Splicing (AS) events or relocation of Transposable Elements (TEs) had become possible. YASIM is the tool that simulates Next- or Third-Generation bulk RNA-Sequencing raw FASTQ reads with ground truth genome annotation and realistic gene expression profile (GEP). It can be used to benchmark tools that are claimed to be able to detect isoforms (e.g., [StringTie](https://ccb.jhu.edu/software/stringtie/)) or quantify reads on an isoform level (e.g., [featureCounts](https://subread.sourceforge.net/featureCounts.html)).
 
@@ -23,7 +26,7 @@ YASIM is designed to be modularized, as some of the modules are general-purpose 
 You need a working [Python](https://www.python.org) interpreter (CPython implementation) >= 3.7 (**recommended 3.8**) and the latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
 
 ```shell
-pip install yasim==3.1.6
+pip install yasim==3.2.0
 ```
 
 You are recommended to use this application inside a virtual environment like [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io), or [`poetry`](https://python-poetry.org).
@@ -50,7 +53,7 @@ Build and install the simulator using:
 ```shell
 cd yasim
 python3 -m build
-pip install dist/yasim-3.1.6-py3-none-any.whl
+pip install dist/yasim-3.2.0-py3-none-any.whl
 ```
 
 ### Installation of Third-Party Programs
