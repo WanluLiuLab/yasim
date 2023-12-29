@@ -4,7 +4,9 @@
 
 ---
 
-[PYPI](https://pypi.org/project/yasim/) [GitHub](https://github.com/WanluLiuLab/yasim) [Documentations](https://labw.org/yasim-docs/)
+[![PyPI - Version](https://img.shields.io/pypi/v/yasim)](https://pypi.org/project/yasim/)
+[![GitHub contributors](https://img.shields.io/github/contributors/WanluLiuLab/yasim)](https://github.com/WanluLiuLab/yasim)
+[![Documentation](./fig/docs.svg)](https://labw.org/yasim-docs/)
 
 With the development of Third-Generation Sequencing (TGS) and related technologies, accurate quantification of transcripts in the isoform level with precise detection of novel isoforms from Alternative Splicing (AS) events or relocation of Transposable Elements (TEs) had become possible. YASIM is the tool that simulates Next- or Third-Generation bulk RNA-Sequencing raw FASTQ reads with ground truth genome annotation and realistic gene expression profile (GEP). It can be used to benchmark tools that are claimed to be able to detect isoforms (e.g., [StringTie](https://ccb.jhu.edu/software/stringtie/)) or quantify reads on an isoform level (e.g., [featureCounts](https://subread.sourceforge.net/featureCounts.html)).
 
