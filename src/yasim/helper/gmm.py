@@ -12,7 +12,7 @@ import secrets
 
 import numpy as np
 import numpy.typing as npt
-import tqdm
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from scipy.integrate import quad
 from scipy.stats import norm
 
