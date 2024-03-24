@@ -10,6 +10,7 @@ all: pbsim3_genome_mode \
 	art_mode \
 	art_pe_mode \
 	pbsim_ccs_mode \
+	pbsim_ccs_mode \
 	pbsim_clr_mode \
 	dtgs_mode
 
