@@ -3,6 +3,7 @@ self_check.py -- Check whether YASIM installation is complete.
 
 .. versionadded:: 3.1.6
 """
+
 import importlib
 import shutil
 

@@ -36,9 +36,11 @@ def main(args: List[str]):
         output_fastq_prefix=args.out,
         depth_file_path=args.depth,
         jobs=args.jobs,
-        simulator_name="_".join(("pbsim3", args.hmm_model, "ccs" if args.ccs_pass > 1 else "clr"))
-        if args.simulator_name is None
-        else args.simulator_name,
+        simulator_name=(
+            "_".join(("pbsim3", args.hmm_model, "ccs" if args.ccs_pass > 1 else "clr"))
+            if args.simulator_name is None
+            else args.simulator_name
+        ),
         adapter_args={
             "hmm_model": args.hmm_model,
             "ccs_num_threads": 1 if args.ccs_pass > 1 else None,

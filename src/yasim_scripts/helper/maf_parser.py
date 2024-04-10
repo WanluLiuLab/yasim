@@ -3,6 +3,7 @@ maf_parser.py -- Parser for LAST aligned/PBSIM MAF.
 
 .. versionadded:: 3.1.5
 """
+
 __all__ = ("MAF_RECORD_REGEX", "MafRecordType", "maf_parse")
 
 import re

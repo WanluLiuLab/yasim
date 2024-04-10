@@ -36,9 +36,11 @@ def main(args: List[str]):
         output_fastq_prefix=args.out,
         depth_file_path=args.depth,
         jobs=args.jobs,
-        simulator_name="_".join(("pbsim", "RS", "ccs" if args.ccs else "clr"))
-        if args.simulator_name is None
-        else args.simulator_name,
+        simulator_name=(
+            "_".join(("pbsim", "RS", "ccs" if args.ccs else "clr"))
+            if args.simulator_name is None
+            else args.simulator_name
+        ),
         adapter_args={
             "is_ccs": args.ccs,
             "other_args": other_args,

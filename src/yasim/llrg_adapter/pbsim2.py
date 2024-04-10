@@ -3,6 +3,7 @@ pbsim2.py -- Wrapper of PBSIM2.
 
 .. versionadded:: 3.1.5
 """
+
 __all__ = (
     "Pbsim2Adapter",
     "PBSIM2_DIST_DIR_PATH",

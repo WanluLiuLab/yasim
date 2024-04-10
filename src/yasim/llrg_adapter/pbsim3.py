@@ -5,6 +5,7 @@ pbsim3.py -- Wrapper of PBSIM3.
 
 .. todo:: Sphinx would get paths. Stop this.
 """
+
 __all__ = (
     "Pbsim3Adapter",
     "PBSIM3_DIST_DIR_PATH",

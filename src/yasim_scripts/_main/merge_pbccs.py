@@ -59,10 +59,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 def merge(_d1_path: str, _d2_path: str, _o_path: str, _fns: List[str]) -> None:
-    if (
-        easyexec(["pbmerge", "-o", _o_path, _d1_path, _d2_path], raise_on_error=False)
-        == 0
-    ):
+    if easyexec(["pbmerge", "-o", _o_path, _d1_path, _d2_path], raise_on_error=False) == 0:
         _fns.append(_o_path)
     else:
         _lh.error(f"MERGE %s and %s have errors; discarded", _d1_path, _d2_path)
@@ -90,11 +87,7 @@ def main(args: List[str]) -> int:
             while len(this_fns) >= 2:
                 d1_path, d2_path = this_fns.pop(), this_fns.pop()
                 o_path = os.path.join(tmpdir, str(uuid.uuid4()) + ".bam")
-                job_pool.append(
-                    multiprocessing.Process(
-                        target=merge, args=(d1_path, d2_path, o_path, fns_shared)
-                    )
-                )
+                job_pool.append(multiprocessing.Process(target=merge, args=(d1_path, d2_path, o_path, fns_shared)))
             if len(this_fns) == 1:
                 fns_shared.append(this_fns.pop())
             job_pool.start()

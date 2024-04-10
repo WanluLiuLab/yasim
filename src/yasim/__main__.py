@@ -4,7 +4,6 @@ TODO docs
 .. versionadded:: 3.1.6
 """
 
-
 from labw_utils.commonutils.libfrontend import setup_frontend
 
 from yasim import __version__ as yasim_ver, description

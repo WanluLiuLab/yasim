@@ -36,9 +36,9 @@ def main(args: List[str]):
         output_fastq_prefix=args.out,
         depth_file_path=args.depth,
         jobs=args.jobs,
-        simulator_name="_".join(("badread", args.model_name, "cDNA"))
-        if args.simulator_name is None
-        else args.simulator_name,
+        simulator_name=(
+            "_".join(("badread", args.model_name, "cDNA")) if args.simulator_name is None else args.simulator_name
+        ),
         adapter_args={"model_name": args.model_name, "other_args": other_args},
         assembler_args={
             "truncate_ratio_3p": args.truncate_ratio_3p,

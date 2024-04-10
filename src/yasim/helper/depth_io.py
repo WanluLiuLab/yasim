@@ -21,8 +21,7 @@ DGE type, is transcript_id -> coverage
 """
 
 
-class DepthParsingException(RuntimeError):
-    ...
+class DepthParsingException(RuntimeError): ...
 
 
 def write_depth(

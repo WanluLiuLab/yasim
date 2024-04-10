@@ -7,6 +7,7 @@ with new isoforms introduced by creating AS events and redundant isoforms remove
 
 .. versionadded:: 3.1.5
 """
+
 from __future__ import annotations
 
 __all__ = ("ASManipulator",)

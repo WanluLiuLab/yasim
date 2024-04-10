@@ -5,6 +5,7 @@ Here contains LLRG adapters that should have been used in DNA-Seq.
 
 .. versionadded:: 3.1.5
 """
+
 from __future__ import annotations
 
 __all__ = (

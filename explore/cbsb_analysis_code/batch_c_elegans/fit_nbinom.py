@@ -1,6 +1,7 @@
 """
 Fit negative binomial distribution by YUAN Ruihong
 """
+
 import argparse
 import sys
 from random import random, randint
