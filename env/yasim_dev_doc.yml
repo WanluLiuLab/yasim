@@ -21,23 +21,12 @@ dependencies:
   - scipy>=1.7
   - jinja2>=3.1.2
   - matplotlib>=3.8
-  # - pyarrow>=12.0.0 # Supported: 9.0.X
-  # - h5py # Maybe used in TE generation but not now. So relaxed.
+  - pyarrow>=12.0.0 # Supported: 9.0.X
+  - h5py # Maybe used in TE generation but not now. So relaxed.
 
   # Used in building docs
   - seaborn>=0.13.0
 
-  # Development Utilities
-  - bash
-  - make
-  - coreutils
-  - findutils
-  # - git
-  - grep
-  # - axel
-  - wget
-  - pigz
-  # - go-shfmt
 
   # Sphinx documentation
   - sphinx=7.2
@@ -46,23 +35,9 @@ dependencies:
   - sphinxcontrib-bibtex
   - sphinx-design=0.5.0
   - furo=2023.9.10
-  - notebook
-  - jupyter
+#  - notebook
+#  - jupyter
   - jupytext
-
-  # Aligners
-  - minimap2=2.24
-  # - STAR=2.7.10b
-  # - last=1449
-  # - bwa=0.7.17
-
-  # LLRGs
-  # - art=2016.06.05
-  - pbsim3=3.0.1
-  - pbccs=6.0.0
-
-  # Utils
-  - samtools=1.16.1
-
+  - anndata
   # Build utils
   - setuptools
