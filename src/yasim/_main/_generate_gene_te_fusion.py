@@ -12,7 +12,11 @@ import random
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
+from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
+    QuantificationOptimizedGeneTree,
+)
 from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
+from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
 )
@@ -35,6 +39,13 @@ def create_parser() -> argparse.ArgumentParser:
         "--tedb",
         type=str,
         help="Path to TE database index.",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "--tegtf",
+        type=str,
+        help="Path to TE GTF",
         required=False,
         default=None,
     )
@@ -76,6 +87,15 @@ def main(args: List[str]):
         mu=argv.mu,
         fav=FastaViewFactory(argv.fasta),
         gt=DiploidGeneTree.from_gtf_file(argv.gtf, gene_implementation=DumbGene),
+        transposon_gt=(
+            QuantificationOptimizedGeneTree.from_feature_iterator(
+                GtfIterator(argv.tegtf),
+                feature_attribute_name="gene_id",
+                feature_type="exon",
+            )
+            if argv.tegtf is not None
+            else None
+        ),
         tedb=TransposonDatabase.load(argv.tedb) if argv.tedb is not None else None,
         low_cutoff=argv.low_cutoff,
         high_cutoff_ratio=argv.high_cutoff_ratio,

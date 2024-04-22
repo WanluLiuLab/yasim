@@ -10,23 +10,38 @@ from labw_utils.bioutils.datastructure.fasta_view import (
     normalize_nt_sequence,
 )
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
+from labw_utils.bioutils.datastructure.gv.transcript import Transcript
+from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
+    QuantificationOptimizedGeneTree,
+)
 from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
-from labw_utils.typing_importer import Tuple, List, Union, Mapping, Any, Dict, Optional
+from labw_utils.typing_importer import List, Union, Mapping, Any, Dict, Optional
 from yasim.helper import depth_io, depth
 
-DEFAULT_WEIGHT_TRANSCRIPT = 80
-DEFAULT_WEIGHT_TE = 20
-DEFAULT_WEIGHT_STOP = 100
 DEFAULT_MINIMAL_SEQ_LEN = 250
 DEFAULT_MINIMAL_TRANSPOSON_LEN = 20
 DEFAULT_MINIMAL_TRANSCRIPT_LEN = 120
-DEFAULT_MAX_N_GENE = 3
-DEFAULT_MAX_N_TRANSPOSON = 3
-DEFAULT_MAX_N_FEATURE = 4
+
+
+class FusionTypes(enum.Enum):
+    FivePrimeFusion = 0
+    ThreePrimeFusion = 1
+    GeneGeneFusion = 2
+    GeneOnly = 3
+    TransposonOnly = 4
+
+
+DEFAULT_WEIGHTS = {
+    FusionTypes.FivePrimeFusion: 100,
+    FusionTypes.ThreePrimeFusion: 100,
+    FusionTypes.GeneGeneFusion: 0,
+    FusionTypes.GeneOnly: 0,
+    FusionTypes.TransposonOnly: 0,
+}
 
 
 class SimpleSerializable:
@@ -107,28 +122,29 @@ class SimpleTE(SimpleSerializable):
 
 class SimpleTranscript(SimpleSerializable):
     l: List[Union[SimpleExon, SimpleTE]]
-    depth: float
+    d: float
     _seq: Optional[str]
 
-    def __init__(self, l: List[Union[SimpleExon, SimpleTE]], depth: float) -> None:
+    def __init__(self, l: List[Union[SimpleExon, SimpleTE]], d: float) -> None:
         self.l = l
-        self.depth = depth
+        self.d = d
         self._seq = None
 
     def to_dict(self):
         return {
             "type": "SimpleTranscript",
             "l": {str(k): v.to_dict() for k, v in enumerate(self.l)},
-            "d": self.depth,
+            "d": self.d,
         }
 
     @classmethod
     def from_dict(cls, d: Mapping[str, Any]):
         return cls(
             l=[
-                SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v) for v in d["l"].values()
+                (SimpleExon.from_dict(v) if v["type"] == "SimpleExon" else SimpleTE.from_dict(v))
+                for v in d["l"].values()
             ],
-            depth=d["d"],
+            d=d["d"],
         )
 
     @property
@@ -136,32 +152,6 @@ class SimpleTranscript(SimpleSerializable):
         if self._seq is None:
             self._seq = "".join(it.seq for it in self.l)
         return self._seq
-
-
-class TranslationInstructionState(enum.Enum):
-    TRANSCRIPT = 0
-    TRANSPOSON = 1
-    STOP = 2
-
-
-class TranslationInstructionStateAutomata:
-    _weights: Tuple[float, float, float]
-    _rdg: random.SystemRandom
-
-    def __init__(self, weights: Tuple[float, float, float]):
-        self._rdg = random.SystemRandom()
-        self._weights = weights
-
-    def draw(self) -> TranslationInstructionState:
-        return self._rdg.choices(
-            (
-                TranslationInstructionState.TRANSCRIPT,
-                TranslationInstructionState.TRANSPOSON,
-                TranslationInstructionState.STOP,
-            ),
-            weights=self._weights,
-            k=1,
-        )[0]
 
 
 class TranslationInstruction(SimpleSerializable):
@@ -183,7 +173,7 @@ class TranslationInstruction(SimpleSerializable):
             json.dump(self.to_dict(), w, indent=4)
 
     def to_depth(self, dst_depth_path: str):
-        depth_data = {k: v.depth for k, v in self.transcripts.items()}
+        depth_data = {k: v.d for k, v in self.transcripts.items()}
         depth_io.write_depth(depth_data, dst_depth_path, feature_name="TRANSCRIPT_ID")
 
     @classmethod
@@ -205,80 +195,154 @@ class TranslationInstruction(SimpleSerializable):
         *,
         n: int,
         tedb: Optional[TransposonDatabase],
+        transposon_gt: QuantificationOptimizedGeneTree,
         gt: GeneTreeInterface,
         fav: FastaViewType,
         mu: float = depth.DEFAULT_MU,
         disable_gmm: bool = False,
-        weight_transcript: float = DEFAULT_WEIGHT_TRANSCRIPT,
-        weight_transposon: float = DEFAULT_WEIGHT_TE,
-        weight_stop: float = DEFAULT_WEIGHT_STOP,
         minimal_seq_len: int = DEFAULT_MINIMAL_SEQ_LEN,
         minimal_transposon_len: int = DEFAULT_MINIMAL_TRANSPOSON_LEN,
         minimal_transcript_len: int = DEFAULT_MINIMAL_TRANSCRIPT_LEN,
         high_cutoff_ratio: float = depth.DEFAULT_HIGH_CUTOFF_RATIO,
         low_cutoff: float = depth.DEFAULT_LOW_CUTOFF,
-        max_n_gene: int = DEFAULT_MAX_N_GENE,
-        max_n_transposon: int = DEFAULT_MAX_N_TRANSPOSON,
-        max_n_feature: int = DEFAULT_MAX_N_FEATURE,
     ):
         rdg = random.SystemRandom()
 
         def autoclip(_seq: str, _min_len: int) -> str:
             while True:
-                start = rdg.randint(0, len(seq) - 1)
-                end = rdg.randint(start, len(seq))
+                start = rdg.randint(0, len(_seq) - 1)
+                end = rdg.randint(start, len(_seq))
                 if end - start + 1 > _min_len:
                     return _seq[start:end]
 
-        collapsed_transcripts = [gene.collapse_transcript(True) for gene in tqdm(gt.gene_values, "Collapsing...")]
-        tisa = TranslationInstructionStateAutomata((weight_transcript, weight_transposon, weight_stop))
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
-        while len(final_simple_transcripts) < n:
-            new_transcript = SimpleTranscript(l=[], depth=0)
-            n_gene = 0
-            n_transposon = 0
-            while n_gene < max_n_gene and n_transposon < max_n_transposon and (n_gene + n_transposon) < max_n_feature:
-                state = tisa.draw()
-                if state == TranslationInstructionState.STOP:
-                    break
-                elif state == TranslationInstructionState.TRANSCRIPT:
-                    transcript_to_use = rdg.choice(collapsed_transcripts)
-                    seq = transcript_to_use.transcribe(fav.sequence, fav.legalize_region_best_effort)
-                    if len(seq) < 2 * minimal_transcript_len:
-                        continue
-                    seq = autoclip(seq, minimal_transcript_len)
-                    seq = normalize_nt_sequence(
-                        seq,
-                        force_upper_case=True,
-                        convert_u_into_t=True,
-                        convert_non_agct_to_n=True,
-                        n_operation="random_assign",
-                    )
-                    new_transcript.l.append(SimpleExon(src_gene_id=transcript_to_use.gene_id, seq=seq))
-                    n_gene += 1
-                elif state == TranslationInstructionState.TRANSPOSON and tedb is not None:
-                    src_te_name, seq = tedb.draw()
-                    if len(seq) < 2 * minimal_transposon_len:
-                        continue
-                    seq = autoclip(seq, minimal_transposon_len)
-                    seq = normalize_nt_sequence(
-                        seq,
-                        force_upper_case=True,
-                        convert_u_into_t=True,
-                        convert_non_agct_to_n=True,
-                        n_operation="random_assign",
-                    )
-                    new_transcript.l.append(SimpleTE(src_te_name=src_te_name, seq=seq))
-                    n_transposon += 1
+        choices = list(DEFAULT_WEIGHTS.keys())
+        weights = list(DEFAULT_WEIGHTS.values())
 
+        def add_transcript(_transcript_to_use: Transcript) -> Optional[SimpleExon]:
+            seq_to_add = _transcript_to_use.transcribe(
+                fav.sequence,
+                fav.legalize_region_best_effort,
+            )
+            if len(seq_to_add) < minimal_transcript_len:
+                return None
+            else:
+                return SimpleExon(
+                    src_gene_id=_transcript_to_use.gene_id,
+                    seq=normalize_nt_sequence(
+                        autoclip(seq_to_add, minimal_transcript_len),
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    ),
+                )
+
+        def add_transposon(_transposon_to_use: str) -> Optional[SimpleTE]:
+            try:
+                seq_to_add = tedb.seq(_transposon_to_use)
+            except KeyError:
+                return None
+
+            if len(seq_to_add) < minimal_transposon_len:
+                return None
+            else:
+                return SimpleTE(
+                    src_te_name=_transposon_to_use,
+                    seq=normalize_nt_sequence(
+                        autoclip(seq_to_add, minimal_transposon_len),
+                        force_upper_case=True,
+                        convert_u_into_t=True,
+                        convert_non_agct_to_n=True,
+                        n_operation="random_assign",
+                    ),
+                )
+
+        def add_fusion(direction: bool) -> bool:
+            """
+            :param direction: True = 5 prime (TE before mRNA), False = 3 prime (TE after mRNA)
+            :return:
+            """
+            transcript = rdg.choice(gt.transcript_values)
+            transposon_search_direction = direction
+            if transcript.strand is False:
+                transposon_search_direction = not transposon_search_direction
+            if transposon_search_direction:
+                possible_transposons = transposon_gt.overlap(
+                    (
+                        (transcript.seqname, transcript.strand),
+                        max(transcript.start - 100000, 0),
+                        transcript.start,
+                    )
+                )
+            else:
+                possible_transposons = transposon_gt.overlap(
+                    (
+                        (transcript.seqname, transcript.strand),
+                        transcript.end,
+                        min(
+                            transcript.end + 100000,
+                            fav.get_chr_length(transcript.seqname),
+                        ),
+                    )
+                )
+            if not possible_transposons:
+                return False
+            possible_transposon = rdg.choice(possible_transposons)
+            _add_transposon_result = add_transposon(possible_transposon)
+            _add_transcript_result = add_transcript(transcript)
+
+            if _add_transposon_result is None or _add_transcript_result is None:
+                return False
+            # print(transcript, possible_transposon, direction)
+            if direction:
+                new_transcript.l.append(_add_transposon_result)
+                new_transcript.l.append(_add_transcript_result)
+            else:
+                new_transcript.l.append(_add_transcript_result)
+                new_transcript.l.append(_add_transposon_result)
+            return True
+
+        while len(final_simple_transcripts) < n:
+            new_transcript = SimpleTranscript(l=[], d=0)
+            state = rdg.choices(choices, weights, k=1)[0]
+            if state == FusionTypes.FivePrimeFusion and tedb is not None:
+                if not add_fusion(True):
+                    continue
+            elif state == FusionTypes.ThreePrimeFusion and tedb is not None:
+                if not add_fusion(False):
+                    continue
+            elif state == FusionTypes.GeneGeneFusion:
+                add_transcript_result1 = add_transcript(rdg.choice(gt.transcript_values))
+                add_transcript_result2 = add_transcript(rdg.choice(gt.transcript_values))
+                if add_transcript_result1 is not None and add_transcript_result2 is not None:
+                    new_transcript.l.append(add_transcript_result1)
+                    new_transcript.l.append(add_transcript_result2)
+                else:
+                    continue
+            elif state == FusionTypes.GeneOnly:
+                add_transcript_result = add_transcript(rdg.choice(gt.transcript_values))
+                if add_transcript_result is not None:
+                    new_transcript.l.append(add_transcript_result)
+                else:
+                    continue
+            elif state == FusionTypes.TransposonOnly and tedb is not None:
+                transposon_to_use, _ = tedb.draw()
+                add_transposon_result = add_transposon(transposon_to_use)
+                if add_transposon_result is not None:
+                    new_transcript.l.append(add_transposon_result)
+                else:
+                    continue
+            else:
+                continue
             if len(new_transcript.seq) < minimal_seq_len:
                 continue
             final_simple_transcripts[f"gtt-{len(final_simple_transcripts)}"] = new_transcript
             pbar.update(1)
         if disable_gmm:
             for v in final_simple_transcripts.values():
-                v.depth = mu
+                v.d = mu
         else:
             for k, v in depth.simulate_gene_level_depth_gmm(
                 gene_names=final_simple_transcripts.keys(),
@@ -286,5 +350,5 @@ class TranslationInstruction(SimpleSerializable):
                 low_cutoff=low_cutoff,
                 high_cutoff_ratio=high_cutoff_ratio,
             ).items():
-                final_simple_transcripts[k].depth = v
+                final_simple_transcripts[k].d = v
         return cls(final_simple_transcripts)
