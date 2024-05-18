@@ -68,6 +68,7 @@ class SimpleSerializable:
 class SimpleExon(SimpleSerializable):
     src_gene_id: str
     seq: str
+    contig: str
 
     @classmethod
     def from_dict(cls, d: Mapping[str, Any]):
@@ -209,13 +210,6 @@ class TranslationInstruction(SimpleSerializable):
     ):
         rdg = random.SystemRandom()
 
-        # def autoclip(_seq: str, _min_len: int) -> str:
-        #     while True:
-        #         start = rdg.randint(0, len(_seq) - 1)
-        #         end = rdg.randint(start, len(_seq))
-        #         if end - start + 1 > _min_len:
-        #             return _seq[start:end]
-
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
         choices = list(DEFAULT_WEIGHTS.keys())
@@ -240,14 +234,14 @@ class TranslationInstruction(SimpleSerializable):
                     ),
                 )
 
-        def add_transposon(_transposon_to_use: str) -> Optional[SimpleTE]:
+        def add_transposon(_transposon_to_use: Transcript) -> Optional[SimpleTE]:
+            repeat_match_start = int(_transposon_to_use.attribute_get("repeat_match_start"))
+            repeat_match_end = int(_transposon_to_use.attribute_get("repeat_match_end"))
             try:
-                transposon = transposon_gt.get(_transposon_to_use)
-                repeat_match_start = int(transposon.attribute_get("repeat_match_start"))
-                repeat_match_end = int(transposon.attribute_get("repeat_match_end"))
-                seq_to_add = tedb.seq(_transposon_to_use)[repeat_match_start:repeat_match_end]
+                seq_to_add = tedb.seq(_transposon_to_use.gene_id)[repeat_match_start:repeat_match_end]
             except KeyError:
                 return None
+            
 
             if len(seq_to_add) < minimal_transposon_len:
                 return None
@@ -293,8 +287,7 @@ class TranslationInstruction(SimpleSerializable):
                 )
             if not possible_transposons:
                 return False
-            possible_transposon = rdg.choice(possible_transposons)
-            _add_transposon_result = add_transposon(possible_transposon)
+            _add_transposon_result = add_transposon(transposon_gt.get_transcript(rdg.choice(possible_transposons)))
             _add_transcript_result = add_transcript(transcript)
 
             if _add_transposon_result is None or _add_transcript_result is None:
@@ -332,8 +325,7 @@ class TranslationInstruction(SimpleSerializable):
                 else:
                     continue
             elif state == FusionTypes.TransposonOnly and tedb is not None:
-                transposon_to_use, _ = tedb.draw()
-                add_transposon_result = add_transposon(transposon_to_use)
+                add_transposon_result = add_transposon(transposon_gt.get_transcript((tedb.draw()[0])))
                 if add_transposon_result is not None:
                     new_transcript.l.append(add_transposon_result)
                 else:
