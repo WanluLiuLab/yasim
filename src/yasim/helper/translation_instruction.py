@@ -11,8 +11,8 @@ from labw_utils.bioutils.datastructure.fasta_view import (
 )
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
-from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
-    QuantificationOptimizedGeneTree,
+from labw_utils.bioutils.datastructure.quantification_optimized_feature_index import (
+    QuantificationOptimizedFeatureIndex,
 )
 from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
 from labw_utils.bioutils.parser.fasta import FastaWriter
@@ -195,7 +195,8 @@ class TranslationInstruction(SimpleSerializable):
         *,
         n: int,
         tedb: Optional[TransposonDatabase],
-        transposon_gt: QuantificationOptimizedGeneTree,
+        transposon_fi: QuantificationOptimizedFeatureIndex,
+        transposon_gt: GeneTreeInterface,
         gt: GeneTreeInterface,
         fav: FastaViewType,
         mu: float = depth.DEFAULT_MU,
@@ -208,12 +209,12 @@ class TranslationInstruction(SimpleSerializable):
     ):
         rdg = random.SystemRandom()
 
-        def autoclip(_seq: str, _min_len: int) -> str:
-            while True:
-                start = rdg.randint(0, len(_seq) - 1)
-                end = rdg.randint(start, len(_seq))
-                if end - start + 1 > _min_len:
-                    return _seq[start:end]
+        # def autoclip(_seq: str, _min_len: int) -> str:
+        #     while True:
+        #         start = rdg.randint(0, len(_seq) - 1)
+        #         end = rdg.randint(start, len(_seq))
+        #         if end - start + 1 > _min_len:
+        #             return _seq[start:end]
 
         final_simple_transcripts: Dict[str, SimpleTranscript] = {}
         pbar = tqdm(desc="Generating sequences...", total=n)
@@ -231,7 +232,7 @@ class TranslationInstruction(SimpleSerializable):
                 return SimpleExon(
                     src_gene_id=_transcript_to_use.gene_id,
                     seq=normalize_nt_sequence(
-                        autoclip(seq_to_add, minimal_transcript_len),
+                        seq_to_add,
                         force_upper_case=True,
                         convert_u_into_t=True,
                         convert_non_agct_to_n=True,
@@ -241,7 +242,10 @@ class TranslationInstruction(SimpleSerializable):
 
         def add_transposon(_transposon_to_use: str) -> Optional[SimpleTE]:
             try:
-                seq_to_add = tedb.seq(_transposon_to_use)
+                transposon = transposon_gt.get(_transposon_to_use)
+                repeat_match_start = int(transposon.attribute_get("repeat_match_start"))
+                repeat_match_end = int(transposon.attribute_get("repeat_match_end"))
+                seq_to_add = tedb.seq(_transposon_to_use)[repeat_match_start:repeat_match_end]
             except KeyError:
                 return None
 
@@ -251,7 +255,7 @@ class TranslationInstruction(SimpleSerializable):
                 return SimpleTE(
                     src_te_name=_transposon_to_use,
                     seq=normalize_nt_sequence(
-                        autoclip(seq_to_add, minimal_transposon_len),
+                        seq_to_add,
                         force_upper_case=True,
                         convert_u_into_t=True,
                         convert_non_agct_to_n=True,
@@ -269,7 +273,7 @@ class TranslationInstruction(SimpleSerializable):
             if transcript.strand is False:
                 transposon_search_direction = not transposon_search_direction
             if transposon_search_direction:
-                possible_transposons = transposon_gt.overlap(
+                possible_transposons = transposon_fi.overlap(
                     (
                         (transcript.seqname, transcript.strand),
                         max(transcript.start - 100000, 0),
@@ -277,7 +281,7 @@ class TranslationInstruction(SimpleSerializable):
                     )
                 )
             else:
-                possible_transposons = transposon_gt.overlap(
+                possible_transposons = transposon_fi.overlap(
                     (
                         (transcript.seqname, transcript.strand),
                         transcript.end,

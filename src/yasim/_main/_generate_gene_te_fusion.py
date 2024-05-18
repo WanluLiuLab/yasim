@@ -12,8 +12,8 @@ import random
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
-from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
-    QuantificationOptimizedGeneTree,
+from labw_utils.bioutils.datastructure.quantification_optimized_feature_index import (
+    QuantificationOptimizedFeatureIndex,
 )
 from labw_utils.bioutils.datastructure.transposon import TransposonDatabase
 from labw_utils.bioutils.parser.gtf import GtfIterator
@@ -87,8 +87,8 @@ def main(args: List[str]):
         mu=argv.mu,
         fav=FastaViewFactory(argv.fasta),
         gt=DiploidGeneTree.from_gtf_file(argv.gtf, gene_implementation=DumbGene),
-        transposon_gt=(
-            QuantificationOptimizedGeneTree.from_feature_iterator(
+        transposon_fi=(
+            QuantificationOptimizedFeatureIndex.from_feature_iterator(
                 GtfIterator(argv.tegtf),
                 feature_attribute_name="gene_id",
                 feature_type="exon",
