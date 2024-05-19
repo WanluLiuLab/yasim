@@ -83,9 +83,9 @@ def create_parser() -> argparse.ArgumentParser:
 def main(args: List[str]):
     argv = create_parser().parse_args(args)
 
-    transposon_gt = (DiploidGeneTree.from_gtf_file(argv.tegtf, gene_implementation=DumbGene)
-                if argv.tegtf is not None
-            else None)
+    transposon_gt = (
+        DiploidGeneTree.from_gtf_file(argv.tegtf, gene_implementation=DumbGene) if argv.tegtf is not None else None
+    )
     ti = TranslationInstruction.generate(
         n=argv.nseqs,
         mu=argv.mu,
@@ -93,9 +93,7 @@ def main(args: List[str]):
         gt=DiploidGeneTree.from_gtf_file(argv.gtf, gene_implementation=DumbGene),
         transposon_gt=transposon_gt,
         transposon_fi=(
-            QuantificationOptimizedFeatureIndex.from_feature_iterator(
-                transposon_gt.to_feature_iterator()
-            )
+            QuantificationOptimizedFeatureIndex.from_feature_iterator(transposon_gt.to_feature_iterator())
             if argv.tegtf is not None
             else None
         ),
