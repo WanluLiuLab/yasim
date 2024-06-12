@@ -11,6 +11,9 @@ The initially released version is [`3.1.5`](https://pypi.org/project/yasim/3.1.5
   - **This version was mistakenly removed from PYPI. We're sorry for any inconvenience occured.**
 - `3.2.0`:
   - Several improvements in documentation and test cases.
+- `3.2.1`:
+  - API change: `generate_isoform_depth` function were separated.
+  - Miscellaneous bug fixes.
 
 ## Unsorted
 

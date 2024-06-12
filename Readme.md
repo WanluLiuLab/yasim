@@ -31,7 +31,7 @@ YASIM is designed to be modularized, as some of the modules are general-purpose 
 You need a working [Python](https://www.python.org) interpreter (CPython implementation) >= 3.7 (**recommended 3.8**) and the latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
 
 ```shell
-pip install yasim==3.2.0
+pip install yasim==3.2.1
 ```
 
 You are recommended to use this application inside a virtual environment like [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io), or [`poetry`](https://python-poetry.org).
@@ -58,7 +58,7 @@ Build and install the simulator using:
 ```shell
 cd yasim
 python3 -m build
-pip install dist/yasim-3.2.0-py3-none-any.whl
+pip install dist/yasim-3.2.1-py3-none-any.whl
 ```
 
 ### Installation of Third-Party Programs
