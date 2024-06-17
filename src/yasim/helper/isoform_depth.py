@@ -25,7 +25,7 @@ def generate_isoform_depth(
 ) -> depth.DepthType:
 
     transcript_level_depth = {}
-    for gene_id, transcript_ids in gene_id_to_transcript_ids_map.values():
+    for gene_id, transcript_ids in gene_id_to_transcript_ids_map.items():
         if gene_id not in gene_level_depth:
             _lh.warning(
                 "GEN ISOFORM DEPTH: Gene %s defined in GTF but not gene-level depth",

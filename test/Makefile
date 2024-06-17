@@ -2,11 +2,11 @@
 all: deps llrg
 
 .PHONY: llrg
-llrg: chrM.STAR.ref.d chrM.trans.fa chrI.trans.fa chrI.STAR.ref.d
+llrg: chrM.STAR.ref.d chrM.trans.fa
 	$(MAKE) -C llrg
 
 .PHONY: deps
-deps: ce11.ncbiRefSeq.chrM.gtf chrM.fa ce11.ncbiRefSeq.chrM.as.gtf ce11.ncbiRefSeq.chrI.as.gtf
+deps: ce11.ncbiRefSeq.chrM.gtf chrM.fa ce11.ncbiRefSeq.chrM.as.gtf
 
 .SUFFIXES:
 .SECONDARY: chromFa.tar.gz \
@@ -18,9 +18,8 @@ chromFa.tar.gz:
 
 chrM.fa: chromFa.tar.gz
 	tar xzvf chromFa.tar.gz
-	touch chrI.fa chrII.fa chrIII.fa chrIV.fa chrM.fa
-	gatk CreateSequenceDictionary -R chrI.fa
-	gatk CreateSequenceDictionary -R chrM.fa
+	touch chrM.fa
+	rm -f chrI.fa chrII.fa chrIII.fa chrIV.fa
 
 ce11.ncbiRefSeq.gtf.gz:
 	axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz
@@ -33,9 +32,6 @@ ce11.ncbiRefSeq.gtf: ce11.ncbiRefSeq.gtf.gz
 ce11.ncbiRefSeq.chrM.gtf: ce11.ncbiRefSeq.gtf
 	grep '^chrM\s' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chrM.gtf
 
-ce11.ncbiRefSeq.chrI.gtf: ce11.ncbiRefSeq.gtf
-	grep '^chrI\s' ce11.ncbiRefSeq.gtf > ce11.ncbiRefSeq.chrI.gtf
-
 ce11.ncbiRefSeq.chrM.as.gtf:ce11.ncbiRefSeq.chrM.gtf chrM.fa
 	python -m yasim generate_as_events \
 		-g ce11.ncbiRefSeq.chrM.gtf \
@@ -43,18 +39,10 @@ ce11.ncbiRefSeq.chrM.as.gtf:ce11.ncbiRefSeq.chrM.gtf chrM.fa
 		-c 5 \
 		-o ce11.ncbiRefSeq.chrM.as.gtf
 
-ce11.ncbiRefSeq.chrI.as.gtf:ce11.ncbiRefSeq.chrI.gtf chrI.fa
-	python -m yasim generate_as_events \
-		-g ce11.ncbiRefSeq.chrI.gtf \
-		-f chrI.fa \
-		-c 5 \
-		-o ce11.ncbiRefSeq.chrI.as.gtf
-
 .PHONY: clean
 clean:
 	$(MAKE) -C llrg clean
 	rm -f *.gvpkl.xz
-
 
 chrM.STAR.ref.d: chrM.fa ce11.ncbiRefSeq.chrM.gtf
 	STAR \
@@ -65,23 +53,8 @@ chrM.STAR.ref.d: chrM.fa ce11.ncbiRefSeq.chrM.gtf
 		--sjdbGTFfile ce11.ncbiRefSeq.chrM.gtf \
 		--genomeSAindexNbases 10
 
-chrI.STAR.ref.d: chrI.fa ce11.ncbiRefSeq.chrI.gtf
-	STAR \
-		--runThreadN 40 \
-		--runMode genomeGenerate \
-		--genomeDir chrI.STAR.ref.d \
-		--genomeFastaFiles chrI.fa \
-		--sjdbGTFfile ce11.ncbiRefSeq.chrI.gtf \
-		--genomeSAindexNbases 10
-
 chrM.trans.fa: chrM.fa ce11.ncbiRefSeq.chrM.gtf
 	python -m labw_utils.bioutils transcribe \
 		-g ce11.ncbiRefSeq.chrM.gtf \
 		-f chrM.fa \
 		-o chrM.trans.fa
-
-chrI.trans.fa: chrI.fa ce11.ncbiRefSeq.chrI.gtf
-	python -m labw_utils.bioutils transcribe \
-		-g ce11.ncbiRefSeq.chrI.gtf \
-		-f chrI.fa \
-		-o chrI.trans.fa
