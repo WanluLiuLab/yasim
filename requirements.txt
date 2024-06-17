@@ -1,8 +1,8 @@
 scipy~=1.7
 numpy>=1.24
 tqdm>=4.64
-
+tomli-w>=1.0
 pandas[performance]>=1.4
 joblib>=1.2
 
-labw-utils[defaults]==1.0.4
+labw-utils==1.0.4

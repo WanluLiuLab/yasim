@@ -1,4 +1,4 @@
-name: yasim_dev
+name: yasim_isoseq
 channels:
   - nodefaults
   - conda-forge
